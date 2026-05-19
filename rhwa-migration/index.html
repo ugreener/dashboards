@@ -40,7 +40,8 @@
         .task .icon { width: 14px; text-align: center; flex-shrink: 0; font-size: 11px; }
         .task .key { font-weight: 600; min-width: 32px; font-size: 11px; }
         .arrows-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        .arrows-svg path { stroke: var(--gray); stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+        .arrows-svg path { stroke: var(--gray); stroke-width: 2; fill: none; }
+        .arrows-svg circle { fill: var(--gray); }
         .scroll-hint { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
         .legend { display: flex; gap: 14px; margin-bottom: 10px; font-size: 11px; }
         .legend-item { display: flex; align-items: center; gap: 4px; }
@@ -159,7 +160,6 @@
                 </div>
             </div>
             <svg class="arrows-svg" id="arrowsSvg">
-                <defs><marker id="arrowhead" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto"><polygon points="0 0, 12 5, 0 10" fill="#484f58"/></marker></defs>
             </svg>
         </div>
     </div>
@@ -176,7 +176,7 @@
             const diagram = document.getElementById('diagram');
             svg.setAttribute('width', diagram.scrollWidth);
             svg.setAttribute('height', diagram.scrollHeight);
-            svg.querySelectorAll('path').forEach(p => p.remove());
+            svg.querySelectorAll('path,circle').forEach(p => p.remove());
             const edges = [
                 ['epic','s969'],['epic','s972'],
                 ['s969','s837'],['s972','s961'],
@@ -200,6 +200,12 @@
                 const path = document.createElementNS('http://www.w3.org/2000/svg','path');
                 path.setAttribute('d', d);
                 svg.appendChild(path);
+                const c1 = document.createElementNS('http://www.w3.org/2000/svg','circle');
+                c1.setAttribute('cx',x1); c1.setAttribute('cy',y1); c1.setAttribute('r',3);
+                svg.appendChild(c1);
+                const c2 = document.createElementNS('http://www.w3.org/2000/svg','circle');
+                c2.setAttribute('cx',x2); c2.setAttribute('cy',y2); c2.setAttribute('r',4);
+                svg.appendChild(c2);
             });
         }
         window.addEventListener('load', () => setTimeout(drawArrows, 100));
