@@ -19,12 +19,7 @@
         .scard { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; }
         .scard .num { font-size: 32px; font-weight: 700; } .scard .lbl { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
         .section { margin-bottom: 24px; } .section h2 { font-size: 16px; color: #fff; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-        .mcont {
-            background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
-            padding: 20px; margin-bottom: 24px;
-            overflow-x: auto; overflow-y: hidden;
-            max-width: 100%;
-        }
+        .mcont { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; overflow-x: auto; overflow-y: hidden; max-width: 100%; }
         .mcont .mermaid { min-width: 2400px; }
         .scroll-hint { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
         .sc { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--gray); }
@@ -70,7 +65,7 @@
             <div class="legend-item"><div class="ldot b"></div> In Progress</div>
             <div class="legend-item"><div class="ldot gr"></div> To Do</div>
         </div>
-        <div class="scroll-hint">&#x2194; Scroll horizontally to see all phases</div>
+        <div class="scroll-hint">&#x2194; Scroll horizontally to see all phases &#xb7; Click any node to open in Jira</div>
         <div class="mcont">
             <pre class="mermaid">
 flowchart LR
@@ -78,22 +73,31 @@ flowchart LR
     classDef ip fill:#0c2d6b,stroke:#58a6ff,stroke-width:2px,color:#b6d7ff
     classDef todo fill:#21262d,stroke:#484f58,stroke-width:1px,color:#8b949e
     classDef epic fill:#1a1a2e,stroke:#58a6ff,stroke-width:3px,color:#fff
+    classDef storyDone fill:#174a2a,stroke:#3fb950,stroke-width:3px,color:#fff
+    classDef storyIp fill:#0e3580,stroke:#58a6ff,stroke-width:3px,color:#fff
+    classDef storyTodo fill:#1e2228,stroke:#6e7681,stroke-width:3px,color:#fff
 
     EPIC["RHWA-836\nMigrate Jenkins to Prow\nEpic - 37% complete"]:::epic
 
-    subgraph S969 ["RHWA-969: Bootstrap system-tests (CLOSED - 6/6)"]
-        direction TB
+    subgraph G969 [" "]
+        N969["RHWA-969: Bootstrap system-tests\nCLOSED - 6/6"]:::storyDone
         T958(["RHWA-958\nFork eco-gotests"]):::done
         T978(["RHWA-978\nPrune and rename module"]):::done
         T970(["RHWA-970\nBranch protection"]):::done
         T973(["RHWA-973\nScaffold internal/"]):::done
         T974(["RHWA-974\nReplace OWNERS file"]):::done
         T981(["RHWA-981\nQuay.io registry and secrets"]):::done
+        N969 --- T958
+        N969 --- T978
+        N969 --- T970
+        N969 --- T973
+        N969 --- T974
+        N969 --- T981
     end
-    style S969 fill:#0f2e1c,stroke:#3fb950,stroke-width:2px,color:#c6efce
+    style G969 fill:#0f2e1c,stroke:#3fb950,stroke-width:2px,color:#c6efce
 
-    subgraph S972 ["RHWA-972: Prow CI Infrastructure (IN PROGRESS - 5/10)"]
-        direction TB
+    subgraph G972 [" "]
+        N972["RHWA-972: Prow CI Infrastructure\nIN PROGRESS - 5/10"]:::storyIp
         T979(["RHWA-979\nProw onboarding PR"]):::done
         T983(["RHWA-983\nAdd QE to openshift org"]):::done
         T875(["RHWA-875\nInvestigate catalogsource step"]):::done
@@ -104,11 +108,21 @@ flowchart LR
         T844(["RHWA-844\nPolarion test result reporting"]):::todo
         T960(["RHWA-960\nextra_refs for all 6 operators"]):::todo
         T980(["RHWA-980\nCross-operator interop test suite"]):::todo
+        N972 --- T979
+        N972 --- T983
+        N972 --- T875
+        N972 --- T991
+        N972 --- T990
+        N972 --- T839
+        N972 --- T840
+        N972 --- T844
+        N972 --- T960
+        N972 --- T980
     end
-    style S972 fill:#0a2050,stroke:#58a6ff,stroke-width:2px,color:#b6d7ff
+    style G972 fill:#0a2050,stroke:#58a6ff,stroke-width:2px,color:#b6d7ff
 
-    subgraph S837 ["RHWA-837: SBR Migration (NEW - 2/7)"]
-        direction TB
+    subgraph G837 [" "]
+        N837["RHWA-837: SBR Migration\nNEW - 2/7"]:::storyTodo
         T838(["RHWA-838\nClose PR openshift/release#77023"]):::done
         T843(["RHWA-843\nVerify push/merge policy"]):::done
         T977(["RHWA-977\nAnalyze SBR QE vs dev tests"]):::todo
@@ -116,11 +130,18 @@ flowchart LR
         T874(["RHWA-874\nPort node operation helpers"]):::todo
         T842(["RHWA-842\nAdd OLM upgrade test for SBR"]):::todo
         T959(["RHWA-959\nAdd extra_refs for SBR operator"]):::todo
+        N837 --- T838
+        N837 --- T843
+        N837 --- T977
+        N837 --- T855
+        N837 --- T874
+        N837 --- T842
+        N837 --- T959
     end
-    style S837 fill:#1a1d23,stroke:#484f58,stroke-width:2px,color:#c9d1d9
+    style G837 fill:#1a1d23,stroke:#484f58,stroke-width:2px,color:#c9d1d9
 
-    subgraph S961 ["RHWA-961: FAR Migration (NEW - 0/8)"]
-        direction TB
+    subgraph G961 [" "]
+        N961["RHWA-961: FAR Migration\nNEW - 0/8"]:::storyTodo
         T968(["RHWA-968\nAnalyze FAR QE vs dev tests"]):::todo
         T962(["RHWA-962\nPort FAR smoke tests (8)"]):::todo
         T963(["RHWA-963\nPort FAR disruptive tests (6)"]):::todo
@@ -129,37 +150,58 @@ flowchart LR
         T966(["RHWA-966\nApply Ginkgo v2 label taxonomy"]):::todo
         T971(["RHWA-971\nAdd OLM upgrade test for FAR"]):::todo
         T967(["RHWA-967\nDecommission Jenkins FAR profiles"]):::todo
+        N961 --- T968
+        N961 --- T962
+        N961 --- T963
+        N961 --- T964
+        N961 --- T965
+        N961 --- T966
+        N961 --- T971
+        N961 --- T967
     end
-    style S961 fill:#1a1d23,stroke:#484f58,stroke-width:2px,color:#c9d1d9
+    style G961 fill:#1a1d23,stroke:#484f58,stroke-width:2px,color:#c9d1d9
 
-    subgraph S975 ["RHWA-975: Containerized Test Delivery (NEW)"]
+    subgraph G975 [" "]
+        N975["RHWA-975: Containerized Test Delivery\nNEW"]:::storyTodo
         T975x(["No sub-tasks defined yet"]):::todo
+        N975 --- T975x
     end
-    style S975 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
+    style G975 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
 
-    subgraph S976 ["RHWA-976: Repo Governance (NEW)"]
+    subgraph G976 [" "]
+        N976["RHWA-976: Repo Governance\nNEW"]:::storyTodo
         T976x(["No sub-tasks defined yet"]):::todo
+        N976 --- T976x
     end
-    style S976 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
+    style G976 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
 
-    subgraph S982 ["RHWA-982: Decommission Jenkins (NEW - 0/1)"]
+    subgraph G982 [" "]
+        N982["RHWA-982: Decommission Jenkins\nNEW - 0/1"]:::storyTodo
         T841(["RHWA-841\nDecommission all RHWA operators"]):::todo
+        N982 --- T841
     end
-    style S982 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
+    style G982 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
 
-    EPIC --> S969
-    EPIC --> S972
-    S969 --> S837
-    S969 --> S961
-    S972 --> S837
-    S972 --> S961
-    S837 --> S975
-    S837 --> S982
-    S961 --> S975
-    S961 --> S982
-    S972 --> S976
+    EPIC --> N969
+    EPIC --> N972
+    N969 --> N837
+    N969 --> N961
+    N972 --> N837
+    N972 --> N961
+    N837 --> N975
+    N837 --> N982
+    N961 --> N975
+    N961 --> N982
+    N972 --> N976
 
     click EPIC "https://redhat.atlassian.net/browse/RHWA-836" _blank
+    click N969 "https://redhat.atlassian.net/browse/RHWA-969" _blank
+    click N972 "https://redhat.atlassian.net/browse/RHWA-972" _blank
+    click N837 "https://redhat.atlassian.net/browse/RHWA-837" _blank
+    click N961 "https://redhat.atlassian.net/browse/RHWA-961" _blank
+    click N975 "https://redhat.atlassian.net/browse/RHWA-975" _blank
+    click N976 "https://redhat.atlassian.net/browse/RHWA-976" _blank
+    click N982 "https://redhat.atlassian.net/browse/RHWA-982" _blank
     click T958 "https://redhat.atlassian.net/browse/RHWA-958" _blank
     click T978 "https://redhat.atlassian.net/browse/RHWA-978" _blank
     click T970 "https://redhat.atlassian.net/browse/RHWA-970" _blank
