@@ -40,7 +40,7 @@
         .task .icon { width: 14px; text-align: center; flex-shrink: 0; font-size: 11px; }
         .task .key { font-weight: 600; min-width: 32px; font-size: 11px; }
         .arrows-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        .arrows-svg line { stroke: var(--gray); stroke-width: 1.5; marker-end: url(#arrowhead); }
+        .arrows-svg path { stroke: var(--gray); stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
         .scroll-hint { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
         .legend { display: flex; gap: 14px; margin-bottom: 10px; font-size: 11px; }
         .legend-item { display: flex; align-items: center; gap: 4px; }
@@ -176,21 +176,25 @@
             const diagram = document.getElementById('diagram');
             svg.setAttribute('width', diagram.scrollWidth);
             svg.setAttribute('height', diagram.scrollHeight);
-            while (svg.querySelectorAll('line').length) svg.querySelector('line').remove();
+            svg.querySelectorAll('path').forEach(p => p.remove());
             const edges = [['epic','s969'],['epic','s972'],['s969','s837'],['s969','s961'],['s972','s837'],['s972','s961'],['s837','s975'],['s837','s982'],['s961','s975'],['s961','s982'],['s972','s976']];
+            const dr = diagram.getBoundingClientRect();
             edges.forEach(([fromId, toId]) => {
                 const from = document.getElementById(fromId);
                 const to = document.getElementById(toId);
                 if (!from || !to) return;
                 const fr = from.getBoundingClientRect();
                 const tr = to.getBoundingClientRect();
-                const dr = diagram.getBoundingClientRect();
-                const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-                line.setAttribute('x1', fr.right - dr.left);
-                line.setAttribute('y1', fr.top + fr.height/2 - dr.top);
-                line.setAttribute('x2', tr.left - dr.left);
-                line.setAttribute('y2', tr.top + tr.height/2 - dr.top);
-                svg.appendChild(line);
+                const x1 = fr.right - dr.left;
+                const y1 = fr.top + fr.height/2 - dr.top;
+                const x2 = tr.left - dr.left;
+                const y2 = tr.top + tr.height/2 - dr.top;
+                const gap = (x2 - x1);
+                const cx = gap * 0.5;
+                const d = `M ${x1} ${y1} C ${x1+cx} ${y1}, ${x2-cx} ${y2}, ${x2} ${y2}`;
+                const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+                path.setAttribute('d', d);
+                svg.appendChild(path);
             });
         }
         window.addEventListener('load', () => setTimeout(drawArrows, 100));
