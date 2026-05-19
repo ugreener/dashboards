@@ -20,7 +20,7 @@
         .scard .num { font-size: 32px; font-weight: 700; } .scard .lbl { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
         .section { margin-bottom: 24px; } .section h2 { font-size: 16px; color: #fff; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
         .diagram-wrap { overflow-x: auto; overflow-y: hidden; margin-bottom: 24px; }
-        .diagram { display: flex; align-items: flex-start; gap: 80px; min-width: 1800px; padding: 30px; position: relative; }
+        .diagram { display: flex; align-items: flex-start; gap: 80px; min-width: 2200px; padding: 30px; position: relative; }
         .phase { display: flex; flex-direction: column; gap: 16px; }
         .story-box { background: var(--card-bg); border: 2px solid var(--border); border-radius: 10px; padding: 0; min-width: 280px; max-width: 320px; overflow: hidden; }
         .story-box.done { border-color: var(--green); }
@@ -100,6 +100,8 @@
                         <a href="https://redhat.atlassian.net/browse/RHWA-981" class="task done"><span class="icon">&#x2705;</span><span class="key">981</span>Quay.io registry</a>
                     </div>
                 </div>
+            </div>
+            <div class="phase">
                 <div class="story-box ip" id="s972">
                     <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-972">RHWA-972 Prow CI Infra &#xb7; 5/10</a></div>
                     <div class="task-list">
@@ -116,7 +118,7 @@
                     </div>
                 </div>
             </div>
-            <div class="phase" id="phase2">
+            <div class="phase" id="phase3">
                 <div class="story-box" id="s837">
                     <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-837">RHWA-837 SBR Migration &#xb7; 0/5</a></div>
                     <div class="task-list">
@@ -141,7 +143,7 @@
                     </div>
                 </div>
             </div>
-            <div class="phase" id="phase3">
+            <div class="phase" id="phase4">
                 <div class="story-box" id="s975">
                     <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-975">RHWA-975 Container Delivery</a></div>
                     <div style="padding:8px 12px;font-size:11px;color:var(--text-muted);">No sub-tasks yet</div>
@@ -191,7 +193,7 @@
                 const r = el.getBoundingClientRect();
                 return { l: r.left - dr.left, r: r.right - dr.left, cy: r.top + r.height/2 - dr.top, t: r.top - dr.top, b: r.bottom - dr.top };
             }
-            const simpleEdges = [['epic','s969'],['epic','s972'],['s969','s837'],['s972','s961']];
+            const simpleEdges = [['epic','s969'],['s969','s972'],['s972','s837'],['s972','s961']];
             simpleEdges.forEach(([f,t]) => {
                 const from = pos(f), to = pos(t);
                 drawArrow(svg, from.r, from.cy, to.l, to.cy);
