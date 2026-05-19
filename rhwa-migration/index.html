@@ -196,11 +196,12 @@
                 const from = pos(f), to = pos(t);
                 drawArrow(svg, from.r, from.cy, to.l, to.cy);
             });
-            const p2 = pos('phase2'), p3 = pos('phase3');
-            const midX1 = p2.r;
-            const midY = (p2.t + p2.b) / 2;
-            const midX2 = p3.l;
-            const midY2 = (p3.t + p3.b) / 2;
+            const s837p = pos('s837'), s961p = pos('s961');
+            const s975p = pos('s975'), s982p = pos('s982');
+            const midX1 = s837p.r;
+            const midY = (s837p.b + s961p.t) / 2;
+            const midX2 = s975p.l;
+            const midY2 = (s975p.b + s982p.t) / 2;
             drawArrow(svg, midX1, midY, midX2, midY2);
         }
         window.addEventListener('load', () => setTimeout(drawArrows, 100));
