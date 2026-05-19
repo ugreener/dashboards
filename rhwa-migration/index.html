@@ -73,21 +73,21 @@ flowchart LR
     classDef todo fill:#1e2228,stroke:#6e7681,stroke-width:3px,color:#fff
     classDef epic fill:#1a1a2e,stroke:#58a6ff,stroke-width:3px,color:#fff
 
-    EPIC["RHWA-836\nMigrate Jenkins to Prow\n37% complete"]:::epic
+    EPIC["RHWA-836\nJenkins to Prow\n37%"]:::epic
 
-    N969["RHWA-969: Bootstrap\nCLOSED 6/6\n___\n&#x2705; 958 Fork eco-gotests\n&#x2705; 978 Prune and rename module\n&#x2705; 970 Branch protection\n&#x2705; 973 Scaffold internal/\n&#x2705; 974 Replace OWNERS file\n&#x2705; 981 Quay.io registry"]:::done
+    N969["RHWA-969 Bootstrap CLOSED 6/6\n___\n&#x2705; 958 Fork eco-gotests\n&#x2705; 978 Prune and rename\n&#x2705; 970 Branch protection\n&#x2705; 973 Scaffold internal\n&#x2705; 974 Replace OWNERS\n&#x2705; 981 Quay.io registry"]:::done
 
-    N972["RHWA-972: Prow CI Infra\nIN PROGRESS 5/10\n___\n&#x2705; 979 Prow onboarding PR\n&#x2705; 983 Add QE to openshift org\n&#x2705; 875 Investigate catalogsource\n&#x2705; 991 Verify deploy-konflux cred\n&#x1F504; 990 Create rhwa-konflux step\n&#x2B1C; 839 Weekly Konflux IIB job\n&#x2B1C; 840 Disconnected Prow job\n&#x2B1C; 844 Polarion reporting\n&#x2B1C; 960 extra_refs all 6 operators\n&#x2B1C; 980 Interop test suite"]:::ip
+    N972["RHWA-972 Prow CI Infra IP 5/10\n___\n&#x2705; 979 Prow onboarding PR\n&#x2705; 983 Add QE to org\n&#x2705; 875 Investigate catalogsource\n&#x2705; 991 Verify konflux cred\n&#x1F504; 990 Create konflux step\n&#x2B1C; 839 Weekly Konflux IIB\n&#x2B1C; 840 Disconnected job\n&#x2B1C; 844 Polarion reporting\n&#x2B1C; 960 extra_refs 6 ops\n&#x2B1C; 980 Interop suite"]:::ip
 
-    N837["RHWA-837: SBR Migration\nNEW 2/7\n___\n&#x2705; 838 Close PR #77023\n&#x2705; 843 Verify push/merge policy\n&#x2B1C; 977 Analyze QE vs dev tests\n&#x2B1C; 855 Port 21 SBR QE tests\n&#x2B1C; 874 Port node helpers\n&#x2B1C; 842 OLM upgrade test\n&#x2B1C; 959 Add extra_refs for SBR"]:::todo
+    N837["RHWA-837 SBR Migration 2/7\n___\n&#x2705; 838 Close PR #77023\n&#x2705; 843 Verify push policy\n&#x2B1C; 977 Analyze QE vs dev\n&#x2B1C; 855 Port 21 QE tests\n&#x2B1C; 874 Port node helpers\n&#x2B1C; 842 OLM upgrade test\n&#x2B1C; 959 Add extra_refs"]:::todo
 
-    N961["RHWA-961: FAR Migration\nNEW 0/8\n___\n&#x2B1C; 968 Analyze FAR QE vs dev\n&#x2B1C; 962 Port smoke tests (8)\n&#x2B1C; 963 Port disruptive tests (6)\n&#x2B1C; 964 Port negative tests (5)\n&#x2B1C; 965 Port observability tests\n&#x2B1C; 966 Apply label taxonomy\n&#x2B1C; 971 OLM upgrade test\n&#x2B1C; 967 Decommission Jenkins FAR"]:::todo
+    N961["RHWA-961 FAR Migration 0/8\n___\n&#x2B1C; 968 Analyze QE vs dev\n&#x2B1C; 962 Port smoke (8)\n&#x2B1C; 963 Port disruptive (6)\n&#x2B1C; 964 Port negative (5)\n&#x2B1C; 965 Port observability\n&#x2B1C; 966 Apply labels\n&#x2B1C; 971 OLM upgrade test\n&#x2B1C; 967 Decommission FAR"]:::todo
 
-    N975["RHWA-975\nContainerized\nTest Delivery\n___\nNo sub-tasks yet"]:::todo
+    N975["RHWA-975\nContainer Delivery\n___\nNo tasks yet"]:::todo
 
-    N976["RHWA-976\nRepo Governance\n___\nNo sub-tasks yet"]:::todo
+    N976["RHWA-976\nRepo Governance\n___\nNo tasks yet"]:::todo
 
-    N982["RHWA-982\nDecommission Jenkins\nNEW 0/1\n___\n&#x2B1C; 841 Decommission all operators"]:::todo
+    N982["RHWA-982 Decommission 0/1\n___\n&#x2B1C; 841 Decommission all"]:::todo
 
     EPIC --> N969
     EPIC --> N972
@@ -136,7 +136,7 @@ flowchart LR
 
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-        mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis', padding: 15, nodeSpacing: 25, rankSpacing: 60 } });
+        mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis', padding: 15, nodeSpacing: 25, rankSpacing: 60, wrappingWidth: 400 } });
     </script>
 </body>
 </html>
