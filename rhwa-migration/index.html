@@ -177,7 +177,12 @@
             svg.setAttribute('width', diagram.scrollWidth);
             svg.setAttribute('height', diagram.scrollHeight);
             svg.querySelectorAll('path').forEach(p => p.remove());
-            const edges = [['epic','s969'],['epic','s972'],['s969','s837'],['s969','s961'],['s972','s837'],['s972','s961'],['s837','s975'],['s837','s982'],['s961','s975'],['s961','s982'],['s972','s976']];
+            const edges = [
+                ['epic','s969'],['epic','s972'],
+                ['s969','s837'],['s972','s961'],
+                ['s837','s975'],['s837','s976'],
+                ['s961','s982']
+            ];
             const dr = diagram.getBoundingClientRect();
             edges.forEach(([fromId, toId]) => {
                 const from = document.getElementById(fromId);
