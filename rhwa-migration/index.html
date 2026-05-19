@@ -116,7 +116,7 @@
                     </div>
                 </div>
             </div>
-            <div class="phase">
+            <div class="phase" id="phase2">
                 <div class="story-box" id="s837">
                     <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-837">RHWA-837 SBR Migration &#xb7; 0/5</a></div>
                     <div class="task-list">
@@ -141,7 +141,7 @@
                     </div>
                 </div>
             </div>
-            <div class="phase">
+            <div class="phase" id="phase3">
                 <div class="story-box" id="s975">
                     <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-975">RHWA-975 Container Delivery</a></div>
                     <div style="padding:8px 12px;font-size:11px;color:var(--text-muted);">No sub-tasks yet</div>
@@ -165,41 +165,43 @@
     </div>
     <div style="text-align:center;color:var(--text-muted);font-size:10px;margin-top:20px;padding-top:10px;border-top:1px solid var(--border);"><a href="https://redhat.atlassian.net/browse/RHWA-836">Jira</a> &#xb7; <a href="https://docs.google.com/document/d/1Xh_oakZmn_xTDHWqRhJMwUGRPPeIYO0Ied8CQxBbbwU/edit">system-tests Proposal</a> &#xb7; <a href="https://docs.google.com/document/d/1_qiMjJa1w0SOuuQ-qd4Yceutje2RQNUg21xBEI4rmCQ/edit">Migration Proposal</a></div>
     <script>
+        function drawArrow(svg, x1, y1, x2, y2) {
+            const gap = x2 - x1;
+            const cx = gap * 0.5;
+            const d = `M ${x1} ${y1} C ${x1+cx} ${y1}, ${x2-cx} ${y2}, ${x2} ${y2}`;
+            const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+            path.setAttribute('d', d);
+            svg.appendChild(path);
+            const c1 = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            c1.setAttribute('cx',x1); c1.setAttribute('cy',y1); c1.setAttribute('r',3);
+            svg.appendChild(c1);
+            const c2 = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            c2.setAttribute('cx',x2); c2.setAttribute('cy',y2); c2.setAttribute('r',4);
+            svg.appendChild(c2);
+        }
         function drawArrows() {
             const svg = document.getElementById('arrowsSvg');
             const diagram = document.getElementById('diagram');
             svg.setAttribute('width', diagram.scrollWidth);
             svg.setAttribute('height', diagram.scrollHeight);
             svg.querySelectorAll('path,circle').forEach(p => p.remove());
-            const edges = [
-                ['epic','s969'],['epic','s972'],
-                ['s969','s837'],['s972','s961'],
-                ['s837','s975'],['s961','s982']
-            ];
             const dr = diagram.getBoundingClientRect();
-            edges.forEach(([fromId, toId]) => {
-                const from = document.getElementById(fromId);
-                const to = document.getElementById(toId);
-                if (!from || !to) return;
-                const fr = from.getBoundingClientRect();
-                const tr = to.getBoundingClientRect();
-                const x1 = fr.right - dr.left;
-                const y1 = fr.top + fr.height/2 - dr.top;
-                const x2 = tr.left - dr.left;
-                const y2 = tr.top + tr.height/2 - dr.top;
-                const gap = (x2 - x1);
-                const cx = gap * 0.5;
-                const d = `M ${x1} ${y1} C ${x1+cx} ${y1}, ${x2-cx} ${y2}, ${x2} ${y2}`;
-                const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-                path.setAttribute('d', d);
-                svg.appendChild(path);
-                const c1 = document.createElementNS('http://www.w3.org/2000/svg','circle');
-                c1.setAttribute('cx',x1); c1.setAttribute('cy',y1); c1.setAttribute('r',3);
-                svg.appendChild(c1);
-                const c2 = document.createElementNS('http://www.w3.org/2000/svg','circle');
-                c2.setAttribute('cx',x2); c2.setAttribute('cy',y2); c2.setAttribute('r',4);
-                svg.appendChild(c2);
+            function pos(id) {
+                const el = document.getElementById(id);
+                const r = el.getBoundingClientRect();
+                return { l: r.left - dr.left, r: r.right - dr.left, cy: r.top + r.height/2 - dr.top, t: r.top - dr.top, b: r.bottom - dr.top };
+            }
+            const simpleEdges = [['epic','s969'],['epic','s972'],['s969','s837'],['s972','s961']];
+            simpleEdges.forEach(([f,t]) => {
+                const from = pos(f), to = pos(t);
+                drawArrow(svg, from.r, from.cy, to.l, to.cy);
             });
+            const p2 = pos('phase2'), p3 = pos('phase3');
+            const midX1 = p2.r;
+            const midY = (p2.t + p2.b) / 2;
+            const midX2 = p3.l;
+            const midY2 = (p3.t + p3.b) / 2;
+            drawArrow(svg, midX1, midY, midX2, midY2);
         }
         window.addEventListener('load', () => setTimeout(drawArrows, 100));
         window.addEventListener('resize', drawArrows);
