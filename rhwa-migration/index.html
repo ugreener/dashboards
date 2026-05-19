@@ -20,7 +20,6 @@
         .scard .num { font-size: 32px; font-weight: 700; } .scard .lbl { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
         .section { margin-bottom: 24px; } .section h2 { font-size: 16px; color: #fff; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
         .mcont { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; overflow-x: auto; overflow-y: hidden; max-width: 100%; }
-        .mcont .mermaid { min-width: 2400px; }
         .scroll-hint { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
         .sc { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--gray); }
         .sc.done { border-left-color: var(--green); } .sc.ip { border-left-color: var(--blue); }
@@ -59,105 +58,36 @@
     </div>
 
     <div class="section">
-        <h2>Complete Migration Map</h2>
+        <h2>Migration Phase Flow</h2>
         <div class="legend">
             <div class="legend-item"><div class="ldot g"></div> Done</div>
             <div class="legend-item"><div class="ldot b"></div> In Progress</div>
             <div class="legend-item"><div class="ldot gr"></div> To Do</div>
         </div>
-        <div class="scroll-hint">&#x2194; Scroll horizontally to see all phases &#xb7; Click any node to open in Jira</div>
+        <div class="scroll-hint">&#x2194; Scroll horizontally &#xb7; Click any story to open in Jira</div>
         <div class="mcont">
             <pre class="mermaid">
 flowchart LR
-    classDef done fill:#1b4332,stroke:#3fb950,stroke-width:2px,color:#c6efce
-    classDef ip fill:#0c2d6b,stroke:#58a6ff,stroke-width:2px,color:#b6d7ff
-    classDef todo fill:#21262d,stroke:#484f58,stroke-width:1px,color:#8b949e
+    classDef done fill:#174a2a,stroke:#3fb950,stroke-width:3px,color:#fff
+    classDef ip fill:#0e3580,stroke:#58a6ff,stroke-width:3px,color:#fff
+    classDef todo fill:#1e2228,stroke:#6e7681,stroke-width:3px,color:#fff
     classDef epic fill:#1a1a2e,stroke:#58a6ff,stroke-width:3px,color:#fff
-    classDef storyDone fill:#174a2a,stroke:#3fb950,stroke-width:3px,color:#fff
-    classDef storyIp fill:#0e3580,stroke:#58a6ff,stroke-width:3px,color:#fff
-    classDef storyTodo fill:#1e2228,stroke:#6e7681,stroke-width:3px,color:#fff
 
-    EPIC["RHWA-836\nMigrate Jenkins to Prow\nEpic - 37% complete"]:::epic
+    EPIC["RHWA-836\nMigrate Jenkins to Prow\n37% complete"]:::epic
 
-    subgraph G969 [" "]
-        direction LR
-        N969["RHWA-969: Bootstrap system-tests\nCLOSED - 6/6"]:::storyDone
-        T958(["RHWA-958 Fork eco-gotests"]):::done
-        T978(["RHWA-978 Prune and rename module"]):::done
-        T970(["RHWA-970 Branch protection"]):::done
-        T973(["RHWA-973 Scaffold internal/"]):::done
-        T974(["RHWA-974 Replace OWNERS file"]):::done
-        T981(["RHWA-981 Quay.io registry and secrets"]):::done
-        T958 ~~~ T978 ~~~ T970 ~~~ T973 ~~~ T974 ~~~ T981
-    end
-    style G969 fill:#0f2e1c,stroke:#3fb950,stroke-width:2px,color:#c6efce
+    N969["RHWA-969: Bootstrap\nCLOSED 6/6\n---\n958 Fork | 978 Prune\n970 Branch | 973 Scaffold\n974 OWNERS | 981 Quay"]:::done
 
-    subgraph G972 [" "]
-        direction LR
-        N972["RHWA-972: Prow CI Infrastructure\nIN PROGRESS - 5/10"]:::storyIp
-        T979(["RHWA-979 Prow onboarding PR"]):::done
-        T983(["RHWA-983 Add QE to openshift org"]):::done
-        T875(["RHWA-875 Investigate catalogsource step"]):::done
-        T991(["RHWA-991 Verify deploy-konflux credential"]):::done
-        T990(["RHWA-990 Create rhwa-konflux-catalogsource step"]):::ip
-        T839(["RHWA-839 Weekly Konflux IIB periodic job"]):::todo
-        T840(["RHWA-840 Disconnected Prow job"]):::todo
-        T844(["RHWA-844 Polarion test result reporting"]):::todo
-        T960(["RHWA-960 extra_refs for all 6 operators"]):::todo
-        T980(["RHWA-980 Cross-operator interop test suite"]):::todo
-        T979 ~~~ T983 ~~~ T875 ~~~ T991 ~~~ T990 ~~~ T839 ~~~ T840 ~~~ T844 ~~~ T960 ~~~ T980
-    end
-    style G972 fill:#0a2050,stroke:#58a6ff,stroke-width:2px,color:#b6d7ff
+    N972["RHWA-972: Prow CI Infra\nIN PROGRESS 5/10\n---\n979 Onboarding | 983 QE org\n875 Catalogsource | 991 Cred\n990 Konflux step (IP)\n839 IIB | 840 Disconn\n844 Polarion | 960 Refs | 980 Interop"]:::ip
 
-    subgraph G837 [" "]
-        direction LR
-        N837["RHWA-837: SBR Migration\nNEW - 2/7"]:::storyTodo
-        T838(["RHWA-838 Close PR openshift/release#77023"]):::done
-        T843(["RHWA-843 Verify push/merge policy"]):::done
-        T977(["RHWA-977 Analyze SBR QE vs dev tests"]):::todo
-        T855(["RHWA-855 Port 21 SBR QE tests"]):::todo
-        T874(["RHWA-874 Port node operation helpers"]):::todo
-        T842(["RHWA-842 Add OLM upgrade test for SBR"]):::todo
-        T959(["RHWA-959 Add extra_refs for SBR operator"]):::todo
-        T838 ~~~ T843 ~~~ T977 ~~~ T855 ~~~ T874 ~~~ T842 ~~~ T959
-    end
-    style G837 fill:#1a1d23,stroke:#484f58,stroke-width:2px,color:#c9d1d9
+    N837["RHWA-837: SBR Migration\nNEW 2/7\n---\n838 Close PR | 843 Policy\n977 Analyze | 855 Port 21\n874 Helpers | 842 OLM | 959 Refs"]:::todo
 
-    subgraph G961 [" "]
-        direction LR
-        N961["RHWA-961: FAR Migration\nNEW - 0/8"]:::storyTodo
-        T968(["RHWA-968 Analyze FAR QE vs dev tests"]):::todo
-        T962(["RHWA-962 Port FAR smoke tests (8)"]):::todo
-        T963(["RHWA-963 Port FAR disruptive tests (6)"]):::todo
-        T964(["RHWA-964 Port FAR negative tests (5)"]):::todo
-        T965(["RHWA-965 Port FAR observability tests"]):::todo
-        T966(["RHWA-966 Apply Ginkgo v2 label taxonomy"]):::todo
-        T971(["RHWA-971 Add OLM upgrade test for FAR"]):::todo
-        T967(["RHWA-967 Decommission Jenkins FAR profiles"]):::todo
-        T968 ~~~ T962 ~~~ T963 ~~~ T964 ~~~ T965 ~~~ T966 ~~~ T971 ~~~ T967
-    end
-    style G961 fill:#1a1d23,stroke:#484f58,stroke-width:2px,color:#c9d1d9
+    N961["RHWA-961: FAR Migration\nNEW 0/8\n---\n968 Analyze | 962 Smoke\n963 Disruptive | 964 Negative\n965 Observ | 966 Labels\n971 OLM | 967 Jenkins off"]:::todo
 
-    subgraph G975 [" "]
-        direction LR
-        N975["RHWA-975: Containerized Test Delivery\nNEW"]:::storyTodo
-        T975x(["No sub-tasks defined yet"]):::todo
-    end
-    style G975 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
+    N975["RHWA-975\nContainerized\nDelivery"]:::todo
 
-    subgraph G976 [" "]
-        direction LR
-        N976["RHWA-976: Repo Governance\nNEW"]:::storyTodo
-        T976x(["No sub-tasks defined yet"]):::todo
-    end
-    style G976 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
+    N976["RHWA-976\nRepo\nGovernance"]:::todo
 
-    subgraph G982 [" "]
-        direction LR
-        N982["RHWA-982: Decommission Jenkins\nNEW - 0/1"]:::storyTodo
-        T841(["RHWA-841 Decommission all RHWA operators"]):::todo
-    end
-    style G982 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
+    N982["RHWA-982\nDecommission\nJenkins\n---\n841 Decommission all"]:::todo
 
     EPIC --> N969
     EPIC --> N972
@@ -179,55 +109,23 @@ flowchart LR
     click N975 "https://redhat.atlassian.net/browse/RHWA-975" _blank
     click N976 "https://redhat.atlassian.net/browse/RHWA-976" _blank
     click N982 "https://redhat.atlassian.net/browse/RHWA-982" _blank
-    click T958 "https://redhat.atlassian.net/browse/RHWA-958" _blank
-    click T978 "https://redhat.atlassian.net/browse/RHWA-978" _blank
-    click T970 "https://redhat.atlassian.net/browse/RHWA-970" _blank
-    click T973 "https://redhat.atlassian.net/browse/RHWA-973" _blank
-    click T974 "https://redhat.atlassian.net/browse/RHWA-974" _blank
-    click T981 "https://redhat.atlassian.net/browse/RHWA-981" _blank
-    click T979 "https://redhat.atlassian.net/browse/RHWA-979" _blank
-    click T983 "https://redhat.atlassian.net/browse/RHWA-983" _blank
-    click T875 "https://redhat.atlassian.net/browse/RHWA-875" _blank
-    click T991 "https://redhat.atlassian.net/browse/RHWA-991" _blank
-    click T990 "https://redhat.atlassian.net/browse/RHWA-990" _blank
-    click T839 "https://redhat.atlassian.net/browse/RHWA-839" _blank
-    click T840 "https://redhat.atlassian.net/browse/RHWA-840" _blank
-    click T844 "https://redhat.atlassian.net/browse/RHWA-844" _blank
-    click T960 "https://redhat.atlassian.net/browse/RHWA-960" _blank
-    click T980 "https://redhat.atlassian.net/browse/RHWA-980" _blank
-    click T838 "https://redhat.atlassian.net/browse/RHWA-838" _blank
-    click T843 "https://redhat.atlassian.net/browse/RHWA-843" _blank
-    click T977 "https://redhat.atlassian.net/browse/RHWA-977" _blank
-    click T855 "https://redhat.atlassian.net/browse/RHWA-855" _blank
-    click T874 "https://redhat.atlassian.net/browse/RHWA-874" _blank
-    click T842 "https://redhat.atlassian.net/browse/RHWA-842" _blank
-    click T959 "https://redhat.atlassian.net/browse/RHWA-959" _blank
-    click T968 "https://redhat.atlassian.net/browse/RHWA-968" _blank
-    click T962 "https://redhat.atlassian.net/browse/RHWA-962" _blank
-    click T963 "https://redhat.atlassian.net/browse/RHWA-963" _blank
-    click T964 "https://redhat.atlassian.net/browse/RHWA-964" _blank
-    click T965 "https://redhat.atlassian.net/browse/RHWA-965" _blank
-    click T966 "https://redhat.atlassian.net/browse/RHWA-966" _blank
-    click T971 "https://redhat.atlassian.net/browse/RHWA-971" _blank
-    click T967 "https://redhat.atlassian.net/browse/RHWA-967" _blank
-    click T841 "https://redhat.atlassian.net/browse/RHWA-841" _blank
             </pre>
         </div>
     </div>
 
-    <div class="section"><h2>Story Details</h2></div>
+    <div class="section"><h2>Story Details (click sub-tasks to open in Jira)</h2></div>
 
-    <div class="sc done"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-969">RHWA-969</a> Bootstrap <span class="pl p1">P1</span> <span class="badge done" style="font-size:9px;">Closed</span></div><div class="f">6/6</div></div><div class="pt"><div class="pf g" style="width:100%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-958" class="chip d">&#x2713; 958</a><a href="https://redhat.atlassian.net/browse/RHWA-978" class="chip d">&#x2713; 978</a><a href="https://redhat.atlassian.net/browse/RHWA-970" class="chip d">&#x2713; 970</a><a href="https://redhat.atlassian.net/browse/RHWA-973" class="chip d">&#x2713; 973</a><a href="https://redhat.atlassian.net/browse/RHWA-974" class="chip d">&#x2713; 974</a><a href="https://redhat.atlassian.net/browse/RHWA-981" class="chip d">&#x2713; 981</a></div></div>
+    <div class="sc done"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-969">RHWA-969</a> Bootstrap <span class="pl p1">P1</span> <span class="badge done" style="font-size:9px;">Closed</span></div><div class="f">6/6</div></div><div class="pt"><div class="pf g" style="width:100%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-958" class="chip d">&#x2713; 958 Fork</a> <a href="https://redhat.atlassian.net/browse/RHWA-978" class="chip d">&#x2713; 978 Prune</a> <a href="https://redhat.atlassian.net/browse/RHWA-970" class="chip d">&#x2713; 970 Branch</a> <a href="https://redhat.atlassian.net/browse/RHWA-973" class="chip d">&#x2713; 973 Scaffold</a> <a href="https://redhat.atlassian.net/browse/RHWA-974" class="chip d">&#x2713; 974 OWNERS</a> <a href="https://redhat.atlassian.net/browse/RHWA-981" class="chip d">&#x2713; 981 Quay</a></div></div>
 
-    <div class="sc ip"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-972">RHWA-972</a> Prow CI Infra <span class="pl p3">P3</span> <span class="badge ip" style="font-size:9px;">In Progress</span> <span class="asgn">Udi</span></div><div class="f">5/10</div></div><div class="pt"><div class="pf b" style="width:50%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-979" class="chip d">&#x2713; 979</a><a href="https://redhat.atlassian.net/browse/RHWA-983" class="chip d">&#x2713; 983</a><a href="https://redhat.atlassian.net/browse/RHWA-875" class="chip d">&#x2713; 875</a><a href="https://redhat.atlassian.net/browse/RHWA-991" class="chip d">&#x2713; 991</a><a href="https://redhat.atlassian.net/browse/RHWA-990" class="chip i">&#x25C9; 990</a><a href="https://redhat.atlassian.net/browse/RHWA-839" class="chip n">&#x25CB; 839</a><a href="https://redhat.atlassian.net/browse/RHWA-840" class="chip n">&#x25CB; 840</a><a href="https://redhat.atlassian.net/browse/RHWA-844" class="chip n">&#x25CB; 844</a><a href="https://redhat.atlassian.net/browse/RHWA-960" class="chip n">&#x25CB; 960</a><a href="https://redhat.atlassian.net/browse/RHWA-980" class="chip n">&#x25CB; 980</a></div></div>
+    <div class="sc ip"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-972">RHWA-972</a> Prow CI Infra <span class="pl p3">P3</span> <span class="badge ip" style="font-size:9px;">In Progress</span> <span class="asgn">Udi</span></div><div class="f">5/10</div></div><div class="pt"><div class="pf b" style="width:50%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-979" class="chip d">&#x2713; 979 Onboarding</a> <a href="https://redhat.atlassian.net/browse/RHWA-983" class="chip d">&#x2713; 983 QE org</a> <a href="https://redhat.atlassian.net/browse/RHWA-875" class="chip d">&#x2713; 875 Catalogsource</a> <a href="https://redhat.atlassian.net/browse/RHWA-991" class="chip d">&#x2713; 991 Cred</a> <a href="https://redhat.atlassian.net/browse/RHWA-990" class="chip i">&#x25C9; 990 Konflux step</a> <a href="https://redhat.atlassian.net/browse/RHWA-839" class="chip n">&#x25CB; 839 IIB</a> <a href="https://redhat.atlassian.net/browse/RHWA-840" class="chip n">&#x25CB; 840 Disconn</a> <a href="https://redhat.atlassian.net/browse/RHWA-844" class="chip n">&#x25CB; 844 Polarion</a> <a href="https://redhat.atlassian.net/browse/RHWA-960" class="chip n">&#x25CB; 960 Refs</a> <a href="https://redhat.atlassian.net/browse/RHWA-980" class="chip n">&#x25CB; 980 Interop</a></div></div>
 
-    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-837">RHWA-837</a> SBR Migration <span class="pl p2">P2</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">2/7</div></div><div class="pt"><div class="pf g" style="width:29%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-838" class="chip d">&#x2713; 838</a><a href="https://redhat.atlassian.net/browse/RHWA-843" class="chip d">&#x2713; 843</a><a href="https://redhat.atlassian.net/browse/RHWA-977" class="chip n">&#x25CB; 977</a><a href="https://redhat.atlassian.net/browse/RHWA-855" class="chip n">&#x25CB; 855</a><a href="https://redhat.atlassian.net/browse/RHWA-874" class="chip n">&#x25CB; 874</a><a href="https://redhat.atlassian.net/browse/RHWA-842" class="chip n">&#x25CB; 842</a><a href="https://redhat.atlassian.net/browse/RHWA-959" class="chip n">&#x25CB; 959</a></div></div>
+    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-837">RHWA-837</a> SBR Migration <span class="pl p2">P2</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">2/7</div></div><div class="pt"><div class="pf g" style="width:29%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-838" class="chip d">&#x2713; 838 Close PR</a> <a href="https://redhat.atlassian.net/browse/RHWA-843" class="chip d">&#x2713; 843 Policy</a> <a href="https://redhat.atlassian.net/browse/RHWA-977" class="chip n">&#x25CB; 977 Analyze</a> <a href="https://redhat.atlassian.net/browse/RHWA-855" class="chip n">&#x25CB; 855 Port 21</a> <a href="https://redhat.atlassian.net/browse/RHWA-874" class="chip n">&#x25CB; 874 Helpers</a> <a href="https://redhat.atlassian.net/browse/RHWA-842" class="chip n">&#x25CB; 842 OLM</a> <a href="https://redhat.atlassian.net/browse/RHWA-959" class="chip n">&#x25CB; 959 Refs</a></div></div>
 
-    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-961">RHWA-961</a> FAR Migration <span class="pl p2">P2</span> <span class="badge todo" style="font-size:9px;">New</span> <span class="asgn">Udi</span></div><div class="f">0/8</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-968" class="chip n">&#x25CB; 968</a><a href="https://redhat.atlassian.net/browse/RHWA-962" class="chip n">&#x25CB; 962</a><a href="https://redhat.atlassian.net/browse/RHWA-963" class="chip n">&#x25CB; 963</a><a href="https://redhat.atlassian.net/browse/RHWA-964" class="chip n">&#x25CB; 964</a><a href="https://redhat.atlassian.net/browse/RHWA-965" class="chip n">&#x25CB; 965</a><a href="https://redhat.atlassian.net/browse/RHWA-966" class="chip n">&#x25CB; 966</a><a href="https://redhat.atlassian.net/browse/RHWA-971" class="chip n">&#x25CB; 971</a><a href="https://redhat.atlassian.net/browse/RHWA-967" class="chip n">&#x25CB; 967</a></div></div>
+    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-961">RHWA-961</a> FAR Migration <span class="pl p2">P2</span> <span class="badge todo" style="font-size:9px;">New</span> <span class="asgn">Udi</span></div><div class="f">0/8</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-968" class="chip n">&#x25CB; 968 Analyze</a> <a href="https://redhat.atlassian.net/browse/RHWA-962" class="chip n">&#x25CB; 962 Smoke</a> <a href="https://redhat.atlassian.net/browse/RHWA-963" class="chip n">&#x25CB; 963 Disruptive</a> <a href="https://redhat.atlassian.net/browse/RHWA-964" class="chip n">&#x25CB; 964 Negative</a> <a href="https://redhat.atlassian.net/browse/RHWA-965" class="chip n">&#x25CB; 965 Observ</a> <a href="https://redhat.atlassian.net/browse/RHWA-966" class="chip n">&#x25CB; 966 Labels</a> <a href="https://redhat.atlassian.net/browse/RHWA-971" class="chip n">&#x25CB; 971 OLM</a> <a href="https://redhat.atlassian.net/browse/RHWA-967" class="chip n">&#x25CB; 967 Jenkins off</a></div></div>
 
     <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-975">RHWA-975</a> Container Delivery <span class="pl p4">P4</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">-</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div></div>
     <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-976">RHWA-976</a> Repo Governance <span class="pl p4">P4</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">-</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div></div>
-    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-982">RHWA-982</a> Decommission Jenkins <span class="pl p5">P5</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">0/1</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-841" class="chip n">&#x25CB; 841</a></div></div>
+    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-982">RHWA-982</a> Decommission Jenkins <span class="pl p5">P5</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">0/1</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-841" class="chip n">&#x25CB; 841 Decommission</a></div></div>
 
     <div class="section" style="margin-top: 20px;"><h2>Overall</h2>
         <div class="sc ip" style="border-left-color:var(--blue);"><div class="sh"><div class="t" style="font-size:14px;"><a href="https://redhat.atlassian.net/browse/RHWA-836">RHWA-836</a> Total</div><div class="f" style="font-size:14px;">13/35 (37%)</div></div><div class="pt" style="height:8px;"><div class="pf b" style="width:37%;"></div></div>
@@ -238,7 +136,7 @@ flowchart LR
 
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-        mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis', padding: 15, nodeSpacing: 25, rankSpacing: 50 } });
+        mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis', padding: 15, nodeSpacing: 25, rankSpacing: 60 } });
     </script>
 </body>
 </html>
