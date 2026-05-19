@@ -19,7 +19,14 @@
         .scard { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; }
         .scard .num { font-size: 32px; font-weight: 700; } .scard .lbl { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
         .section { margin-bottom: 24px; } .section h2 { font-size: 16px; color: #fff; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-        .mcont { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; overflow-x: auto; }
+        .mcont {
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+            padding: 20px; margin-bottom: 24px;
+            overflow-x: auto; overflow-y: hidden;
+            max-width: 100%;
+        }
+        .mcont .mermaid { min-width: 2400px; }
+        .scroll-hint { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
         .sc { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--gray); }
         .sc.done { border-left-color: var(--green); } .sc.ip { border-left-color: var(--blue); }
         .sc .sh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
@@ -63,82 +70,80 @@
             <div class="legend-item"><div class="ldot b"></div> In Progress</div>
             <div class="legend-item"><div class="ldot gr"></div> To Do</div>
         </div>
+        <div class="scroll-hint">&#x2194; Scroll horizontally to see all phases</div>
         <div class="mcont">
             <pre class="mermaid">
 flowchart LR
-    classDef done fill:#1b4332,stroke:#3fb950,stroke-width:2px,color:#c6efce,font-size:11px
-    classDef ip fill:#0c2d6b,stroke:#58a6ff,stroke-width:2px,color:#b6d7ff,font-size:11px
-    classDef todo fill:#21262d,stroke:#484f58,stroke-width:1px,color:#8b949e,font-size:11px
-    classDef epic fill:#1a1a2e,stroke:#58a6ff,stroke-width:3px,color:#fff,font-size:12px
+    classDef done fill:#1b4332,stroke:#3fb950,stroke-width:2px,color:#c6efce
+    classDef ip fill:#0c2d6b,stroke:#58a6ff,stroke-width:2px,color:#b6d7ff
+    classDef todo fill:#21262d,stroke:#484f58,stroke-width:1px,color:#8b949e
+    classDef epic fill:#1a1a2e,stroke:#58a6ff,stroke-width:3px,color:#fff
 
-    EPIC["RHWA-836 Epic 37%"]:::epic
+    EPIC["RHWA-836\nMigrate Jenkins to Prow\nEpic - 37% complete"]:::epic
 
-    subgraph S969 ["969: Bootstrap 6/6"]
+    subgraph S969 ["RHWA-969: Bootstrap system-tests (CLOSED - 6/6)"]
         direction TB
-        T958["958 Fork"]:::done
-        T978["978 Prune"]:::done
-        T970["970 Branch prot"]:::done
-        T973["973 Scaffold"]:::done
-        T974["974 OWNERS"]:::done
-        T981["981 Quay.io"]:::done
+        T958(["RHWA-958\nFork eco-gotests"]):::done
+        T978(["RHWA-978\nPrune and rename module"]):::done
+        T970(["RHWA-970\nBranch protection"]):::done
+        T973(["RHWA-973\nScaffold internal/"]):::done
+        T974(["RHWA-974\nReplace OWNERS file"]):::done
+        T981(["RHWA-981\nQuay.io registry and secrets"]):::done
     end
     style S969 fill:#0f2e1c,stroke:#3fb950,stroke-width:2px,color:#c6efce
 
-    subgraph S972 ["972: Prow CI Infra 5/10"]
+    subgraph S972 ["RHWA-972: Prow CI Infrastructure (IN PROGRESS - 5/10)"]
         direction TB
-        T979["979 Onboarding PR"]:::done
-        T983["983 QE org"]:::done
-        T875["875 Catalogsource"]:::done
-        T991["991 Konflux cred"]:::done
-        T990["990 Konflux step"]:::ip
-        T839["839 Konflux IIB"]:::todo
-        T840["840 Disconnected"]:::todo
-        T844["844 Polarion"]:::todo
-        T960["960 extra_refs"]:::todo
-        T980["980 Interop"]:::todo
+        T979(["RHWA-979\nProw onboarding PR"]):::done
+        T983(["RHWA-983\nAdd QE to openshift org"]):::done
+        T875(["RHWA-875\nInvestigate catalogsource step"]):::done
+        T991(["RHWA-991\nVerify deploy-konflux credential"]):::done
+        T990(["RHWA-990\nCreate rhwa-konflux-catalogsource step"]):::ip
+        T839(["RHWA-839\nWeekly Konflux IIB periodic job"]):::todo
+        T840(["RHWA-840\nDisconnected Prow job"]):::todo
+        T844(["RHWA-844\nPolarion test result reporting"]):::todo
+        T960(["RHWA-960\nextra_refs for all 6 operators"]):::todo
+        T980(["RHWA-980\nCross-operator interop test suite"]):::todo
     end
     style S972 fill:#0a2050,stroke:#58a6ff,stroke-width:2px,color:#b6d7ff
 
-    subgraph S837 ["837: SBR Migration 2/7"]
+    subgraph S837 ["RHWA-837: SBR Migration (NEW - 2/7)"]
         direction TB
-        T838["838 Close PR"]:::done
-        T843["843 Push policy"]:::done
-        T977["977 Analyze tests"]:::todo
-        T855["855 Port 21 tests"]:::todo
-        T874["874 Node helpers"]:::todo
-        T842["842 OLM upgrade"]:::todo
-        T959["959 extra_refs"]:::todo
+        T838(["RHWA-838\nClose PR openshift/release#77023"]):::done
+        T843(["RHWA-843\nVerify push/merge policy"]):::done
+        T977(["RHWA-977\nAnalyze SBR QE vs dev tests"]):::todo
+        T855(["RHWA-855\nPort 21 SBR QE tests"]):::todo
+        T874(["RHWA-874\nPort node operation helpers"]):::todo
+        T842(["RHWA-842\nAdd OLM upgrade test for SBR"]):::todo
+        T959(["RHWA-959\nAdd extra_refs for SBR operator"]):::todo
     end
     style S837 fill:#1a1d23,stroke:#484f58,stroke-width:2px,color:#c9d1d9
 
-    subgraph S961 ["961: FAR Migration 0/8"]
+    subgraph S961 ["RHWA-961: FAR Migration (NEW - 0/8)"]
         direction TB
-        T968["968 Analyze tests"]:::todo
-        T962["962 Smoke (8)"]:::todo
-        T963["963 Disruptive (6)"]:::todo
-        T964["964 Negative (5)"]:::todo
-        T965["965 Observability"]:::todo
-        T966["966 Labels"]:::todo
-        T971["971 OLM upgrade"]:::todo
-        T967["967 Jenkins off"]:::todo
+        T968(["RHWA-968\nAnalyze FAR QE vs dev tests"]):::todo
+        T962(["RHWA-962\nPort FAR smoke tests (8)"]):::todo
+        T963(["RHWA-963\nPort FAR disruptive tests (6)"]):::todo
+        T964(["RHWA-964\nPort FAR negative tests (5)"]):::todo
+        T965(["RHWA-965\nPort FAR observability tests"]):::todo
+        T966(["RHWA-966\nApply Ginkgo v2 label taxonomy"]):::todo
+        T971(["RHWA-971\nAdd OLM upgrade test for FAR"]):::todo
+        T967(["RHWA-967\nDecommission Jenkins FAR profiles"]):::todo
     end
     style S961 fill:#1a1d23,stroke:#484f58,stroke-width:2px,color:#c9d1d9
 
-    subgraph S975 ["975: Container Delivery"]
-        direction TB
-        T975x["No tasks yet"]:::todo
+    subgraph S975 ["RHWA-975: Containerized Test Delivery (NEW)"]
+        T975x(["No sub-tasks defined yet"]):::todo
     end
     style S975 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
 
-    subgraph S976 ["976: Repo Governance"]
-        direction TB
-        T976x["No tasks yet"]:::todo
+    subgraph S976 ["RHWA-976: Repo Governance (NEW)"]
+        T976x(["No sub-tasks defined yet"]):::todo
     end
     style S976 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
 
-    subgraph S982 ["982: Decommission Jenkins 0/1"]
-        direction TB
-        T841["841 Decommission"]:::todo
+    subgraph S982 ["RHWA-982: Decommission Jenkins (NEW - 0/1)"]
+        T841(["RHWA-841\nDecommission all RHWA operators"]):::todo
     end
     style S982 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
 
@@ -214,7 +219,7 @@ flowchart LR
 
     <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-        mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis', padding: 8, nodeSpacing: 15, rankSpacing: 30 } });
+        mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose', flowchart: { htmlLabels: true, curve: 'basis', padding: 15, nodeSpacing: 25, rankSpacing: 50 } });
     </script>
 </body>
 </html>
