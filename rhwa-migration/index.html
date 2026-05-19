@@ -80,7 +80,7 @@ flowchart LR
     EPIC["RHWA-836\nMigrate Jenkins to Prow\nEpic - 37% complete"]:::epic
 
     subgraph G969 [" "]
-        direction TB
+        direction LR
         N969["RHWA-969: Bootstrap system-tests\nCLOSED - 6/6"]:::storyDone
         T958(["RHWA-958 Fork eco-gotests"]):::done
         T978(["RHWA-978 Prune and rename module"]):::done
@@ -88,11 +88,12 @@ flowchart LR
         T973(["RHWA-973 Scaffold internal/"]):::done
         T974(["RHWA-974 Replace OWNERS file"]):::done
         T981(["RHWA-981 Quay.io registry and secrets"]):::done
+        T958 ~~~ T978 ~~~ T970 ~~~ T973 ~~~ T974 ~~~ T981
     end
     style G969 fill:#0f2e1c,stroke:#3fb950,stroke-width:2px,color:#c6efce
 
     subgraph G972 [" "]
-        direction TB
+        direction LR
         N972["RHWA-972: Prow CI Infrastructure\nIN PROGRESS - 5/10"]:::storyIp
         T979(["RHWA-979 Prow onboarding PR"]):::done
         T983(["RHWA-983 Add QE to openshift org"]):::done
@@ -104,11 +105,12 @@ flowchart LR
         T844(["RHWA-844 Polarion test result reporting"]):::todo
         T960(["RHWA-960 extra_refs for all 6 operators"]):::todo
         T980(["RHWA-980 Cross-operator interop test suite"]):::todo
+        T979 ~~~ T983 ~~~ T875 ~~~ T991 ~~~ T990 ~~~ T839 ~~~ T840 ~~~ T844 ~~~ T960 ~~~ T980
     end
     style G972 fill:#0a2050,stroke:#58a6ff,stroke-width:2px,color:#b6d7ff
 
     subgraph G837 [" "]
-        direction TB
+        direction LR
         N837["RHWA-837: SBR Migration\nNEW - 2/7"]:::storyTodo
         T838(["RHWA-838 Close PR openshift/release#77023"]):::done
         T843(["RHWA-843 Verify push/merge policy"]):::done
@@ -117,11 +119,12 @@ flowchart LR
         T874(["RHWA-874 Port node operation helpers"]):::todo
         T842(["RHWA-842 Add OLM upgrade test for SBR"]):::todo
         T959(["RHWA-959 Add extra_refs for SBR operator"]):::todo
+        T838 ~~~ T843 ~~~ T977 ~~~ T855 ~~~ T874 ~~~ T842 ~~~ T959
     end
     style G837 fill:#1a1d23,stroke:#484f58,stroke-width:2px,color:#c9d1d9
 
     subgraph G961 [" "]
-        direction TB
+        direction LR
         N961["RHWA-961: FAR Migration\nNEW - 0/8"]:::storyTodo
         T968(["RHWA-968 Analyze FAR QE vs dev tests"]):::todo
         T962(["RHWA-962 Port FAR smoke tests (8)"]):::todo
@@ -131,25 +134,26 @@ flowchart LR
         T966(["RHWA-966 Apply Ginkgo v2 label taxonomy"]):::todo
         T971(["RHWA-971 Add OLM upgrade test for FAR"]):::todo
         T967(["RHWA-967 Decommission Jenkins FAR profiles"]):::todo
+        T968 ~~~ T962 ~~~ T963 ~~~ T964 ~~~ T965 ~~~ T966 ~~~ T971 ~~~ T967
     end
     style G961 fill:#1a1d23,stroke:#484f58,stroke-width:2px,color:#c9d1d9
 
     subgraph G975 [" "]
-        direction TB
+        direction LR
         N975["RHWA-975: Containerized Test Delivery\nNEW"]:::storyTodo
         T975x(["No sub-tasks defined yet"]):::todo
     end
     style G975 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
 
     subgraph G976 [" "]
-        direction TB
+        direction LR
         N976["RHWA-976: Repo Governance\nNEW"]:::storyTodo
         T976x(["No sub-tasks defined yet"]):::todo
     end
     style G976 fill:#1a1d23,stroke:#484f58,stroke-width:1px,color:#8b949e
 
     subgraph G982 [" "]
-        direction TB
+        direction LR
         N982["RHWA-982: Decommission Jenkins\nNEW - 0/1"]:::storyTodo
         T841(["RHWA-841 Decommission all RHWA operators"]):::todo
     end
