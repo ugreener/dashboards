@@ -27,9 +27,14 @@
         .sh .t { font-weight: 600; font-size: 13px; } .sh .f { font-size: 12px; color: var(--text-muted); font-weight: 600; }
         .pt { width: 100%; height: 5px; background: #21262d; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
         .pf { height: 100%; border-radius: 3px; } .pf.g { background: var(--green); } .pf.b { background: var(--blue); }
-        .sg { display: flex; flex-wrap: wrap; gap: 4px; }
-        .chip { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 500; }
-        .chip.d { background: var(--green-bg); color: var(--green); } .chip.i { background: var(--blue-bg); color: var(--blue); } .chip.n { background: #21262d; color: var(--text-muted); }
+        .task-list { display: flex; flex-direction: column; gap: 3px; }
+        .task-row { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 6px; font-size: 12px; text-decoration: none; color: var(--text); }
+        .task-row:hover { background: #21262d; text-decoration: none; }
+        .task-row.done { color: var(--green); }
+        .task-row.ip { color: var(--blue); background: var(--blue-bg); border: 1px solid var(--blue); box-shadow: 0 0 8px rgba(88, 166, 255, 0.3); font-weight: 600; }
+        .task-row.todo { color: var(--text-muted); }
+        .task-row .icon { width: 16px; text-align: center; flex-shrink: 0; }
+        .task-row .key { font-weight: 600; min-width: 70px; }
         .pl { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 9px; font-weight: 600; margin-left: 5px; text-transform: uppercase; }
         .pl.p1 { background: #1f3d1f; color: #56d364; } .pl.p2 { background: #2a1f3d; color: #bc8cff; } .pl.p3 { background: #1f2d3d; color: #79c0ff; } .pl.p4 { background: #3d2a1f; color: #ffa657; } .pl.p5 { background: #3d1f1f; color: #ff7b72; }
         .legend { display: flex; gap: 14px; margin-bottom: 10px; font-size: 11px; }
@@ -113,19 +118,67 @@ flowchart LR
         </div>
     </div>
 
-    <div class="section"><h2>Story Details (click sub-tasks to open in Jira)</h2></div>
+    <div class="section"><h2>Story Details &#x2014; click any task to open in Jira</h2></div>
 
-    <div class="sc done"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-969">RHWA-969</a> Bootstrap <span class="pl p1">P1</span> <span class="badge done" style="font-size:9px;">Closed</span></div><div class="f">6/6</div></div><div class="pt"><div class="pf g" style="width:100%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-958" class="chip d">&#x2713; 958 Fork</a> <a href="https://redhat.atlassian.net/browse/RHWA-978" class="chip d">&#x2713; 978 Prune</a> <a href="https://redhat.atlassian.net/browse/RHWA-970" class="chip d">&#x2713; 970 Branch</a> <a href="https://redhat.atlassian.net/browse/RHWA-973" class="chip d">&#x2713; 973 Scaffold</a> <a href="https://redhat.atlassian.net/browse/RHWA-974" class="chip d">&#x2713; 974 OWNERS</a> <a href="https://redhat.atlassian.net/browse/RHWA-981" class="chip d">&#x2713; 981 Quay</a></div></div>
+    <div class="sc done"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-969">RHWA-969</a> Bootstrap system-tests <span class="pl p1">P1</span> <span class="badge done" style="font-size:9px;">Closed</span></div><div class="f">6/6</div></div><div class="pt"><div class="pf g" style="width:100%;"></div></div>
+        <div class="task-list">
+            <a href="https://redhat.atlassian.net/browse/RHWA-958" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-958</span>Fork eco-gotests to medik8s/system-tests</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-978" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-978</span>Prune non-medik8s code, rename Go module</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-970" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-970</span>Configure GitHub branch protection</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-973" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-973</span>Scaffold internal/ directory structure</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-974" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-974</span>Replace OWNERS file with Dragonfly team</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-981" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-981</span>Create Quay.io registry and configure secrets</a>
+        </div>
+    </div>
 
-    <div class="sc ip"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-972">RHWA-972</a> Prow CI Infra <span class="pl p3">P3</span> <span class="badge ip" style="font-size:9px;">In Progress</span> <span class="asgn">Udi</span></div><div class="f">5/10</div></div><div class="pt"><div class="pf b" style="width:50%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-979" class="chip d">&#x2713; 979 Onboarding</a> <a href="https://redhat.atlassian.net/browse/RHWA-983" class="chip d">&#x2713; 983 QE org</a> <a href="https://redhat.atlassian.net/browse/RHWA-875" class="chip d">&#x2713; 875 Catalogsource</a> <a href="https://redhat.atlassian.net/browse/RHWA-991" class="chip d">&#x2713; 991 Cred</a> <a href="https://redhat.atlassian.net/browse/RHWA-990" class="chip i">&#x25C9; 990 Konflux step</a> <a href="https://redhat.atlassian.net/browse/RHWA-839" class="chip n">&#x25CB; 839 IIB</a> <a href="https://redhat.atlassian.net/browse/RHWA-840" class="chip n">&#x25CB; 840 Disconn</a> <a href="https://redhat.atlassian.net/browse/RHWA-844" class="chip n">&#x25CB; 844 Polarion</a> <a href="https://redhat.atlassian.net/browse/RHWA-960" class="chip n">&#x25CB; 960 Refs</a> <a href="https://redhat.atlassian.net/browse/RHWA-980" class="chip n">&#x25CB; 980 Interop</a></div></div>
+    <div class="sc ip"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-972">RHWA-972</a> Prow CI Infrastructure <span class="pl p3">P3</span> <span class="badge ip" style="font-size:9px;">In Progress</span> <span class="asgn">Udi Greener</span></div><div class="f">5/10</div></div><div class="pt"><div class="pf b" style="width:50%;"></div></div>
+        <div class="task-list">
+            <a href="https://redhat.atlassian.net/browse/RHWA-979" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-979</span>Submit Prow onboarding PR to openshift/release</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-983" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-983</span>Add QE members to openshift GitHub org</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-875" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-875</span>Investigate enable-qe-catalogsource step</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-991" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-991</span>Verify deploy-konflux-operator credential</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-990" class="task-row ip"><span class="icon">&#x1F504;</span><span class="key">RHWA-990</span>Create rhwa-konflux-catalogsource step</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-839" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-839</span>Add weekly Konflux IIB periodic job</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-840" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-840</span>Add disconnected Prow job</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-844" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-844</span>Enable Polarion test result reporting</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-960" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-960</span>Add extra_refs to all 6 operator repos</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-980" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-980</span>Create cross-operator interop test suite</a>
+        </div>
+    </div>
 
-    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-837">RHWA-837</a> SBR Migration <span class="pl p2">P2</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">2/7</div></div><div class="pt"><div class="pf g" style="width:29%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-838" class="chip d">&#x2713; 838 Close PR</a> <a href="https://redhat.atlassian.net/browse/RHWA-843" class="chip d">&#x2713; 843 Policy</a> <a href="https://redhat.atlassian.net/browse/RHWA-977" class="chip n">&#x25CB; 977 Analyze</a> <a href="https://redhat.atlassian.net/browse/RHWA-855" class="chip n">&#x25CB; 855 Port 21</a> <a href="https://redhat.atlassian.net/browse/RHWA-874" class="chip n">&#x25CB; 874 Helpers</a> <a href="https://redhat.atlassian.net/browse/RHWA-842" class="chip n">&#x25CB; 842 OLM</a> <a href="https://redhat.atlassian.net/browse/RHWA-959" class="chip n">&#x25CB; 959 Refs</a></div></div>
+    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-837">RHWA-837</a> Migrate SBR E2E Testing <span class="pl p2">P2</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">2/7</div></div><div class="pt"><div class="pf g" style="width:29%;"></div></div>
+        <div class="task-list">
+            <a href="https://redhat.atlassian.net/browse/RHWA-838" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-838</span>Close PR openshift/release#77023</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-843" class="task-row done"><span class="icon">&#x2705;</span><span class="key">RHWA-843</span>Verify SBR repo push/merge policy</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-977" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-977</span>Analyze SBR QE tests against dev repo</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-855" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-855</span>Port 21 SBR QE tests to system-tests</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-874" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-874</span>Port node operation helpers</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-842" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-842</span>Add OLM upgrade test for SBR</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-959" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-959</span>Add extra_refs for SBR operator</a>
+        </div>
+    </div>
 
-    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-961">RHWA-961</a> FAR Migration <span class="pl p2">P2</span> <span class="badge todo" style="font-size:9px;">New</span> <span class="asgn">Udi</span></div><div class="f">0/8</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-968" class="chip n">&#x25CB; 968 Analyze</a> <a href="https://redhat.atlassian.net/browse/RHWA-962" class="chip n">&#x25CB; 962 Smoke</a> <a href="https://redhat.atlassian.net/browse/RHWA-963" class="chip n">&#x25CB; 963 Disruptive</a> <a href="https://redhat.atlassian.net/browse/RHWA-964" class="chip n">&#x25CB; 964 Negative</a> <a href="https://redhat.atlassian.net/browse/RHWA-965" class="chip n">&#x25CB; 965 Observ</a> <a href="https://redhat.atlassian.net/browse/RHWA-966" class="chip n">&#x25CB; 966 Labels</a> <a href="https://redhat.atlassian.net/browse/RHWA-971" class="chip n">&#x25CB; 971 OLM</a> <a href="https://redhat.atlassian.net/browse/RHWA-967" class="chip n">&#x25CB; 967 Jenkins off</a></div></div>
+    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-961">RHWA-961</a> Migrate FAR E2E Testing <span class="pl p2">P2</span> <span class="badge todo" style="font-size:9px;">New</span> <span class="asgn">Udi Greener</span></div><div class="f">0/8</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div>
+        <div class="task-list">
+            <a href="https://redhat.atlassian.net/browse/RHWA-968" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-968</span>Analyze FAR QE tests against dev repo</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-962" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-962</span>Port FAR non-disruptive smoke tests (8)</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-963" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-963</span>Port FAR disruptive remediation tests (6)</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-964" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-964</span>Port FAR negative tests (5)</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-965" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-965</span>Port FAR observability tests</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-966" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-966</span>Apply Ginkgo v2 label taxonomy to FAR tests</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-971" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-971</span>Add OLM upgrade test for FAR</a>
+            <a href="https://redhat.atlassian.net/browse/RHWA-967" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-967</span>Decommission Jenkins FAR profiles</a>
+        </div>
+    </div>
 
-    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-975">RHWA-975</a> Container Delivery <span class="pl p4">P4</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">-</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div></div>
+    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-975">RHWA-975</a> Containerized Test Delivery <span class="pl p4">P4</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">-</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div></div>
     <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-976">RHWA-976</a> Repo Governance <span class="pl p4">P4</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">-</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div></div>
-    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-982">RHWA-982</a> Decommission Jenkins <span class="pl p5">P5</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">0/1</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div><div class="sg"><a href="https://redhat.atlassian.net/browse/RHWA-841" class="chip n">&#x25CB; 841 Decommission</a></div></div>
+
+    <div class="sc"><div class="sh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-982">RHWA-982</a> Decommission Jenkins CI <span class="pl p5">P5</span> <span class="badge todo" style="font-size:9px;">New</span></div><div class="f">0/1</div></div><div class="pt"><div class="pf g" style="width:0%;"></div></div>
+        <div class="task-list">
+            <a href="https://redhat.atlassian.net/browse/RHWA-841" class="task-row todo"><span class="icon">&#x2B1C;</span><span class="key">RHWA-841</span>Decommission Jenkins for all RHWA operators</a>
+        </div>
+    </div>
 
     <div class="section" style="margin-top: 20px;"><h2>Overall</h2>
         <div class="sc ip" style="border-left-color:var(--blue);"><div class="sh"><div class="t" style="font-size:14px;"><a href="https://redhat.atlassian.net/browse/RHWA-836">RHWA-836</a> Total</div><div class="f" style="font-size:14px;">13/35 (37%)</div></div><div class="pt" style="height:8px;"><div class="pf b" style="width:37%;"></div></div>
