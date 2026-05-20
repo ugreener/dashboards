@@ -51,6 +51,7 @@
         .oh .t { font-weight: 600; font-size: 14px; } .oh .f { font-size: 14px; color: var(--text-muted); font-weight: 600; }
         .pt { width: 100%; height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
         .pf { height: 100%; border-radius: 4px; background: var(--blue); }
+        .sync-info { font-size: 10px; color: var(--text-muted); margin-top: 4px; font-style: italic; }
         @media (max-width: 768px) { .summary-row { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
@@ -61,15 +62,15 @@
             <div class="subtitle">Migrate medik8s Operators E2E Testing &#xb7; Dragonfly Team</div>
         </div>
         <div style="text-align: right;">
-            <span class="badge ip">Epic In Progress</span>
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Updated: 2026-05-19</div>
+            <span class="badge ip" id="epicBadge">Epic In Progress</span>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" id="updatedLabel">Updated: 2026-05-19</div>
         </div>
     </div>
     <div class="summary-row">
-        <div class="scard"><div class="num" style="color:#fff;">6</div><div class="lbl">Stories</div></div>
-        <div class="scard"><div class="num" style="color:var(--green);">11</div><div class="lbl">Done</div></div>
-        <div class="scard"><div class="num" style="color:var(--blue);">1</div><div class="lbl">In Progress</div></div>
-        <div class="scard"><div class="num" style="color:var(--yellow);">20</div><div class="lbl">To Do</div></div>
+        <div class="scard"><div class="num" style="color:#fff;" id="totalStories">6</div><div class="lbl">Stories</div></div>
+        <div class="scard"><div class="num" style="color:var(--green);" id="totalDone">11</div><div class="lbl">Done</div></div>
+        <div class="scard"><div class="num" style="color:var(--blue);" id="totalIp">1</div><div class="lbl">In Progress</div></div>
+        <div class="scard"><div class="num" style="color:var(--yellow);" id="totalTodo">20</div><div class="lbl">To Do</div></div>
     </div>
     <div class="section">
         <h2>Migration Flow</h2>
@@ -83,75 +84,75 @@
     <div class="diagram-wrap">
         <div class="diagram" id="diagram">
             <div class="phase">
-                <div class="story-box ip" id="epic">
-                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-836">RHWA-836 Epic &#xb7; 34%</a></div>
-                    <div style="padding:10px 12px;font-size:12px;color:var(--text-muted);">Migrate Jenkins to Prow<br>6 stories &#xb7; 32 sub-tasks</div>
+                <div class="story-box ip" id="epic" data-ticket="RHWA-836" data-role="epic">
+                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-836">RHWA-836 Epic &#xb7; <span class="progress-text">34%</span></a></div>
+                    <div style="padding:10px 12px;font-size:12px;color:var(--text-muted);">Migrate Jenkins to Prow<br><span class="story-count">6</span> stories &#xb7; <span class="subtask-count">32</span> sub-tasks</div>
                 </div>
             </div>
             <div class="phase">
-                <div class="story-box done" id="s969">
-                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-969">RHWA-969 Bootstrap &#xb7; 6/6</a></div>
+                <div class="story-box done" id="s969" data-ticket="RHWA-969" data-role="story">
+                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-969">RHWA-969 Bootstrap &#xb7; <span class="story-progress">6/6</span></a></div>
                     <div class="task-list">
-                        <a href="https://redhat.atlassian.net/browse/RHWA-958" class="task done"><span class="icon">&#x2705;</span><span class="key">958</span>Fork eco-gotests</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-978" class="task done"><span class="icon">&#x2705;</span><span class="key">978</span>Prune and rename module</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-970" class="task done"><span class="icon">&#x2705;</span><span class="key">970</span>Branch protection</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-973" class="task done"><span class="icon">&#x2705;</span><span class="key">973</span>Scaffold internal/</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-974" class="task done"><span class="icon">&#x2705;</span><span class="key">974</span>Replace OWNERS file</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-981" class="task done"><span class="icon">&#x2705;</span><span class="key">981</span>Quay.io registry</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-958" class="task done" data-ticket="RHWA-958"><span class="icon">&#x2705;</span><span class="key">958</span>Fork eco-gotests</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-978" class="task done" data-ticket="RHWA-978"><span class="icon">&#x2705;</span><span class="key">978</span>Prune and rename module</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-970" class="task done" data-ticket="RHWA-970"><span class="icon">&#x2705;</span><span class="key">970</span>Branch protection</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-973" class="task done" data-ticket="RHWA-973"><span class="icon">&#x2705;</span><span class="key">973</span>Scaffold internal/</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-974" class="task done" data-ticket="RHWA-974"><span class="icon">&#x2705;</span><span class="key">974</span>Replace OWNERS file</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-981" class="task done" data-ticket="RHWA-981"><span class="icon">&#x2705;</span><span class="key">981</span>Quay.io registry</a>
                     </div>
                 </div>
             </div>
             <div class="phase">
-                <div class="story-box ip" id="s972">
-                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-972">RHWA-972 Prow CI Infra &#xb7; 5/10</a></div>
+                <div class="story-box ip" id="s972" data-ticket="RHWA-972" data-role="story">
+                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-972">RHWA-972 Prow CI Infra &#xb7; <span class="story-progress">5/10</span></a></div>
                     <div class="task-list">
-                        <a href="https://redhat.atlassian.net/browse/RHWA-979" class="task done"><span class="icon">&#x2705;</span><span class="key">979</span>Prow onboarding PR</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-983" class="task done"><span class="icon">&#x2705;</span><span class="key">983</span>Add QE to openshift org</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-875" class="task done"><span class="icon">&#x2705;</span><span class="key">875</span>Investigate catalogsource</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-991" class="task done"><span class="icon">&#x2705;</span><span class="key">991</span>Verify deploy-konflux cred</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-990" class="task ip"><span class="icon">&#x1F504;</span><span class="key">990</span>Create rhwa-konflux step</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-839" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">839</span>Weekly Konflux IIB job</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-840" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">840</span>Disconnected Prow job</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-844" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">844</span>Polarion reporting</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-960" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">960</span>extra_refs all 6 operators</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-980" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">980</span>Interop test suite</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-979" class="task done" data-ticket="RHWA-979"><span class="icon">&#x2705;</span><span class="key">979</span>Prow onboarding PR</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-983" class="task done" data-ticket="RHWA-983"><span class="icon">&#x2705;</span><span class="key">983</span>Add QE to openshift org</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-875" class="task done" data-ticket="RHWA-875"><span class="icon">&#x2705;</span><span class="key">875</span>Investigate catalogsource</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-991" class="task done" data-ticket="RHWA-991"><span class="icon">&#x2705;</span><span class="key">991</span>Verify deploy-konflux cred</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-990" class="task ip" data-ticket="RHWA-990"><span class="icon">&#x1F504;</span><span class="key">990</span>Create rhwa-konflux step</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-839" class="task todo" data-ticket="RHWA-839"><span class="icon">&#x2B1C;</span><span class="key">839</span>Weekly Konflux IIB job</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-840" class="task todo" data-ticket="RHWA-840"><span class="icon">&#x2B1C;</span><span class="key">840</span>Disconnected Prow job</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-844" class="task todo" data-ticket="RHWA-844"><span class="icon">&#x2B1C;</span><span class="key">844</span>Polarion reporting</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-960" class="task todo" data-ticket="RHWA-960"><span class="icon">&#x2B1C;</span><span class="key">960</span>extra_refs all 6 operators</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-980" class="task todo" data-ticket="RHWA-980"><span class="icon">&#x2B1C;</span><span class="key">980</span>Interop test suite</a>
                     </div>
                 </div>
             </div>
             <div class="phase" id="phase3">
-                <div class="story-box" id="s837">
-                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-837">RHWA-837 SBR Migration &#xb7; 0/5</a></div>
+                <div class="story-box" id="s837" data-ticket="RHWA-837" data-role="story">
+                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-837">RHWA-837 SBR Migration &#xb7; <span class="story-progress">0/5</span></a></div>
                     <div class="task-list">
-                        <a href="https://redhat.atlassian.net/browse/RHWA-977" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">977</span>Analyze QE vs dev tests</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-855" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">855</span>Port 21 SBR QE tests</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-874" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">874</span>Port node helpers</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-842" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">842</span>OLM upgrade test</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-959" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">959</span>Add extra_refs for SBR</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-977" class="task todo" data-ticket="RHWA-977"><span class="icon">&#x2B1C;</span><span class="key">977</span>Analyze QE vs dev tests</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-855" class="task todo" data-ticket="RHWA-855"><span class="icon">&#x2B1C;</span><span class="key">855</span>Port 21 SBR QE tests</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-874" class="task todo" data-ticket="RHWA-874"><span class="icon">&#x2B1C;</span><span class="key">874</span>Port node helpers</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-842" class="task todo" data-ticket="RHWA-842"><span class="icon">&#x2B1C;</span><span class="key">842</span>OLM upgrade test</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-959" class="task todo" data-ticket="RHWA-959"><span class="icon">&#x2B1C;</span><span class="key">959</span>Add extra_refs for SBR</a>
                     </div>
                 </div>
-                <div class="story-box" id="s961">
-                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-961">RHWA-961 FAR Migration &#xb7; 0/8</a></div>
+                <div class="story-box" id="s961" data-ticket="RHWA-961" data-role="story">
+                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-961">RHWA-961 FAR Migration &#xb7; <span class="story-progress">0/8</span></a></div>
                     <div class="task-list">
-                        <a href="https://redhat.atlassian.net/browse/RHWA-968" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">968</span>Analyze FAR QE vs dev</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-962" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">962</span>Port smoke tests (8)</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-963" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">963</span>Port disruptive tests (6)</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-964" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">964</span>Port negative tests (5)</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-965" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">965</span>Port observability tests</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-966" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">966</span>Apply label taxonomy</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-971" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">971</span>OLM upgrade test</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-967" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">967</span>Decommission Jenkins FAR</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-968" class="task todo" data-ticket="RHWA-968"><span class="icon">&#x2B1C;</span><span class="key">968</span>Analyze FAR QE vs dev</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-962" class="task todo" data-ticket="RHWA-962"><span class="icon">&#x2B1C;</span><span class="key">962</span>Port smoke tests (8)</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-963" class="task todo" data-ticket="RHWA-963"><span class="icon">&#x2B1C;</span><span class="key">963</span>Port disruptive tests (6)</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-964" class="task todo" data-ticket="RHWA-964"><span class="icon">&#x2B1C;</span><span class="key">964</span>Port negative tests (5)</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-965" class="task todo" data-ticket="RHWA-965"><span class="icon">&#x2B1C;</span><span class="key">965</span>Port observability tests</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-966" class="task todo" data-ticket="RHWA-966"><span class="icon">&#x2B1C;</span><span class="key">966</span>Apply label taxonomy</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-971" class="task todo" data-ticket="RHWA-971"><span class="icon">&#x2B1C;</span><span class="key">971</span>OLM upgrade test</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-967" class="task todo" data-ticket="RHWA-967"><span class="icon">&#x2B1C;</span><span class="key">967</span>Decommission Jenkins FAR</a>
                     </div>
                 </div>
             </div>
             <div class="phase" id="phase4">
-                <div class="story-box" id="s975">
+                <div class="story-box" id="s975" data-ticket="RHWA-975" data-role="story">
                     <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-975">RHWA-975 Container Delivery</a></div>
                     <div style="padding:8px 12px;font-size:11px;color:var(--text-muted);">No sub-tasks yet</div>
                 </div>
-                <div class="story-box" id="s982">
-                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-982">RHWA-982 Decommission &#xb7; 0/1</a></div>
+                <div class="story-box" id="s982" data-ticket="RHWA-982" data-role="story">
+                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-982">RHWA-982 Decommission &#xb7; <span class="story-progress">0/1</span></a></div>
                     <div class="task-list">
-                        <a href="https://redhat.atlassian.net/browse/RHWA-841" class="task todo"><span class="icon">&#x2B1C;</span><span class="key">841</span>Decommission all operators</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-841" class="task todo" data-ticket="RHWA-841"><span class="icon">&#x2B1C;</span><span class="key">841</span>Decommission all operators</a>
                     </div>
                 </div>
             </div>
@@ -161,9 +162,15 @@
     </div>
     <div class="section"><h2>Overall</h2></div>
     <div class="overall">
-        <div class="oh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-836">RHWA-836</a> Total</div><div class="f">11/32 (34%)</div></div>
-        <div class="pt"><div class="pf" style="width:34%;"></div></div>
-        <div style="display:flex;gap:16px;font-size:11px;"><div><span style="color:var(--green);font-weight:600;">11</span> <span style="color:var(--text-muted);">Closed</span></div><div><span style="color:var(--blue);font-weight:600;">1</span> <span style="color:var(--text-muted);">IP</span></div><div><span style="color:var(--text-muted);font-weight:600;">20</span> <span style="color:var(--text-muted);">To Do</span></div><div><span style="color:var(--yellow);font-weight:600;">1/6</span> <span style="color:var(--text-muted);">Stories Done</span></div></div>
+        <div class="oh"><div class="t"><a href="https://redhat.atlassian.net/browse/RHWA-836">RHWA-836</a> Total</div><div class="f" id="overallFraction">11/32 (34%)</div></div>
+        <div class="pt"><div class="pf" id="overallBar" style="width:34%;"></div></div>
+        <div style="display:flex;gap:16px;font-size:11px;">
+            <div><span style="color:var(--green);font-weight:600;" id="overallDone">11</span> <span style="color:var(--text-muted);">Closed</span></div>
+            <div><span style="color:var(--blue);font-weight:600;" id="overallIp">1</span> <span style="color:var(--text-muted);">IP</span></div>
+            <div><span style="color:var(--text-muted);font-weight:600;" id="overallTodoCount">20</span> <span style="color:var(--text-muted);">To Do</span></div>
+            <div><span style="color:var(--yellow);font-weight:600;" id="overallStoriesDone">1/6</span> <span style="color:var(--text-muted);">Stories Done</span></div>
+        </div>
+        <div class="sync-info" id="syncInfo"></div>
     </div>
     <div style="text-align:center;color:var(--text-muted);font-size:10px;margin-top:20px;padding-top:10px;border-top:1px solid var(--border);"><a href="https://redhat.atlassian.net/browse/RHWA-836">Jira</a> &#xb7; <a href="https://docs.google.com/document/d/1Xh_oakZmn_xTDHWqRhJMwUGRPPeIYO0Ied8CQxBbbwU/edit">system-tests Proposal</a> &#xb7; <a href="https://docs.google.com/document/d/1_qiMjJa1w0SOuuQ-qd4Yceutje2RQNUg21xBEI4rmCQ/edit">Migration Proposal</a></div>
     <script>
@@ -208,6 +215,98 @@
         }
         window.addEventListener('load', () => setTimeout(drawArrows, 100));
         window.addEventListener('resize', drawArrows);
+
+        const ICONS = { done: '✅', ip: '🔄', todo: '⬜' };
+        const STORY_KEYS = ['RHWA-969','RHWA-972','RHWA-837','RHWA-961','RHWA-975','RHWA-982'];
+
+        async function syncFromJira() {
+            try {
+                const resp = await fetch('./jira-status.json?' + Date.now());
+                if (!resp.ok) return;
+                const data = await resp.json();
+                const issues = data.issues;
+
+                document.querySelectorAll('.task[data-ticket]').forEach(el => {
+                    const key = el.getAttribute('data-ticket');
+                    if (!issues[key]) return;
+                    const st = issues[key].status;
+                    el.classList.remove('done','ip','todo');
+                    el.classList.add(st);
+                    const icon = el.querySelector('.icon');
+                    if (icon) icon.textContent = ICONS[st] || ICONS.todo;
+                });
+
+                let totalDone = 0, totalIp = 0, totalTodo = 0, storiesDone = 0;
+                document.querySelectorAll('.story-box[data-role="story"]').forEach(box => {
+                    const tasks = box.querySelectorAll('.task[data-ticket]');
+                    let d = 0, i = 0, t = 0;
+                    tasks.forEach(task => {
+                        const cls = task.classList;
+                        if (cls.contains('done')) d++;
+                        else if (cls.contains('ip')) i++;
+                        else t++;
+                    });
+                    totalDone += d; totalIp += i; totalTodo += t;
+
+                    const storyKey = box.getAttribute('data-ticket');
+                    const storyStatus = issues[storyKey] ? issues[storyKey].status : null;
+
+                    let boxStatus = 'todo';
+                    if (storyStatus) {
+                        boxStatus = storyStatus;
+                    } else if (tasks.length > 0) {
+                        if (d === tasks.length) boxStatus = 'done';
+                        else if (d > 0 || i > 0) boxStatus = 'ip';
+                    }
+
+                    box.classList.remove('done','ip');
+                    if (boxStatus === 'done') { box.classList.add('done'); storiesDone++; }
+                    else if (boxStatus === 'ip') box.classList.add('ip');
+
+                    const prog = box.querySelector('.story-progress');
+                    if (prog && tasks.length > 0) prog.textContent = d + '/' + tasks.length;
+                });
+
+                const total = totalDone + totalIp + totalTodo;
+                const pct = total > 0 ? Math.round((totalDone / total) * 100) : 0;
+
+                const epicBox = document.getElementById('epic');
+                epicBox.classList.remove('done','ip');
+                if (storiesDone === STORY_KEYS.length) epicBox.classList.add('done');
+                else if (totalDone > 0 || totalIp > 0) epicBox.classList.add('ip');
+
+                const epicBadge = document.getElementById('epicBadge');
+                if (storiesDone === STORY_KEYS.length) {
+                    epicBadge.className = 'badge done'; epicBadge.textContent = 'Epic Done';
+                } else if (totalDone > 0 || totalIp > 0) {
+                    epicBadge.className = 'badge ip'; epicBadge.textContent = 'Epic In Progress';
+                }
+
+                const progText = epicBox.querySelector('.progress-text');
+                if (progText) progText.textContent = pct + '%';
+
+                document.getElementById('totalDone').textContent = totalDone;
+                document.getElementById('totalIp').textContent = totalIp;
+                document.getElementById('totalTodo').textContent = totalTodo;
+
+                document.getElementById('overallFraction').textContent = totalDone + '/' + total + ' (' + pct + '%)';
+                document.getElementById('overallBar').style.width = pct + '%';
+                document.getElementById('overallDone').textContent = totalDone;
+                document.getElementById('overallIp').textContent = totalIp;
+                document.getElementById('overallTodoCount').textContent = totalTodo;
+                document.getElementById('overallStoriesDone').textContent = storiesDone + '/' + STORY_KEYS.length;
+
+                if (data.updated) {
+                    const d = new Date(data.updated);
+                    document.getElementById('syncInfo').textContent = 'Auto-synced from Jira · ' + d.toLocaleString();
+                    document.getElementById('updatedLabel').textContent = 'Updated: ' + d.toISOString().slice(0,10);
+                }
+            } catch (e) {
+                console.warn('Using static fallback:', e);
+            }
+        }
+
+        syncFromJira();
     </script>
 </body>
 </html>
