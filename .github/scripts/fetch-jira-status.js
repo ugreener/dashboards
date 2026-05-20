@@ -14,22 +14,22 @@ const ALL_PARENT_KEYS = [EPIC_KEY, ...STORY_KEYS];
 
 const jql = `key in (${ALL_PARENT_KEYS.join(",")}) OR parent in (${ALL_PARENT_KEYS.join(",")})`;
 
-function jiraRequest(startAt) {
+function jiraRequest(nextPageToken) {
   return new Promise((resolve, reject) => {
-    const body = JSON.stringify({
-      jql,
-      fields: ["status", "parent"],
-      maxResults: 100,
-      startAt: startAt || 0
-    });
     const auth = Buffer.from(email + ":" + token).toString("base64");
+    const params = new URLSearchParams({
+      jql,
+      fields: "status,parent",
+      maxResults: "100"
+    });
+    if (nextPageToken) params.set("nextPageToken", nextPageToken);
+
     const opts = {
       hostname: "redhat.atlassian.net",
-      path: "/rest/api/3/search",
-      method: "POST",
+      path: "/rest/api/3/search/jql?" + params.toString(),
+      method: "GET",
       headers: {
         Authorization: "Basic " + auth,
-        "Content-Type": "application/json",
         Accept: "application/json"
       }
     };
@@ -38,14 +38,13 @@ function jiraRequest(startAt) {
       res.on("data", (chunk) => (data += chunk));
       res.on("end", () => {
         if (res.statusCode !== 200) {
-          reject(new Error("Jira API " + res.statusCode + ": " + data.slice(0, 200)));
+          reject(new Error("Jira API " + res.statusCode + ": " + data.slice(0, 300)));
           return;
         }
         resolve(JSON.parse(data));
       });
     });
     req.on("error", reject);
-    req.write(body);
     req.end();
   });
 }
@@ -54,12 +53,10 @@ const CATEGORY_MAP = { new: "todo", indeterminate: "ip", done: "done" };
 
 async function main() {
   const issues = {};
-  let startAt = 0;
-  let total = Infinity;
+  let nextPageToken = null;
 
-  while (startAt < total) {
-    const result = await jiraRequest(startAt);
-    total = result.total;
+  do {
+    const result = await jiraRequest(nextPageToken);
     for (const issue of result.issues) {
       const catKey = issue.fields.status.statusCategory.key;
       issues[issue.key] = {
@@ -68,9 +65,8 @@ async function main() {
         parent: issue.fields.parent ? issue.fields.parent.key : null
       };
     }
-    startAt += result.issues.length;
-    if (result.issues.length === 0) break;
-  }
+    nextPageToken = result.nextPageToken || null;
+  } while (nextPageToken);
 
   const output = {
     updated: new Date().toISOString(),
