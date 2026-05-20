@@ -1,0 +1,205 @@
+{
+  "updated": "2026-05-20T09:45:50.961Z",
+  "issues": {
+    "RHWA-991": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-990": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-972"
+    },
+    "RHWA-983": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-982": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-836"
+    },
+    "RHWA-981": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-980": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-972"
+    },
+    "RHWA-979": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-978": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-977": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-837"
+    },
+    "RHWA-976": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-975": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-836"
+    },
+    "RHWA-974": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-973": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-972": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-836"
+    },
+    "RHWA-971": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-961"
+    },
+    "RHWA-970": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-969": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-968": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-961"
+    },
+    "RHWA-967": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-961"
+    },
+    "RHWA-966": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-961"
+    },
+    "RHWA-965": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-961"
+    },
+    "RHWA-964": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-961"
+    },
+    "RHWA-963": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-961"
+    },
+    "RHWA-962": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-961"
+    },
+    "RHWA-961": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-836"
+    },
+    "RHWA-960": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-972"
+    },
+    "RHWA-959": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-837"
+    },
+    "RHWA-958": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-875": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-874": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-837"
+    },
+    "RHWA-855": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-837"
+    },
+    "RHWA-844": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-972"
+    },
+    "RHWA-843": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-842": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-837"
+    },
+    "RHWA-841": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-982"
+    },
+    "RHWA-840": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-972"
+    },
+    "RHWA-839": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-972"
+    },
+    "RHWA-838": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-837": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-836"
+    },
+    "RHWA-836": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": null
+    }
+  }
+}
