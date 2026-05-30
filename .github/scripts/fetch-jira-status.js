@@ -68,12 +68,27 @@ async function main() {
     nextPageToken = result.nextPageToken || null;
   } while (nextPageToken);
 
+  const outPath = process.argv[2] || "rhwa-migration/jira-status.json";
+
+  let prev = {};
+  try {
+    prev = JSON.parse(fs.readFileSync(outPath, "utf8"));
+  } catch (_) {}
+
+  const stableStr = (obj) => {
+    const keys = Object.keys(obj).sort();
+    return JSON.stringify(keys.map((k) => [k, obj[k]]));
+  };
+  if (prev.issues && stableStr(prev.issues) === stableStr(issues)) {
+    console.log("No status changes (" + Object.keys(issues).length + " issues unchanged)");
+    return;
+  }
+
   const output = {
     updated: new Date().toISOString(),
     issues
   };
 
-  const outPath = process.argv[2] || "rhwa-migration/jira-status.json";
   fs.writeFileSync(outPath, JSON.stringify(output, null, 2) + "\n");
   console.log("Wrote " + Object.keys(issues).length + " issues to " + outPath);
 }
