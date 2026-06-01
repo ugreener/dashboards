@@ -399,8 +399,28 @@
             }
         }
 
+        (function autoConfigFromHash() {
+            const h = window.location.hash;
+            if (h.startsWith('#token=')) {
+                const token = decodeURIComponent(h.slice(7));
+                if (token) {
+                    localStorage.setItem('gh_pat', token);
+                    history.replaceState(null, '', window.location.pathname + window.location.search);
+                }
+            }
+        })();
+
         function getToken() {
             return sessionStorage.getItem('gh_pat') || localStorage.getItem('gh_pat') || '';
+        }
+        function updateTokenIndicator() {
+            const el = document.getElementById('syncStatus');
+            if (!el) return;
+            if (getToken()) {
+                el.textContent = '';
+            } else {
+                el.textContent = 'No token configured';
+            }
         }
         function openSettings() {
             document.getElementById('tokenInput').value = getToken();
@@ -547,6 +567,7 @@
         }
 
         syncFromJira();
+        updateTokenIndicator();
         setInterval(() => {
             const syncInfo = document.getElementById('syncInfo');
             if (syncInfo.dataset.updated) {
