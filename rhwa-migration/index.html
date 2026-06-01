@@ -56,24 +56,7 @@
         .sync-btn { background: #21262d; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: background 0.15s; }
         .sync-btn:hover { background: #30363d; }
         .sync-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .sync-btn.running { border-color: var(--blue); color: var(--blue); }
-        .sync-btn.success { border-color: var(--green); color: var(--green); }
-        .sync-btn.error { border-color: #f85149; color: #f85149; }
-        .sync-status { font-size: 10px; color: var(--text-muted); }
         .stale-warning { font-size: 10px; color: var(--yellow); font-weight: 600; }
-        .settings-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px; padding: 2px 4px; }
-        .settings-btn:hover { color: var(--text); }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; justify-content: center; align-items: center; }
-        .modal-overlay.open { display: flex; }
-        .modal { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; max-width: 460px; width: 90%; }
-        .modal h3 { font-size: 15px; color: #fff; margin-bottom: 12px; }
-        .modal p { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5; }
-        .modal input[type="text"] { width: 100%; padding: 6px 10px; background: #0d1117; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; font-family: monospace; margin-bottom: 10px; }
-        .modal .btn-row { display: flex; gap: 8px; justify-content: flex-end; }
-        .modal .btn-primary { background: var(--blue); color: #fff; border: none; border-radius: 6px; padding: 6px 14px; font-size: 12px; cursor: pointer; }
-        .modal .btn-secondary { background: #21262d; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 14px; font-size: 12px; cursor: pointer; }
-        .modal .btn-danger { background: #da3633; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; font-size: 12px; cursor: pointer; }
-        .modal label { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-bottom: 10px; cursor: pointer; }
         .task { transition: background 0.3s, color 0.3s; }
         .flash { animation: flashBg 1.2s ease-out; }
         @keyframes flashBg { 0% { background: rgba(63,185,80,0.25); } 100% { background: transparent; } }
@@ -211,26 +194,11 @@
         </div>
         <div class="sync-bar">
             <button class="sync-btn" id="refreshBtn" onclick="syncFromJira()" title="Re-read cached Jira data">&#x21bb; Refresh</button>
-            <button class="sync-btn" id="syncBtn" onclick="triggerJiraSync()" title="Trigger GitHub Actions workflow to fetch fresh data from Jira">&#x2601; Sync Jira</button>
-            <button class="settings-btn" onclick="openSettings()" title="Configure GitHub token">&#x2699;</button>
-            <span class="sync-status" id="syncStatus"></span>
+            <a class="sync-btn" href="https://github.com/ugreener/dashboards/actions/workflows/sync-jira.yml" target="_blank" rel="noopener" title="Open GitHub Actions to trigger a fresh Jira sync">&#x2601; Sync Jira &#x2197;</a>
+            <span class="sync-status" id="syncStatus" style="font-size:10px;color:var(--text-muted);">Auto-syncs every 15 min</span>
             <span class="stale-warning" id="staleWarning"></span>
         </div>
         <div class="sync-info" id="syncInfo"></div>
-    </div>
-    <div class="modal-overlay" id="settingsModal">
-        <div class="modal">
-            <h3>GitHub Token Settings</h3>
-            <p>A GitHub Personal Access Token is needed to trigger the Jira sync workflow. Create a <strong>fine-grained PAT</strong> for <code>ugreener/dashboards</code> with <strong>Actions: Read &amp; Write</strong> permission.</p>
-            <p><a href="https://github.com/settings/personal-access-tokens/new" target="_blank">Create token on GitHub</a></p>
-            <input type="text" id="tokenInput" placeholder="github_pat_..." autocomplete="off" spellcheck="false">
-            <label><input type="checkbox" id="persistCheck" checked> Remember on this device (localStorage)</label>
-            <div class="btn-row">
-                <button class="btn-danger" id="clearTokenBtn" onclick="clearToken()">Clear Token</button>
-                <button class="btn-secondary" onclick="closeSettings()">Cancel</button>
-                <button class="btn-primary" onclick="saveToken()">Save</button>
-            </div>
-        </div>
     </div>
     <div style="text-align:center;color:var(--text-muted);font-size:10px;margin-top:20px;padding-top:10px;border-top:1px solid var(--border);"><a href="https://redhat.atlassian.net/browse/RHWA-836">Jira</a> &#xb7; <a href="https://docs.google.com/document/d/1Xh_oakZmn_xTDHWqRhJMwUGRPPeIYO0Ied8CQxBbbwU/edit">system-tests Proposal</a> &#xb7; <a href="https://docs.google.com/document/d/1_qiMjJa1w0SOuuQ-qd4Yceutje2RQNUg21xBEI4rmCQ/edit">Migration Proposal</a></div>
     <script>
@@ -279,7 +247,6 @@
 
         const ICONS = { done: '✅', ip: '🔄', todo: '⬜' };
         const STORY_KEYS = ['RHWA-969','RHWA-972','RHWA-837','RHWA-961','RHWA-975','RHWA-982'];
-        const GH_OWNER = 'ugreener', GH_REPO = 'dashboards', GH_WORKFLOW = 'sync-jira.yml';
         let prevStatuses = {};
 
         function relativeTime(dateStr) {
@@ -399,175 +366,7 @@
             }
         }
 
-        (function autoConfigFromHash() {
-            const h = window.location.hash;
-            if (h.startsWith('#token=')) {
-                const token = decodeURIComponent(h.slice(7));
-                if (token) {
-                    localStorage.setItem('gh_pat', token);
-                    history.replaceState(null, '', window.location.pathname + window.location.search);
-                }
-            }
-        })();
-
-        function getToken() {
-            return sessionStorage.getItem('gh_pat') || localStorage.getItem('gh_pat') || '';
-        }
-        function updateTokenIndicator() {
-            const el = document.getElementById('syncStatus');
-            if (!el) return;
-            if (getToken()) {
-                el.textContent = '';
-            } else {
-                el.textContent = 'No token configured';
-            }
-        }
-        function openSettings() {
-            document.getElementById('tokenInput').value = getToken();
-            document.getElementById('clearTokenBtn').style.display = getToken() ? '' : 'none';
-            document.getElementById('settingsModal').classList.add('open');
-        }
-        function closeSettings() {
-            document.getElementById('settingsModal').classList.remove('open');
-        }
-        function saveToken() {
-            const token = document.getElementById('tokenInput').value.trim();
-            if (!token) return;
-            const persist = document.getElementById('persistCheck').checked;
-            if (persist) {
-                localStorage.setItem('gh_pat', token);
-            } else {
-                localStorage.removeItem('gh_pat');
-            }
-            sessionStorage.setItem('gh_pat', token);
-            closeSettings();
-        }
-        function clearToken() {
-            localStorage.removeItem('gh_pat');
-            sessionStorage.removeItem('gh_pat');
-            document.getElementById('tokenInput').value = '';
-            closeSettings();
-        }
-        document.getElementById('settingsModal').addEventListener('click', function(e) {
-            if (e.target === this) closeSettings();
-        });
-
-        function setSyncState(state, msg) {
-            const btn = document.getElementById('syncBtn');
-            const status = document.getElementById('syncStatus');
-            btn.classList.remove('running','success','error');
-            if (state === 'idle') {
-                btn.disabled = false;
-                btn.innerHTML = '&#x2601; Sync Jira';
-                status.textContent = msg || '';
-            } else if (state === 'running') {
-                btn.disabled = true;
-                btn.classList.add('running');
-                btn.innerHTML = '&#x23F3; Syncing...';
-                status.textContent = msg || '';
-            } else if (state === 'success') {
-                btn.disabled = false;
-                btn.classList.add('success');
-                btn.innerHTML = '&#x2714; Synced';
-                status.textContent = msg || '';
-                setTimeout(() => setSyncState('idle'), 5000);
-            } else if (state === 'error') {
-                btn.disabled = false;
-                btn.classList.add('error');
-                btn.innerHTML = '&#x2601; Sync Jira';
-                status.textContent = msg || 'Sync failed';
-                setTimeout(() => setSyncState('idle'), 8000);
-            }
-        }
-
-        async function ghApi(path, opts) {
-            const token = getToken();
-            const resp = await fetch('https://api.github.com' + path, {
-                ...opts,
-                headers: {
-                    'Accept': 'application/vnd.github+json',
-                    'Authorization': 'Bearer ' + token,
-                    'X-GitHub-Api-Version': '2022-11-28',
-                    ...(opts && opts.headers)
-                }
-            });
-            return resp;
-        }
-
-        async function triggerJiraSync() {
-            const token = getToken();
-            if (!token) {
-                openSettings();
-                return;
-            }
-
-            setSyncState('running', 'Triggering workflow...');
-            const beforeTs = new Date().toISOString();
-
-            try {
-                const dispatchResp = await ghApi(
-                    '/repos/' + GH_OWNER + '/' + GH_REPO + '/actions/workflows/' + GH_WORKFLOW + '/dispatches',
-                    { method: 'POST', body: JSON.stringify({ ref: 'main' }) }
-                );
-
-                if (dispatchResp.status === 401 || dispatchResp.status === 403) {
-                    setSyncState('error', 'Token invalid or lacks permissions');
-                    openSettings();
-                    return;
-                }
-                if (!dispatchResp.ok) {
-                    setSyncState('error', 'Dispatch failed (HTTP ' + dispatchResp.status + ')');
-                    return;
-                }
-
-                setSyncState('running', 'Queued, waiting for run...');
-
-                let runId = null;
-                for (let attempt = 0; attempt < 15; attempt++) {
-                    await new Promise(r => setTimeout(r, 3000));
-                    const runsResp = await ghApi(
-                        '/repos/' + GH_OWNER + '/' + GH_REPO + '/actions/workflows/' + GH_WORKFLOW + '/runs?event=workflow_dispatch&per_page=5'
-                    );
-                    if (!runsResp.ok) continue;
-                    const runsData = await runsResp.json();
-                    const match = runsData.workflow_runs.find(r => new Date(r.created_at) >= new Date(beforeTs));
-                    if (match) { runId = match.id; break; }
-                }
-
-                if (!runId) {
-                    setSyncState('error', 'Could not find triggered run');
-                    return;
-                }
-
-                setSyncState('running', 'Workflow running...');
-
-                for (let attempt = 0; attempt < 30; attempt++) {
-                    await new Promise(r => setTimeout(r, 5000));
-                    const runResp = await ghApi('/repos/' + GH_OWNER + '/' + GH_REPO + '/actions/runs/' + runId);
-                    if (!runResp.ok) continue;
-                    const runData = await runResp.json();
-                    if (runData.status === 'completed') {
-                        if (runData.conclusion === 'success') {
-                            setSyncState('running', 'Refreshing data...');
-                            await new Promise(r => setTimeout(r, 5000));
-                            await syncFromJira();
-                            setSyncState('success', 'Data refreshed');
-                        } else {
-                            setSyncState('error', 'Workflow ' + runData.conclusion);
-                        }
-                        return;
-                    }
-                    setSyncState('running', 'Running (' + Math.round((attempt + 1) * 5) + 's)...');
-                }
-
-                setSyncState('error', 'Workflow timed out');
-            } catch (e) {
-                setSyncState('error', 'Error: ' + e.message);
-            }
-        }
-
         syncFromJira();
-        updateTokenIndicator();
         setInterval(() => {
             const syncInfo = document.getElementById('syncInfo');
             if (syncInfo.dataset.updated) {
