@@ -52,11 +52,7 @@
         .pt { width: 100%; height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
         .pf { height: 100%; border-radius: 4px; background: var(--blue); }
         .sync-info { font-size: 10px; color: var(--text-muted); margin-top: 4px; font-style: italic; }
-        .sync-bar { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
-        .sync-btn { background: #21262d; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: background 0.15s; }
-        .sync-btn:hover { background: #30363d; }
-        .sync-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .stale-warning { font-size: 10px; color: var(--yellow); font-weight: 600; }
+        .stale-warning { font-size: 10px; color: var(--yellow); font-weight: 600; display: inline; margin-left: 6px; }
         .task { transition: background 0.3s, color 0.3s; }
         .flash { animation: flashBg 1.2s ease-out; }
         @keyframes flashBg { 0% { background: rgba(63,185,80,0.25); } 100% { background: transparent; } }
@@ -192,13 +188,7 @@
             <div><span style="color:var(--text-muted);font-weight:600;" id="overallTodoCount">21</span> <span style="color:var(--text-muted);">To Do</span></div>
             <div><span style="color:var(--yellow);font-weight:600;" id="overallStoriesDone">1/6</span> <span style="color:var(--text-muted);">Stories Done</span></div>
         </div>
-        <div class="sync-bar">
-            <button class="sync-btn" id="refreshBtn" onclick="syncFromJira()" title="Re-read cached Jira data">&#x21bb; Refresh</button>
-            <a class="sync-btn" href="https://github.com/ugreener/dashboards/actions/workflows/sync-jira.yml" target="_blank" rel="noopener" title="Open GitHub Actions to trigger a fresh Jira sync">&#x2601; Sync Jira &#x2197;</a>
-            <span class="sync-status" id="syncStatus" style="font-size:10px;color:var(--text-muted);">Auto-syncs every 15 min</span>
-            <span class="stale-warning" id="staleWarning"></span>
-        </div>
-        <div class="sync-info" id="syncInfo"></div>
+        <div class="sync-info" id="syncInfo">Auto-synced from Jira every 15 min<span class="stale-warning" id="staleWarning"></span></div>
     </div>
     <div style="text-align:center;color:var(--text-muted);font-size:10px;margin-top:20px;padding-top:10px;border-top:1px solid var(--border);"><a href="https://redhat.atlassian.net/browse/RHWA-836">Jira</a> &#xb7; <a href="https://docs.google.com/document/d/1Xh_oakZmn_xTDHWqRhJMwUGRPPeIYO0Ied8CQxBbbwU/edit">system-tests Proposal</a> &#xb7; <a href="https://docs.google.com/document/d/1_qiMjJa1w0SOuuQ-qd4Yceutje2RQNUg21xBEI4rmCQ/edit">Migration Proposal</a></div>
     <script>
