@@ -71,7 +71,7 @@
         </div>
     </div>
     <div class="summary-row">
-        <div class="scard"><div class="num" style="color:#fff;" id="totalStories">6</div><div class="lbl">Stories</div></div>
+        <div class="scard"><div class="num" style="color:#fff;" id="totalStories">7</div><div class="lbl">Stories</div></div>
         <div class="scard"><div class="num" style="color:var(--green);" id="totalDone">11</div><div class="lbl">Done</div></div>
         <div class="scard"><div class="num" style="color:var(--blue);" id="totalIp">1</div><div class="lbl">In Progress</div></div>
         <div class="scard"><div class="num" style="color:var(--yellow);" id="totalTodo">21</div><div class="lbl">To Do</div></div>
@@ -90,7 +90,7 @@
             <div class="phase">
                 <div class="story-box ip" id="epic" data-ticket="RHWA-836" data-role="epic">
                     <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-836">RHWA-836 Epic &#xb7; <span class="progress-text">34%</span></a></div>
-                    <div style="padding:10px 12px;font-size:12px;color:var(--text-muted);">Migrate Jenkins to Prow<br><span class="story-count">6</span> stories &#xb7; <span class="subtask-count">33</span> sub-tasks</div>
+                    <div style="padding:10px 12px;font-size:12px;color:var(--text-muted);">Migrate Jenkins to Prow<br><span class="story-count">7</span> stories &#xb7; <span class="subtask-count">42</span> sub-tasks</div>
                 </div>
             </div>
             <div class="phase">
@@ -162,6 +162,20 @@
                         <a href="https://redhat.atlassian.net/browse/RHWA-1036" class="task todo" data-ticket="RHWA-1036"><span class="icon">&#x2B1C;</span><span class="key">1036</span>Opt-in presubmit from FAR PRs</a>
                     </div>
                 </div>
+                <div class="story-box" id="s1073" data-ticket="RHWA-1073" data-role="story">
+                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-1073">RHWA-1073 SNR Migration &#xb7; <span class="story-progress">0/9</span></a></div>
+                    <div class="task-list">
+                        <a href="https://redhat.atlassian.net/browse/RHWA-1080" class="task todo" data-ticket="RHWA-1080"><span class="icon">&#x2B1C;</span><span class="key">1080</span>SNR periodic job config</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-1079" class="task todo" data-ticket="RHWA-1079"><span class="icon">&#x2B1C;</span><span class="key">1079</span>Document SNR tests</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-1074" class="task todo" data-ticket="RHWA-1074"><span class="icon">&#x2B1C;</span><span class="key">1074</span>Port post-deploy tests (4)</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-1075" class="task todo" data-ticket="RHWA-1075"><span class="icon">&#x2B1C;</span><span class="key">1075</span>Port config &amp; negative tests (7)</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-1076" class="task todo" data-ticket="RHWA-1076"><span class="icon">&#x2B1C;</span><span class="key">1076</span>Port strategy &amp; condition tests (4)</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-1077" class="task todo" data-ticket="RHWA-1077"><span class="icon">&#x2B1C;</span><span class="key">1077</span>Port remediation tests (5)</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-1078" class="task todo" data-ticket="RHWA-1078"><span class="icon">&#x2B1C;</span><span class="key">1078</span>Port standalone &amp; scale tests (4)</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-1081" class="task todo" data-ticket="RHWA-1081"><span class="icon">&#x2B1C;</span><span class="key">1081</span>Polarion reporting (SNR)</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-1082" class="task todo" data-ticket="RHWA-1082"><span class="icon">&#x2B1C;</span><span class="key">1082</span>Opt-in presubmit from SNR PRs</a>
+                    </div>
+                </div>
             </div>
             <div class="phase" id="phase4">
                 <div class="story-box" id="s975" data-ticket="RHWA-975" data-role="story">
@@ -219,16 +233,16 @@
                 const r = el.getBoundingClientRect();
                 return { l: r.left - dr.left, r: r.right - dr.left, cy: r.top + r.height/2 - dr.top, t: r.top - dr.top, b: r.bottom - dr.top };
             }
-            const simpleEdges = [['epic','s969'],['s969','s972'],['s972','s837'],['s972','s961']];
+            const simpleEdges = [['epic','s969'],['s969','s972'],['s972','s837'],['s972','s961'],['s972','s1073']];
             const pad = 4;
             simpleEdges.forEach(([f,t]) => {
                 const from = pos(f), to = pos(t);
                 drawArrow(svg, from.r + pad, from.cy, to.l - pad, to.cy);
             });
-            const s837p = pos('s837'), s961p = pos('s961');
+            const s837p = pos('s837'), s1073p = pos('s1073');
             const s975p = pos('s975'), s982p = pos('s982');
             const midX1 = s837p.r + pad;
-            const midY = (s837p.b + s961p.t) / 2;
+            const midY = (s837p.t + s1073p.b) / 2;
             const midX2 = s975p.l - pad;
             const midY2 = (s975p.b + s982p.t) / 2;
             drawArrow(svg, midX1, midY, midX2, midY2);
@@ -237,7 +251,7 @@
         window.addEventListener('resize', drawArrows);
 
         const ICONS = { done: '✅', ip: '🔄', todo: '⬜' };
-        const STORY_KEYS = ['RHWA-969','RHWA-972','RHWA-837','RHWA-961','RHWA-975','RHWA-982'];
+        const STORY_KEYS = ['RHWA-969','RHWA-972','RHWA-837','RHWA-961','RHWA-1073','RHWA-975','RHWA-982'];
         let prevStatuses = {};
 
         function relativeTime(dateStr) {
