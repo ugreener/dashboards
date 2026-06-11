@@ -9,7 +9,7 @@ if (!email || !token) {
 }
 
 const EPIC_KEY = "RHWA-836";
-const STORY_KEYS = ["RHWA-969","RHWA-972","RHWA-837","RHWA-961","RHWA-975","RHWA-982"];
+const STORY_KEYS = ["RHWA-969","RHWA-972","RHWA-837","RHWA-961","RHWA-1073","RHWA-975","RHWA-982"];
 const ALL_PARENT_KEYS = [EPIC_KEY, ...STORY_KEYS];
 
 const jql = `key in (${ALL_PARENT_KEYS.join(",")}) OR parent in (${ALL_PARENT_KEYS.join(",")})`;
