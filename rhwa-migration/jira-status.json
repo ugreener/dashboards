@@ -1,6 +1,51 @@
 {
-  "updated": "2026-06-11T09:28:08.305Z",
+  "updated": "2026-06-11T09:35:32.491Z",
   "issues": {
+    "RHWA-1082": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1073"
+    },
+    "RHWA-1081": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1073"
+    },
+    "RHWA-1080": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1073"
+    },
+    "RHWA-1079": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1073"
+    },
+    "RHWA-1078": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1073"
+    },
+    "RHWA-1077": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1073"
+    },
+    "RHWA-1076": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1073"
+    },
+    "RHWA-1075": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1073"
+    },
+    "RHWA-1074": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-1073"
+    },
     "RHWA-1073": {
       "status": "ip",
       "name": "In Progress",
