@@ -239,13 +239,13 @@
                 const from = pos(f), to = pos(t);
                 drawArrow(svg, from.r + pad, from.cy, to.l - pad, to.cy);
             });
-            const s837p = pos('s837'), s1073p = pos('s1073');
             const s975p = pos('s975'), s982p = pos('s982');
-            const midX1 = s837p.r + pad;
-            const midY = (s837p.t + s1073p.b) / 2;
-            const midX2 = s975p.l - pad;
-            const midY2 = (s975p.b + s982p.t) / 2;
-            drawArrow(svg, midX1, midY, midX2, midY2);
+            const rightTargetX = s975p.l - pad;
+            const rightTargetY = (s975p.b + s982p.t) / 2;
+            ['s837','s961','s1073'].forEach(id => {
+                const from = pos(id);
+                drawArrow(svg, from.r + pad, from.cy, rightTargetX, rightTargetY);
+            });
         }
         window.addEventListener('load', () => setTimeout(drawArrows, 100));
         window.addEventListener('resize', drawArrows);
