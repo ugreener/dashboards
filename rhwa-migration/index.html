@@ -233,11 +233,19 @@
                 const r = el.getBoundingClientRect();
                 return { l: r.left - dr.left, r: r.right - dr.left, cy: r.top + r.height/2 - dr.top, t: r.top - dr.top, b: r.bottom - dr.top };
             }
-            const simpleEdges = [['epic','s969'],['s969','s972'],['s972','s837'],['s972','s961'],['s972','s1073']];
+            const chainEdges = [['epic','s969'],['s969','s972']];
             const pad = 4;
-            simpleEdges.forEach(([f,t]) => {
+            chainEdges.forEach(([f,t]) => {
                 const from = pos(f), to = pos(t);
                 drawArrow(svg, from.r + pad, from.cy, to.l - pad, to.cy);
+            });
+            const s972 = pos('s972');
+            const fanTargets = ['s837','s961','s1073'];
+            const fanCount = fanTargets.length;
+            fanTargets.forEach((t, i) => {
+                const to = pos(t);
+                const spreadY = s972.t + (s972.b - s972.t) * (i + 1) / (fanCount + 1);
+                drawArrow(svg, s972.r + pad, spreadY, to.l - pad, to.cy);
             });
             const s837p = pos('s837'), s1073p = pos('s1073');
             const s975p = pos('s975'), s982p = pos('s982');
