@@ -26,12 +26,11 @@ jobs:
           node .github/scripts/fetch-jira-status.js
           rhwa-migration/jira-status.json
 
-      - name: Commit and keep-alive
+      - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          date -u '+%Y-%m-%dT%H:%M:%SZ' > rhwa-migration/last-sync.txt
-          git add rhwa-migration/jira-status.json rhwa-migration/last-sync.txt
-          git diff --cached --quiet && echo "No changes" && exit 0
+          git add rhwa-migration/jira-status.json
+          git diff --cached --quiet && exit 0
           git commit -m "chore: sync jira statuses [skip ci]"
           git push
