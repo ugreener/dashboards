@@ -125,7 +125,7 @@
                 <div class="story-box ip" id="s1113" data-ticket="RHWA-1113" data-role="story">
                     <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-1113">RHWA-1113 CI Dashboard &#xb7; <span class="story-progress">0/1</span></a></div>
                     <div class="task-list">
-                        <a href="https://redhat.atlassian.net/browse/RHWA-1107" class="task ip" data-ticket="RHWA-1107"><span class="icon">&#x1F504;</span><span class="key">1107</span>Deploy CI Dashboard on GPC</a>
+                        <a href="https://redhat.atlassian.net/browse/RHWA-1107" class="task ip" data-ticket="RHWA-1107"><span class="icon">&#x1F504;</span><span class="key">1107</span>Initial deployment on GPC</a>
                     </div>
                 </div>
                 <div class="story-box" id="s837" data-ticket="RHWA-837" data-role="story">
@@ -240,7 +240,7 @@
                 const r = el.getBoundingClientRect();
                 return { l: r.left - dr.left, r: r.right - dr.left, cy: r.top + r.height/2 - dr.top, t: r.top - dr.top, b: r.bottom - dr.top };
             }
-            const simpleEdges = [['epic','s969'],['s969','s972'],['s972','s837'],['s972','s961'],['s972','s1073']];
+            const simpleEdges = [['epic','s969'],['s969','s972'],['s972','s1113'],['s972','s837'],['s972','s961'],['s972','s1073']];
             const pad = 4;
             simpleEdges.forEach(([f,t]) => {
                 const from = pos(f), to = pos(t);
@@ -249,7 +249,7 @@
             const s975p = pos('s975'), s982p = pos('s982');
             const rightTargetX = s975p.l - pad;
             const rightTargetY = (s975p.b + s982p.t) / 2;
-            ['s837','s961','s1073'].forEach(id => {
+            ['s1113','s837','s961','s1073'].forEach(id => {
                 const from = pos(id);
                 drawArrow(svg, from.r + pad, from.cy, rightTargetX, rightTargetY);
             });
