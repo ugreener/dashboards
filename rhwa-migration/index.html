@@ -71,7 +71,7 @@
         </div>
     </div>
     <div class="summary-row">
-        <div class="scard"><div class="num" style="color:#fff;" id="totalStories">7</div><div class="lbl">Stories</div></div>
+        <div class="scard"><div class="num" style="color:#fff;" id="totalStories">8</div><div class="lbl">Stories</div></div>
         <div class="scard"><div class="num" style="color:var(--green);" id="totalDone">11</div><div class="lbl">Done</div></div>
         <div class="scard"><div class="num" style="color:var(--blue);" id="totalIp">1</div><div class="lbl">In Progress</div></div>
         <div class="scard"><div class="num" style="color:var(--yellow);" id="totalTodo">21</div><div class="lbl">To Do</div></div>
@@ -118,7 +118,14 @@
                         <a href="https://redhat.atlassian.net/browse/RHWA-1021" class="task todo" data-ticket="RHWA-1021"><span class="icon">&#x2B1C;</span><span class="key">1021</span>Operator subscribe step</a>
                         <a href="https://redhat.atlassian.net/browse/RHWA-840" class="task todo" data-ticket="RHWA-840"><span class="icon">&#x2B1C;</span><span class="key">840</span>Disconnected CatalogSource step</a>
                         <a href="https://redhat.atlassian.net/browse/RHWA-1072" class="task ip" data-ticket="RHWA-1072"><span class="icon">&#x1F504;</span><span class="key">1072</span>E2E presubmits for all operators</a>
-                        <a href="https://redhat.atlassian.net/browse/RHWA-1107" class="task ip" data-ticket="RHWA-1107"><span class="icon">&#x1F504;</span><span class="key">1107</span>CI Dashboard on GPC</a>
+                    </div>
+                </div>
+            </div>
+            <div class="phase">
+                <div class="story-box ip" id="s1113" data-ticket="RHWA-1113" data-role="story">
+                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-1113">RHWA-1113 CI Dashboard &#xb7; <span class="story-progress">0/1</span></a></div>
+                    <div class="task-list">
+                        <a href="https://redhat.atlassian.net/browse/RHWA-1107" class="task ip" data-ticket="RHWA-1107"><span class="icon">&#x1F504;</span><span class="key">1107</span>Deploy CI Dashboard on GPC</a>
                     </div>
                 </div>
             </div>
@@ -253,7 +260,7 @@
         window.addEventListener('resize', drawArrows);
 
         const ICONS = { done: '✅', ip: '🔄', todo: '⬜' };
-        const STORY_KEYS = ['RHWA-969','RHWA-972','RHWA-837','RHWA-961','RHWA-1073','RHWA-975','RHWA-982'];
+        const STORY_KEYS = ['RHWA-969','RHWA-972','RHWA-1113','RHWA-837','RHWA-961','RHWA-1073','RHWA-975','RHWA-982'];
         let prevStatuses = {};
 
         function relativeTime(dateStr) {
