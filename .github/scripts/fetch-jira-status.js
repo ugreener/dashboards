@@ -82,6 +82,7 @@ async function main() {
   const statusChanged = !(prev.issues && stableStr(prev.issues) === stableStr(issues));
   if (!statusChanged) {
     console.log("No status changes (" + Object.keys(issues).length + " issues unchanged)");
+    return;
   }
 
   const output = {
