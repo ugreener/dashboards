@@ -9,12 +9,8 @@ if (!email || !token) {
 }
 
 const EPIC_KEY = "RHWA-836";
-const STORY_KEYS = ["RHWA-969","RHWA-972","RHWA-1113","RHWA-837","RHWA-961","RHWA-1073","RHWA-975","RHWA-982"];
-const ALL_PARENT_KEYS = [EPIC_KEY, ...STORY_KEYS];
 
-const jql = `key in (${ALL_PARENT_KEYS.join(",")}) OR parent in (${ALL_PARENT_KEYS.join(",")})`;
-
-function jiraRequest(nextPageToken) {
+function jiraSearch(jql, nextPageToken) {
   return new Promise((resolve, reject) => {
     const auth = Buffer.from(email + ":" + token).toString("base64");
     const params = new URLSearchParams({
@@ -49,24 +45,50 @@ function jiraRequest(nextPageToken) {
   });
 }
 
+async function fetchAll(jql) {
+  const results = [];
+  let nextPageToken = null;
+  do {
+    const result = await jiraSearch(jql, nextPageToken);
+    results.push(...result.issues);
+    nextPageToken = result.nextPageToken || null;
+  } while (nextPageToken);
+  return results;
+}
+
 const CATEGORY_MAP = { new: "todo", indeterminate: "ip", done: "done" };
+
+function issueEntry(issue) {
+  const catKey = issue.fields.status.statusCategory.key;
+  return {
+    status: CATEGORY_MAP[catKey] || "todo",
+    name: issue.fields.status.name,
+    parent: issue.fields.parent ? issue.fields.parent.key : null
+  };
+}
 
 async function main() {
   const issues = {};
-  let nextPageToken = null;
 
-  do {
-    const result = await jiraRequest(nextPageToken);
-    for (const issue of result.issues) {
-      const catKey = issue.fields.status.statusCategory.key;
-      issues[issue.key] = {
-        status: CATEGORY_MAP[catKey] || "todo",
-        name: issue.fields.status.name,
-        parent: issue.fields.parent ? issue.fields.parent.key : null
-      };
+  // Phase 1: fetch the epic and all its direct children (stories)
+  const epicAndStories = await fetchAll(`key = ${EPIC_KEY} OR parent = ${EPIC_KEY}`);
+  const storyKeys = [];
+  for (const issue of epicAndStories) {
+    issues[issue.key] = issueEntry(issue);
+    if (issue.key !== EPIC_KEY) {
+      storyKeys.push(issue.key);
     }
-    nextPageToken = result.nextPageToken || null;
-  } while (nextPageToken);
+  }
+  console.log("Discovered " + storyKeys.length + " stories under " + EPIC_KEY);
+
+  // Phase 2: fetch all sub-tasks under every discovered story
+  if (storyKeys.length > 0) {
+    const subTasks = await fetchAll(`parent in (${storyKeys.join(",")})`);
+    for (const issue of subTasks) {
+      issues[issue.key] = issueEntry(issue);
+    }
+    console.log("Fetched " + subTasks.length + " sub-tasks");
+  }
 
   const outPath = process.argv[2] || "rhwa-migration/jira-status.json";
 
