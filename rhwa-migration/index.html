@@ -211,6 +211,10 @@
                         <a href="https://redhat.atlassian.net/browse/RHWA-1146" class="task todo" data-ticket="RHWA-1146"><span class="icon">&#x2B1C;</span><span class="key">1146</span>Port 4 basic NMO tests</a>
                     </div>
                 </div>
+                <div class="story-box" id="s1193" data-ticket="RHWA-1193" data-role="story">
+                    <div class="story-header"><a href="https://redhat.atlassian.net/browse/RHWA-1193">RHWA-1193 Refactoring &#xb7; <span class="story-progress">0/0</span></a></div>
+                    <div style="padding:8px 12px;font-size:11px;color:var(--text-muted);">No sub-tasks yet</div>
+                </div>
             </div>
             <div class="phase" id="phase4">
                 <div class="story-box" id="s975" data-ticket="RHWA-975" data-role="story">
@@ -268,7 +272,7 @@
                 const r = el.getBoundingClientRect();
                 return { l: r.left - dr.left, r: r.right - dr.left, cy: r.top + r.height/2 - dr.top, t: r.top - dr.top, b: r.bottom - dr.top };
             }
-            const simpleEdges = [['epic','s969'],['s969','s972'],['s972','s1113'],['s972','s837'],['s972','s961'],['s972','s1073'],['s972','s1138'],['s972','s1139'],['s972','s1140']];
+            const simpleEdges = [['epic','s969'],['s969','s972'],['s972','s1113'],['s972','s837'],['s972','s961'],['s972','s1073'],['s972','s1138'],['s972','s1139'],['s972','s1140'],['s972','s1193']];
             const pad = 4;
             simpleEdges.forEach(([f,t]) => {
                 const from = pos(f), to = pos(t);
@@ -277,7 +281,7 @@
             const s975p = pos('s975'), s982p = pos('s982');
             const rightTargetX = s975p.l - pad;
             const rightTargetY = (s975p.b + s982p.t) / 2;
-            ['s1113','s837','s961','s1073','s1138','s1139','s1140'].forEach(id => {
+            ['s1113','s837','s961','s1073','s1138','s1139','s1140','s1193'].forEach(id => {
                 const from = pos(id);
                 drawArrow(svg, from.r + pad, from.cy, rightTargetX, rightTargetY);
             });
@@ -286,7 +290,7 @@
         window.addEventListener('resize', drawArrows);
 
         const ICONS = { done: '✅', ip: '🔄', todo: '⬜' };
-        const STORY_KEYS = ['RHWA-969','RHWA-972','RHWA-1113','RHWA-837','RHWA-961','RHWA-1073','RHWA-1138','RHWA-1139','RHWA-1140','RHWA-975','RHWA-982'];
+        const STORY_KEYS = ['RHWA-969','RHWA-972','RHWA-1113','RHWA-837','RHWA-961','RHWA-1073','RHWA-1138','RHWA-1139','RHWA-1140','RHWA-1193','RHWA-975','RHWA-982'];
         let prevStatuses = {};
 
         function relativeTime(dateStr) {
