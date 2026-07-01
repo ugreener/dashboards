@@ -1,6 +1,11 @@
 {
-  "updated": "2026-07-01T06:44:59.099Z",
+  "updated": "2026-07-01T10:36:10.255Z",
   "issues": {
+    "RHWA-1254": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-836"
+    },
     "RHWA-1193": {
       "status": "ip",
       "name": "In Progress",
@@ -70,6 +75,81 @@
       "status": "ip",
       "name": "In Progress",
       "parent": "RHWA-957"
+    },
+    "RHWA-1256": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1254"
+    },
+    "RHWA-1255": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1254"
+    },
+    "RHWA-1253": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1073"
+    },
+    "RHWA-1252": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1251": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1250": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1249": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1248": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1247": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1246": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1245": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1244": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1243": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1242": {
+      "status": "ip",
+      "name": "Dev Complete",
+      "parent": "RHWA-1073"
+    },
+    "RHWA-1241": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1073"
     },
     "RHWA-1231": {
       "status": "todo",
@@ -257,8 +337,8 @@
       "parent": "RHWA-1073"
     },
     "RHWA-1079": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-1073"
     },
     "RHWA-1078": {
@@ -277,8 +357,8 @@
       "parent": "RHWA-1073"
     },
     "RHWA-1075": {
-      "status": "ip",
-      "name": "Dev Complete",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-1073"
     },
     "RHWA-1074": {
