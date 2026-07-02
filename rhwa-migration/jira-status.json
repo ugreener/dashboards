@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T10:36:10.255Z",
+  "updated": "2026-07-02T06:04:08.621Z",
   "issues": {
     "RHWA-1254": {
       "status": "todo",
@@ -75,6 +75,56 @@
       "status": "ip",
       "name": "In Progress",
       "parent": "RHWA-957"
+    },
+    "RHWA-1279": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1278": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1277": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1276": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1073"
+    },
+    "RHWA-1275": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1274": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1273": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1272": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1271": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1270": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
     },
     "RHWA-1256": {
       "status": "todo",
