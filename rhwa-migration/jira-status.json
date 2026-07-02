@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02T06:04:08.621Z",
+  "updated": "2026-07-02T06:47:04.627Z",
   "issues": {
     "RHWA-1254": {
       "status": "todo",
@@ -97,18 +97,18 @@
       "parent": "RHWA-1073"
     },
     "RHWA-1275": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-1140"
     },
     "RHWA-1274": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-1139"
     },
     "RHWA-1273": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-1138"
     },
     "RHWA-1272": {
@@ -372,8 +372,8 @@
       "parent": "RHWA-837"
     },
     "RHWA-1082": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-1073"
     },
     "RHWA-1081": {
@@ -472,8 +472,8 @@
       "parent": "RHWA-961"
     },
     "RHWA-1036": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-961"
     },
     "RHWA-1035": {
@@ -612,8 +612,8 @@
       "parent": "RHWA-972"
     },
     "RHWA-959": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-837"
     },
     "RHWA-958": {
