@@ -455,7 +455,7 @@
                     if (el.classList.contains('done')) testMigrated += n;
                 });
                 document.getElementById('testsRemaining').textContent = testTotal - testMigrated;
-                document.getElementById('testsRemainingLbl').textContent = 'remaining out of ' + testTotal;
+                document.getElementById('testsRemainingLbl').textContent = 'tests remaining (of ' + testTotal + ')';
 
                 if (data.updated) {
                     const d = new Date(data.updated);
