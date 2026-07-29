@@ -71,10 +71,10 @@
         </div>
     </div>
     <div class="summary-row">
-        <div class="scard"><div class="num" style="color:#fff;" id="totalStories">8</div><div class="lbl">Stories</div></div>
         <div class="scard"><div class="num" style="color:var(--green);" id="totalDone">11</div><div class="lbl">Done</div></div>
         <div class="scard"><div class="num" style="color:var(--blue);" id="totalIp">1</div><div class="lbl">In Progress</div></div>
         <div class="scard"><div class="num" style="color:var(--yellow);" id="totalTodo">21</div><div class="lbl">To Do</div></div>
+        <div class="scard"><div class="num" style="color:var(--green);" id="testsMigrated">--</div><div class="lbl" id="testsMigratedLbl">Tests Migrated</div></div>
         <div class="scard"><div class="num" style="color:#e5a00d;" id="testsRemaining">--</div><div class="lbl" id="testsRemainingLbl">Tests Remaining</div></div>
     </div>
     <div class="section">
@@ -455,6 +455,8 @@
                     testTotal += n;
                     if (el.classList.contains('done')) testMigrated += n;
                 });
+                document.getElementById('testsMigrated').textContent = testMigrated;
+                document.getElementById('testsMigratedLbl').textContent = testMigrated + ' of ' + testTotal + ' migrated';
                 document.getElementById('testsRemaining').textContent = testTotal - testMigrated;
                 document.getElementById('testsRemainingLbl').textContent = 'tests remaining (of ' + testTotal + ')';
 
