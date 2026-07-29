@@ -71,9 +71,9 @@
         </div>
     </div>
     <div class="summary-row">
-        <div class="scard"><div class="num" style="color:var(--green);" id="totalDone">11</div><div class="lbl">Done</div></div>
-        <div class="scard"><div class="num" style="color:var(--blue);" id="totalIp">1</div><div class="lbl">In Progress</div></div>
-        <div class="scard"><div class="num" style="color:var(--yellow);" id="totalTodo">21</div><div class="lbl">To Do</div></div>
+        <div class="scard"><div class="num" style="color:var(--green);" id="totalDone">11</div><div class="lbl" id="totalDoneLbl">Tasks Done</div></div>
+        <div class="scard"><div class="num" style="color:var(--blue);" id="totalIp">1</div><div class="lbl" id="totalIpLbl">Tasks In Progress</div></div>
+        <div class="scard"><div class="num" style="color:var(--yellow);" id="totalTodo">21</div><div class="lbl" id="totalTodoLbl">Tasks To Do</div></div>
         <div class="scard"><div class="num" style="color:var(--green);" id="testsMigrated">--</div><div class="lbl" id="testsMigratedLbl">Tests Migrated</div></div>
         <div class="scard"><div class="num" style="color:#e5a00d;" id="testsRemaining">--</div><div class="lbl" id="testsRemainingLbl">Tests Remaining</div></div>
     </div>
@@ -441,6 +441,12 @@
                 document.getElementById('totalDone').textContent = totalDone;
                 document.getElementById('totalIp').textContent = totalIp;
                 document.getElementById('totalTodo').textContent = totalTodo;
+                var donePct = total > 0 ? Math.round((totalDone / total) * 100) : 0;
+                var ipPct = total > 0 ? Math.round((totalIp / total) * 100) : 0;
+                var todoPct = total > 0 ? Math.round((totalTodo / total) * 100) : 0;
+                document.getElementById('totalDoneLbl').textContent = 'Tasks Done (' + donePct + '%)';
+                document.getElementById('totalIpLbl').textContent = 'Tasks In Progress (' + ipPct + '%)';
+                document.getElementById('totalTodoLbl').textContent = 'Tasks To Do (' + todoPct + '%)';
 
                 document.getElementById('overallFraction').textContent = totalDone + '/' + total + ' (' + pct + '%)';
                 document.getElementById('overallBar').style.width = pct + '%';
