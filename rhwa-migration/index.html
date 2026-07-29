@@ -463,10 +463,10 @@
                 });
                 var testMigratedPct = testTotal > 0 ? Math.round((testMigrated / testTotal) * 100) : 0;
                 var testRemainingPct = testTotal > 0 ? Math.round(((testTotal - testMigrated) / testTotal) * 100) : 0;
-                document.getElementById('testsMigrated').textContent = testMigratedPct + '%';
-                document.getElementById('testsMigratedLbl').textContent = testMigrated + ' of ' + testTotal + ' tests migrated';
-                document.getElementById('testsRemaining').textContent = testRemainingPct + '%';
-                document.getElementById('testsRemainingLbl').textContent = (testTotal - testMigrated) + ' of ' + testTotal + ' tests remaining';
+                document.getElementById('testsMigrated').textContent = testMigrated;
+                document.getElementById('testsMigratedLbl').textContent = 'Tests Migrated (' + testMigratedPct + '% of ' + testTotal + ')';
+                document.getElementById('testsRemaining').textContent = testTotal - testMigrated;
+                document.getElementById('testsRemainingLbl').textContent = 'Tests Remaining (' + testRemainingPct + '% of ' + testTotal + ')';
 
                 if (data.updated) {
                     const d = new Date(data.updated);
