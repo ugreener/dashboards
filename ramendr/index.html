@@ -5,92 +5,75 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VirtDR Phase 0 - Architecture Diagram</title>
 <style>
-:root{--bg:#0d1117;--card-bg:#161b22;--border:#30363d;--text:#c9d1d9;--text-muted:#8b949e;--green:#3fb950;--green-bg:#1b4332;--blue:#58a6ff;--blue-bg:#0c2d6b;--yellow:#d29922;--yellow-bg:#3d2e00;--red:#f85149;--red-bg:#4a1515;--orange:#d18616;--purple:#bc8cff;--purple-bg:#2a1a4e;--cyan:#39d2c0;--cyan-bg:#0d3330;--link:#58a6ff;--gray:#484f58}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#c9d1d9;--muted:#8b949e;--green:#3fb950;--green-bg:#1b4332;--blue:#58a6ff;--blue-bg:#0c2d6b;--yellow:#d29922;--red:#f85149;--orange:#d18616;--purple:#bc8cff;--purple-bg:#2a1a4e;--cyan:#39d2c0;--cyan-bg:#0d3330}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding:24px;max-width:1600px;margin:0 auto}
-a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding:24px;max-width:1800px;margin:0 auto}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:20px}
-.hdr h1{font-size:22px;color:#fff;margin-bottom:4px}.hdr .sub{color:var(--text-muted);font-size:13px}
+.hdr h1{font-size:22px;color:#fff;margin-bottom:4px}.hdr .sub{color:var(--muted);font-size:13px}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase}
 .badge.done{background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
 .badge.ip{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue)}
-.badge.todo{background:#21262d;color:var(--text-muted);border:1px solid var(--gray)}
-.badge.blocked{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+.badge.todo{background:#21262d;color:var(--muted);border:1px solid #484f58}
+.badge.blocked{background:#4a1515;color:var(--red);border:1px solid var(--red)}
 .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
-.stat{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;transition:box-shadow .2s}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;transition:box-shadow .2s}
 .stat:hover{box-shadow:0 0 12px rgba(100,150,255,.15)}
-.stat .n{font-size:26px;font-weight:700}.stat .l{font-size:11px;color:var(--text-muted);margin-top:2px}
-.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:8px;font-size:11px;padding:8px 12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px}
+.stat .n{font-size:26px;font-weight:700}.stat .l{font-size:11px;color:var(--muted);margin-top:2px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:8px;font-size:11px;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px}
 .leg{display:flex;align-items:center;gap:5px}
 .ldot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .lrect{width:14px;height:10px;border-radius:2px;flex-shrink:0}
-/* Pipe-card pattern */
-.pipe-card{background:var(--card-bg);border-radius:8px;padding:12px 16px;cursor:default;transition:box-shadow .2s;position:relative;border:2px solid var(--border)}
-.pipe-card:hover{box-shadow:0 0 12px rgba(100,150,255,.3)}
-.pipe-info-icon{position:absolute;top:6px;right:8px;width:16px;height:16px;border-radius:50%;background:rgba(100,150,255,.15);color:var(--blue);font-size:10px;font-weight:700;line-height:16px;text-align:center;cursor:help;opacity:.6;transition:opacity .15s}
-.pipe-info-icon:hover{opacity:1;background:rgba(100,150,255,.3)}
-.pipe-step-badge{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;border-radius:3px;margin-bottom:6px}
-.pipe-step-badge.deployed{background:rgba(63,185,80,.18);color:var(--green);border:1px solid var(--green)}
-.pipe-step-badge.planned{background:rgba(72,79,88,.3);color:var(--text-muted);border:1px solid var(--gray)}
-.pipe-step-badge.blk{background:rgba(248,81,73,.18);color:var(--red);border:1px solid var(--red)}
-.pc-icon{font-size:1.1rem}.pc-title{font-weight:700;font-size:13px;margin-top:2px}
-.pc-sub{font-size:11px;color:var(--text-muted);margin-top:3px}
-.pc-detail{font-size:11px;color:var(--text);margin-top:4px;line-height:1.6}
-.pc-detail .row{display:flex;justify-content:space-between;gap:8px}
-.pc-detail .k{color:var(--text-muted)}.pc-detail .v{font-weight:500;text-align:right}
-.pc-links{margin-top:6px;font-size:10px;line-height:1.5}.pc-links a{color:var(--blue)}
-/* Diagram layout */
-.scroll-hint{font-size:11px;color:var(--text-muted);margin-bottom:6px}
+.card{position:absolute;background:var(--card);border-radius:8px;padding:12px 14px;border:2px solid;transition:box-shadow .2s;cursor:default}
+.card:hover{box-shadow:0 0 12px rgba(100,150,255,.3)}
+.info-icon{position:absolute;top:6px;right:8px;width:16px;height:16px;border-radius:50%;background:rgba(100,150,255,.15);color:var(--blue);font-size:10px;font-weight:700;line-height:16px;text-align:center;cursor:help;opacity:.6}
+.info-icon:hover{opacity:1;background:rgba(100,150,255,.3)}
+.step-badge{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;border-radius:3px;margin-bottom:6px}
+.step-badge.dep{background:rgba(63,185,80,.18);color:var(--green);border:1px solid var(--green)}
+.step-badge.plan{background:rgba(72,79,88,.3);color:var(--muted);border:1px solid #484f58}
+.step-badge.blk{background:rgba(248,81,73,.18);color:var(--red);border:1px solid var(--red)}
+.icon{font-size:1.1rem}.title{font-weight:700;font-size:13px;margin-top:2px}
+.sub{font-size:11px;color:var(--muted);margin-top:3px}
+.detail{font-size:11px;color:var(--text);margin-top:4px;line-height:1.6}
+.row{display:flex;justify-content:space-between;gap:8px}
+.k{color:var(--muted)}.v{font-weight:500;text-align:right}
+.links{margin-top:6px;font-size:10px;line-height:1.5}.links a{color:var(--blue)}
+.scroll-hint{font-size:11px;color:var(--muted);margin-bottom:6px}
 .diagram-wrap{overflow-x:auto;margin-bottom:20px;border:1px solid var(--border);border-radius:10px;background:#0a0e14}
-.diagram{position:relative;min-width:1400px;padding:30px}
-.corp-label{text-align:center;font-size:11px;color:var(--text-muted);font-weight:600;letter-spacing:1px;margin-bottom:16px;border:1px solid #1e2530;border-radius:8px;padding:4px;background:#080c12}
-.sites-flex{display:flex;gap:24px}
-.site{flex:1;border:2px dashed var(--border);border-radius:14px;padding:20px;padding-top:24px;position:relative;display:flex;flex-direction:column;gap:12px}
+.diagram{position:relative;min-width:2200px;height:950px;padding:30px}
+.corp-bg{position:absolute;top:20px;left:20px;right:20px;bottom:20px;border:2px dashed var(--border);border-radius:12px}
+.corp-label{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#0a0e14;padding:0 10px;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px}
+.site{position:absolute;border:2px dashed;border-radius:12px;padding:20px}
 .site-label{position:absolute;top:-12px;left:16px;background:#0a0e14;padding:0 8px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.site-row{display:flex;gap:12px}.site-row>*{flex:1}
-.nat-boundary{border-top:2px dotted rgba(210,153,34,.4);text-align:center;position:relative;margin:2px 0}
-.nat-boundary span{position:relative;top:-9px;font-size:10px;color:rgba(210,153,34,.7);background:#0a0e14;padding:0 8px;border-radius:4px}
-/* SVG arrows */
-.arch-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:visible}
-.arch-svg .eg{pointer-events:auto;cursor:help}
-.arch-svg .eg:hover path.m{stroke-width:3.5}
-.arch-svg .eg:hover text{font-size:11px}
-.arch-svg path{fill:none;stroke-width:2}
-.arch-svg path.h{stroke:transparent;stroke-width:16;pointer-events:stroke}
-.arch-svg path.m{transition:stroke-width .15s}
-.arch-svg path.green{stroke:var(--green)}.arch-svg path.blue{stroke:var(--blue)}
-.arch-svg path.orange{stroke:var(--orange)}.arch-svg path.red{stroke:var(--red)}
-.arch-svg path.gray{stroke:var(--gray)}.arch-svg path.dsh{stroke-dasharray:8,4}
-.arch-svg circle.green{fill:var(--green)}.arch-svg circle.blue{fill:var(--blue)}
-.arch-svg circle.orange{fill:var(--orange)}.arch-svg circle.red{fill:var(--red)}
-.arch-svg circle.gray{fill:var(--gray)}
-.arch-svg text{font-size:10px;font-weight:600;text-anchor:middle;pointer-events:auto;cursor:help;font-family:inherit}
-.arch-svg text.green{fill:var(--green)}.arch-svg text.blue{fill:var(--blue)}
-.arch-svg text.orange{fill:var(--orange)}.arch-svg text.red{fill:var(--red)}
-.arch-svg text.gray{fill:var(--text-muted)}
-/* Sections */
+.nat-line{position:absolute;left:20px;right:20px;border-top:2px dotted rgba(210,153,34,.4);text-align:center}
+.nat-line span{position:relative;top:-9px;font-size:10px;color:rgba(210,153,34,.7);background:#0a0e14;padding:0 8px;border-radius:4px}
+.hyper-bar{position:absolute;left:20px;right:20px;height:55px;border:2px solid var(--yellow);border-radius:6px;background:rgba(210,153,34,.05);padding:8px 12px}
+.tunnel{position:absolute;width:250px;border:3px solid var(--blue);border-radius:12px;background:var(--blue-bg);padding:16px;text-align:center}
+.tunnel .icon{font-size:2rem;margin-bottom:8px}
+.tunnel .title{color:var(--blue);font-size:14px;margin-bottom:8px}
+.tunnel .line{font-size:10px;color:var(--muted);margin-top:4px}
 .section{margin-bottom:20px}
 .section h2{font-size:15px;color:#fff;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-.net-table{width:100%;border-collapse:collapse;font-size:12px;background:var(--card-bg);border-radius:8px;overflow:hidden}
-.net-table th{background:#1a1d23;color:var(--text-muted);padding:8px 10px;text-align:left;font-weight:600;border:1px solid var(--border)}
+.net-table{width:100%;border-collapse:collapse;font-size:12px;background:var(--card);border-radius:8px;overflow:hidden}
+.net-table th{background:#1a1d23;color:var(--muted);padding:8px 10px;text-align:left;font-weight:600;border:1px solid var(--border)}
 .net-table td{padding:8px 10px;border:1px solid var(--border)}
 .net-table tr{transition:background .15s}.net-table tr:hover td{background:#1c2128}
 .net-table tr:nth-child(even){background:#13171e}
 .port-badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;font-family:monospace}
 .port-badge.tcp{background:#1a3a2a;color:var(--green)}.port-badge.udp{background:#2a2a1a;color:var(--yellow)}
 .flow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-.flow-card{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:14px;transition:box-shadow .2s}
+.flow-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;transition:box-shadow .2s}
 .flow-card:hover{box-shadow:0 0 12px rgba(100,150,255,.15)}
 .flow-card h3{font-size:13px;color:#fff;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.flow-card .steps{font-size:11px;line-height:1.8}.flow-card .step{display:flex;gap:6px}.flow-card .sn{color:var(--text-muted);min-width:16px}
-.checklist{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:12px}
+.flow-card .steps{font-size:11px;line-height:1.8}.flow-card .step{display:flex;gap:6px}.flow-card .sn{color:var(--muted);min-width:16px}
+.checklist{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px}
 .check{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:12px;border-bottom:1px solid #1e2228;transition:background .15s;border-radius:4px}
 .check:last-child{border-bottom:none}
 .check:hover{background:#1c2128}
 .check .ci{width:16px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
 .check .ci.done{background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
-.check .ci.todo{background:#21262d;color:var(--text-muted);border:1px solid var(--gray)}
-.check .ci.blocked{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+.check .ci.todo{background:#21262d;color:var(--muted);border:1px solid #484f58}
+.check .ci.blocked{background:#4a1515;color:var(--red);border:1px solid var(--red)}
 @media(max-width:768px){.stats{grid-template-columns:repeat(3,1fr)}.flow-row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -103,7 +86,7 @@ a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 <div style="text-align:right">
 <span class="badge ip">Phase 0</span>
-<div style="font-size:11px;color:var(--text-muted);margin-top:4px">Updated: 2026-08-12</div>
+<div style="font-size:11px;color:var(--muted);margin-top:4px">Updated: 2026-08-12</div>
 </div>
 </div>
 
@@ -122,58 +105,53 @@ a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
 <div class="leg"><div class="ldot" style="background:var(--orange)"></div>Storage (Dell VSA)</div>
 <div class="leg"><div class="ldot" style="background:var(--yellow)"></div>Hypervisor / Infra</div>
 <div class="leg"><div class="lrect" style="background:var(--green)"></div>Deployed</div>
-<div class="leg"><div class="lrect" style="background:var(--gray)"></div>Planned</div>
+<div class="leg"><div class="lrect" style="background:#484f58"></div>Planned</div>
 <div class="leg"><div class="lrect" style="background:var(--red)"></div>Blocked</div>
 <div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--green)" stroke-width="2"/></svg> Active</div>
-<div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--gray)" stroke-width="2" stroke-dasharray="4,3"/></svg> Planned</div>
+<div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#484f58" stroke-width="2" stroke-dasharray="4,3"/></svg> Planned</div>
 </div>
 
 <p class="scroll-hint">Scroll horizontally to see the full architecture. Hover over cards and connecting lines for details.</p>
 
 <div class="diagram-wrap">
-<div class="diagram" id="archDiagram">
-<svg class="arch-svg" id="archSvg"></svg>
+<div class="diagram" id="dia">
+<svg id="svg" style="position:absolute;top:0;left:0;width:2200px;height:950px;pointer-events:none;z-index:10;overflow:visible"></svg>
 
+<div class="corp-bg"></div>
 <div class="corp-label">RED HAT CORPORATE NETWORK (10.46.46.0/24)</div>
 
-<div class="sites-flex">
+<div class="site" style="top:50px;left:30px;width:900px;height:820px;border-color:var(--green)">
+<div class="site-label" style="color:var(--green)">📍 SITE A: ocp-edge36 (10.46.46.12)</div>
 
-<!-- ============ SITE A: edge36 ============ -->
-<div class="site" style="border-color:var(--green)">
-<div class="site-label" style="color:var(--green)">&#x1F4CD; SITE A: ocp-edge36 (10.46.46.12)</div>
-
-<div class="pipe-card" id="pcHyperA" style="border-color:var(--yellow)">
-<span class="pipe-info-icon" title="Physical server hosting all Site A VMs via libvirt. Tinyproxy provides HTTP proxy for restricted-network installs. Sushy-tools emulates Redfish BMC for IPI bare-metal provisioning.">i</span>
-<div class="pipe-step-badge deployed">Deployed</div>
-<div class="pc-icon">&#x1F5A5;</div>
-<div class="pc-title" style="color:var(--yellow)">Hypervisor: RHEL 9.6 - Dell R640</div>
-<div class="pc-sub">libvirt (modular) | tinyproxy :8888 | sushy-tools :8000</div>
+<div class="hyper-bar" style="top:40px">
+<div class="step-badge dep">Deployed</div>
+<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">🖥️ Hypervisor: RHEL 9.6 - Dell R640</div>
+<div style="font-size:10px;color:var(--muted);margin-top:2px">libvirt (modular) | tinyproxy :8888 | sushy-tools :8000</div>
 </div>
 
-<div class="nat-boundary"><span>&#x26A0; NAT BOUNDARY</span></div>
+<div class="nat-line" style="top:110px"><span>⚠️ NAT BOUNDARY</span></div>
 
-<div class="site-row">
-<div class="pipe-card" id="pcHub" style="border-color:var(--purple)">
-<span class="pipe-info-icon" title="The ACM Hub manages both spoke clusters and orchestrates DR failover via RamenDR. This is the control plane for the entire multi-cluster setup.">i</span>
-<div class="pipe-step-badge deployed">Deployed</div>
-<div class="pc-icon">&#x1F451;</div>
-<div class="pc-title" style="color:var(--purple)">ACM Hub Cluster</div>
-<div class="pc-sub">IPI 3m0w | OCP 4.22.9 (stable)</div>
-<div class="pc-detail">
+<div class="card" id="hub" style="top:130px;left:30px;width:280px;border-color:var(--purple)">
+<span class="info-icon" title="The ACM Hub manages both spoke clusters and orchestrates DR failover via RamenDR">i</span>
+<div class="step-badge dep">Deployed</div>
+<div class="icon">👑</div>
+<div class="title" style="color:var(--purple)">ACM Hub Cluster</div>
+<div class="sub">IPI 3m0w | OCP 4.22.9 stable</div>
+<div class="detail">
 <div class="row"><span class="k">ACM</span><span class="v">GA 2.17 (redhat-operators)</span></div>
 <div class="row"><span class="k">Network</span><span class="v" style="color:var(--purple)">192.168.132.0/24</span></div>
 <div class="row"><span class="k">API VIP</span><span class="v">192.168.132.5:6443</span></div>
 <div class="row"><span class="k">Ingress VIP</span><span class="v">192.168.132.10</span></div>
 </div>
-<div class="pc-links"><a href="https://console-openshift-console.apps.ocp3m0w-ic4s22.qe.lab.redhat.com" target="_blank" rel="noopener noreferrer">Console</a></div>
+<div class="links"><a href="https://console-openshift-console.apps.ocp3m0w-ic4s22.qe.lab.redhat.com" target="_blank">Console</a></div>
 </div>
 
-<div class="pipe-card" id="pcHubOps" style="border-color:var(--purple)">
-<span class="pipe-info-icon" title="Operators installed (or planned) on the ACM Hub. ACM and MCE are prerequisites. Submariner Broker coordinates gateway discovery. RamenDR orchestrates storage failover.">i</span>
-<div class="pipe-step-badge planned">Planned</div>
-<div class="pc-icon">&#x1F4E6;</div>
-<div class="pc-title" style="color:var(--purple)">Hub Operators</div>
-<div class="pc-detail">
+<div class="card" id="hubops" style="top:130px;left:340px;width:280px;border-color:var(--purple)">
+<span class="info-icon" title="Operators installed or planned on the ACM Hub. ACM and MCE are prerequisites.">i</span>
+<div class="step-badge plan">Planned</div>
+<div class="icon">📦</div>
+<div class="title" style="color:var(--purple)">Hub Operators</div>
+<div class="detail">
 <div class="row"><span class="k">ACM</span><span class="badge done" style="font-size:9px">Installed</span></div>
 <div class="row"><span class="k">MCE</span><span class="badge done" style="font-size:9px">Installed</span></div>
 <div class="row"><span class="k">Submariner Broker</span><span class="badge todo" style="font-size:9px">Planned</span></div>
@@ -182,43 +160,38 @@ a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
 <div class="row"><span class="k">RamenDR</span><span class="badge todo" style="font-size:9px">Planned</span></div>
 </div>
 </div>
-</div>
 
-<div class="site-row">
-<div class="pipe-card" id="pcSpoke1" style="border-color:var(--cyan)">
-<span class="pipe-info-icon" title="Primary DR site. Spoke VMs run on the same hypervisor as the hub. Deployed via Latebinding (ZTP-style) and managed by ACM.">i</span>
-<div class="pipe-step-badge deployed">Deployed</div>
-<div class="pc-icon">&#x1F310;</div>
-<div class="pc-title" style="color:var(--cyan)">Spoke 1 (Primary DR Site)</div>
-<div class="pc-sub">Latebinding 3m3w | OCP 4.22 (stable)</div>
-<div class="pc-detail">
+<div class="card" id="spoke1" style="top:350px;left:30px;width:280px;border-color:var(--cyan)">
+<span class="info-icon" title="Primary DR site. Spoke VMs run on the same hypervisor as the hub.">i</span>
+<div class="step-badge dep">Deployed</div>
+<div class="icon">🌐</div>
+<div class="title" style="color:var(--cyan)">Spoke 1 (Primary DR Site)</div>
+<div class="sub">Latebinding 3m3w | OCP 4.22 stable</div>
+<div class="detail">
 <div class="row"><span class="k">Network</span><span class="v" style="color:var(--cyan)">192.168.133.0/24</span></div>
 <div class="row"><span class="k">Managed by</span><span class="v">ACM Hub</span></div>
 </div>
 </div>
 
-<div class="pipe-card" id="pcSpoke1Comp" style="border-color:var(--cyan)">
-<span class="pipe-info-icon" title="Components to be deployed on Spoke 1 for DR connectivity. Submariner GW creates the IPsec tunnel. Globalnet is required because both spokes have identical CIDRs. Dell CSI provides block storage via iSCSI.">i</span>
-<div class="pipe-step-badge planned">Planned</div>
-<div class="pc-icon">&#x2699;</div>
-<div class="pc-title" style="color:var(--cyan)">Spoke 1 Components</div>
-<div class="pc-detail">
+<div class="card" id="spoke1comp" style="top:350px;left:340px;width:280px;border-color:var(--cyan)">
+<span class="info-icon" title="Components to be deployed on Spoke 1 for DR connectivity. Submariner GW creates the IPsec tunnel.">i</span>
+<div class="step-badge plan">Planned</div>
+<div class="icon">⚙️</div>
+<div class="title" style="color:var(--cyan)">Spoke 1 Components</div>
+<div class="detail">
 <div class="row"><span class="k">Submariner GW</span><span class="badge todo" style="font-size:9px">Planned</span></div>
 <div class="row"><span class="k">Globalnet</span><span class="badge todo" style="font-size:9px">Required (CIDR overlap)</span></div>
 <div class="row"><span class="k">Dell CSI Driver</span><span class="badge todo" style="font-size:9px">Planned</span></div>
 <div class="row"><span class="k">iSCSI to VSA-A</span><span class="badge todo" style="font-size:9px">Planned</span></div>
 </div>
-<div class="pc-links"><a href="https://submariner.io/operations/nat-traversal/" target="_blank" rel="noopener noreferrer">Submariner NAT docs</a></div>
-</div>
 </div>
 
-<div class="site-row">
-<div class="pipe-card" id="pcCidr" style="border-color:var(--red)">
-<span class="pipe-info-icon" title="Required because both clusters use identical pod/service CIDRs. Assigns virtual global IPs so cross-cluster traffic can be routed without CIDR conflicts.">i</span>
-<div class="pipe-step-badge blk">Warning</div>
-<div class="pc-icon">&#x26A0;</div>
-<div class="pc-title" style="color:var(--red)">CIDR Overlap (Globalnet Required)</div>
-<div class="pc-detail">
+<div class="card" id="cidr" style="top:570px;left:30px;width:280px;border-color:var(--red)">
+<span class="info-icon" title="Required because both clusters use identical pod/service CIDRs.">i</span>
+<div class="step-badge blk">Warning</div>
+<div class="icon">⚠️</div>
+<div class="title" style="color:var(--red)">CIDR Overlap (Globalnet Required)</div>
+<div class="detail">
 <div class="row"><span class="k">Pod CIDR</span><span class="v" style="color:var(--red)">10.128.0.0/14</span></div>
 <div class="row"><span class="k">Svc CIDR</span><span class="v" style="color:var(--red)">172.30.0.0/16</span></div>
 <div class="row"><span class="k">Impact</span><span class="v">Both spokes identical</span></div>
@@ -226,169 +199,133 @@ a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 
-<div class="pipe-card" id="pcVsaA" style="border-color:var(--orange)">
-<span class="pipe-info-icon" title="Dell PowerStore Virtual Storage Appliance running on eco-vCenter. Provides iSCSI block storage with native async replication to VSA-B for DR.">i</span>
-<div class="pipe-step-badge planned">Planned</div>
-<div class="pc-icon">&#x1F4BE;</div>
-<div class="pc-title" style="color:var(--orange)">Dell PowerStore VSA-A</div>
-<div class="pc-sub">eco-vCenter / VMware | iSCSI</div>
-<div class="pc-detail">
+<div class="card" id="vsaa" style="top:570px;left:340px;width:280px;border-color:var(--orange)">
+<span class="info-icon" title="Dell PowerStore Virtual Storage Appliance running on eco-vCenter.">i</span>
+<div class="step-badge plan">Planned</div>
+<div class="icon">💾</div>
+<div class="title" style="color:var(--orange)">Dell PowerStore VSA-A</div>
+<div class="sub">eco-vCenter / VMware | iSCSI</div>
+<div class="detail">
 <div class="row"><span class="k">Connected to</span><span class="v">Spoke 1</span></div>
 <div class="row"><span class="k">Replication</span><span class="v">Async to VSA-B</span></div>
-<div class="row"><span class="k">Owner</span><span class="v">Tzach</span></div>
+<div class="row"><span class="k">Status</span><span class="v">Planned (Tzach)</span></div>
 </div>
 </div>
+
 </div>
 
-</div><!-- end site A -->
-
-<!-- ============ SITE B: edge97 ============ -->
-<div class="site" style="border-color:var(--blue)">
-<div class="site-label" style="color:var(--blue)">&#x1F4CD; SITE B: ocp-edge97 (10.46.46.76)</div>
-
-<div class="pipe-card" id="pcHyperB" style="border-color:var(--yellow)">
-<span class="pipe-info-icon" title="Physical server hosting Site B VMs. Runs an older RHEL 8.6. Sushy-tools provides Redfish BMC emulation for IPI provisioning.">i</span>
-<div class="pipe-step-badge deployed">Deployed</div>
-<div class="pc-icon">&#x1F5A5;</div>
-<div class="pc-title" style="color:var(--yellow)">Hypervisor: RHEL 8.6 - Dell R640</div>
-<div class="pc-sub">libvirt (legacy) | sushy-tools :8000</div>
+<div class="tunnel" id="tunnel" style="top:300px;left:960px">
+<div class="icon">🔒</div>
+<div class="title">Submariner IPsec Tunnel</div>
+<div class="line">UDP 4500/4490</div>
+<div class="line">Globalnet Enabled</div>
+<div class="line">NAT Traversal</div>
+<div class="line">10.46.46.12 ↔ 10.46.46.76</div>
 </div>
 
-<div class="nat-boundary"><span>&#x26A0; NAT BOUNDARY</span></div>
+<div class="site" style="top:50px;left:1240px;width:700px;height:820px;border-color:var(--blue)">
+<div class="site-label" style="color:var(--blue)">📍 SITE B: ocp-edge97 (10.46.46.76)</div>
 
-<div class="site-row">
-<div class="pipe-card" id="pcSpoke2" style="border-color:var(--cyan)">
-<span class="pipe-info-icon" title="Secondary DR site. Standalone cluster on a separate hypervisor. Must be imported into ACM for DR orchestration, but this is currently blocked by cross-site networking.">i</span>
-<div class="pipe-step-badge deployed">Deployed</div>
-<div class="pc-icon">&#x1F310;</div>
-<div class="pc-title" style="color:var(--cyan)">Spoke 2 (Secondary DR Site)</div>
-<div class="pc-sub">Standalone IPI 3m3w | OCP 4.22.8 (stable)</div>
-<div class="pc-detail">
+<div class="hyper-bar" style="top:40px">
+<div class="step-badge dep">Deployed</div>
+<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">🖥️ Hypervisor: RHEL 8.6 - Dell R640</div>
+<div style="font-size:10px;color:var(--muted);margin-top:2px">libvirt (legacy) | sushy-tools :8000</div>
+</div>
+
+<div class="nat-line" style="top:110px"><span>⚠️ NAT BOUNDARY</span></div>
+
+<div class="card" id="spoke2" style="top:130px;left:30px;width:280px;border-color:var(--cyan)">
+<span class="info-icon" title="Secondary DR site. Standalone cluster on a separate hypervisor.">i</span>
+<div class="step-badge dep">Deployed</div>
+<div class="icon">🌐</div>
+<div class="title" style="color:var(--cyan)">Spoke 2 (Secondary DR Site)</div>
+<div class="sub">Standalone IPI 3m3w | OCP 4.22.8 stable</div>
+<div class="detail">
 <div class="row"><span class="k">Network</span><span class="v" style="color:var(--cyan)">192.168.129.0/24</span></div>
 <div class="row"><span class="k">ACM Import</span><span class="badge blocked" style="font-size:9px">Blocked (networking)</span></div>
 </div>
 </div>
 
-<div class="pipe-card" id="pcSpoke2Comp" style="border-color:var(--cyan)">
-<span class="pipe-info-icon" title="Components to be deployed on Spoke 2 for DR connectivity. Klusterlet is the ACM agent that needs Hub API reachability. All components are blocked until port forwarding is set up.">i</span>
-<div class="pipe-step-badge blk">Blocked</div>
-<div class="pc-icon">&#x2699;</div>
-<div class="pc-title" style="color:var(--cyan)">Spoke 2 Components</div>
-<div class="pc-detail">
+<div class="card" id="spoke2comp" style="top:130px;left:340px;width:280px;border-color:var(--cyan)">
+<span class="info-icon" title="Components to be deployed on Spoke 2 for DR connectivity.">i</span>
+<div class="step-badge blk">Blocked</div>
+<div class="icon">⚙️</div>
+<div class="title" style="color:var(--cyan)">Spoke 2 Components</div>
+<div class="detail">
 <div class="row"><span class="k">Submariner GW</span><span class="badge todo" style="font-size:9px">Planned</span></div>
 <div class="row"><span class="k">Globalnet</span><span class="badge todo" style="font-size:9px">Required</span></div>
 <div class="row"><span class="k">Dell CSI Driver</span><span class="badge todo" style="font-size:9px">Planned</span></div>
 <div class="row"><span class="k">iSCSI to VSA-B</span><span class="badge todo" style="font-size:9px">Planned</span></div>
 <div class="row"><span class="k">Klusterlet</span><span class="badge blocked" style="font-size:9px">Needs connectivity</span></div>
 </div>
-<div class="pc-links"><a href="https://submariner.io/operations/nat-traversal/" target="_blank" rel="noopener noreferrer">Submariner NAT docs</a></div>
-</div>
 </div>
 
-<div class="pipe-card" id="pcVsaB" style="border-color:var(--orange)">
-<span class="pipe-info-icon" title="Dell PowerStore Virtual Storage Appliance running on eco-vCenter. Receives async replication from VSA-A. Provides iSCSI block storage for Spoke 2 workloads after DR failover.">i</span>
-<div class="pipe-step-badge planned">Planned</div>
-<div class="pc-icon">&#x1F4BE;</div>
-<div class="pc-title" style="color:var(--orange)">Dell PowerStore VSA-B</div>
-<div class="pc-sub">eco-vCenter / VMware | iSCSI</div>
-<div class="pc-detail">
+<div class="card" id="vsab" style="top:370px;left:30px;width:280px;border-color:var(--orange)">
+<span class="info-icon" title="Dell PowerStore Virtual Storage Appliance running on eco-vCenter.">i</span>
+<div class="step-badge plan">Planned</div>
+<div class="icon">💾</div>
+<div class="title" style="color:var(--orange)">Dell PowerStore VSA-B</div>
+<div class="sub">eco-vCenter / VMware | iSCSI</div>
+<div class="detail">
 <div class="row"><span class="k">Connected to</span><span class="v">Spoke 2</span></div>
 <div class="row"><span class="k">Replication</span><span class="v">Async from VSA-A</span></div>
-<div class="row"><span class="k">Owner</span><span class="v">Tzach</span></div>
+<div class="row"><span class="k">Status</span><span class="v">Planned (Tzach)</span></div>
 </div>
 </div>
 
-</div><!-- end site B -->
-</div><!-- end sites-flex -->
-</div><!-- end diagram -->
-</div><!-- end diagram-wrap -->
+</div>
+
+</div>
+</div>
 
 <script>
 (function(){
-function drawArchArrows(){
-var svg=document.getElementById('archSvg');
-var dia=document.getElementById('archDiagram');
-if(!svg||!dia)return;
-var dr=dia.getBoundingClientRect();
-if(dr.width===0)return;
-svg.setAttribute('width',dia.scrollWidth);
-svg.setAttribute('height',dia.scrollHeight);
-while(svg.firstChild)svg.removeChild(svg.firstChild);
-var dx=dr.left,dy=dr.top;
-function pt(id,side){
-var el=document.getElementById(id);if(!el)return null;
-var r=el.getBoundingClientRect();
-switch(side){
-case'right':return{x:r.right-dx,y:(r.top+r.bottom)/2-dy};
-case'left':return{x:r.left-dx,y:(r.top+r.bottom)/2-dy};
-case'bottom':return{x:(r.left+r.right)/2-dx,y:r.bottom-dy};
-case'top':return{x:(r.left+r.right)/2-dx,y:r.top-dy};
-}return null;
-}
-function edge(fId,fS,tId,tS,cls,label,tip,dashed){
-var a=pt(fId,fS),b=pt(tId,tS);if(!a||!b)return;
-var adx=b.x-a.x,ady=b.y-a.y;
-var dist=Math.sqrt(adx*adx+ady*ady);
-var t=Math.max(30,dist*.35);
-var cx1,cy1,cx2,cy2;
-switch(fS){
-case'right':cx1=a.x+t;cy1=a.y;break;case'left':cx1=a.x-t;cy1=a.y;break;
-case'bottom':cx1=a.x;cy1=a.y+t;break;case'top':cx1=a.x;cy1=a.y-t;break;
-}
-switch(tS){
-case'left':cx2=b.x-t;cy2=b.y;break;case'right':cx2=b.x+t;cy2=b.y;break;
-case'top':cx2=b.x;cy2=b.y-t;break;case'bottom':cx2=b.x;cy2=b.y+t;break;
-}
-var d='M '+a.x+' '+a.y+' C '+cx1+' '+cy1+', '+cx2+' '+cy2+', '+b.x+' '+b.y;
+var svg=document.getElementById('svg');
+function arrow(x1,y1,x2,y2,color,label,dashed){
 var g=document.createElementNS('http://www.w3.org/2000/svg','g');
-g.setAttribute('class','eg');
-if(tip){var tt=document.createElementNS('http://www.w3.org/2000/svg','title');tt.textContent=tip;g.appendChild(tt);}
-var hp=document.createElementNS('http://www.w3.org/2000/svg','path');
-hp.setAttribute('d',d);hp.setAttribute('class','h');g.appendChild(hp);
-var mp=document.createElementNS('http://www.w3.org/2000/svg','path');
-mp.setAttribute('d',d);mp.setAttribute('class','m '+cls+(dashed?' dsh':''));g.appendChild(mp);
-[[a.x,a.y],[b.x,b.y]].forEach(function(p){
-var c=document.createElementNS('http://www.w3.org/2000/svg','circle');
-c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);c.setAttribute('r',3);
-c.setAttribute('class',cls);g.appendChild(c);
-});
+var path=document.createElementNS('http://www.w3.org/2000/svg','path');
+path.setAttribute('d','M'+x1+' '+y1+' L'+x2+' '+y2);
+path.setAttribute('stroke',color);
+path.setAttribute('stroke-width','2');
+path.setAttribute('fill','none');
+if(dashed)path.setAttribute('stroke-dasharray','8 4');
+g.appendChild(path);
+var c1=document.createElementNS('http://www.w3.org/2000/svg','circle');
+c1.setAttribute('cx',x1);c1.setAttribute('cy',y1);c1.setAttribute('r','3');c1.setAttribute('fill',color);g.appendChild(c1);
+var c2=document.createElementNS('http://www.w3.org/2000/svg','circle');
+c2.setAttribute('cx',x2);c2.setAttribute('cy',y2);c2.setAttribute('r','3');c2.setAttribute('fill',color);g.appendChild(c2);
 if(label){
-var mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
-if(b.y<a.y-10)my-=14;else if(b.y>a.y+10)my+=16;else my-=12;
+var mx=(x1+x2)/2,my=(y1+y2)/2;
+if(y2<y1-10)my-=14;else if(y2>y1+10)my+=16;else my-=12;
+var rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
 var lw=label.length*6.5+16,lh=18;
-var bg=document.createElementNS('http://www.w3.org/2000/svg','rect');
-bg.setAttribute('x',mx-lw/2);bg.setAttribute('y',my-lh/2);
-bg.setAttribute('width',lw);bg.setAttribute('height',lh);
-bg.setAttribute('rx',3);bg.setAttribute('fill','#0a0e14');bg.setAttribute('opacity','0.92');
-g.appendChild(bg);
-var te=document.createElementNS('http://www.w3.org/2000/svg','text');
-te.setAttribute('x',mx);te.setAttribute('y',my+1);
-te.setAttribute('class',cls);te.setAttribute('dominant-baseline','middle');
-te.textContent=label;g.appendChild(te);
+rect.setAttribute('x',mx-lw/2);rect.setAttribute('y',my-lh/2);
+rect.setAttribute('width',lw);rect.setAttribute('height',lh);
+rect.setAttribute('rx','3');rect.setAttribute('fill','#0a0e14');rect.setAttribute('opacity','0.92');
+g.appendChild(rect);
+var text=document.createElementNS('http://www.w3.org/2000/svg','text');
+text.setAttribute('x',mx);text.setAttribute('y',my+1);
+text.setAttribute('text-anchor','middle');text.setAttribute('dominant-baseline','middle');
+text.setAttribute('fill',color);text.setAttribute('font-size','10');text.setAttribute('font-weight','600');
+text.textContent=label;
+g.appendChild(text);
 }
 svg.appendChild(g);
 }
-// Hub manages Spoke 1 (solid green)
-edge('pcHub','bottom','pcSpoke1','top','green','manages','Hub manages Spoke 1 via ACM. Spoke 1 was deployed using Latebinding (ZTP) and automatically imported.',false);
-// Hub API to Spoke 2 (dashed gray, BLOCKED)
-edge('pcHub','right','pcSpoke2','left','gray','ACM import TCP 6443 (BLOCKED)','BLOCKED: Spoke 2 cannot reach Hub API. Needs socat port forwarding on edge36 to expose 192.168.132.5:6443 on the corporate network.',true);
-// Spoke1 to Spoke2 Submariner tunnel (dashed blue)
-edge('pcSpoke1','right','pcSpoke2','left','blue','Submariner IPsec UDP 4500/4490','Creates encrypted IPsec tunnels between gateway nodes. NAT traversal mode uses hypervisor corporate IPs (10.46.46.12 and 10.46.46.76).',true);
-// Spoke1 Components to VSA-A (dashed orange)
-edge('pcSpoke1Comp','bottom','pcVsaA','top','orange','iSCSI','Spoke 1 connects to VSA-A via iSCSI through NAT. Dell CSI driver manages persistent volumes.',true);
-// Spoke2 Components to VSA-B (dashed orange)
-edge('pcSpoke2Comp','bottom','pcVsaB','top','orange','iSCSI','Spoke 2 connects to VSA-B via iSCSI through NAT. Dell CSI driver manages persistent volumes.',true);
-// VSA-A to VSA-B replication (dashed red)
-edge('pcVsaA','right','pcVsaB','left','red','Async Replication (Dell native)','Dell PowerStore native async replication. VSA-A replicates to VSA-B continuously. RamenDR orchestrates failover direction.',true);
-}
-window.addEventListener('resize',drawArchArrows);
-requestAnimationFrame(function(){setTimeout(drawArchArrows,100);});
+var green='#3fb950',blue='#58a6ff',orange='#d18616',red='#f85149',gray='#8b949e';
+arrow(200,310,200,380,green,'manages',false);
+arrow(350,260,985,330,gray,'ACM import (TCP 6443) BLOCKED',true);
+arrow(1085,380,1300,260,blue,'cross-cluster connectivity',true);
+arrow(480,490,985,380,blue,'IPsec',true);
+arrow(1460,280,1085,340,blue,'IPsec',true);
+arrow(480,600,480,700,orange,'iSCSI',true);
+arrow(1300,390,1300,500,orange,'iSCSI',true);
+arrow(610,730,1300,630,red,'Async Replication (Dell native)',true);
 })();
 </script>
 
-<!-- Network Table -->
 <div class="section">
-<h2>&#x1F4E1; Network Allocation</h2>
+<h2>🔡 Network Allocation</h2>
 <table class="net-table">
 <tr><th>Cluster</th><th>Host</th><th>Subnet</th><th>API VIP</th><th>Ingress VIP</th><th>Pod CIDR</th><th>Status</th></tr>
 <tr><td style="color:var(--purple);font-weight:600">Hub</td><td>edge36</td><td style="font-family:monospace">192.168.132.0/24</td><td style="font-family:monospace">192.168.132.5</td><td style="font-family:monospace">192.168.132.10</td><td style="font-family:monospace;color:var(--red)">10.128.0.0/14</td><td><span class="badge done">Deployed</span></td></tr>
@@ -397,9 +334,8 @@ requestAnimationFrame(function(){setTimeout(drawArchArrows,100);});
 </table>
 </div>
 
-<!-- Port Forwarding Table -->
 <div class="section">
-<h2>&#x1F511; Required Port Forwarding</h2>
+<h2>🔑 Required Port Forwarding</h2>
 <table class="net-table">
 <tr><th>Host</th><th>Port</th><th>Proto</th><th>Forward To</th><th>Purpose</th><th>Status</th></tr>
 <tr><td>edge36</td><td style="font-family:monospace">6443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">192.168.132.5:6443</td><td>Hub API for ACM import</td><td><span class="badge todo">Planned</span></td></tr>
@@ -410,12 +346,11 @@ requestAnimationFrame(function(){setTimeout(drawArchArrows,100);});
 </table>
 </div>
 
-<!-- Traffic Flows -->
 <div class="section">
-<h2>&#x1F500; Traffic Flows</h2>
+<h2>🔀 Traffic Flows</h2>
 <div class="flow-row">
 <div class="flow-card" style="border-left:3px solid var(--purple)">
-<h3><span>&#x1F451;</span> Management Plane</h3>
+<h3><span>👑</span> Management Plane</h3>
 <div class="steps">
 <div class="step"><span class="sn">1.</span>Hub API (edge36) exposes TCP 6443 via socat</div>
 <div class="step"><span class="sn">2.</span>edge97 DNS resolves hub API to 10.46.46.12</div>
@@ -424,7 +359,7 @@ requestAnimationFrame(function(){setTimeout(drawArchArrows,100);});
 </div>
 </div>
 <div class="flow-card" style="border-left:3px solid var(--blue)">
-<h3><span>&#x1F512;</span> Submariner Data Plane</h3>
+<h3><span>🔒</span> Submariner Data Plane</h3>
 <div class="steps">
 <div class="step"><span class="sn">1.</span>Gateway nodes selected (1 per spoke)</div>
 <div class="step"><span class="sn">2.</span>Public IP annotation: hypervisor corp IP</div>
@@ -434,7 +369,7 @@ requestAnimationFrame(function(){setTimeout(drawArchArrows,100);});
 </div>
 </div>
 <div class="flow-card" style="border-left:3px solid var(--orange)">
-<h3><span>&#x1F4BE;</span> Storage / DR Plane</h3>
+<h3><span>💾</span> Storage / DR Plane</h3>
 <div class="steps">
 <div class="step"><span class="sn">1.</span>Dell VSAs deployed on eco-vCenter (Tzach)</div>
 <div class="step"><span class="sn">2.</span>Spokes connect to VSAs via iSCSI (NAT to corp net)</div>
@@ -446,29 +381,28 @@ requestAnimationFrame(function(){setTimeout(drawArchArrows,100);});
 </div>
 </div>
 
-<!-- Deployment Checklist -->
 <div class="section">
-<h2>&#x2705; Deployment Progress</h2>
+<h2>✅ Deployment Progress</h2>
 <div class="checklist">
-<div class="check"><div class="ci done">&#x2713;</div><span style="font-weight:600">Hub cluster deployed</span><span style="color:var(--text-muted);margin-left:auto">IPI 3m0w on edge36, OCP 4.22.9 stable</span></div>
-<div class="check"><div class="ci done">&#x2713;</div><span style="font-weight:600">GA ACM 2.17 installed</span><span style="color:var(--text-muted);margin-left:auto">From redhat-operators catalog</span></div>
-<div class="check"><div class="ci done">&#x2713;</div><span style="font-weight:600">Spoke 1 deployed</span><span style="color:var(--text-muted);margin-left:auto">Latebinding 3m3w on edge36, managed by ACM</span></div>
-<div class="check"><div class="ci done">&#x2713;</div><span style="font-weight:600">Spoke 2 deployed</span><span style="color:var(--text-muted);margin-left:auto">Standalone IPI 3m3w on edge97, OCP 4.22.8</span></div>
-<div class="check"><div class="ci done">&#x2713;</div><span style="font-weight:600">Unique subnets verified</span><span style="color:var(--text-muted);margin-left:auto">132.x / 133.x / 129.x - no overlap</span></div>
-<div class="check"><div class="ci blocked">!</div><span style="font-weight:600;color:var(--red)">Import Spoke 2 into ACM</span><span style="color:var(--text-muted);margin-left:auto">Blocked: needs cross-site port forwarding (Tzach network design)</span></div>
-<div class="check"><div class="ci todo">&#x25CB;</div><span>Install hub operators (Argo, OCP Virtualization)</span></div>
-<div class="check"><div class="ci todo">&#x25CB;</div><span>Deploy Submariner Broker (Globalnet enabled)</span></div>
-<div class="check"><div class="ci todo">&#x25CB;</div><span>Set up cross-site port forwarding (socat/systemd)</span></div>
-<div class="check"><div class="ci todo">&#x25CB;</div><span>Configure Submariner on both spokes</span></div>
-<div class="check"><div class="ci todo">&#x25CB;</div><span>Dell PowerStore VSA deployment (Tzach)</span></div>
-<div class="check"><div class="ci todo">&#x25CB;</div><span>Dell CSI driver on both spokes</span></div>
-<div class="check"><div class="ci todo">&#x25CB;</div><span>iSCSI connectivity validation</span></div>
-<div class="check"><div class="ci todo">&#x25CB;</div><span>RamenDR operator + DRPolicy configuration</span></div>
-<div class="check"><div class="ci todo">&#x25CB;</div><span>End-to-end failover test</span></div>
+<div class="check"><div class="ci done">✓</div><span style="font-weight:600">Hub cluster deployed</span><span style="color:var(--muted);margin-left:auto">IPI 3m0w on edge36, OCP 4.22.9 stable</span></div>
+<div class="check"><div class="ci done">✓</div><span style="font-weight:600">GA ACM 2.17 installed</span><span style="color:var(--muted);margin-left:auto">From redhat-operators catalog</span></div>
+<div class="check"><div class="ci done">✓</div><span style="font-weight:600">Spoke 1 deployed</span><span style="color:var(--muted);margin-left:auto">Latebinding 3m3w on edge36, managed by ACM</span></div>
+<div class="check"><div class="ci done">✓</div><span style="font-weight:600">Spoke 2 deployed</span><span style="color:var(--muted);margin-left:auto">Standalone IPI 3m3w on edge97, OCP 4.22.8</span></div>
+<div class="check"><div class="ci done">✓</div><span style="font-weight:600">Unique subnets verified</span><span style="color:var(--muted);margin-left:auto">132.x / 133.x / 129.x - no overlap</span></div>
+<div class="check"><div class="ci blocked">!</div><span style="font-weight:600;color:var(--red)">Import Spoke 2 into ACM</span><span style="color:var(--muted);margin-left:auto">Blocked: needs cross-site port forwarding (Tzach network design)</span></div>
+<div class="check"><div class="ci todo">○</div><span>Install hub operators (Argo, OCP Virtualization)</span></div>
+<div class="check"><div class="ci todo">○</div><span>Deploy Submariner Broker (Globalnet enabled)</span></div>
+<div class="check"><div class="ci todo">○</div><span>Set up cross-site port forwarding (socat/systemd)</span></div>
+<div class="check"><div class="ci todo">○</div><span>Configure Submariner on both spokes</span></div>
+<div class="check"><div class="ci todo">○</div><span>Dell PowerStore VSA deployment (Tzach)</span></div>
+<div class="check"><div class="ci todo">○</div><span>Dell CSI driver on both spokes</span></div>
+<div class="check"><div class="ci todo">○</div><span>iSCSI connectivity validation</span></div>
+<div class="check"><div class="ci todo">○</div><span>RamenDR operator + DRPolicy configuration</span></div>
+<div class="check"><div class="ci todo">○</div><span>End-to-end failover test</span></div>
 </div>
 </div>
 
-<div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:20px;padding-top:10px;border-top:1px solid var(--border)">
+<div style="font-size:10px;color:var(--muted);text-align:center;margin-top:20px;padding-top:10px;border-top:1px solid var(--border)">
 VirtDR Phase 0 Architecture Diagram | Generated 2026-08-12
 </div>
 </body>
