@@ -40,7 +40,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .links{margin-top:6px;font-size:10px;line-height:1.5}.links a{color:var(--blue)}
 .scroll-hint{font-size:11px;color:var(--muted);margin-bottom:6px}
 .diagram-wrap{overflow-x:auto;margin-bottom:20px;border:1px solid var(--border);border-radius:10px;background:#0a0e14}
-.diagram{position:relative;min-width:2500px;height:950px;padding:30px}
+.diagram{position:relative;min-width:3200px;height:950px;padding:30px}
 .corp-bg{position:absolute;top:20px;left:20px;right:20px;bottom:20px;border:2px dashed var(--border);border-radius:12px}
 .corp-label{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#0a0e14;padding:0 10px;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px}
 .site{position:absolute;border:2px dashed;border-radius:12px;padding:20px}
@@ -214,7 +214,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 
 </div>
 
-<div class="tunnel" id="tunnel" style="top:280px;left:960px">
+<div class="tunnel" id="tunnel" style="top:250px;left:1100px">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 136 112" style="width:60px;height:50px;margin-bottom:6px"><path fill="#58a6ff" d="M33.987 33.986V48.681H103.596A12.411 12.411 0 0 1 115.993 61.079V78.979a12.411 12.411 0 0 1-12.397 12.397H0v5.594A14.435 14.435 0 0 0 14.393 111.362H121.587a14.435 14.435 0 0 0 14.393-14.392V33.986Z"/><path fill="#58a6ff" d="M101.993 77.376V62.681H32.384a12.411 12.411 0 0 1-12.397-12.397V32.383a12.411 12.411 0 0 1 12.397-12.397H135.979v-5.594A14.435 14.435 0 0 0 121.587 0H14.393A14.435 14.435 0 0 0 0 14.392v62.984Z"/></svg>
 <div class="title">Submariner IPsec Tunnel</div>
 <div class="line">🔒 Encrypted | UDP 4500/4490</div>
@@ -224,7 +224,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <a href="https://submariner.io/operations/nat-traversal/" target="_blank" style="font-size:9px;color:var(--blue);margin-top:6px;display:block">submariner.io docs</a>
 </div>
 
-<div class="site" style="top:50px;left:1240px;width:900px;height:820px;border-color:var(--blue)">
+<div class="site" style="top:50px;left:1700px;width:900px;height:820px;border-color:var(--blue)">
 <div class="site-label" style="color:var(--blue)">📍 SITE B: ocp-edge97 (10.46.46.76)</div>
 
 <div class="hyper-bar" style="top:40px">
@@ -315,13 +315,13 @@ svg.appendChild(g);
 }
 var green='#3fb950',blue='#58a6ff',orange='#d18616',red='#f85149',gray='#8b949e';
 arrow(200,310,200,380,green,'manages',false);
-arrow(350,260,985,330,gray,'ACM import (TCP 6443) BLOCKED',true);
-arrow(1085,380,1300,260,blue,'cross-cluster connectivity',true);
-arrow(480,490,985,380,blue,'IPsec',true);
-arrow(1460,280,1085,340,blue,'IPsec',true);
+arrow(550,260,1100,290,gray,'ACM import (TCP 6443) BLOCKED',true);
+arrow(1350,380,1720,260,blue,'cross-cluster connectivity',true);
+arrow(550,490,1100,370,blue,'IPsec (Spoke 1)',true);
+arrow(1920,320,1350,350,blue,'IPsec (Spoke 2)',true);
 arrow(480,600,480,700,orange,'iSCSI',true);
-arrow(1300,390,1300,500,orange,'iSCSI',true);
-arrow(610,730,1300,630,red,'Async Replication (Dell native)',true);
+arrow(1800,450,1800,530,orange,'iSCSI',true);
+arrow(610,750,1700,650,red,'Async Replication (Dell native)',true);
 })();
 </script>
 
