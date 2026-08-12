@@ -314,14 +314,27 @@ g.appendChild(text);
 svg.appendChild(g);
 }
 var green='#3fb950',blue='#58a6ff',orange='#d18616',red='#f85149',gray='#8b949e';
-arrow(200,327,200,397,green,'manages',false);
-arrow(550,277,1100,290,gray,'ACM import (TCP 6443) BLOCKED',true);
-arrow(1350,400,1720,277,blue,'cross-cluster connectivity',true);
-arrow(550,507,1100,370,blue,'IPsec (Spoke 1)',true);
-arrow(1920,337,1350,350,blue,'IPsec (Spoke 2)',true);
-arrow(480,617,480,717,orange,'iSCSI',true);
-arrow(1870,467,1870,547,orange,'iSCSI',true);
-arrow(610,767,1700,667,red,'Async Replication (Dell native)',true);
+// Arrows connect BETWEEN cards only - never through them
+// Site A cards: hub(147-310), hubops(147-310), spoke1(367-500), spoke1comp(367-520), cidr(587-750), vsaa(587-750)
+// Site B (offset +1700): spoke2(147-310=1747-2010), spoke2comp(147-310), vsab(387-540=2087-2240)
+// Tunnel: 250-530 at x=1100-1350
+
+// Hub bottom -> Spoke1 top (within Site A)
+arrow(200,340,200,397,green,'manages',false);
+// Hub Operators right edge -> Tunnel left (through gap)
+arrow(660,277,1100,290,gray,'ACM import (TCP 6443) BLOCKED',true);
+// Tunnel right -> Spoke2 left edge (through gap)
+arrow(1350,340,1730,250,blue,'cross-cluster connectivity',true);
+// Spoke1 Components right -> Tunnel left (through gap)
+arrow(660,450,1100,370,blue,'IPsec (Spoke 1)',true);
+// Spoke2 left -> Tunnel right (through gap)
+arrow(1730,300,1350,350,blue,'IPsec (Spoke 2)',true);
+// Spoke1 Components bottom -> VSA-A top (within Site A, vertical)
+arrow(480,550,480,617,orange,'iSCSI',true);
+// Spoke2 bottom -> VSA-B top (within Site B, vertical, stop at card edge)
+arrow(1870,380,1870,437,orange,'iSCSI',true);
+// VSA-A bottom -> VSA-B bottom (across bottom, through gap)
+arrow(660,720,1730,540,red,'Async Replication (Dell native)',true);
 })();
 </script>
 
