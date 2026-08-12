@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VirtDR Phase 0 - Architecture Diagram</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#c9d1d9;--muted:#8b949e;--green:#3fb950;--green-bg:#1b4332;--blue:#58a6ff;--blue-bg:#0c2d6b;--yellow:#d29922;--yellow-bg:#3d2e00;--red:#f85149;--red-bg:#4a1515;--orange:#d18616;--purple:#bc8cff;--purple-bg:#2a1a4e;--cyan:#39d2c0;--cyan-bg:#0d3330;--link:#58a6ff;--gray:#484f58}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding:24px;max-width:1600px;margin:0 auto}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:20px}
+.hdr h1{font-size:22px;color:#fff;margin-bottom:4px}.hdr .sub{color:var(--muted);font-size:13px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase}
+.badge.done{background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
+.badge.ip{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue)}
+.badge.todo{background:#21262d;color:var(--muted);border:1px solid var(--gray)}
+.badge.blocked{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.stat .n{font-size:26px;font-weight:700}.stat .l{font-size:11px;color:var(--muted);margin-top:2px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:16px;font-size:11px;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px}
+.leg{display:flex;align-items:center;gap:5px}
+.ldot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.lrect{width:14px;height:10px;border-radius:2px;flex-shrink:0}
+.diagram-wrap{overflow-x:auto;margin-bottom:20px;border:1px solid var(--border);border-radius:10px;background:#0a0e14}
+.diagram{position:relative;min-width:1500px;min-height:900px;padding:30px}
+.site{position:absolute;border:2px dashed var(--border);border-radius:14px;padding:16px}
+.site-label{position:absolute;top:-12px;left:16px;background:var(--bg);padding:0 8px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.node{background:var(--card);border:2px solid var(--border);border-radius:10px;position:absolute;overflow:hidden;min-width:180px}
+.node.hub{border-color:var(--purple)}
+.node.spoke{border-color:var(--cyan)}
+.node.storage{border-color:var(--orange)}
+.node.infra{border-color:var(--yellow)}
+.node-hdr{padding:8px 12px;font-weight:700;font-size:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.node.hub .node-hdr{background:var(--purple-bg);color:var(--purple)}
+.node.spoke .node-hdr{background:var(--cyan-bg);color:var(--cyan)}
+.node.storage .node-hdr{background:var(--yellow-bg);color:var(--orange)}
+.node.infra .node-hdr{background:#21262d;color:var(--yellow)}
+.node-body{padding:8px 12px;font-size:11px;line-height:1.6}
+.node-body .detail{display:flex;justify-content:space-between;gap:8px}
+.node-body .k{color:var(--muted)}.node-body .v{color:var(--text);font-weight:500;text-align:right}
+.icon{font-size:14px}
+.conn{position:absolute;pointer-events:none}
+.conn svg{overflow:visible}
+.conn path{fill:none;stroke-width:2;stroke-dasharray:6,4}
+.conn .solid path{stroke-dasharray:none}
+.conn text{font-size:10px;font-family:inherit;fill:var(--muted)}
+.section{margin-bottom:20px}
+.section h2{font-size:15px;color:#fff;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.checklist{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px}
+.check{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;border-bottom:1px solid #1e2228}
+.check:last-child{border-bottom:none}
+.check .ci{width:16px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.check .ci.done{background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
+.check .ci.todo{background:#21262d;color:var(--muted);border:1px solid var(--gray)}
+.check .ci.blocked{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+.net-table{width:100%;border-collapse:collapse;font-size:12px}
+.net-table th{background:#1a1d23;color:var(--muted);padding:6px 10px;text-align:left;font-weight:600;border:1px solid var(--border)}
+.net-table td{padding:6px 10px;border:1px solid var(--border)}
+.net-table tr:nth-child(even){background:#13171e}
+.port-badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;font-family:monospace}
+.port-badge.tcp{background:#1a3a2a;color:var(--green)}
+.port-badge.udp{background:#2a2a1a;color:var(--yellow)}
+.flow-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.flow-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px}
+.flow-card h3{font-size:13px;color:#fff;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.flow-card .steps{font-size:11px;line-height:1.8;color:var(--text)}
+.flow-card .steps .step{display:flex;gap:6px}.flow-card .steps .sn{color:var(--muted);min-width:16px}
+@media(max-width:768px){.stats{grid-template-columns:repeat(3,1fr)}.flow-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="hdr">
+<div>
+<h1>VirtDR Phase 0 - Architecture</h1>
+<div class="sub">Two-site DR with Dell PowerStore VSA, ACM Hub, Submariner cross-cluster connectivity</div>
+</div>
+<div style="text-align:right">
+<span class="badge ip">Phase 0</span>
+<div style="font-size:11px;color:var(--muted);margin-top:4px">Updated: 2026-08-12</div>
+</div>
+</div>
+
+<div class="stats">
+<div class="stat"><div class="n" style="color:var(--green)">3</div><div class="l">Clusters Deployed</div></div>
+<div class="stat"><div class="n" style="color:var(--cyan)">3</div><div class="l">Unique Subnets</div></div>
+<div class="stat"><div class="n" style="color:var(--purple)">1</div><div class="l">ACM Hub</div></div>
+<div class="stat"><div class="n" style="color:var(--orange)">2</div><div class="l">Dell VSAs (Planned)</div></div>
+<div class="stat"><div class="n" style="color:var(--blue)">OCP 4.22</div><div class="l">Platform Version</div></div>
+<div class="stat"><div class="n" style="color:var(--yellow)">3</div><div class="l">Steps Remaining</div></div>
+</div>
+
+<div class="legend">
+<div class="leg"><div class="ldot" style="background:var(--purple)"></div>Hub / ACM</div>
+<div class="leg"><div class="ldot" style="background:var(--cyan)"></div>Spoke Cluster</div>
+<div class="leg"><div class="ldot" style="background:var(--orange)"></div>Storage (Dell VSA)</div>
+<div class="leg"><div class="ldot" style="background:var(--yellow)"></div>Hypervisor / Infra</div>
+<div class="leg"><div class="lrect" style="background:var(--green)"></div>Deployed</div>
+<div class="leg"><div class="lrect" style="background:var(--blue)"></div>In Progress</div>
+<div class="leg"><div class="lrect" style="background:var(--gray)"></div>Planned</div>
+<div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--green)" stroke-width="2"/></svg> Active Connection</div>
+<div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--gray)" stroke-width="2" stroke-dasharray="4,3"/></svg> Planned Connection</div>
+</div>
+
+<div class="diagram-wrap">
+<div class="diagram">
+
+<!-- Corporate Network backdrop -->
+<div style="position:absolute;top:10px;left:10px;right:10px;bottom:10px;border:1px solid #1e2530;border-radius:16px;background:#080c12">
+<div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#080c12;padding:0 12px;font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px">RED HAT CORPORATE NETWORK (10.46.46.0/24)</div>
+</div>
+
+<!-- Site A: Edge 36 -->
+<div class="site" style="left:30px;top:50px;width:660px;height:800px;border-color:var(--green)">
+<div class="site-label" style="color:var(--green)">&#x1F4CD; SITE A: ocp-edge36 (10.46.46.12)</div>
+
+<!-- Hypervisor -->
+<div class="node infra" style="left:20px;top:30px;width:620px;height:50px">
+<div class="node-hdr"><span class="icon">&#x1F5A5;</span> Hypervisor: RHEL 9.6 - Dell R640</div>
+<div class="node-body" style="padding:4px 12px"><div class="detail"><span class="k">libvirt (modular)</span><span class="v">tinyproxy :8888 | sushy-tools :8000</span></div></div>
+</div>
+
+<!-- NAT boundary -->
+<div style="position:absolute;left:20px;top:100px;width:620px;border-top:2px dotted var(--yellow);opacity:0.4"></div>
+<div style="position:absolute;left:270px;top:88px;font-size:10px;color:var(--yellow);opacity:0.6;background:var(--card);padding:0 6px;border-radius:4px">NAT BOUNDARY</div>
+
+<!-- Hub Cluster -->
+<div class="node hub" style="left:20px;top:120px;width:280px">
+<div class="node-hdr"><span class="icon">&#x1F451;</span> ACM Hub Cluster</div>
+<div class="node-body">
+<div class="detail"><span class="k">Topology</span><span class="v">IPI 3m0w</span></div>
+<div class="detail"><span class="k">Version</span><span class="v">OCP 4.22.9 (stable)</span></div>
+<div class="detail"><span class="k">ACM</span><span class="v">GA 2.17 (redhat-operators)</span></div>
+<div class="detail"><span class="k">Network</span><span class="v" style="color:var(--purple)">192.168.132.0/24</span></div>
+<div class="detail"><span class="k">API VIP</span><span class="v">192.168.132.5:6443</span></div>
+<div class="detail"><span class="k">Ingress VIP</span><span class="v">192.168.132.10</span></div>
+<div class="detail"><span class="k">Status</span><span class="badge done" style="font-size:9px">Deployed</span></div>
+</div>
+</div>
+
+<!-- Operators on Hub -->
+<div class="node hub" style="left:330px;top:120px;width:300px">
+<div class="node-hdr"><span class="icon">&#x1F4E6;</span> Hub Operators</div>
+<div class="node-body">
+<div class="detail"><span class="k">ACM</span><span class="badge done" style="font-size:9px">Installed</span></div>
+<div class="detail"><span class="k">MCE</span><span class="badge done" style="font-size:9px">Installed</span></div>
+<div class="detail"><span class="k">Submariner Broker</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="detail"><span class="k">Argo CD</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="detail"><span class="k">OCP Virtualization</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="detail"><span class="k">RamenDR</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+</div>
+</div>
+
+<!-- Spoke 1 -->
+<div class="node spoke" style="left:20px;top:370px;width:280px">
+<div class="node-hdr"><span class="icon">&#x1F310;</span> Spoke 1 (Primary DR Site)</div>
+<div class="node-body">
+<div class="detail"><span class="k">Topology</span><span class="v">Latebinding 3m3w</span></div>
+<div class="detail"><span class="k">Version</span><span class="v">OCP 4.22 (stable)</span></div>
+<div class="detail"><span class="k">Network</span><span class="v" style="color:var(--cyan)">192.168.133.0/24</span></div>
+<div class="detail"><span class="k">Managed by</span><span class="v">ACM Hub</span></div>
+<div class="detail"><span class="k">Status</span><span class="badge done" style="font-size:9px">Deployed</span></div>
+</div>
+</div>
+
+<!-- Spoke 1 Components -->
+<div class="node spoke" style="left:330px;top:370px;width:300px">
+<div class="node-hdr"><span class="icon">&#x2699;</span> Spoke 1 Components</div>
+<div class="node-body">
+<div class="detail"><span class="k">Submariner GW</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="detail"><span class="k">Globalnet</span><span class="badge todo" style="font-size:9px">Required (CIDR overlap)</span></div>
+<div class="detail"><span class="k">Dell CSI Driver</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="detail"><span class="k">iSCSI to VSA-A</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+</div>
+</div>
+
+<!-- CIDR Info Box -->
+<div class="node" style="left:20px;top:570px;width:280px;border-color:var(--red)">
+<div class="node-hdr" style="background:var(--red-bg);color:var(--red)"><span class="icon">&#x26A0;</span> CIDR Overlap (Globalnet Required)</div>
+<div class="node-body">
+<div class="detail"><span class="k">Pod CIDR</span><span class="v" style="color:var(--red)">10.128.0.0/14</span></div>
+<div class="detail"><span class="k">Svc CIDR</span><span class="v" style="color:var(--red)">172.30.0.0/16</span></div>
+<div class="detail"><span class="k">Impact</span><span class="v">Both spokes identical</span></div>
+<div class="detail"><span class="k">Fix</span><span class="v">Globalnet virtual IPs</span></div>
+</div>
+</div>
+
+<!-- Dell VSA A -->
+<div class="node storage" style="left:330px;top:570px;width:300px">
+<div class="node-hdr"><span class="icon">&#x1F4BE;</span> Dell PowerStore VSA-A</div>
+<div class="node-body">
+<div class="detail"><span class="k">Platform</span><span class="v">eco-vCenter / VMware</span></div>
+<div class="detail"><span class="k">Protocol</span><span class="v">iSCSI</span></div>
+<div class="detail"><span class="k">Connected to</span><span class="v">Spoke 1</span></div>
+<div class="detail"><span class="k">Replication</span><span class="v">Async to VSA-B</span></div>
+<div class="detail"><span class="k">Status</span><span class="badge todo" style="font-size:9px">Planned (Tzach)</span></div>
+</div>
+</div>
+
+</div>
+
+<!-- Site B: Edge 97 -->
+<div class="site" style="left:740px;top:50px;width:500px;height:800px;border-color:var(--blue)">
+<div class="site-label" style="color:var(--blue)">&#x1F4CD; SITE B: ocp-edge97 (10.46.46.76)</div>
+
+<!-- Hypervisor -->
+<div class="node infra" style="left:20px;top:30px;width:460px;height:50px">
+<div class="node-hdr"><span class="icon">&#x1F5A5;</span> Hypervisor: RHEL 8.6 - Dell R640</div>
+<div class="node-body" style="padding:4px 12px"><div class="detail"><span class="k">libvirt (legacy)</span><span class="v">sushy-tools :8000</span></div></div>
+</div>
+
+<!-- NAT boundary -->
+<div style="position:absolute;left:20px;top:100px;width:460px;border-top:2px dotted var(--yellow);opacity:0.4"></div>
+<div style="position:absolute;left:190px;top:88px;font-size:10px;color:var(--yellow);opacity:0.6;background:var(--card);padding:0 6px;border-radius:4px">NAT BOUNDARY</div>
+
+<!-- Spoke 2 -->
+<div class="node spoke" style="left:20px;top:120px;width:280px">
+<div class="node-hdr"><span class="icon">&#x1F310;</span> Spoke 2 (Secondary DR Site)</div>
+<div class="node-body">
+<div class="detail"><span class="k">Topology</span><span class="v">Standalone IPI 3m3w</span></div>
+<div class="detail"><span class="k">Version</span><span class="v">OCP 4.22.8 (stable)</span></div>
+<div class="detail"><span class="k">Network</span><span class="v" style="color:var(--cyan)">192.168.129.0/24</span></div>
+<div class="detail"><span class="k">ACM Import</span><span class="badge blocked" style="font-size:9px">Blocked (networking)</span></div>
+<div class="detail"><span class="k">Status</span><span class="badge done" style="font-size:9px">Deployed</span></div>
+</div>
+</div>
+
+<!-- Spoke 2 Components -->
+<div class="node spoke" style="left:20px;top:370px;width:280px">
+<div class="node-hdr"><span class="icon">&#x2699;</span> Spoke 2 Components</div>
+<div class="node-body">
+<div class="detail"><span class="k">Submariner GW</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="detail"><span class="k">Globalnet</span><span class="badge todo" style="font-size:9px">Required</span></div>
+<div class="detail"><span class="k">Dell CSI Driver</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="detail"><span class="k">iSCSI to VSA-B</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="detail"><span class="k">Klusterlet</span><span class="badge blocked" style="font-size:9px">Needs connectivity</span></div>
+</div>
+</div>
+
+<!-- Dell VSA B -->
+<div class="node storage" style="left:20px;top:570px;width:280px">
+<div class="node-hdr"><span class="icon">&#x1F4BE;</span> Dell PowerStore VSA-B</div>
+<div class="node-body">
+<div class="detail"><span class="k">Platform</span><span class="v">eco-vCenter / VMware</span></div>
+<div class="detail"><span class="k">Protocol</span><span class="v">iSCSI</span></div>
+<div class="detail"><span class="k">Connected to</span><span class="v">Spoke 2</span></div>
+<div class="detail"><span class="k">Replication</span><span class="v">Async from VSA-A</span></div>
+<div class="detail"><span class="k">Status</span><span class="badge todo" style="font-size:9px">Planned (Tzach)</span></div>
+</div>
+</div>
+
+</div>
+
+<!-- Connection Lines (SVG overlay) -->
+<svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible">
+<!-- Hub to Spoke 1 (managed) - solid green -->
+<line x1="170" y1="340" x2="170" y2="420" stroke="var(--green)" stroke-width="2" marker-end="url(#arrowG)"/>
+<text x="180" y="380" fill="var(--green)" font-size="10" font-family="inherit">manages</text>
+
+<!-- Hub API to Edge97 (planned, dashed) -->
+<path d="M 350,270 Q 700,200 860,220" stroke="var(--gray)" stroke-width="2" stroke-dasharray="6,4" fill="none" marker-end="url(#arrowGr)"/>
+<text x="580" y="215" fill="var(--muted)" font-size="10" font-family="inherit">ACM import (TCP 6443)</text>
+<text x="580" y="228" fill="var(--red)" font-size="9" font-family="inherit" font-weight="600">BLOCKED: needs port forwarding</text>
+
+<!-- Spoke1 to Spoke2 Submariner tunnel (planned) -->
+<path d="M 350,480 Q 550,510 790,480" stroke="var(--blue)" stroke-width="2.5" stroke-dasharray="8,4" fill="none" marker-end="url(#arrowB)"/>
+<rect x="510" y="468" width="150" height="18" rx="4" fill="var(--blue-bg)" stroke="var(--blue)" stroke-width="1"/>
+<text x="517" y="481" fill="var(--blue)" font-size="10" font-family="inherit" font-weight="600">&#x1F512; Submariner IPsec</text>
+<text x="520" y="497" fill="var(--muted)" font-size="9" font-family="inherit">UDP 4500/4490 via NAT</text>
+
+<!-- Spoke1 to VSA-A (iSCSI, planned) -->
+<line x1="170" y1="530" x2="450" y2="620" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowO)"/>
+<text x="270" y="570" fill="var(--orange)" font-size="9" font-family="inherit">iSCSI</text>
+
+<!-- Spoke2 to VSA-B (iSCSI, planned) -->
+<line x1="900" y1="530" x2="900" y2="620" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowO)"/>
+<text x="910" y="580" fill="var(--orange)" font-size="9" font-family="inherit">iSCSI</text>
+
+<!-- VSA-A to VSA-B replication -->
+<path d="M 680,680 Q 720,750 790,680" stroke="var(--red)" stroke-width="2" stroke-dasharray="6,4" fill="none" marker-end="url(#arrowR)"/>
+<text x="700" y="740" fill="var(--red)" font-size="9" font-family="inherit" font-weight="600">Async Replication</text>
+<text x="700" y="755" fill="var(--muted)" font-size="9" font-family="inherit">(Dell PowerStore native)</text>
+
+<!-- Arrow markers -->
+<defs>
+<marker id="arrowG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--green)"/></marker>
+<marker id="arrowGr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--gray)"/></marker>
+<marker id="arrowB" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--blue)"/></marker>
+<marker id="arrowO" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--orange)"/></marker>
+<marker id="arrowR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--red)"/></marker>
+</defs>
+</svg>
+
+</div>
+</div>
+
+<!-- Network Table -->
+<div class="section">
+<h2>&#x1F4E1; Network Allocation</h2>
+<table class="net-table">
+<tr><th>Cluster</th><th>Host</th><th>Subnet</th><th>API VIP</th><th>Ingress VIP</th><th>Pod CIDR</th><th>Status</th></tr>
+<tr><td style="color:var(--purple);font-weight:600">Hub</td><td>edge36</td><td style="font-family:monospace">192.168.132.0/24</td><td style="font-family:monospace">192.168.132.5</td><td style="font-family:monospace">192.168.132.10</td><td style="font-family:monospace;color:var(--red)">10.128.0.0/14</td><td><span class="badge done">Deployed</span></td></tr>
+<tr><td style="color:var(--cyan);font-weight:600">Spoke 1</td><td>edge36</td><td style="font-family:monospace">192.168.133.0/24</td><td style="font-family:monospace">192.168.133.5</td><td style="font-family:monospace">192.168.133.10</td><td style="font-family:monospace;color:var(--red)">10.128.0.0/14</td><td><span class="badge done">Deployed</span></td></tr>
+<tr><td style="color:var(--cyan);font-weight:600">Spoke 2</td><td>edge97</td><td style="font-family:monospace">192.168.129.0/24</td><td style="font-family:monospace">192.168.129.5</td><td style="font-family:monospace">192.168.129.10</td><td style="font-family:monospace;color:var(--red)">10.128.0.0/14</td><td><span class="badge done">Deployed</span></td></tr>
+</table>
+</div>
+
+<!-- Port Forwarding Table -->
+<div class="section">
+<h2>&#x1F511; Required Port Forwarding</h2>
+<table class="net-table">
+<tr><th>Host</th><th>Port</th><th>Proto</th><th>Forward To</th><th>Purpose</th><th>Status</th></tr>
+<tr><td>edge36</td><td style="font-family:monospace">6443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">192.168.132.5:6443</td><td>Hub API for ACM import</td><td><span class="badge todo">Planned</span></td></tr>
+<tr><td>edge36</td><td style="font-family:monospace">4500</td><td><span class="port-badge udp">UDP</span></td><td style="font-family:monospace">spoke1-gw:4500</td><td>Submariner IPsec tunnel</td><td><span class="badge todo">Planned</span></td></tr>
+<tr><td>edge36</td><td style="font-family:monospace">4490</td><td><span class="port-badge udp">UDP</span></td><td style="font-family:monospace">spoke1-gw:4490</td><td>Submariner NAT-T discovery</td><td><span class="badge todo">Planned</span></td></tr>
+<tr><td>edge97</td><td style="font-family:monospace">4500</td><td><span class="port-badge udp">UDP</span></td><td style="font-family:monospace">spoke2-gw:4500</td><td>Submariner IPsec tunnel</td><td><span class="badge todo">Planned</span></td></tr>
+<tr><td>edge97</td><td style="font-family:monospace">4490</td><td><span class="port-badge udp">UDP</span></td><td style="font-family:monospace">spoke2-gw:4490</td><td>Submariner NAT-T discovery</td><td><span class="badge todo">Planned</span></td></tr>
+</table>
+</div>
+
+<!-- Traffic Flows -->
+<div class="section">
+<h2>&#x1F500; Traffic Flows</h2>
+<div class="flow-row">
+<div class="flow-card" style="border-left:3px solid var(--purple)">
+<h3><span class="icon">&#x1F451;</span> Management Plane</h3>
+<div class="steps">
+<div class="step"><span class="sn">1.</span>Hub API (edge36) exposes TCP 6443 via socat</div>
+<div class="step"><span class="sn">2.</span>edge97 DNS resolves hub API to 10.46.46.12</div>
+<div class="step"><span class="sn">3.</span>Klusterlet on Spoke 2 connects to Hub</div>
+<div class="step"><span class="sn">4.</span>ACM manages both spokes from Hub</div>
+</div>
+</div>
+<div class="flow-card" style="border-left:3px solid var(--blue)">
+<h3><span class="icon">&#x1F512;</span> Submariner Data Plane</h3>
+<div class="steps">
+<div class="step"><span class="sn">1.</span>Gateway nodes selected (1 per spoke)</div>
+<div class="step"><span class="sn">2.</span>Public IP annotation: hypervisor corp IP</div>
+<div class="step"><span class="sn">3.</span>IPsec tunnel via UDP 4500 (NAT traversal)</div>
+<div class="step"><span class="sn">4.</span>Globalnet assigns virtual IPs (CIDR overlap)</div>
+<div class="step"><span class="sn">5.</span>Cross-cluster service discovery via .clusterset.local</div>
+</div>
+</div>
+<div class="flow-card" style="border-left:3px solid var(--orange)">
+<h3><span class="icon">&#x1F4BE;</span> Storage / DR Plane</h3>
+<div class="steps">
+<div class="step"><span class="sn">1.</span>Dell VSAs deployed on eco-vCenter (Tzach)</div>
+<div class="step"><span class="sn">2.</span>Spokes connect to VSAs via iSCSI (NAT to corp net)</div>
+<div class="step"><span class="sn">3.</span>VSA-A replicates async to VSA-B (Dell native)</div>
+<div class="step"><span class="sn">4.</span>RamenDR orchestrates failover via Submariner</div>
+<div class="step"><span class="sn">5.</span>S3 metadata store for DR coordination</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Deployment Checklist -->
+<div class="section">
+<h2>&#x2705; Deployment Progress</h2>
+<div class="checklist">
+<div class="check"><div class="ci done">&#x2713;</div><span style="font-weight:600">Hub cluster deployed</span> <span style="color:var(--muted);margin-left:auto">IPI 3m0w on edge36, OCP 4.22.9 stable</span></div>
+<div class="check"><div class="ci done">&#x2713;</div><span style="font-weight:600">GA ACM 2.17 installed</span> <span style="color:var(--muted);margin-left:auto">From redhat-operators catalog (not dev snapshot)</span></div>
+<div class="check"><div class="ci done">&#x2713;</div><span style="font-weight:600">Spoke 1 deployed</span> <span style="color:var(--muted);margin-left:auto">Latebinding 3m3w on edge36, managed by ACM</span></div>
+<div class="check"><div class="ci done">&#x2713;</div><span style="font-weight:600">Spoke 2 deployed</span> <span style="color:var(--muted);margin-left:auto">Standalone IPI 3m3w on edge97, OCP 4.22.8</span></div>
+<div class="check"><div class="ci done">&#x2713;</div><span style="font-weight:600">Unique subnets verified</span> <span style="color:var(--muted);margin-left:auto">132.x / 133.x / 129.x - no overlap</span></div>
+<div class="check"><div class="ci blocked">!</div><span style="font-weight:600;color:var(--red)">Import Spoke 2 into ACM</span> <span style="color:var(--muted);margin-left:auto">Blocked: needs cross-site port forwarding (Tzach network design)</span></div>
+<div class="check"><div class="ci todo">&#x25CB;</div><span>Install hub operators (Argo, OCP Virtualization)</span></div>
+<div class="check"><div class="ci todo">&#x25CB;</div><span>Deploy Submariner Broker (Globalnet enabled)</span></div>
+<div class="check"><div class="ci todo">&#x25CB;</div><span>Set up cross-site port forwarding (socat/systemd)</span></div>
+<div class="check"><div class="ci todo">&#x25CB;</div><span>Configure Submariner on both spokes</span></div>
+<div class="check"><div class="ci todo">&#x25CB;</div><span>Dell PowerStore VSA deployment (Tzach)</span></div>
+<div class="check"><div class="ci todo">&#x25CB;</div><span>Dell CSI driver on both spokes</span></div>
+<div class="check"><div class="ci todo">&#x25CB;</div><span>iSCSI connectivity validation</span></div>
+<div class="check"><div class="ci todo">&#x25CB;</div><span>RamenDR operator + DRPolicy configuration</span></div>
+<div class="check"><div class="ci todo">&#x25CB;</div><span>End-to-end failover test</span></div>
+</div>
+</div>
+
+<div style="font-size:10px;color:var(--muted);text-align:center;margin-top:20px;padding-top:10px;border-top:1px solid var(--border)">
+VirtDR Phase 0 Architecture Diagram | Generated 2026-08-12 | Scroll horizontally in the diagram for full view
+</div>
+</body>
+</html>
