@@ -47,7 +47,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .site-label{position:absolute;top:-12px;left:16px;background:#0a0e14;padding:0 8px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
 .nat-line{position:absolute;left:20px;right:20px;border-top:2px dotted rgba(210,153,34,.4);text-align:center}
 .nat-line span{position:relative;top:-9px;font-size:10px;color:rgba(210,153,34,.7);background:#0a0e14;padding:0 8px;border-radius:4px}
-.hyper-bar{position:absolute;left:20px;right:20px;height:55px;border:2px solid var(--yellow);border-radius:6px;background:rgba(210,153,34,.05);padding:8px 12px}
+.hyper-bar{position:absolute;left:20px;right:20px;height:72px;border:2px solid var(--yellow);border-radius:6px;background:rgba(210,153,34,.05);padding:8px 12px}
 .tunnel{position:absolute;width:250px;border:3px solid var(--blue);border-radius:12px;background:var(--blue-bg);padding:16px;text-align:center}
 .tunnel .icon{font-size:2rem;margin-bottom:8px}
 .tunnel .title{color:var(--blue);font-size:14px;margin-bottom:8px}
@@ -129,9 +129,9 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div style="font-size:10px;color:var(--muted);margin-top:2px">libvirt (modular) | tinyproxy :8888 | sushy-tools :8000</div>
 </div>
 
-<div class="nat-line" style="top:110px"><span>⚠️ NAT BOUNDARY</span></div>
+<div class="nat-line" style="top:127px"><span>⚠️ NAT BOUNDARY</span></div>
 
-<div class="card" id="hub" style="top:130px;left:30px;width:280px;border-color:var(--purple)">
+<div class="card" id="hub" style="top:147px;left:30px;width:280px;border-color:var(--purple)">
 <span class="info-icon" title="The ACM Hub manages both spoke clusters and orchestrates DR failover via RamenDR">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="icon">👑</div>
@@ -146,7 +146,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="links"><a href="https://console-openshift-console.apps.ocp3m0w-ic4s22.qe.lab.redhat.com" target="_blank">Console</a></div>
 </div>
 
-<div class="card" id="hubops" style="top:130px;left:340px;width:280px;border-color:var(--purple)">
+<div class="card" id="hubops" style="top:147px;left:340px;width:280px;border-color:var(--purple)">
 <span class="info-icon" title="Operators installed or planned on the ACM Hub. ACM and MCE are prerequisites.">i</span>
 <div class="step-badge plan">Planned</div>
 <div class="icon">📦</div>
@@ -161,7 +161,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 
-<div class="card" id="spoke1" style="top:350px;left:30px;width:280px;border-color:var(--cyan)">
+<div class="card" id="spoke1" style="top:367px;left:30px;width:280px;border-color:var(--cyan)">
 <span class="info-icon" title="Primary DR site. Spoke VMs run on the same hypervisor as the hub.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="icon">🌐</div>
@@ -173,7 +173,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 
-<div class="card" id="spoke1comp" style="top:350px;left:340px;width:280px;border-color:var(--cyan)">
+<div class="card" id="spoke1comp" style="top:367px;left:340px;width:280px;border-color:var(--cyan)">
 <span class="info-icon" title="Components to be deployed on Spoke 1 for DR connectivity. Submariner GW creates the IPsec tunnel.">i</span>
 <div class="step-badge plan">Planned</div>
 <div class="icon">⚙️</div>
@@ -186,7 +186,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 
-<div class="card" id="cidr" style="top:570px;left:30px;width:280px;border-color:var(--red)">
+<div class="card" id="cidr" style="top:587px;left:30px;width:280px;border-color:var(--red)">
 <span class="info-icon" title="Required because both clusters use identical pod/service CIDRs.">i</span>
 <div class="step-badge blk">Warning</div>
 <div class="icon">⚠️</div>
@@ -199,7 +199,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 
-<div class="card" id="vsaa" style="top:570px;left:340px;width:280px;border-color:var(--orange)">
+<div class="card" id="vsaa" style="top:587px;left:340px;width:280px;border-color:var(--orange)">
 <span class="info-icon" title="Dell PowerStore Virtual Storage Appliance running on eco-vCenter.">i</span>
 <div class="step-badge plan">Planned</div>
 <div class="icon">💾</div>
@@ -233,9 +233,9 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div style="font-size:10px;color:var(--muted);margin-top:2px">libvirt (legacy) | sushy-tools :8000</div>
 </div>
 
-<div class="nat-line" style="top:110px"><span>⚠️ NAT BOUNDARY</span></div>
+<div class="nat-line" style="top:127px"><span>⚠️ NAT BOUNDARY</span></div>
 
-<div class="card" id="spoke2" style="top:130px;left:30px;width:280px;border-color:var(--cyan)">
+<div class="card" id="spoke2" style="top:147px;left:30px;width:280px;border-color:var(--cyan)">
 <span class="info-icon" title="Secondary DR site. Standalone cluster on a separate hypervisor.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="icon">🌐</div>
@@ -247,7 +247,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 
-<div class="card" id="spoke2comp" style="top:130px;left:340px;width:280px;border-color:var(--cyan)">
+<div class="card" id="spoke2comp" style="top:147px;left:340px;width:280px;border-color:var(--cyan)">
 <span class="info-icon" title="Components to be deployed on Spoke 2 for DR connectivity.">i</span>
 <div class="step-badge blk">Blocked</div>
 <div class="icon">⚙️</div>
@@ -261,7 +261,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 
-<div class="card" id="vsab" style="top:370px;left:30px;width:280px;border-color:var(--orange)">
+<div class="card" id="vsab" style="top:387px;left:30px;width:280px;border-color:var(--orange)">
 <span class="info-icon" title="Dell PowerStore Virtual Storage Appliance running on eco-vCenter.">i</span>
 <div class="step-badge plan">Planned</div>
 <div class="icon">💾</div>
@@ -314,14 +314,14 @@ g.appendChild(text);
 svg.appendChild(g);
 }
 var green='#3fb950',blue='#58a6ff',orange='#d18616',red='#f85149',gray='#8b949e';
-arrow(200,310,200,380,green,'manages',false);
-arrow(550,260,1100,290,gray,'ACM import (TCP 6443) BLOCKED',true);
-arrow(1350,380,1720,260,blue,'cross-cluster connectivity',true);
-arrow(550,490,1100,370,blue,'IPsec (Spoke 1)',true);
-arrow(1920,320,1350,350,blue,'IPsec (Spoke 2)',true);
-arrow(480,600,480,700,orange,'iSCSI',true);
-arrow(1870,450,1870,530,orange,'iSCSI',true);
-arrow(610,750,1700,650,red,'Async Replication (Dell native)',true);
+arrow(200,327,200,397,green,'manages',false);
+arrow(550,277,1100,290,gray,'ACM import (TCP 6443) BLOCKED',true);
+arrow(1350,400,1720,277,blue,'cross-cluster connectivity',true);
+arrow(550,507,1100,370,blue,'IPsec (Spoke 1)',true);
+arrow(1920,337,1350,350,blue,'IPsec (Spoke 2)',true);
+arrow(480,617,480,717,orange,'iSCSI',true);
+arrow(1870,467,1870,547,orange,'iSCSI',true);
+arrow(610,767,1700,667,red,'Async Replication (Dell native)',true);
 })();
 </script>
 
