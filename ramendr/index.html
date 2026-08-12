@@ -106,7 +106,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="leg"><div class="ldot" style="background:var(--yellow)"></div>Hypervisor / Infra</div>
 <div class="leg"><div class="lrect" style="background:var(--green)"></div>Deployed</div>
 <div class="leg"><div class="lrect" style="background:#484f58"></div>Planned</div>
-<div class="leg"><div class="lrect" style="background:var(--red)"></div>Blocked</div>
+<div class="leg"><div class="lrect" style="background:var(--red)"></div>Pending</div>
 <div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--green)" stroke-width="2"/></svg> Active</div>
 <div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#484f58" stroke-width="2" stroke-dasharray="4,3"/></svg> Planned</div>
 </div>
@@ -208,7 +208,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="detail">
 <div class="row"><span class="k">Connected to</span><span class="v">Spoke 1</span></div>
 <div class="row"><span class="k">Replication</span><span class="v">Async to VSA-B</span></div>
-<div class="row"><span class="k">Status</span><span class="v">Planned (Tzach)</span></div>
+<div class="row"><span class="k">Status</span><span class="v">Planned</span></div>
 </div>
 </div>
 
@@ -243,13 +243,13 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="sub">Standalone IPI 3m3w | OCP 4.22.8 stable</div>
 <div class="detail">
 <div class="row"><span class="k">Network</span><span class="v" style="color:var(--cyan)">192.168.129.0/24</span></div>
-<div class="row"><span class="k">ACM Import</span><span class="badge blocked" style="font-size:9px">Blocked (networking)</span></div>
+<div class="row"><span class="k">ACM Import</span><span class="badge ip" style="font-size:9px">Pending</span></div>
 </div>
 </div>
 
 <div class="card" id="spoke2comp" style="top:147px;left:340px;width:280px;border-color:var(--cyan)">
 <span class="info-icon" title="Components to be deployed on Spoke 2 for DR connectivity.">i</span>
-<div class="step-badge blk">Blocked</div>
+<div class="step-badge plan">Next</div>
 <div class="icon">⚙️</div>
 <div class="title" style="color:var(--cyan)">Spoke 2 Components</div>
 <div class="detail">
@@ -257,7 +257,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="row"><span class="k">Globalnet</span><span class="badge todo" style="font-size:9px">Required</span></div>
 <div class="row"><span class="k">Dell CSI Driver</span><span class="badge todo" style="font-size:9px">Planned</span></div>
 <div class="row"><span class="k">iSCSI to VSA-B</span><span class="badge todo" style="font-size:9px">Planned</span></div>
-<div class="row"><span class="k">Klusterlet</span><span class="badge blocked" style="font-size:9px">Blocked</span></div>
+<div class="row"><span class="k">Klusterlet</span><span class="badge todo" style="font-size:9px">Next</span></div>
 </div>
 </div>
 
@@ -270,7 +270,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="detail">
 <div class="row"><span class="k">Connected to</span><span class="v">Spoke 2</span></div>
 <div class="row"><span class="k">Replication</span><span class="v">Async from VSA-A</span></div>
-<div class="row"><span class="k">Status</span><span class="v">Planned (Tzach)</span></div>
+<div class="row"><span class="k">Status</span><span class="v">Planned</span></div>
 </div>
 </div>
 
@@ -326,7 +326,7 @@ function topB(id){var e=document.getElementById(id);return sB.y+e.offsetTop;}
 // Hub bottom -> Spoke1 top
 arrow(200,bot('hub'),200,top2('spoke1'),green,'manages',false);
 // HubOps right -> Tunnel left
-arrow(660,sA.y+250,1100,300,gray,'ACM import (TCP 6443) BLOCKED',true);
+arrow(660,sA.y+250,1100,300,gray,'ACM import (TCP 6443) - pending',true);
 // Tunnel right -> Spoke2 left
 arrow(1350,350,sB.x+30,sB.y+220,blue,'cross-cluster connectivity',true);
 // Spoke1Comp right -> Tunnel left
@@ -390,7 +390,7 @@ arrow(660,sA.y+700,sB.x+30,sB.y+510,red,'Async Replication (Dell native)',true);
 <div class="flow-card" style="border-left:3px solid var(--orange)">
 <h3><span>💾</span> Storage / DR Plane</h3>
 <div class="steps">
-<div class="step"><span class="sn">1.</span>Dell VSAs deployed on eco-vCenter (Tzach)</div>
+<div class="step"><span class="sn">1.</span>Dell VSAs deployed on eco-vCenter </div>
 <div class="step"><span class="sn">2.</span>Spokes connect to VSAs via iSCSI (NAT to corp net)</div>
 <div class="step"><span class="sn">3.</span>VSA-A replicates async to VSA-B (Dell native)</div>
 <div class="step"><span class="sn">4.</span>RamenDR orchestrates failover via Submariner</div>
@@ -408,12 +408,12 @@ arrow(660,sA.y+700,sB.x+30,sB.y+510,red,'Async Replication (Dell native)',true);
 <div class="check"><div class="ci done">✓</div><span style="font-weight:600">Spoke 1 deployed</span><span style="color:var(--muted);margin-left:auto">Latebinding 3m3w on edge36, managed by ACM</span></div>
 <div class="check"><div class="ci done">✓</div><span style="font-weight:600">Spoke 2 deployed</span><span style="color:var(--muted);margin-left:auto">Standalone IPI 3m3w on edge97, OCP 4.22.8</span></div>
 <div class="check"><div class="ci done">✓</div><span style="font-weight:600">Unique subnets verified</span><span style="color:var(--muted);margin-left:auto">132.x / 133.x / 129.x - no overlap</span></div>
-<div class="check"><div class="ci blocked">!</div><span style="font-weight:600;color:var(--red)">Import Spoke 2 into ACM</span><span style="color:var(--muted);margin-left:auto">Blocked: needs cross-site port forwarding (Tzach network design)</span></div>
+<div class="check"><div class="ci todo"><div class="ci blocked">!</div><span style="font-weight:600;color:var(--red)">Import Spoke 2 into ACM</span>#x25CB;</div><span style="font-weight:600">Import Spoke 2 into ACM</span><span style="color:var(--muted);margin-left:auto">Next: set up cross-site port forwarding</span></div>
 <div class="check"><div class="ci todo">○</div><span>Install hub operators (Argo, OCP Virtualization)</span></div>
 <div class="check"><div class="ci todo">○</div><span>Deploy Submariner Broker (Globalnet enabled)</span></div>
 <div class="check"><div class="ci todo">○</div><span>Set up cross-site port forwarding (socat/systemd)</span></div>
 <div class="check"><div class="ci todo">○</div><span>Configure Submariner on both spokes</span></div>
-<div class="check"><div class="ci todo">○</div><span>Dell PowerStore VSA deployment (Tzach)</span></div>
+<div class="check"><div class="ci todo">○</div><span>Dell PowerStore VSA deployment </span></div>
 <div class="check"><div class="ci todo">○</div><span>Dell CSI driver on both spokes</span></div>
 <div class="check"><div class="ci todo">○</div><span>iSCSI connectivity validation</span></div>
 <div class="check"><div class="ci todo">○</div><span>RamenDR operator + DRPolicy configuration</span></div>
