@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-12T13:46:52.987Z",
+  "updated": "2026-08-12T15:10:50.656Z",
   "issues": {
     "RHWA-1400": {
       "status": "todo",
@@ -115,6 +115,11 @@
       "status": "ip",
       "name": "In Progress",
       "parent": "RHWA-957"
+    },
+    "RHWA-1504": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-961"
     },
     "RHWA-1493": {
       "status": "todo",
