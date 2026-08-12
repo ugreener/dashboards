@@ -261,7 +261,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 
-<div class="card" id="vsab" style="top:430px;left:30px;width:280px;border-color:var(--orange)">
+<div class="card" id="vsab" style="top:370px;left:30px;width:280px;border-color:var(--orange)">
 <span class="info-icon" title="Dell PowerStore Virtual Storage Appliance running on eco-vCenter.">i</span>
 <div class="step-badge plan">Planned</div>
 <div class="icon">💾</div>
@@ -335,8 +335,8 @@ arrow(660,sA.y+480,1100,380,blue,'IPsec (Spoke 1)',true);
 arrow(sB.x+30,sB.y+250,1350,370,blue,'IPsec (Spoke 2)',true);
 // Spoke1Comp bottom -> VSA-A top (vertical, in gap)
 arrow(510,bot('spoke1comp')+5,510,top2('vsaa')-5,orange,'iSCSI',true);
-// Spoke2 bottom -> VSA-B top (vertical, in gap)
-arrow(sB.x+170,botB('spoke2comp')+5,sB.x+170,topB('vsab')-5,orange,'iSCSI',true);
+// Spoke2 bottom -> VSA-B top (vertical, short gap)
+arrow(sB.x+170,botB('spoke2')+5,sB.x+170,topB('vsab')-5,orange,'iSCSI',true);
 // VSA-A right -> VSA-B left (across bottom)
 arrow(660,sA.y+700,sB.x+30,sB.y+510,red,'Async Replication (Dell native)',true);
 },100);
