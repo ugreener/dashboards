@@ -214,13 +214,14 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 
 </div>
 
-<div class="tunnel" id="tunnel" style="top:300px;left:960px">
-<div class="icon">🔒</div>
+<div class="tunnel" id="tunnel" style="top:280px;left:960px">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 136 112" style="width:60px;height:50px;margin-bottom:6px"><path fill="#58a6ff" d="M33.987 33.986V48.681H103.596A12.411 12.411 0 0 1 115.993 61.079V78.979a12.411 12.411 0 0 1-12.397 12.397H0v5.594A14.435 14.435 0 0 0 14.393 111.362H121.587a14.435 14.435 0 0 0 14.393-14.392V33.986Z"/><path fill="#58a6ff" d="M101.993 77.376V62.681H32.384a12.411 12.411 0 0 1-12.397-12.397V32.383a12.411 12.411 0 0 1 12.397-12.397H135.979v-5.594A14.435 14.435 0 0 0 121.587 0H14.393A14.435 14.435 0 0 0 0 14.392v62.984Z"/></svg>
 <div class="title">Submariner IPsec Tunnel</div>
-<div class="line">UDP 4500/4490</div>
-<div class="line">Globalnet Enabled</div>
-<div class="line">NAT Traversal</div>
-<div class="line">10.46.46.12 ↔ 10.46.46.76</div>
+<div class="line">🔒 Encrypted | UDP 4500/4490</div>
+<div class="line">Globalnet Enabled (CIDR overlap)</div>
+<div class="line">NAT Traversal via corp IPs</div>
+<div class="line" style="margin-top:4px;color:var(--blue);font-weight:600">10.46.46.12 ↔ 10.46.46.76</div>
+<a href="https://submariner.io/operations/nat-traversal/" target="_blank" style="font-size:9px;color:var(--blue);margin-top:6px;display:block">submariner.io docs</a>
 </div>
 
 <div class="site" style="top:50px;left:1240px;width:900px;height:820px;border-color:var(--blue)">
