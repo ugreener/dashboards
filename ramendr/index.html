@@ -186,16 +186,16 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 
-<div class="card" id="cidr" style="top:625px;left:30px;width:280px;border-color:var(--red)">
+<div class="card" id="cidr" style="top:625px;left:30px;width:280px;border-color:var(--blue)">
 <span class="info-icon" title="Required because both clusters use identical pod/service CIDRs.">i</span>
-<div class="step-badge blk">Warning</div>
-<div class="icon">⚠️</div>
-<div class="title" style="color:var(--red)">CIDR Overlap (Globalnet Required)</div>
+<div class="step-badge plan">Note</div>
+<div class="icon">ℹ️</div>
+<div class="title" style="color:var(--blue)">CIDR Overlap (Globalnet Handles This)</div>
 <div class="detail">
-<div class="row"><span class="k">Pod CIDR</span><span class="v" style="color:var(--red)">10.128.0.0/14</span></div>
-<div class="row"><span class="k">Svc CIDR</span><span class="v" style="color:var(--red)">172.30.0.0/16</span></div>
-<div class="row"><span class="k">Impact</span><span class="v">Both spokes identical</span></div>
-<div class="row"><span class="k">Fix</span><span class="v">Globalnet virtual IPs</span></div>
+<div class="row"><span class="k">Pod CIDR</span><span class="v" style="color:var(--muted)">10.128.0.0/14</span></div>
+<div class="row"><span class="k">Svc CIDR</span><span class="v" style="color:var(--muted)">172.30.0.0/16</span></div>
+<div class="row"><span class="k">Note</span><span class="v">Standard OCP defaults</span></div>
+<div class="row"><span class="k">Solution</span><span class="v">Globalnet virtual IPs</span></div>
 </div>
 </div>
 
