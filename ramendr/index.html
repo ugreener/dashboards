@@ -369,7 +369,7 @@ arrow(660,sA.y+700,sB.x+30,sB.y+510,red,'Async Replication (Dell native)',true);
 <h2>🔀 Traffic Flows</h2>
 <div class="flow-row">
 <div class="flow-card" style="border-left:3px solid var(--purple)">
-<h3><span>👑</span> Management Plane</h3>
+<h3><span>🔧</span> Management Plane</h3>
 <div class="steps">
 <div class="step"><span class="sn">1.</span>Hub API (edge36) exposes TCP 6443 via socat</div>
 <div class="step"><span class="sn">2.</span>edge97 DNS resolves hub API to 10.46.46.12</div>
@@ -378,7 +378,7 @@ arrow(660,sA.y+700,sB.x+30,sB.y+510,red,'Async Replication (Dell native)',true);
 </div>
 </div>
 <div class="flow-card" style="border-left:3px solid var(--blue)">
-<h3><span>🔒</span> Submariner Data Plane</h3>
+<h3><span>🔗</span> Submariner Data Plane</h3>
 <div class="steps">
 <div class="step"><span class="sn">1.</span>Gateway nodes selected (1 per spoke)</div>
 <div class="step"><span class="sn">2.</span>Public IP annotation: hypervisor corp IP</div>
@@ -388,7 +388,7 @@ arrow(660,sA.y+700,sB.x+30,sB.y+510,red,'Async Replication (Dell native)',true);
 </div>
 </div>
 <div class="flow-card" style="border-left:3px solid var(--orange)">
-<h3><span>💾</span> Storage / DR Plane</h3>
+<h3><span>🗄️</span> Storage / DR Plane</h3>
 <div class="steps">
 <div class="step"><span class="sn">1.</span>Dell VSAs deployed on eco-vCenter </div>
 <div class="step"><span class="sn">2.</span>Spokes connect to VSAs via iSCSI (NAT to corp net)</div>
