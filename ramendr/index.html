@@ -26,7 +26,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .lrect{width:14px;height:10px;border-radius:2px;flex-shrink:0}
 .card{position:absolute;background:var(--card);border-radius:8px;padding:12px 14px;border:2px solid;transition:box-shadow .2s;cursor:default}
 .card:hover{box-shadow:0 0 12px rgba(100,150,255,.3)}
-.info-icon{position:absolute;top:6px;right:8px;width:16px;height:16px;border-radius:50%;background:rgba(100,150,255,.15);color:var(--blue);font-size:10px;font-weight:700;line-height:16px;text-align:center;cursor:help;opacity:.6;z-index:20}
+.info-icon{position:absolute;top:6px;right:8px;width:16px;height:16px;border-radius:50%;background:rgba(100,150,255,.15);color:var(--blue);font-size:10px;font-weight:700;line-height:16px;text-align:center;cursor:help;opacity:.6;transition:opacity .15s;z-index:20}
 .info-icon:hover{opacity:1;background:rgba(100,150,255,.3)}
 .info-icon:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);right:0;width:220px;padding:8px 10px;background:#1a1d23;color:var(--text);font-size:11px;font-weight:400;line-height:1.4;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.4);white-space:normal;pointer-events:none;z-index:100}
 .step-badge{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;border-radius:3px;margin-bottom:6px}
