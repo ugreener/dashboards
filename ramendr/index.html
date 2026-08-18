@@ -40,8 +40,12 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .k{color:var(--muted)}.v{font-weight:500;text-align:right}
 .links{margin-top:6px;font-size:10px;line-height:1.5}.links a{color:var(--blue)}
 .scroll-hint{font-size:11px;color:var(--muted);margin-bottom:6px}
-.diagram-wrap{overflow-x:auto;margin-bottom:20px;border:1px solid var(--border);border-radius:10px;background:#0a0e14}
-.diagram{position:relative;min-width:2420px;height:1020px;padding:30px}
+.diagram-wrap{overflow-x:auto;overflow-y:auto;margin-bottom:20px;border:1px solid var(--border);border-radius:10px;background:#0a0e14}
+.zoom-toolbar{display:flex;gap:6px;align-items:center;margin-bottom:10px}
+.zoom-toolbar button{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:6px;min-width:34px;height:30px;padding:0 10px;font-size:13px;font-weight:600;cursor:pointer;line-height:1;transition:background .15s,color .15s}
+.zoom-toolbar button:hover{background:#21262d;color:#fff}
+.zoom-toolbar #zoomLabel{min-width:54px;text-align:center}
+.diagram{position:relative;min-width:2420px;width:max-content;height:1020px;padding:30px}
 .corp-bg{position:absolute;top:20px;left:20px;right:20px;bottom:20px;border:2px dashed var(--border);border-radius:12px}
 .corp-label{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#0a0e14;padding:0 10px;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px}
 .site{position:absolute;border:2px dashed;border-radius:12px;padding:20px}
@@ -112,9 +116,17 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#484f58" stroke-width="2" stroke-dasharray="4,3"/></svg> Planned</div>
 </div>
 
-<p class="scroll-hint">Scroll horizontally to see the full architecture. Hover over cards and connecting lines for details.</p>
+<p class="scroll-hint">Scroll or use the zoom controls to see the full architecture. Hover over cards and connecting lines for details.</p>
 
-<div class="diagram-wrap">
+<div class="zoom-toolbar" role="toolbar" aria-label="Diagram zoom">
+<button type="button" id="zoomOut" title="Zoom out" aria-label="Zoom out">&#8722;</button>
+<button type="button" id="zoomLabel" title="Reset to 100%" aria-label="Reset zoom to 100 percent">100%</button>
+<button type="button" id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+<button type="button" id="zoomFit" title="Fit the whole diagram to the window">Fit</button>
+</div>
+
+<div class="diagram-wrap" id="diagramWrap">
+<div class="zoom-sizer" id="zoomSizer">
 <div class="diagram" id="dia">
 <svg id="svg" style="position:absolute;top:0;left:0;width:2200px;height:1020px;pointer-events:none;z-index:10;overflow:visible"></svg>
 
@@ -279,6 +291,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 
 </div>
 </div>
+</div>
 
 <script>
 (function(){
@@ -341,6 +354,49 @@ arrow(sB.x+170,botB('spoke2')+5,sB.x+170,topB('vsab')-5,orange,'iSCSI',true);
 // VSA-A right -> VSA-B left (across bottom)
 arrow(660,sA.y+700,sB.x+30,sB.y+510,red,'Async Replication (Dell native)',true);
 },100);
+})();
+</script>
+
+<script>
+(function(){
+  var ZOOM_MIN=0.2, ZOOM_MAX=2, ZOOM_STEP=0.1, FIT_MARGIN_PX=16;
+  var zoom=1;
+  function natSize(){var d=document.getElementById('dia');return d?{w:d.scrollWidth,h:d.scrollHeight}:{w:0,h:0};}
+  function applyZoom(){
+    var dia=document.getElementById('dia'),sizer=document.getElementById('zoomSizer');
+    if(!dia||!sizer)return;
+    var n=natSize();
+    dia.style.transformOrigin='0 0';
+    dia.style.transform='scale('+zoom+')';
+    // A CSS transform does not change layout size, so size the (untransformed) sizer to the
+    // scaled dimensions - that is what #diagramWrap tracks for scrolling.
+    sizer.style.width=(n.w*zoom)+'px';
+    sizer.style.height=(n.h*zoom)+'px';
+    var lbl=document.getElementById('zoomLabel');if(lbl)lbl.textContent=Math.round(zoom*100)+'%';
+  }
+  function setZoom(z){zoom=Math.min(ZOOM_MAX,Math.max(ZOOM_MIN,Math.round(z*100)/100));applyZoom();}
+  function fitZoom(){
+    var wrap=document.getElementById('diagramWrap'),n=natSize();
+    if(!wrap||!n.w)return;
+    // round the fit zoom DOWN so the scaled diagram never exceeds the viewport width
+    // (rounding up can leave a stray horizontal scrollbar at Fit).
+    setZoom(Math.floor(Math.min(1,(wrap.clientWidth-FIT_MARGIN_PX)/n.w)*100)/100);
+  }
+  var zi=document.getElementById('zoomIn'),zo=document.getElementById('zoomOut'),zl=document.getElementById('zoomLabel'),zf=document.getElementById('zoomFit'),wrap=document.getElementById('diagramWrap');
+  if(zi)zi.addEventListener('click',function(){setZoom(zoom+ZOOM_STEP);});
+  if(zo)zo.addEventListener('click',function(){setZoom(zoom-ZOOM_STEP);});
+  if(zl)zl.addEventListener('click',function(){setZoom(1);});
+  if(zf)zf.addEventListener('click',fitZoom);
+  if(wrap)wrap.addEventListener('wheel',function(e){
+    if(!(e.ctrlKey||e.metaKey))return;
+    if(e.deltaY===0)return; // ignore pure-horizontal (trackpad) wheel; don't zoom out
+    e.preventDefault();
+    setZoom(zoom+(e.deltaY<0?ZOOM_STEP:-ZOOM_STEP));
+  },{passive:false});
+  // The arrows are drawn in unscaled offsetTop/offsetHeight coordinates (transform-invariant),
+  // and the SVG is a child of #dia, so it scales as vectors and stays aligned - no recompute on zoom.
+  window.addEventListener('load',applyZoom);
+  setTimeout(applyZoom,150);
 })();
 </script>
 
