@@ -19,8 +19,12 @@
         .scard { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; }
         .scard .num { font-size: 32px; font-weight: 700; } .scard .lbl { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
         .section { margin-bottom: 24px; } .section h2 { font-size: 16px; color: #fff; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-        .diagram-wrap { overflow-x: auto; overflow-y: hidden; margin-bottom: 24px; }
-        .diagram { display: flex; align-items: flex-start; gap: 80px; min-width: 2200px; padding: 30px; position: relative; }
+        .diagram-wrap { overflow-x: auto; overflow-y: auto; margin-bottom: 24px; }
+        .zoom-toolbar { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
+        .zoom-toolbar button { background: var(--card-bg); color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; min-width: 34px; height: 30px; padding: 0 10px; font-size: 13px; font-weight: 600; cursor: pointer; line-height: 1; transition: background 0.15s, color 0.15s; }
+        .zoom-toolbar button:hover { background: #21262d; color: #fff; }
+        .zoom-toolbar #zoomLabel { min-width: 54px; text-align: center; }
+        .diagram { display: flex; align-items: flex-start; gap: 80px; min-width: 2200px; width: max-content; padding: 30px; position: relative; }
         .phase { display: flex; flex-direction: column; gap: 16px; }
         .story-box { background: var(--card-bg); border: 2px solid var(--border); border-radius: 10px; padding: 0; min-width: 280px; max-width: 320px; overflow: hidden; }
         .story-box.done { border-color: var(--green); }
@@ -84,9 +88,16 @@
             <div class="legend-item"><div class="ldot b"></div> In Progress</div>
             <div class="legend-item"><div class="ldot gr"></div> To Do</div>
         </div>
-        <div class="scroll-hint">&#x2194; Scroll horizontally &#xb7; Click any task to open in Jira</div>
+        <div class="scroll-hint">&#x2194; Scroll or use the zoom controls &#xb7; Click any task to open in Jira</div>
     </div>
-    <div class="diagram-wrap">
+    <div class="zoom-toolbar" role="toolbar" aria-label="Diagram zoom">
+        <button type="button" id="zoomOut" title="Zoom out" aria-label="Zoom out">&#8722;</button>
+        <button type="button" id="zoomLabel" title="Reset to 100%" aria-label="Reset zoom to 100 percent">100%</button>
+        <button type="button" id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+        <button type="button" id="zoomFit" title="Fit the whole diagram to the window">Fit</button>
+    </div>
+    <div class="diagram-wrap" id="diagramWrap">
+        <div class="zoom-sizer" id="zoomSizer">
         <div class="diagram" id="diagram">
             <div class="phase">
                 <div class="story-box ip" id="epic" data-ticket="RHWA-836" data-role="epic">
@@ -288,6 +299,7 @@
             <svg class="arrows-svg" id="arrowsSvg">
             </svg>
         </div>
+        </div>
     </div>
     <div class="section"><h2>Overall</h2></div>
     <div class="overall">
@@ -320,10 +332,17 @@
         function drawArrows() {
             const svg = document.getElementById('arrowsSvg');
             const diagram = document.getElementById('diagram');
+            if (!svg || !diagram) return;
+            // Measure at scale 1: clear any zoom transform so getBoundingClientRect and
+            // scrollWidth share one unscaled coordinate space, then re-apply the zoom at the
+            // end via applyZoom(). The SVG is a child of #diagram, so the arrows drawn here
+            // scale with the boxes and stay aligned.
+            diagram.style.transform = 'none';
+            const dr = diagram.getBoundingClientRect();
+            if (dr.width === 0 || dr.height === 0) { applyZoom(); return; }
             svg.setAttribute('width', diagram.scrollWidth);
             svg.setAttribute('height', diagram.scrollHeight);
             svg.querySelectorAll('path,circle').forEach(p => p.remove());
-            const dr = diagram.getBoundingClientRect();
             function pos(id) {
                 const el = document.getElementById(id);
                 const r = el.getBoundingClientRect();
@@ -342,7 +361,64 @@
                 const from = pos(id);
                 drawArrow(svg, from.r + pad, from.cy, rightTargetX, rightTargetY);
             });
+
+            // Re-apply the current zoom (also sizes the scroll area); default 100%.
+            applyZoom();
         }
+
+        // --- Diagram zoom controls (+/- / Fit), ported from the CI dashboard pipeline tab ---
+        const ZOOM_MIN = 0.2, ZOOM_MAX = 2, ZOOM_STEP = 0.1, FIT_MARGIN_PX = 16;
+        let diagramZoom = 1;
+        function diagramNaturalSize() {
+            const d = document.getElementById('diagram');
+            // scrollWidth/Height are unscaled layout metrics (a CSS transform does not change
+            // them), so they give the natural diagram size at any zoom level.
+            return d ? { w: d.scrollWidth, h: d.scrollHeight } : { w: 0, h: 0 };
+        }
+        function applyZoom() {
+            const diagram = document.getElementById('diagram');
+            const sizer = document.getElementById('zoomSizer');
+            if (!diagram || !sizer) return;
+            const nat = diagramNaturalSize();
+            diagram.style.transformOrigin = '0 0';
+            diagram.style.transform = 'scale(' + diagramZoom + ')';
+            // A CSS transform does not change layout size, so size the (untransformed) sizer to
+            // the scaled dimensions - that is what the scroll container tracks.
+            sizer.style.width = (nat.w * diagramZoom) + 'px';
+            sizer.style.height = (nat.h * diagramZoom) + 'px';
+            const label = document.getElementById('zoomLabel');
+            if (label) label.textContent = Math.round(diagramZoom * 100) + '%';
+        }
+        function setZoom(z) {
+            // round to avoid float drift from repeated +/- ZOOM_STEP (e.g. 0.7000001)
+            diagramZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z * 100) / 100));
+            applyZoom();
+        }
+        function fitZoom() {
+            const wrap = document.getElementById('diagramWrap');
+            const nat = diagramNaturalSize();
+            if (!wrap || !nat.w) return;
+            // round the fit zoom DOWN so the scaled diagram never exceeds the viewport width
+            // (rounding up can leave a stray horizontal scrollbar at Fit).
+            setZoom(Math.floor(Math.min(1, (wrap.clientWidth - FIT_MARGIN_PX) / nat.w) * 100) / 100);
+        }
+        (function wireZoom() {
+            const zi = document.getElementById('zoomIn');
+            const zo = document.getElementById('zoomOut');
+            const zl = document.getElementById('zoomLabel');
+            const zf = document.getElementById('zoomFit');
+            const wrap = document.getElementById('diagramWrap');
+            if (zi) zi.addEventListener('click', () => setZoom(diagramZoom + ZOOM_STEP));
+            if (zo) zo.addEventListener('click', () => setZoom(diagramZoom - ZOOM_STEP));
+            if (zl) zl.addEventListener('click', () => setZoom(1));
+            if (zf) zf.addEventListener('click', fitZoom);
+            if (wrap) wrap.addEventListener('wheel', (e) => {
+                if (!(e.ctrlKey || e.metaKey)) return;
+                if (e.deltaY === 0) return; // ignore pure-horizontal (trackpad) wheel; don't zoom out
+                e.preventDefault();
+                setZoom(diagramZoom + (e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP));
+            }, { passive: false });
+        })();
         window.addEventListener('load', () => setTimeout(drawArrows, 100));
         window.addEventListener('resize', drawArrows);
 
