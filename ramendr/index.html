@@ -133,7 +133,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <svg id="svg" style="position:absolute;top:0;left:0;width:2420px;height:1020px;pointer-events:none;z-index:10;overflow:visible"></svg>
 
 <div class="corp-bg"></div>
-<div class="corp-label">RED HAT CORPORATE NETWORK (10.46.46.0/24)</div>
+<div class="corp-label">RED HAT LAB - eng.tlv2.redhat.com (corp routable 10.46.46.0/24 | Dell VSA 10.46.48.x mgmt + 10.46.49.x storage | cluster nets 192.168.129/132/133 behind NAT)</div>
 
 <div class="site" style="top:50px;left:30px;width:900px;height:900px;border-color:var(--green)">
 <div class="site-label" style="color:var(--green)">SITE A: ocp-edge36 (10.46.46.12)</div>
@@ -429,7 +429,7 @@ integration with Dell PowerStore is Tech Preview (Q3 2026); the documented fallb
 <tr><td style="color:var(--cyan);font-weight:600">Spoke 1</td><td>edge36</td><td style="font-family:monospace">192.168.133.0/24</td><td style="font-family:monospace">192.168.133.5</td><td style="font-family:monospace">192.168.133.10</td><td><span class="badge done">Deployed</span></td></tr>
 <tr><td style="color:var(--cyan);font-weight:600">Spoke 2</td><td>edge97</td><td style="font-family:monospace">192.168.129.0/24</td><td style="font-family:monospace">192.168.129.5</td><td style="font-family:monospace">192.168.129.10</td><td><span class="badge done">Managed</span></td></tr>
 </table>
-<p style="font-size:11px;color:var(--muted);margin-top:6px">Pod/service CIDRs overlap (10.128.0.0/14 and 172.30.0.0/16), but that is irrelevant on the Dell path: there is no cross-cluster pod networking, so no Globalnet is needed.</p>
+<p style="font-size:11px;color:var(--muted);margin-top:6px">Beyond these cluster subnets, the lab also spans the corp routable subnet 10.46.46.0/24 (the edge36/edge97 hypervisor hosts) and the Dell VSA networks 10.46.48.x (management) + 10.46.49.x (storage/replication). Pod/service CIDRs overlap (10.128.0.0/14 and 172.30.0.0/16), but that is irrelevant on the Dell path: there is no cross-cluster pod networking, so no Globalnet is needed.</p>
 </div>
 
 <div class="section">
