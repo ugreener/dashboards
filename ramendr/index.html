@@ -45,7 +45,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .zoom-toolbar button{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:6px;min-width:34px;height:30px;padding:0 10px;font-size:13px;font-weight:600;cursor:pointer;line-height:1;transition:background .15s,color .15s}
 .zoom-toolbar button:hover{background:#21262d;color:#fff}
 .zoom-toolbar #zoomLabel{min-width:54px;text-align:center}
-.diagram{position:relative;min-width:2420px;width:max-content;height:1020px;padding:30px}
+.diagram{position:relative;min-width:2260px;width:max-content;height:880px;padding:30px}
 .corp-bg{position:absolute;top:20px;left:20px;right:20px;bottom:20px;border:2px dashed var(--border);border-radius:12px}
 .corp-label{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#0a0e14;padding:0 10px;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px}
 .site{position:absolute;border:2px dashed;border-radius:12px;padding:20px}
@@ -90,7 +90,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="hdr">
 <div>
 <h1>VirtDR Phase 0 - Architecture</h1>
-<div class="sub">Two-site DR with Dell PowerStore array replication, ACM Hub + RamenDR orchestration. Submariner is NOT on the Dell path (it belongs to the separate ODF/Ceph AWS track).</div>
+<div class="sub">Three-site DR: a dedicated ACM/RamenDR hub (edge36) plus two spoke clusters on their own hosts (edge95, edge97), with Dell PowerStore array replication. Submariner is NOT on the Dell path (it belongs to the separate ODF/Ceph AWS track).</div>
 </div>
 <div style="text-align:right">
 <span class="badge ip">Phase 0</span>
@@ -99,12 +99,12 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 
 <div class="stats">
-<div class="stat"><div class="n" style="color:var(--green)">3</div><div class="l">Clusters Deployed</div></div>
-<div class="stat"><div class="n" style="color:var(--green)">A&#8594;B</div><div class="l">VSA Replication Active</div></div>
-<div class="stat"><div class="n" style="color:var(--purple)">1</div><div class="l">ACM Hub</div></div>
+<div class="stat"><div class="n" style="color:var(--green)">3</div><div class="l">Clusters (1 hub + 2 spokes)</div></div>
+<div class="stat"><div class="n" style="color:var(--green)">3</div><div class="l">Dedicated Hosts</div></div>
+<div class="stat"><div class="n" style="color:var(--orange)">A&#8596;B</div><div class="l">VSA Pairing Ready</div></div>
 <div class="stat"><div class="n" style="color:var(--orange)">15m</div><div class="l">PowerStore RPO</div></div>
-<div class="stat"><div class="n" style="color:var(--blue)">OCP 4.22</div><div class="l">Platform Version</div></div>
-<div class="stat"><div class="n" style="color:var(--yellow)">3</div><div class="l">Steps Remaining</div></div>
+<div class="stat"><div class="n" style="color:var(--blue)">OCP 4.22.9</div><div class="l">Platform Version</div></div>
+<div class="stat"><div class="n" style="color:var(--yellow)">6</div><div class="l">DR Steps Remaining</div></div>
 </div>
 
 <div class="legend">
@@ -114,7 +114,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="leg"><div class="ldot" style="background:var(--blue)"></div>DR metadata / control (RamenDR + S3)</div>
 <div class="leg"><div class="lrect" style="background:var(--green)"></div>Deployed</div>
 <div class="leg"><div class="lrect" style="background:#484f58"></div>Planned</div>
-<div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--red)" stroke-width="2"/></svg> Storage replication (active)</div>
+<div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--red)" stroke-width="2"/></svg> Storage replication (Dell array)</div>
 <div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--blue)" stroke-width="2" stroke-dasharray="4,3"/></svg> Control / metadata (logical)</div>
 </div>
 
@@ -130,171 +130,166 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="diagram-wrap" id="diagramWrap">
 <div class="zoom-sizer" id="zoomSizer">
 <div class="diagram" id="dia">
-<svg id="svg" style="position:absolute;top:0;left:0;width:2420px;height:1020px;pointer-events:none;z-index:10;overflow:visible"></svg>
+<svg id="svg" style="position:absolute;top:0;left:0;width:2260px;height:880px;pointer-events:none;z-index:10;overflow:visible"></svg>
 
 <div class="corp-bg"></div>
-<div class="corp-label">RED HAT LAB - eng.tlv2.redhat.com (corp routable 10.46.46.0/24 | Dell VSA 10.46.48.x mgmt + 10.46.49.x storage | cluster nets 192.168.129/132/133 behind NAT)</div>
+<div class="corp-label">RED HAT LAB - eng.tlv2.redhat.com (corp routable 10.46.46.0/24 | Dell VSA 10.46.48.x mgmt + 10.46.49.x storage | cluster nets 192.168.132 hub / 192.168.129 spokes behind NAT)</div>
 
-<div class="site" style="top:50px;left:30px;width:900px;height:900px;border-color:var(--green)">
-<div class="site-label" style="color:var(--green)">SITE A: ocp-edge36 (10.46.46.12)</div>
-
-<div class="hyper-bar" style="top:40px">
+<!-- ===== SITE A: HUB (edge36) ===== -->
+<div class="site" style="top:56px;left:40px;width:660px;height:378px;border-color:var(--purple)">
+<div class="site-label" style="color:var(--purple)">SITE A: ocp-edge36 (10.46.46.12) - HUB ONLY</div>
+<div class="hyper-bar" style="top:38px">
 <div class="step-badge dep">Deployed</div>
-<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">Hypervisor: RHEL 9.6 - Dell R640</div>
-<div style="font-size:10px;color:var(--muted);margin-top:2px">libvirt (modular) | tinyproxy :8888 | sushy-tools :8000</div>
+<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">Hypervisor: RHEL 9.6 - Dell R640 (250 GiB)</div>
+<div style="font-size:10px;color:var(--muted);margin-top:2px">libvirt | tinyproxy :8888 | sushy-tools :8000</div>
 </div>
-
-<div class="nat-line" style="top:127px"><span>NAT BOUNDARY (only 10.46.46.x is routable)</span></div>
-
-<div class="card" id="hub" style="top:147px;left:30px;width:280px;border-color:var(--purple)">
-<span class="info-icon" data-tip="The ACM Hub runs the RamenDR orchestrator and manages both spoke clusters; it drives failover via ACM ManifestWork, not a cross-cluster network tunnel">i</span>
+<div class="nat-line" style="top:122px"><span>NAT BOUNDARY (only 10.46.46.x routable)</span></div>
+<div class="card" id="hub" style="top:146px;left:24px;width:290px;border-color:var(--purple)">
+<span class="info-icon" data-tip="Dedicated ACM/RamenDR hub - no co-located spoke anymore. Compact 3-node (masters schedulable). Orchestrates DR via ACM ManifestWork; never tunnels into the spokes.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--purple)">ACM Hub Cluster</div>
-<div class="sub">IPI 3m0w | OCP 4.22.8 stable</div>
+<div class="sub">Compact 3-node (3m0w) | OCP 4.22.9</div>
 <div class="detail">
-<div class="row"><span class="k">ACM / MCE</span><span class="v">2.17.0 / 2.17.2</span></div>
+<div class="row"><span class="k">API</span><span class="v" style="font-family:monospace;font-size:10px">api.ocp3m0w-ic4s22</span></div>
 <div class="row"><span class="k">Network</span><span class="v" style="color:var(--purple)">192.168.132.0/24</span></div>
-<div class="row"><span class="k">API VIP</span><span class="v">192.168.132.5:6443</span></div>
+<div class="row"><span class="k">API / Ingress VIP</span><span class="v">.5 / .10</span></div>
 <div class="row"><span class="k">Role</span><span class="v">RamenDR orchestrator</span></div>
 </div>
 <div class="links"><a href="https://console-openshift-console.apps.ocp3m0w-ic4s22.qe.lab.redhat.com" target="_blank" rel="noopener noreferrer">Console</a></div>
 </div>
-
-<div class="card" id="hubops" style="top:147px;left:340px;width:280px;border-color:var(--purple)">
-<span class="info-icon" data-tip="Operators on the ACM Hub. RamenDR (Red Hat DR) orchestrator is the hub-side DR control plane; no Submariner on the Dell path.">i</span>
+<div class="card" id="hubops" style="top:146px;left:334px;width:290px;border-color:var(--purple)">
+<span class="info-icon" data-tip="Hub operators. ACM/MCE deployed on the fresh hub. RamenDR (Red Hat DR) hub operator + MinIO S3 are the next hub-side steps. No Submariner on the Dell path.">i</span>
 <div class="step-badge plan">Mixed</div>
 <div class="title" style="color:var(--purple)">Hub Operators</div>
 <div class="detail">
 <div class="row"><span class="k">ACM</span><span class="badge done" style="font-size:9px">2.17.0</span></div>
-<div class="row"><span class="k">MCE</span><span class="badge done" style="font-size:9px">2.17.2</span></div>
-<div class="row"><span class="k">OpenShift GitOps</span><span class="badge done" style="font-size:9px">1.21.2</span></div>
-<div class="row"><span class="k">RamenDR operator</span><span class="badge todo" style="font-size:9px">Planned (TP)</span></div>
+<div class="row"><span class="k">MCE</span><span class="badge done" style="font-size:9px">Deployed</span></div>
+<div class="row"><span class="k">S3 / MinIO (metadata)</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="row"><span class="k">RamenDR hub operator</span><span class="badge todo" style="font-size:9px">Planned (TP)</span></div>
+</div>
 </div>
 </div>
 
-<div class="card" id="spoke1" style="top:405px;left:30px;width:280px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="Primary DR site. Runs on the same hypervisor as the hub and is already managed by ACM.">i</span>
+<!-- ===== SITE B: SPOKE 1 (edge95) ===== -->
+<div class="site" style="top:56px;left:760px;width:660px;height:378px;border-color:var(--cyan)">
+<div class="site-label" style="color:var(--cyan)">SITE B: ocp-edge95 (10.46.46.74) - SPOKE 1</div>
+<div class="hyper-bar" style="top:38px">
+<div class="step-badge dep">Deployed</div>
+<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">Hypervisor: RHEL 9.6 - Dell R640 (250 GiB)</div>
+<div style="font-size:10px;color:var(--muted);margin-top:2px">Dedicated host - big workers, CNV-ready</div>
+</div>
+<div class="nat-line" style="top:122px"><span>NAT BOUNDARY</span></div>
+<div class="card" id="spoke1" style="top:146px;left:24px;width:290px;border-color:var(--cyan)">
+<span class="info-icon" data-tip="Primary DR site, now on its own dedicated host (moved off edge36). Standalone IPI 3m3w with large workers (15.5 vCPU / 30 GiB) - ample for CNV VMs. Not yet imported into ACM (clean start).">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 1 (Primary DR Site)</div>
-<div class="sub">Latebinding 3m3w | OCP 4.22.9 stable</div>
+<div class="sub">Standalone IPI 3m3w | OCP 4.22.9</div>
 <div class="detail">
-<div class="row"><span class="k">Network</span><span class="v" style="color:var(--cyan)">192.168.133.0/24</span></div>
-<div class="row"><span class="k">ACM</span><span class="badge done" style="font-size:9px">Managed</span></div>
+<div class="row"><span class="k">API</span><span class="v" style="font-family:monospace;font-size:10px">api.ocp3m3w-ic4s22</span></div>
+<div class="row"><span class="k">Network</span><span class="v" style="color:var(--cyan)">192.168.129.0/24</span></div>
+<div class="row"><span class="k">Workers</span><span class="v">3 x 15.5 vCPU / 30 GiB</span></div>
+<div class="row"><span class="k">ACM Import</span><span class="badge todo" style="font-size:9px">Pending</span></div>
 </div>
 </div>
-
-<div class="card" id="spoke1comp" style="top:405px;left:340px;width:280px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="DR components for Spoke 1. Dell CSI + CSM Replication are installed and PVCs bind on VSA-A; CNV and the RamenDR DR-cluster remain.">i</span>
-<div class="step-badge dep">In progress</div>
+<div class="card" id="spoke1comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
+<span class="info-icon" data-tip="DR components for Spoke 1 - to be (re)built after import: Dell CSI + CSM Replication -> VSA-A, CNV for the protected VMs, and the RamenDR DR-cluster + VRG.">i</span>
+<div class="step-badge plan">Planned</div>
 <div class="title" style="color:var(--cyan)">Spoke 1 DR Components</div>
 <div class="detail">
-<div class="row"><span class="k">Dell CSI (csi-powerstore)</span><span class="badge done" style="font-size:9px">Installed</span></div>
-<div class="row"><span class="k">Dell CSM Replication</span><span class="badge done" style="font-size:9px">Installed</span></div>
-<div class="row"><span class="k">iSCSI to VSA-A / PVC bind</span><span class="badge done" style="font-size:9px">Verified</span></div>
+<div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge todo" style="font-size:9px">DNAT + DNS</span></div>
+<div class="row"><span class="k">Dell CSI + CSM Repl &#8594; VSA-A</span><span class="badge todo" style="font-size:9px">Planned</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge todo" style="font-size:9px">Planned</span></div>
 <div class="row"><span class="k">RamenDR DR-cluster + VRG</span><span class="badge todo" style="font-size:9px">Planned</span></div>
 </div>
 </div>
-
-<div class="card" id="csinote" style="top:672px;left:30px;width:280px;border-color:var(--yellow)">
-<span class="info-icon" data-tip="The hub has the Dell CSI driver from an early validation test. CSI now also runs on both spokes (its target placement), so the hub copy can be removed.">i</span>
-<div class="step-badge blk">Test-only, not target</div>
-<div class="title" style="color:var(--yellow)">Hub Dell CSI (test)</div>
-<div class="detail">
-<div class="row"><span class="k">Driver</span><span class="v">csi-powerstore</span></div>
-<div class="row"><span class="k">Test PVCs</span><span class="v">8 Bound</span></div>
-<div class="row"><span class="k">Now on spokes</span><span class="badge done" style="font-size:9px">Yes - remove hub</span></div>
-</div>
 </div>
 
-<div class="card" id="vsaa" style="top:672px;left:340px;width:280px;border-color:var(--orange)">
-<span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter. Two-node HA pair; each node has its own storage/replication IP on 10.46.49.0/24. Async replication to VSA-B is active (verified 2026-08-18).">i</span>
+<!-- ===== SITE C: SPOKE 2 (edge97) ===== -->
+<div class="site" style="top:56px;left:1480px;width:660px;height:378px;border-color:var(--cyan)">
+<div class="site-label" style="color:var(--cyan)">SITE C: ocp-edge97 (10.46.46.76) - SPOKE 2</div>
+<div class="hyper-bar" style="top:38px">
 <div class="step-badge dep">Deployed</div>
-<div class="title" style="color:var(--orange)">Dell PowerStore VSA-A</div>
-<div class="sub">Mgmt 10.46.48.20 | eco-vCenter | iSCSI</div>
+<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">Hypervisor: RHEL 8.6 - Dell R640 (250 GiB)</div>
+<div style="font-size:10px;color:var(--muted);margin-top:2px">Dedicated host - big workers, CNV-ready</div>
+</div>
+<div class="nat-line" style="top:122px"><span>NAT BOUNDARY</span></div>
+<div class="card" id="spoke2" style="top:146px;left:24px;width:290px;border-color:var(--cyan)">
+<span class="info-icon" data-tip="Secondary DR site on its own dedicated host. Standalone IPI 3m3w with large workers. Same factory-clone identity as Spoke 1 (api.ocp3m3w-ic4s22 / 192.168.129) - harmless: host-local NAT + ACM pull model, distinct clusterIDs.">i</span>
+<div class="step-badge dep">Deployed</div>
+<div class="title" style="color:var(--cyan)">Spoke 2 (Secondary DR Site)</div>
+<div class="sub">Standalone IPI 3m3w | OCP 4.22.9</div>
 <div class="detail">
-<div class="row"><span class="k">Serves</span><span class="v">Spoke 1</span></div>
-<div class="row"><span class="k">HA</span><span class="v">2 nodes (Node A + Node B)</span></div>
-<div class="row"><span class="k">Node A storage IP</span><span class="v" style="font-family:monospace">10.46.49.1</span></div>
-<div class="row"><span class="k">Node B storage IP</span><span class="v" style="font-family:monospace">10.46.49.2</span></div>
-<div class="row"><span class="k">Global ID</span><span class="v" style="font-family:monospace">PS3b37452a6e0f</span></div>
-<div class="row"><span class="k">Replication</span><span class="v" style="color:var(--green)">Source - Async to VSA-B</span></div>
+<div class="row"><span class="k">API</span><span class="v" style="font-family:monospace;font-size:10px">api.ocp3m3w-ic4s22</span></div>
+<div class="row"><span class="k">Network</span><span class="v" style="color:var(--cyan)">192.168.129.0/24</span></div>
+<div class="row"><span class="k">Workers</span><span class="v">3 x 15.5 vCPU / 30 GiB</span></div>
+<div class="row"><span class="k">ACM Import</span><span class="badge todo" style="font-size:9px">Pending</span></div>
+</div>
+</div>
+<div class="card" id="spoke2comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
+<span class="info-icon" data-tip="DR components for Spoke 2 - to be (re)built after import: Dell CSI + CSM Replication -> VSA-B, CNV for the protected VMs, and the RamenDR DR-cluster + VRG.">i</span>
+<div class="step-badge plan">Planned</div>
+<div class="title" style="color:var(--cyan)">Spoke 2 DR Components</div>
+<div class="detail">
+<div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge todo" style="font-size:9px">DNAT + DNS</span></div>
+<div class="row"><span class="k">Dell CSI + CSM Repl &#8594; VSA-B</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="row"><span class="k">OpenShift Virtualization</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="row"><span class="k">RamenDR DR-cluster + VRG</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+</div>
 </div>
 </div>
 
-</div>
-
-<div class="hub-node" id="s3" style="top:210px;left:1080px">
+<!-- ===== S3 / MinIO (on the hub) ===== -->
+<div class="hub-node" id="s3" style="top:470px;left:60px;width:300px">
 <div class="icon">&#128451;</div>
 <div class="title">S3 / MinIO DR Metadata</div>
 <div class="line" style="color:var(--muted)">RamenDR stores PV/PVC/VRG metadata here</div>
-<div class="line">Hosted on the Hub; bucket <b>ramen-metadata</b></div>
-<div class="line" style="font-family:monospace;font-size:9px">minio-minio.apps.ocp3m0w-ic4s22...</div>
-<div class="line">Read/write verified from Hub + both spokes</div>
-<div class="line" style="margin-top:4px"><span class="badge done" style="font-size:9px">Deployed</span></div>
+<div class="line">Hosted on the Hub; reached by all 3 clusters</div>
+<div class="line">over the hub apps route (443 DNAT)</div>
+<div class="line" style="margin-top:4px"><span class="badge todo" style="font-size:9px">Planned (redeploy on fresh hub)</span></div>
 </div>
 
-<div class="note-card" id="drnote" style="top:430px;left:1060px;width:340px">
+<!-- ===== DR note ===== -->
+<div class="note-card" id="drnote" style="top:646px;left:40px;width:420px">
 <div class="step-badge plan">How failover works</div>
 <div class="detail" style="line-height:1.7">
 RamenDR failover is <b style="color:var(--blue)">hub-orchestrated</b>: the hub applies a
 <b>DRPolicy</b> + <b>DRPlacementControl</b>, ACM pushes <b>ManifestWork</b> to the spokes, Ramen
-promotes the replicated volumes on the secondary, and the VM workloads start there. No
+promotes the replicated Dell volumes on the secondary, and the VM workloads start there. No
 spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submariner is not required</b>.
 </div>
 </div>
 
-<div class="site" style="top:50px;left:1700px;width:680px;height:650px;border-color:var(--blue)">
-<div class="site-label" style="color:var(--blue)">SITE B: ocp-edge97 (10.46.46.76)</div>
+<!-- ===== STORAGE: eco-vCenter VSAs (visual grouping box) ===== -->
+<div class="site" style="top:470px;left:520px;width:1620px;height:352px;border-color:var(--orange)">
+<div class="site-label" style="color:var(--orange)">STORAGE: Dell PowerStore VSAs on eco-vCenter (shared, reached over iSCSI)</div>
+</div>
 
-<div class="hyper-bar" style="top:40px">
+<div class="card" id="vsaa" style="top:540px;left:600px;width:300px;border-color:var(--orange)">
+<span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter. Two-node HA pair, each node with its own storage/replication IP on 10.46.49.0/24. Array clean after redeploy; remote-system pairing to VSA-B is OK.">i</span>
 <div class="step-badge dep">Deployed</div>
-<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">Hypervisor: RHEL 8.6 - Dell R640</div>
-<div style="font-size:10px;color:var(--muted);margin-top:2px">libvirt (legacy) | sushy-tools :8000</div>
-</div>
-
-<div class="nat-line" style="top:127px"><span>NAT BOUNDARY</span></div>
-
-<div class="card" id="spoke2" style="top:147px;left:30px;width:280px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="Secondary DR site on a separate hypervisor. Imported into ACM as managed cluster spoke-1 (pull model) over the 6443 DNAT; all addons Available.">i</span>
-<div class="step-badge dep">Deployed</div>
-<div class="title" style="color:var(--cyan)">Spoke 2 (Secondary DR Site)</div>
-<div class="sub">Standalone IPI 3m3w | OCP 4.22.8 stable</div>
+<div class="title" style="color:var(--orange)">Dell PowerStore VSA-A</div>
+<div class="sub">Mgmt 10.46.48.20 | serves Spoke 1</div>
 <div class="detail">
-<div class="row"><span class="k">Network</span><span class="v" style="color:var(--cyan)">192.168.129.0/24</span></div>
-<div class="row"><span class="k">ACM Import</span><span class="badge done" style="font-size:9px">Managed (spoke-1)</span></div>
+<div class="row"><span class="k">HA</span><span class="v">2 nodes (Node A + Node B)</span></div>
+<div class="row"><span class="k">Node A storage IP</span><span class="v" style="font-family:monospace">10.46.49.1</span></div>
+<div class="row"><span class="k">Node B storage IP</span><span class="v" style="font-family:monospace">10.46.49.2</span></div>
+<div class="row"><span class="k">Global ID</span><span class="v" style="font-family:monospace">PS3b37452a6e0f</span></div>
+<div class="row"><span class="k">Replication</span><span class="v" style="color:var(--orange)">Source - paired to VSA-B</span></div>
 </div>
 </div>
 
-<div class="card" id="spoke2comp" style="top:147px;left:340px;width:280px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="DR components for Spoke 2. Klusterlet reaches the hub API via the 6443 DNAT; Dell CSI + CSM Replication installed and PVCs bind on VSA-B. CNV and RamenDR DR-cluster remain.">i</span>
-<div class="step-badge dep">In progress</div>
-<div class="title" style="color:var(--cyan)">Spoke 2 DR Components</div>
-<div class="detail">
-<div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">DNAT active</span></div>
-<div class="row"><span class="k">Dell CSI (csi-powerstore)</span><span class="badge done" style="font-size:9px">Installed</span></div>
-<div class="row"><span class="k">Dell CSM Replication</span><span class="badge done" style="font-size:9px">Installed</span></div>
-<div class="row"><span class="k">iSCSI to VSA-B / PVC bind</span><span class="badge done" style="font-size:9px">Verified</span></div>
-<div class="row"><span class="k">OpenShift Virtualization</span><span class="badge todo" style="font-size:9px">Planned</span></div>
-<div class="row"><span class="k">RamenDR DR-cluster + VRG</span><span class="badge todo" style="font-size:9px">Planned</span></div>
-</div>
-</div>
-
-<div class="card" id="vsab" style="top:400px;left:30px;width:280px;border-color:var(--orange)">
-<span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter. Two-node HA pair; each node has its own storage/replication IP on 10.46.49.0/24. Receives async replication from VSA-A.">i</span>
+<div class="card" id="vsab" style="top:540px;left:1560px;width:300px;border-color:var(--orange)">
+<span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter. Two-node HA pair. Array clean after redeploy; both NodeA and NodeB healthy; remote-system pairing to VSA-A is OK.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--orange)">Dell PowerStore VSA-B</div>
-<div class="sub">Mgmt 10.46.48.30 | eco-vCenter | iSCSI</div>
+<div class="sub">Mgmt 10.46.48.30 | serves Spoke 2</div>
 <div class="detail">
-<div class="row"><span class="k">Serves</span><span class="v">Spoke 2</span></div>
 <div class="row"><span class="k">HA</span><span class="v">2 nodes (Node A + Node B)</span></div>
 <div class="row"><span class="k">Node A storage IP</span><span class="v" style="font-family:monospace">10.46.49.4</span></div>
 <div class="row"><span class="k">Node B storage IP</span><span class="v" style="font-family:monospace">10.46.49.3</span></div>
 <div class="row"><span class="k">Global ID</span><span class="v" style="font-family:monospace">PSff392f423bd6</span></div>
-<div class="row"><span class="k">Replication</span><span class="v" style="color:var(--green)">Target - Async from VSA-A</span></div>
+<div class="row"><span class="k">Replication</span><span class="v" style="color:var(--orange)">Target - paired to VSA-A</span></div>
 </div>
-</div>
-
 </div>
 
 </div>
@@ -336,34 +331,32 @@ g.appendChild(text);
 svg.appendChild(g);
 }
 var green='#3fb950',blue='#58a6ff',orange='#d18616',red='#f85149',purple='#bc8cff',gray='#8b949e';
-// Site offsets (each .site is position:absolute, so cards inside report offsets relative to it)
-var sA={x:30,y:50}, sB={x:1700,y:50};
+// Each .site is position:absolute, so cards inside report offsets relative to their site.
+var sA={x:40,y:56}, sB={x:760,y:56}, sC={x:1480,y:56};
 setTimeout(function(){
   function box(id,site){
     var e=document.getElementById(id);
-    var ox = site==='A'?sA.x : site==='B'?sB.x : 0;
-    var oy = site==='A'?sA.y : site==='B'?sB.y : 0;
-    var l=ox+e.offsetLeft, t=oy+e.offsetTop, w=e.offsetWidth, h=e.offsetHeight;
+    var o = site==='A'?sA : site==='B'?sB : site==='C'?sC : {x:0,y:0};
+    var l=o.x+e.offsetLeft, t=o.y+e.offsetTop, w=e.offsetWidth, h=e.offsetHeight;
     return {l:l,t:t,w:w,h:h,r:l+w,b:t+h,cx:l+w/2,cy:t+h/2};
   }
-  var H=box('hub','A'), HO=box('hubops','A'), S1=box('spoke1','A'), S1C=box('spoke1comp','A'),
-      VA=box('vsaa','A'), S3=box('s3',''), DN=box('drnote',''),
-      S2=box('spoke2','B'), S2C=box('spoke2comp','B'), VB=box('vsab','B');
+  var H=box('hub','A'), HO=box('hubops','A'),
+      S1=box('spoke1','B'), S1C=box('spoke1comp','B'),
+      S2=box('spoke2','C'), S2C=box('spoke2comp','C'),
+      S3=box('s3',''), VA=box('vsaa',''), VB=box('vsab','');
 
-  // Hub manages Spoke 1 (same column, vertical)
-  arrow(H.cx, H.b, S1.cx, S1.t, purple, 'manages', false);
-  // Spoke 2 klusterlet -> Hub API (outbound from spoke2, across the diagram) - the real NAT path
-  arrow(S2.l, S2.cy, H.r, H.cy-20, blue, 'klusterlet -> hub API 6443 (DNAT, active)', true);
-  // Hub -> S3 metadata
-  arrow(HO.r, HO.cy, S3.l, S3.cy, blue, 'DR metadata', true);
-  // Spoke 2 -> S3 metadata
-  arrow(S2.l, S2.b+6, S3.r, S3.cy, blue, 'VRG metadata', true);
-  // Spoke 1 DR components -> VSA-A (iSCSI, vertical)
-  arrow(S1C.cx, S1C.b, VA.cx, VA.t, orange, 'iSCSI (CSI)', true);
-  // Spoke 2 -> VSA-B (iSCSI, vertical)
-  arrow(S2.cx, S2.b, VB.cx, VB.t, orange, 'iSCSI (CSI)', true);
-  // VSA-A -> VSA-B async replication (Dell native, across the bottom)
-  arrow(VA.r, VA.cy, VB.l, VB.cy, red, 'async A->B replication (active, RPO 15m, Dell native)', false);
+  // Spoke 1 klusterlet -> Hub API (pull model, DNAT 6443) - unlabeled to avoid duplicate
+  arrow(S1.l, S1.cy, H.r, H.cy, purple, '', true);
+  // Spoke 2 klusterlet -> Hub API (long line across the top) - carries the shared label
+  arrow(S2.l, S2.t+14, H.r, H.t+14, purple, 'ACM pull: klusterlet -> hub API 6443 (DNAT)', true);
+  // Hub -> S3 metadata store (vertical, hub down to S3)
+  arrow(H.cx, H.b, S3.cx, S3.t, blue, 'DR metadata (S3)', true);
+  // Spoke 1 DR components -> VSA-A (iSCSI)
+  arrow(S1C.cx, S1C.b, VA.cx, VA.t, orange, 'iSCSI (Dell CSI)', true);
+  // Spoke 2 DR components -> VSA-B (iSCSI)
+  arrow(S2C.cx, S2C.b, VB.cx, VB.t, orange, 'iSCSI (Dell CSI)', true);
+  // VSA-A -> VSA-B array replication (Dell native)
+  arrow(VA.r, VA.cy, VB.l, VB.cy, red, 'Dell array A<->B replication (paired, RPO 15m)', false);
 },120);
 })();
 </script>
@@ -426,21 +419,22 @@ integration with Dell PowerStore is Tech Preview (Q3 2026); the documented fallb
 <table class="net-table">
 <tr><th>Cluster</th><th>Host</th><th>Subnet</th><th>API VIP</th><th>Ingress VIP</th><th>Status</th></tr>
 <tr><td style="color:var(--purple);font-weight:600">Hub</td><td>edge36</td><td style="font-family:monospace">192.168.132.0/24</td><td style="font-family:monospace">192.168.132.5</td><td style="font-family:monospace">192.168.132.10</td><td><span class="badge done">Deployed</span></td></tr>
-<tr><td style="color:var(--cyan);font-weight:600">Spoke 1</td><td>edge36</td><td style="font-family:monospace">192.168.133.0/24</td><td style="font-family:monospace">192.168.133.5</td><td style="font-family:monospace">192.168.133.10</td><td><span class="badge done">Deployed</span></td></tr>
-<tr><td style="color:var(--cyan);font-weight:600">Spoke 2</td><td>edge97</td><td style="font-family:monospace">192.168.129.0/24</td><td style="font-family:monospace">192.168.129.5</td><td style="font-family:monospace">192.168.129.10</td><td><span class="badge done">Managed</span></td></tr>
+<tr><td style="color:var(--cyan);font-weight:600">Spoke 1</td><td>edge95</td><td style="font-family:monospace">192.168.129.0/24</td><td style="font-family:monospace">192.168.129.5</td><td style="font-family:monospace">192.168.129.10</td><td><span class="badge done">Deployed</span></td></tr>
+<tr><td style="color:var(--cyan);font-weight:600">Spoke 2</td><td>edge97</td><td style="font-family:monospace">192.168.129.0/24</td><td style="font-family:monospace">192.168.129.5</td><td style="font-family:monospace">192.168.129.10</td><td><span class="badge done">Deployed</span></td></tr>
 </table>
-<p style="font-size:11px;color:var(--muted);margin-top:6px">Beyond these cluster subnets, the lab also spans the corp routable subnet 10.46.46.0/24 (the edge36/edge97 hypervisor hosts) and the Dell VSA networks 10.46.48.x (management) + 10.46.49.x (storage/replication). Pod/service CIDRs overlap (10.128.0.0/14 and 172.30.0.0/16), but that is irrelevant on the Dell path: there is no cross-cluster pod networking, so no Globalnet is needed.</p>
+<p style="font-size:11px;color:var(--muted);margin-top:6px">Both spokes are `ocp3m3w-ic4s22` factory clones, so they share the same API hostname and 192.168.129.0/24 subnet - harmless here: the subnets are host-local behind NAT, ACM uses the pull model (spokes dial the hub, keyed by ManagedCluster name), and the clones get distinct clusterIDs. The lab also spans corp 10.46.46.0/24 (hypervisors) and the Dell VSA nets 10.46.48.x (mgmt) + 10.46.49.x (storage). Pod/service CIDRs overlap too (10.128.0.0/14, 172.30.0.0/16) - irrelevant on the Dell path (no cross-cluster pod networking, no Globalnet).</p>
 </div>
 
 <div class="section">
 <h2>Required Port Forwarding (Dell / edge path)</h2>
 <table class="net-table">
 <tr><th>Host</th><th>Port</th><th>Proto</th><th>Forward To</th><th>Purpose</th><th>Status</th></tr>
-<tr><td>edge36</td><td style="font-family:monospace">6443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">192.168.132.5:6443</td><td>Hub API - Spoke 2 klusterlet / ACM import</td><td><span class="badge done">Active</span></td></tr>
+<tr><td>edge36</td><td style="font-family:monospace">6443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">192.168.132.5:6443</td><td>Hub API - spoke klusterlet / ACM import</td><td><span class="badge done">Active</span></td></tr>
 <tr><td>edge36</td><td style="font-family:monospace">443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">192.168.132.10:443</td><td>Hub apps ingress - cluster-proxy addon + MinIO S3 route</td><td><span class="badge done">Active</span></td></tr>
-<tr><td>edge36/97</td><td style="font-family:monospace">3260</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">Dell VSA (outbound)</td><td>iSCSI to VSA - already works via NAT</td><td><span class="badge done">Works</span></td></tr>
+<tr><td>edge95/97</td><td style="font-family:monospace">6443/443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">DNS -&gt; 10.46.46.12</td><td>Spoke DNS: resolve hub API/apps to edge36 corp IP</td><td><span class="badge todo">Pending (per-spoke)</span></td></tr>
+<tr><td>edge36/95/97</td><td style="font-family:monospace">3260</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">Dell VSA (outbound)</td><td>iSCSI to VSA - works via outbound NAT</td><td><span class="badge done">Works</span></td></tr>
 </table>
-<p style="font-size:11px;color:var(--muted);margin-top:6px">No UDP 4500/4490 (Submariner) forwarding is needed on the Dell path. Both DNATs live on edge36 (persisted via the virtdr-nat systemd service); edge97 DNS resolves the hub API and apps hostnames to 10.46.46.12. MinIO/S3 is reachable from all three clusters over the 443 route.</p>
+<p style="font-size:11px;color:var(--muted);margin-top:6px">No UDP 4500/4490 (Submariner) forwarding is needed on the Dell path. The edge36 DNATs (6443 + 443) persist via the virtdr-nat systemd service across the hub redeploy. Each spoke host needs a small DNS override so its klusterlet resolves the hub hostname to 10.46.46.12.</p>
 </div>
 
 <div class="section">
@@ -450,8 +444,8 @@ integration with Dell PowerStore is Tech Preview (Q3 2026); the documented fallb
 <h3>Management Plane (ACM)</h3>
 <div class="steps">
 <div class="step"><span class="sn">1.</span>Hub API (edge36) exposed on TCP 6443 via nftables DNAT</div>
-<div class="step"><span class="sn">2.</span>edge97 DNS resolves the hub API hostname to 10.46.46.12</div>
-<div class="step"><span class="sn">3.</span>Spoke 2 klusterlet dials out to the hub (pull model)</div>
+<div class="step"><span class="sn">2.</span>Each spoke host resolves the hub API hostname to 10.46.46.12</div>
+<div class="step"><span class="sn">3.</span>Each spoke klusterlet dials out to the hub (pull model)</div>
 <div class="step"><span class="sn">4.</span>ACM manages both spokes and pushes ManifestWork</div>
 </div>
 </div>
@@ -479,16 +473,14 @@ integration with Dell PowerStore is Tech Preview (Q3 2026); the documented fallb
 <div class="section">
 <h2>Deployment Progress</h2>
 <div class="checklist">
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Hub cluster deployed</span><span style="color:var(--muted);margin-left:auto">IPI 3m0w on edge36, OCP 4.22.8, ACM 2.17</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Spoke 1 deployed</span><span style="color:var(--muted);margin-left:auto">Latebinding 3m3w on edge36, managed by ACM</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Spoke 2 deployed</span><span style="color:var(--muted);margin-left:auto">Standalone 3m3w on edge97, OCP 4.22.8</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">OpenShift GitOps installed</span><span style="color:var(--muted);margin-left:auto">1.21.2, Argo CD healthy</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell PowerStore VSAs deployed</span><span style="color:var(--muted);margin-left:auto">VSA-A + VSA-B (2-node HA each), async A-&gt;B replication active (RPO 15m)</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Management-plane NAT</span><span style="color:var(--muted);margin-left:auto">edge36 DNAT 6443 (API) + 443 (apps) + edge97 DNS</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Spoke 2 imported into ACM</span><span style="color:var(--muted);margin-left:auto">Managed cluster spoke-1, all addons Available</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">S3 / MinIO metadata store deployed</span><span style="color:var(--muted);margin-left:auto">On the Hub; read/write verified from Hub + both spokes</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell CSI installed on both spokes</span><span style="color:var(--muted);margin-left:auto">csi-powerstore; PVCs bind on VSA-A (spoke 1) and VSA-B (spoke 2)</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell CSM Replication on both spokes</span><span style="color:var(--muted);margin-left:auto">Sidecar + controller + CRDs; replicated PVC A-&gt;B session verified SYNCHRONIZED</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Hub cluster deployed (dedicated)</span><span style="color:var(--muted);margin-left:auto">Compact 3-node on edge36, OCP 4.22.9, ACM 2.17</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Spoke 1 deployed (dedicated host)</span><span style="color:var(--muted);margin-left:auto">Standalone 3m3w on edge95, big workers (CNV-ready)</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Spoke 2 deployed (dedicated host)</span><span style="color:var(--muted);margin-left:auto">Standalone 3m3w on edge97, big workers (CNV-ready)</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell PowerStore VSAs deployed + clean</span><span style="color:var(--muted);margin-left:auto">VSA-A + VSA-B (2-node HA each), remote-system pairing OK</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Hub management-plane DNAT (edge36)</span><span style="color:var(--muted);margin-left:auto">6443 (API) + 443 (apps) persist via virtdr-nat.service</span></div>
+<div class="check"><div class="ci todo">&#9711;</div><span>Per-spoke DNS + import both spokes into ACM</span></div>
+<div class="check"><div class="ci todo">&#9711;</div><span>Deploy S3 / MinIO metadata store on the hub</span></div>
+<div class="check"><div class="ci todo">&#9711;</div><span>Dell CSI + CSM Replication on both spokes</span></div>
 <div class="check"><div class="ci todo">&#9711;</div><span>Install OpenShift Virtualization (CNV) on the spokes</span></div>
 <div class="check"><div class="ci todo">&#9711;</div><span>Install RamenDR operator + configure DRPolicy / DRPC</span></div>
 <div class="check"><div class="ci todo">&#9711;</div><span>End-to-end failover test (Spoke 1 -&gt; Spoke 2)</span></div>
@@ -496,7 +488,7 @@ integration with Dell PowerStore is Tech Preview (Q3 2026); the documented fallb
 </div>
 
 <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:20px;padding-top:10px;border-top:1px solid var(--border)">
-VirtDR Phase 0 Architecture Diagram - Dell / edge track
+VirtDR Phase 0 Architecture Diagram - Dell / edge track (three dedicated hosts)
 </div>
 </body>
 </html>
