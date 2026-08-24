@@ -488,7 +488,7 @@ integration with Dell PowerStore is Tech Preview (Q3 2026); the documented fallb
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Spoke 2 imported into ACM</span><span style="color:var(--muted);margin-left:auto">Managed cluster spoke-1, all addons Available</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">S3 / MinIO metadata store deployed</span><span style="color:var(--muted);margin-left:auto">On the Hub; read/write verified from Hub + both spokes</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell CSI installed on both spokes</span><span style="color:var(--muted);margin-left:auto">csi-powerstore; PVCs bind on VSA-A (spoke 1) and VSA-B (spoke 2)</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell CSM Replication module on both spokes</span><span style="color:var(--muted);margin-left:auto">Sidecar + controller + CRDs; array A-&gt;B session pending VSA link</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell CSM Replication on both spokes</span><span style="color:var(--muted);margin-left:auto">Sidecar + controller + CRDs; replicated PVC A-&gt;B session verified SYNCHRONIZED</span></div>
 <div class="check"><div class="ci todo">&#9711;</div><span>Install OpenShift Virtualization (CNV) on the spokes</span></div>
 <div class="check"><div class="ci todo">&#9711;</div><span>Install RamenDR operator + configure DRPolicy / DRPC</span></div>
 <div class="check"><div class="ci todo">&#9711;</div><span>End-to-end failover test (Spoke 1 -&gt; Spoke 2)</span></div>
