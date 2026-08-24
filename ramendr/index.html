@@ -101,10 +101,10 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="stats">
 <div class="stat"><div class="n" style="color:var(--green)">3</div><div class="l">Clusters (1 hub + 2 spokes)</div></div>
 <div class="stat"><div class="n" style="color:var(--green)">3</div><div class="l">Dedicated Hosts</div></div>
-<div class="stat"><div class="n" style="color:var(--orange)">A&#8596;B</div><div class="l">VSA Pairing Ready</div></div>
+<div class="stat"><div class="n" style="color:var(--green)">A&#8596;B</div><div class="l">Array replication verified</div></div>
 <div class="stat"><div class="n" style="color:var(--orange)">15m</div><div class="l">PowerStore RPO</div></div>
 <div class="stat"><div class="n" style="color:var(--blue)">OCP 4.22.9</div><div class="l">Platform Version</div></div>
-<div class="stat"><div class="n" style="color:var(--yellow)">6</div><div class="l">DR Steps Remaining</div></div>
+<div class="stat"><div class="n" style="color:var(--green)">5&#47;7</div><div class="l">Steps done (6 partial, 7 next)</div></div>
 </div>
 
 <div class="legend">
@@ -133,7 +133,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <svg id="svg" style="position:absolute;top:0;left:0;width:2260px;height:880px;pointer-events:none;z-index:10;overflow:visible"></svg>
 
 <div class="corp-bg"></div>
-<div class="corp-label">RED HAT LAB - eng.tlv2.redhat.com (corp routable 10.46.46.0/24 | Dell VSA 10.46.48.x mgmt + 10.46.49.x storage | cluster nets 192.168.132 hub / 192.168.129 spokes behind NAT)</div>
+<div class="corp-label">RED HAT LAB - eng.tlv2.redhat.com (corp routable 10.46.46.0/24 | Dell VSA 10.46.48.x mgmt + 10.46.49.x storage | cluster nets 192.168.126 hub / 192.168.129 spokes behind NAT)</div>
 
 <!-- ===== SITE A: HUB (edge36) ===== -->
 <div class="site" style="top:56px;left:40px;width:660px;height:378px;border-color:var(--purple)">
@@ -151,21 +151,22 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="sub">Compact 3-node (3m0w) | OCP 4.22.9</div>
 <div class="detail">
 <div class="row"><span class="k">API</span><span class="v" style="font-family:monospace;font-size:10px">api.ocp3m0w-ic4s22</span></div>
-<div class="row"><span class="k">Network</span><span class="v" style="color:var(--purple)">192.168.132.0/24</span></div>
+<div class="row"><span class="k">Network</span><span class="v" style="color:var(--purple)">192.168.126.0/24</span></div>
 <div class="row"><span class="k">API / Ingress VIP</span><span class="v">.5 / .10</span></div>
 <div class="row"><span class="k">Role</span><span class="v">RamenDR orchestrator</span></div>
 </div>
 <div class="links"><a href="https://console-openshift-console.apps.ocp3m0w-ic4s22.qe.lab.redhat.com" target="_blank" rel="noopener noreferrer">Console</a></div>
 </div>
 <div class="card" id="hubops" style="top:146px;left:334px;width:290px;border-color:var(--purple)">
-<span class="info-icon" data-tip="Hub operators. ACM/MCE deployed on the fresh hub. RamenDR (Red Hat DR) hub operator + MinIO S3 are the next hub-side steps. No Submariner on the Dell path.">i</span>
-<div class="step-badge plan">Mixed</div>
+<span class="info-icon" data-tip="Hub operators. ACM/MCE + MinIO S3 deployed. ODR/RamenDR hub operator (odr-hub-operator v4.22.2-rhodf) installed; DRClusters + DRPolicy created but DRPolicy is not Validated - blocked by the caCertificates S3 bug VIRTDR-238. No Submariner on the Dell path.">i</span>
+<div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--purple)">Hub Operators</div>
 <div class="detail">
 <div class="row"><span class="k">ACM</span><span class="badge done" style="font-size:9px">2.17.0</span></div>
 <div class="row"><span class="k">MCE</span><span class="badge done" style="font-size:9px">Deployed</span></div>
-<div class="row"><span class="k">S3 / MinIO (metadata)</span><span class="badge todo" style="font-size:9px">Planned</span></div>
-<div class="row"><span class="k">RamenDR hub operator</span><span class="badge todo" style="font-size:9px">Planned (TP)</span></div>
+<div class="row"><span class="k">S3 / MinIO (metadata)</span><span class="badge done" style="font-size:9px">Deployed</span></div>
+<div class="row"><span class="k">ODR/RamenDR hub operator</span><span class="badge done" style="font-size:9px">v4.22.2</span></div>
+<div class="row"><span class="k">DRPolicy validated</span><span class="badge blocked" style="font-size:9px">VIRTDR-238</span></div>
 </div>
 </div>
 </div>
@@ -180,26 +181,26 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 <div class="nat-line" style="top:122px"><span>NAT BOUNDARY</span></div>
 <div class="card" id="spoke1" style="top:146px;left:24px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="Primary DR site, now on its own dedicated host (moved off edge36). Standalone IPI 3m3w with large workers (15.5 vCPU / 30 GiB) - ample for CNV VMs. Not yet imported into ACM (clean start).">i</span>
+<span class="info-icon" data-tip="Primary DR site (ManagedCluster spoke-0) on its own dedicated host. Standalone IPI 3m3w with large workers (15.5 vCPU / 30 GiB). Imported into ACM: Joined/Available, 8/8 addons.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 1 (Primary DR Site)</div>
-<div class="sub">Standalone IPI 3m3w | OCP 4.22.9</div>
+<div class="sub">Standalone IPI 3m3w | OCP 4.22.9 | spoke-0</div>
 <div class="detail">
 <div class="row"><span class="k">API</span><span class="v" style="font-family:monospace;font-size:10px">api.ocp3m3w-ic4s22</span></div>
 <div class="row"><span class="k">Network</span><span class="v" style="color:var(--cyan)">192.168.129.0/24</span></div>
 <div class="row"><span class="k">Workers</span><span class="v">3 x 15.5 vCPU / 30 GiB</span></div>
-<div class="row"><span class="k">ACM Import</span><span class="badge todo" style="font-size:9px">Pending</span></div>
+<div class="row"><span class="k">ACM Import</span><span class="badge done" style="font-size:9px">8/8 addons</span></div>
 </div>
 </div>
 <div class="card" id="spoke1comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="DR components for Spoke 1 - to be (re)built after import: Dell CSI + CSM Replication -> VSA-A, CNV for the protected VMs, and the RamenDR DR-cluster + VRG.">i</span>
-<div class="step-badge plan">Planned</div>
+<span class="info-icon" data-tip="DR components for Spoke 1: Dell CSI + CSM Replication -> VSA-A (replicated PVC SYNCHRONIZED), CNV Available. RamenDR DR-cluster created but VRG cannot drive Dell replication - the csi-addons VolumeReplication vs DellCSIReplicationGroup gap (Tech Preview).">i</span>
+<div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 1 DR Components</div>
 <div class="detail">
-<div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge todo" style="font-size:9px">DNAT + DNS</span></div>
-<div class="row"><span class="k">Dell CSI + CSM Repl &#8594; VSA-A</span><span class="badge todo" style="font-size:9px">Planned</span></div>
-<div class="row"><span class="k">OpenShift Virtualization</span><span class="badge todo" style="font-size:9px">Planned</span></div>
-<div class="row"><span class="k">RamenDR DR-cluster + VRG</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
+<div class="row"><span class="k">Dell CSI + CSM Repl &#8594; VSA-A</span><span class="badge done" style="font-size:9px">SYNC</span></div>
+<div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
+<div class="row"><span class="k">RamenDR DR-cluster + VRG</span><span class="badge blocked" style="font-size:9px">TP gap</span></div>
 </div>
 </div>
 </div>
@@ -214,26 +215,26 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 <div class="nat-line" style="top:122px"><span>NAT BOUNDARY</span></div>
 <div class="card" id="spoke2" style="top:146px;left:24px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="Secondary DR site on its own dedicated host. Standalone IPI 3m3w with large workers. Same factory-clone identity as Spoke 1 (api.ocp3m3w-ic4s22 / 192.168.129) - harmless: host-local NAT + ACM pull model, distinct clusterIDs.">i</span>
+<span class="info-icon" data-tip="Secondary DR site (ManagedCluster spoke-1) on its own dedicated host. Standalone IPI 3m3w with large workers. Same factory-clone identity as Spoke 1 (api.ocp3m3w-ic4s22 / 192.168.129) - harmless: host-local NAT + ACM pull model, distinct clusterIDs. Imported: Joined/Available, 8/8 addons.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 2 (Secondary DR Site)</div>
-<div class="sub">Standalone IPI 3m3w | OCP 4.22.9</div>
+<div class="sub">Standalone IPI 3m3w | OCP 4.22.9 | spoke-1</div>
 <div class="detail">
 <div class="row"><span class="k">API</span><span class="v" style="font-family:monospace;font-size:10px">api.ocp3m3w-ic4s22</span></div>
 <div class="row"><span class="k">Network</span><span class="v" style="color:var(--cyan)">192.168.129.0/24</span></div>
 <div class="row"><span class="k">Workers</span><span class="v">3 x 15.5 vCPU / 30 GiB</span></div>
-<div class="row"><span class="k">ACM Import</span><span class="badge todo" style="font-size:9px">Pending</span></div>
+<div class="row"><span class="k">ACM Import</span><span class="badge done" style="font-size:9px">8/8 addons</span></div>
 </div>
 </div>
 <div class="card" id="spoke2comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="DR components for Spoke 2 - to be (re)built after import: Dell CSI + CSM Replication -> VSA-B, CNV for the protected VMs, and the RamenDR DR-cluster + VRG.">i</span>
-<div class="step-badge plan">Planned</div>
+<span class="info-icon" data-tip="DR components for Spoke 2: Dell CSI + CSM Replication -> VSA-B (replication target), CNV Available. RamenDR DR-cluster created but VRG cannot drive Dell replication yet - the csi-addons VolumeReplication vs DellCSIReplicationGroup gap (Tech Preview).">i</span>
+<div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 2 DR Components</div>
 <div class="detail">
-<div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge todo" style="font-size:9px">DNAT + DNS</span></div>
-<div class="row"><span class="k">Dell CSI + CSM Repl &#8594; VSA-B</span><span class="badge todo" style="font-size:9px">Planned</span></div>
-<div class="row"><span class="k">OpenShift Virtualization</span><span class="badge todo" style="font-size:9px">Planned</span></div>
-<div class="row"><span class="k">RamenDR DR-cluster + VRG</span><span class="badge todo" style="font-size:9px">Planned</span></div>
+<div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
+<div class="row"><span class="k">Dell CSI + CSM Repl &#8594; VSA-B</span><span class="badge done" style="font-size:9px">Target</span></div>
+<div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
+<div class="row"><span class="k">RamenDR DR-cluster + VRG</span><span class="badge blocked" style="font-size:9px">TP gap</span></div>
 </div>
 </div>
 </div>
@@ -245,7 +246,8 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="line" style="color:var(--muted)">RamenDR stores PV/PVC/VRG metadata here</div>
 <div class="line">Hosted on the Hub; reached by all 3 clusters</div>
 <div class="line">over the hub apps route (443 DNAT)</div>
-<div class="line" style="margin-top:4px"><span class="badge todo" style="font-size:9px">Planned (redeploy on fresh hub)</span></div>
+<div class="line" style="margin-top:4px"><span class="badge done" style="font-size:9px">Deployed (r/w verified from all 3)</span></div>
+<div class="line" style="color:var(--red);margin-top:3px">RamenDR can't read it - caCertificates bug VIRTDR-238</div>
 </div>
 
 <!-- ===== DR note ===== -->
@@ -404,6 +406,20 @@ setTimeout(function(){
 })();
 </script>
 
+<div class="callout" style="background:rgba(248,81,73,.06);border-color:var(--red);border-left-color:var(--red)">
+<b style="color:var(--red)">Current status (Steps 1-5 done, Step 6 partial, Step 7 pending).</b> The full stack is up: both spokes
+imported into ACM (8/8 addons), MinIO S3 deployed and r/w-verified from all three clusters, Dell CSI + CSM
+Replication on both spokes with a replicated PVC <b>SYNCHRONIZED</b> A&#8594;B (RPO 15m), and CNV
+<b>Available</b> on both. RamenDR/ODR operators are installed and DRClusters + a DRPolicy are created, but the
+DRPolicy is <b>not Validated</b> for two reasons:
+<br>&bull; <b>Bug</b> - RamenDR's S3 client ignores <code>caCertificates</code>, so it can't trust the private-CA MinIO
+route (<code>s3ListFailed: send request failed</code>); filed as
+<a href="https://redhat.atlassian.net/browse/VIRTDR-238" target="_blank" rel="noopener noreferrer">VIRTDR-238</a>.
+<br>&bull; <b>By design (Tech Preview)</b> - RamenDR's VRG drives storage via csi-addons <code>VolumeReplication</code>, but
+Dell PowerStore has no <code>VolumeReplicationClass</code> - it uses <code>DellCSIReplicationGroup</code>. The
+RamenDR&#8596;Dell bridge is the VirtDR TP work. The array-native A&#8594;B replication itself is already proven.
+</div>
+
 <div class="callout">
 <b>Why no Submariner here.</b> This is the Dell PowerStore edge track. Dell replicates array-to-array
 (VSA-A to VSA-B) over the storage network, and RamenDR coordinates failover through the ACM hub plus an
@@ -418,7 +434,7 @@ integration with Dell PowerStore is Tech Preview (Q3 2026); the documented fallb
 <h2>Network Allocation</h2>
 <table class="net-table">
 <tr><th>Cluster</th><th>Host</th><th>Subnet</th><th>API VIP</th><th>Ingress VIP</th><th>Status</th></tr>
-<tr><td style="color:var(--purple);font-weight:600">Hub</td><td>edge36</td><td style="font-family:monospace">192.168.132.0/24</td><td style="font-family:monospace">192.168.132.5</td><td style="font-family:monospace">192.168.132.10</td><td><span class="badge done">Deployed</span></td></tr>
+<tr><td style="color:var(--purple);font-weight:600">Hub</td><td>edge36</td><td style="font-family:monospace">192.168.126.0/24</td><td style="font-family:monospace">192.168.126.5</td><td style="font-family:monospace">192.168.126.10</td><td><span class="badge done">Deployed</span></td></tr>
 <tr><td style="color:var(--cyan);font-weight:600">Spoke 1</td><td>edge95</td><td style="font-family:monospace">192.168.129.0/24</td><td style="font-family:monospace">192.168.129.5</td><td style="font-family:monospace">192.168.129.10</td><td><span class="badge done">Deployed</span></td></tr>
 <tr><td style="color:var(--cyan);font-weight:600">Spoke 2</td><td>edge97</td><td style="font-family:monospace">192.168.129.0/24</td><td style="font-family:monospace">192.168.129.5</td><td style="font-family:monospace">192.168.129.10</td><td><span class="badge done">Deployed</span></td></tr>
 </table>
@@ -429,9 +445,9 @@ integration with Dell PowerStore is Tech Preview (Q3 2026); the documented fallb
 <h2>Required Port Forwarding (Dell / edge path)</h2>
 <table class="net-table">
 <tr><th>Host</th><th>Port</th><th>Proto</th><th>Forward To</th><th>Purpose</th><th>Status</th></tr>
-<tr><td>edge36</td><td style="font-family:monospace">6443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">192.168.132.5:6443</td><td>Hub API - spoke klusterlet / ACM import</td><td><span class="badge done">Active</span></td></tr>
-<tr><td>edge36</td><td style="font-family:monospace">443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">192.168.132.10:443</td><td>Hub apps ingress - cluster-proxy addon + MinIO S3 route</td><td><span class="badge done">Active</span></td></tr>
-<tr><td>edge95/97</td><td style="font-family:monospace">6443/443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">DNS -&gt; 10.46.46.12</td><td>Spoke DNS: resolve hub API/apps to edge36 corp IP</td><td><span class="badge todo">Pending (per-spoke)</span></td></tr>
+<tr><td>edge36</td><td style="font-family:monospace">6443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">192.168.126.5:6443</td><td>Hub API - spoke klusterlet / ACM import</td><td><span class="badge done">Active</span></td></tr>
+<tr><td>edge36</td><td style="font-family:monospace">443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">192.168.126.10:443</td><td>Hub apps ingress - cluster-proxy addon + MinIO S3 route</td><td><span class="badge done">Active</span></td></tr>
+<tr><td>edge95/97</td><td style="font-family:monospace">6443/443</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">DNS -&gt; 10.46.46.12</td><td>Spoke DNS: resolve hub API/apps to edge36 corp IP</td><td><span class="badge done">Active (both)</span></td></tr>
 <tr><td>edge36/95/97</td><td style="font-family:monospace">3260</td><td><span class="port-badge tcp">TCP</span></td><td style="font-family:monospace">Dell VSA (outbound)</td><td>iSCSI to VSA - works via outbound NAT</td><td><span class="badge done">Works</span></td></tr>
 </table>
 <p style="font-size:11px;color:var(--muted);margin-top:6px">No UDP 4500/4490 (Submariner) forwarding is needed on the Dell path. The edge36 DNATs (6443 + 443) persist via the virtdr-nat systemd service across the hub redeploy. Each spoke host needs a small DNS override so its klusterlet resolves the hub hostname to 10.46.46.12.</p>
@@ -478,12 +494,12 @@ integration with Dell PowerStore is Tech Preview (Q3 2026); the documented fallb
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Spoke 2 deployed (dedicated host)</span><span style="color:var(--muted);margin-left:auto">Standalone 3m3w on edge97, big workers (CNV-ready)</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell PowerStore VSAs deployed + clean</span><span style="color:var(--muted);margin-left:auto">VSA-A + VSA-B (2-node HA each), remote-system pairing OK</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Hub management-plane DNAT (edge36)</span><span style="color:var(--muted);margin-left:auto">6443 (API) + 443 (apps) persist via virtdr-nat.service</span></div>
-<div class="check"><div class="ci todo">&#9711;</div><span>Per-spoke DNS + import both spokes into ACM</span></div>
-<div class="check"><div class="ci todo">&#9711;</div><span>Deploy S3 / MinIO metadata store on the hub</span></div>
-<div class="check"><div class="ci todo">&#9711;</div><span>Dell CSI + CSM Replication on both spokes</span></div>
-<div class="check"><div class="ci todo">&#9711;</div><span>Install OpenShift Virtualization (CNV) on the spokes</span></div>
-<div class="check"><div class="ci todo">&#9711;</div><span>Install RamenDR operator + configure DRPolicy / DRPC</span></div>
-<div class="check"><div class="ci todo">&#9711;</div><span>End-to-end failover test (Spoke 1 -&gt; Spoke 2)</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Per-spoke DNS + import both spokes into ACM</span><span style="color:var(--muted);margin-left:auto">spoke-0 + spoke-1 Joined/Available, 8/8 addons</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Deploy S3 / MinIO metadata store on the hub</span><span style="color:var(--muted);margin-left:auto">bucket ramen-metadata, r/w verified from all 3</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell CSI + CSM Replication on both spokes</span><span style="color:var(--muted);margin-left:auto">replicated PVC SYNCHRONIZED A&#8594;B (RPO 15m)</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Install OpenShift Virtualization (CNV) on the spokes</span><span style="color:var(--muted);margin-left:auto">HyperConverged Available on both</span></div>
+<div class="check"><div class="ci blocked">&#33;</div><span>Install RamenDR operator + configure DRPolicy / DRPC</span><span style="color:var(--red);margin-left:auto">Operators + DRClusters + DRPolicy created; DRPolicy not Validated (VIRTDR-238 + Dell TP gap)</span></div>
+<div class="check"><div class="ci todo">&#9711;</div><span>End-to-end failover test (Spoke 1 -&gt; Spoke 2)</span><span style="color:var(--muted);margin-left:auto">Pending the RamenDR&#8596;Dell bridge</span></div>
 </div>
 </div>
 
