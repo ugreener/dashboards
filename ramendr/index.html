@@ -45,7 +45,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .zoom-toolbar button{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:6px;min-width:34px;height:30px;padding:0 10px;font-size:13px;font-weight:600;cursor:pointer;line-height:1;transition:background .15s,color .15s}
 .zoom-toolbar button:hover{background:#21262d;color:#fff}
 .zoom-toolbar #zoomLabel{min-width:54px;text-align:center}
-.diagram{position:relative;min-width:2260px;width:max-content;height:880px;padding:30px}
+.diagram{position:relative;min-width:2260px;width:max-content;height:1020px;padding:30px}
 .corp-bg{position:absolute;top:20px;left:20px;right:20px;bottom:20px;border:2px dashed var(--border);border-radius:12px}
 .corp-label{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#0a0e14;padding:0 10px;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px}
 .site{position:absolute;border:2px dashed;border-radius:12px;padding:20px}
@@ -102,9 +102,9 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="stat"><div class="n" style="color:var(--green)">3</div><div class="l">Clusters (1 hub + 2 spokes)</div></div>
 <div class="stat"><div class="n" style="color:var(--green)">3</div><div class="l">Dedicated Hosts</div></div>
 <div class="stat"><div class="n" style="color:var(--green)">A&#8596;B</div><div class="l">Array replication verified</div></div>
-<div class="stat"><div class="n" style="color:var(--orange)">5m</div><div class="l">PowerStore RPO</div></div>
+<div class="stat"><div class="n" style="color:var(--orange)">15m</div><div class="l">PowerStore RPO</div></div>
 <div class="stat"><div class="n" style="color:var(--blue)">OCP 4.22.9</div><div class="l">Platform Version</div></div>
-<div class="stat"><div class="n" style="color:var(--green)">7&#47;9</div><div class="l">Steps done (8 blocked by VIRTDR-267)</div></div>
+<div class="stat"><div class="n" style="color:var(--red)">8&#47;9</div><div class="l">Steps done (9 blocked by VIRTDR-274)</div></div>
 </div>
 
 <div class="legend">
@@ -130,7 +130,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="diagram-wrap" id="diagramWrap">
 <div class="zoom-sizer" id="zoomSizer">
 <div class="diagram" id="dia">
-<svg id="svg" style="position:absolute;top:0;left:0;width:2260px;height:880px;pointer-events:none;z-index:10;overflow:visible"></svg>
+<svg id="svg" style="position:absolute;top:0;left:0;width:2260px;height:1020px;pointer-events:none;z-index:10;overflow:visible"></svg>
 
 <div class="corp-bg"></div>
 <div class="corp-label">RED HAT LAB - eng.tlv2.redhat.com (corp routable 10.46.46.0/24 | Dell VSA 10.46.48.x mgmt + 10.46.49.x storage | cluster nets 192.168.126 hub / 192.168.130 spoke1 / 192.168.127 spoke2 behind NAT)</div>
@@ -167,6 +167,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="row"><span class="k">S3 / MinIO (metadata)</span><span class="badge done" style="font-size:9px">Deployed</span></div>
 <div class="row"><span class="k">ODR/RamenDR hub operator</span><span class="badge done" style="font-size:9px">v4.22.2</span></div>
 <div class="row"><span class="k">DRPolicy validated</span><span class="badge done" style="font-size:9px">True</span></div>
+<div class="row"><span class="k">DRPC (hammerdb)</span><span class="badge done" style="font-size:9px">Protected</span></div>
 </div>
 </div>
 </div>
@@ -193,16 +194,34 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke1comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="DR components for Spoke 1: Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) -> VSA-A. VolumeReplicationClass present (5m RPO ASYNC A->B). CNV Available. OADP + csi-addons controller deployed. ODR cluster operator installed but CrashLoopBackOff due to missing CRDs (VIRTDR-267/268).">i</span>
+<span class="info-icon" data-tip="DR components for Spoke 1: Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) -> VSA-A. VolumeReplicationClass present (5m+15m RPO ASYNC A->B). CNV Available. OADP + csi-addons controller deployed. ODR cluster operator running (CRD WA applied for VIRTDR-267/268). DRPC protecting HammerDB VM namespace, VRG Primary, both disks replicating.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 1 DR Components</div>
 <div class="detail">
 <div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
 <div class="row"><span class="k">Dell CSI (csi-addons) &#8594; VSA-A</span><span class="badge done" style="font-size:9px">7/7 Running</span></div>
-<div class="row"><span class="k">VolumeReplicationClass</span><span class="badge done" style="font-size:9px">5m RPO</span></div>
+<div class="row"><span class="k">VolumeReplicationClass</span><span class="badge done" style="font-size:9px">5m+15m RPO</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
-<div class="row"><span class="k">ODR cluster operator</span><span class="badge blocked" style="font-size:9px">VIRTDR-267</span></div>
+<div class="row"><span class="k">ODR cluster operator</span><span class="badge done" style="font-size:9px">Running (WA)</span></div>
+<div class="row"><span class="k">VRG (HammerDB ns)</span><span class="badge done" style="font-size:9px">Primary</span></div>
+<div class="row"><span class="k">DRPC Protected</span><span class="badge done" style="font-size:9px">True</span></div>
+</div>
+</div>
+
+<!-- HammerDB VM on Spoke 1 -->
+<div class="card" id="hammerdb" style="top:370px;left:334px;width:290px;border-color:var(--green)">
+<span class="info-icon" data-tip="RHEL 9.8 VM running HammerDB TPC-C workload + PostgreSQL 16. Root disk (35Gi) and data disk (20Gi) both on powerstore-sc, replicating to VSA-B. DRPC hammerdb-drpc protects the namespace. Failover blocked by VIRTDR-274 (volume handle resolution).">i</span>
+<div class="step-badge dep">Deployed</div>
+<div class="icon">&#128187;</div>
+<div class="title" style="color:var(--green)">HammerDB VM</div>
+<div class="sub">RHEL 9.8 | 4 vCPU / 8 GiB | worker-0</div>
+<div class="detail">
+<div class="row"><span class="k">Root disk</span><span class="v">35 GiB (powerstore-sc)</span></div>
+<div class="row"><span class="k">Data disk</span><span class="v">20 GiB (powerstore-sc)</span></div>
+<div class="row"><span class="k">PostgreSQL</span><span class="badge done" style="font-size:9px">Percona 16.8</span></div>
+<div class="row"><span class="k">HammerDB TPC-C</span><span class="badge done" style="font-size:9px">v4.12</span></div>
+<div class="row"><span class="k">Replication</span><span class="badge done" style="font-size:9px">Both disks &#8594; VSA-B</span></div>
 </div>
 </div>
 </div>
@@ -229,16 +248,16 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke2comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="DR components for Spoke 2: Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) -> VSA-B. VolumeReplicationClass present (5m RPO ASYNC B->A). CNV Available. OADP + csi-addons controller deployed. ODR cluster operator installed but CrashLoopBackOff due to missing CRDs (VIRTDR-267/268).">i</span>
+<span class="info-icon" data-tip="DR components for Spoke 2: Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) -> VSA-B. VolumeReplicationClass present (5m+15m RPO ASYNC B->A). CNV Available. OADP + csi-addons controller deployed. ODR cluster operator running (CRD WA applied for VIRTDR-267/268). Failover target cluster.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 2 DR Components</div>
 <div class="detail">
 <div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
 <div class="row"><span class="k">Dell CSI (csi-addons) &#8594; VSA-B</span><span class="badge done" style="font-size:9px">7/7 Running</span></div>
-<div class="row"><span class="k">VolumeReplicationClass</span><span class="badge done" style="font-size:9px">5m RPO</span></div>
+<div class="row"><span class="k">VolumeReplicationClass</span><span class="badge done" style="font-size:9px">5m+15m RPO</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
-<div class="row"><span class="k">ODR cluster operator</span><span class="badge blocked" style="font-size:9px">VIRTDR-267</span></div>
+<div class="row"><span class="k">ODR cluster operator</span><span class="badge done" style="font-size:9px">Running (WA)</span></div>
 </div>
 </div>
 </div>
@@ -251,7 +270,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="line">Hosted on the Hub; reached by all 3 clusters</div>
 <div class="line">over the hub apps route (443 DNAT)</div>
 <div class="line" style="margin-top:4px"><span class="badge done" style="font-size:9px">Deployed (r/w verified from all 3)</span></div>
-<div class="line" style="color:var(--green);margin-top:3px">DRPolicy Validated=True (CA trust resolved 2026-08-26)</div>
+<div class="line" style="color:var(--green);margin-top:3px">DRPolicy Validated=True (CA trust resolved)</div>
 </div>
 
 <!-- ===== DR note ===== -->
@@ -267,7 +286,7 @@ spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submarine
 
 <!-- ===== STORAGE: eco-vCenter VSAs (visual grouping box) ===== -->
 <div class="site" style="top:470px;left:520px;width:1620px;height:352px;border-color:var(--orange)">
-<div class="site-label" style="color:var(--orange)">STORAGE: Dell PowerStore VSAs on eco-vCenter (shared, reached over iSCSI)</div>
+<div class="site-label" style="color:var(--orange)">STORAGE: Dell PowerStore VSAs on eco-vCenter (shared, reached over NVMe-TCP)</div>
 </div>
 
 <div class="card" id="vsaa" style="top:540px;left:600px;width:300px;border-color:var(--orange)">
@@ -358,11 +377,11 @@ setTimeout(function(){
   // Hub -> S3 metadata store (vertical, hub down to S3)
   arrow(H.cx, H.b, S3.cx, S3.t, blue, 'DR metadata (S3)', true);
   // Spoke 1 DR components -> VSA-A (iSCSI)
-  arrow(S1C.cx, S1C.b, VA.cx, VA.t, orange, 'iSCSI (Dell CSI)', true);
-  // Spoke 2 DR components -> VSA-B (iSCSI)
-  arrow(S2C.cx, S2C.b, VB.cx, VB.t, orange, 'iSCSI (Dell CSI)', true);
+  arrow(S1C.cx, S1C.b, VA.cx, VA.t, orange, 'NVMe-TCP (Dell CSI)', true);
+  // Spoke 2 DR components -> VSA-B (NVMe-TCP)
+  arrow(S2C.cx, S2C.b, VB.cx, VB.t, orange, 'NVMe-TCP (Dell CSI)', true);
   // VSA-A -> VSA-B array replication (Dell native)
-  arrow(VA.r, VA.cy, VB.l, VB.cy, red, 'Dell array A<->B replication (paired, RPO 5m)', false);
+  arrow(VA.r, VA.cy, VB.l, VB.cy, red, 'Dell array A<->B replication (paired, RPO 5m/15m)', false);
 },120);
 })();
 </script>
@@ -411,22 +430,24 @@ setTimeout(function(){
 </script>
 
 <div class="callout" style="background:rgba(248,81,73,.06);border-color:var(--red);border-left-color:var(--red)">
-<b style="color:var(--red)">Current status (Steps 1-7 done, Step 8 blocked by VIRTDR-267/268).</b> The full stack is up: both spokes
-imported into ACM (8/8 addons), MinIO S3 deployed and r/w-verified from all three clusters, Dell CSI driver
-with <b>csi-addons VolumeReplication</b> installed via Helm on both spokes (non-OLM, NDA image hosted on a
-lab-local registry at 10.46.46.12:5000), <code>VolumeReplicationClass</code> present (5m RPO ASYNC), test PVCs
-bind on VSA-A/VSA-B, CNV <b>Available</b> on both, OADP + csi-addons controller deployed. DRPolicy
-<b>Validated=True</b> (caCertificates issue resolved 2026-08-26). The <b>VolumeReplicationClass gap is closed</b>.
-<br><br><b>Current blocker:</b> The ODR cluster operator on both spokes is in <b>CrashLoopBackOff</b> because two CRDs
-are missing (<code>Recipe.ramendr.openshift.io</code> and <code>VolumeGroupSnapshotClass.groupsnapshot.storage.openshift.io</code>).
-The CSV doesn't ship or declare them as dependencies; on non-ODF deployments (Dell path) nothing provides them.
-Two bugs filed:
-<br>&bull; <a href="https://issues.redhat.com/browse/VIRTDR-267" target="_blank" rel="noopener noreferrer">VIRTDR-267</a> -
-CSV missing CRD dependencies (Recipe, VolumeGroupSnapshotClass)
-<br>&bull; <a href="https://issues.redhat.com/browse/VIRTDR-268" target="_blank" rel="noopener noreferrer">VIRTDR-268</a> -
-Operator crashes on missing optional CRDs instead of degrading gracefully
-<br><br>Workaround: manually apply the two bare CRD definitions. Once the operator starts, the VolumeReplication
-test and end-to-end failover (Step 9) can proceed.
+<b style="color:var(--red)">Current status (Steps 1-8 done, Step 9 blocked by VIRTDR-274).</b> The full DR stack is operational: both spokes
+imported into ACM (8/8 addons), MinIO S3 deployed, Dell CSI driver with <b>csi-addons VolumeReplication</b>
+installed on both spokes, <code>VolumeReplicationClass</code> present (5m + 15m RPO ASYNC), DRPolicy
+<b>Validated=True</b>, ODR cluster operators running (CRD WA applied for VIRTDR-267/268).
+<br><br><b>Test workload deployed:</b> RHEL 9.8 VM running <b>HammerDB v4.12</b> + <b>Percona PostgreSQL 16.8</b>
+on spoke-0 (4 vCPU, 8 GiB RAM). TPC-C transactions run on a 20 GiB Dell-replicated data disk. DRPC
+<code>hammerdb-drpc</code> protects the namespace: VRG state=Primary, both disks (root 35 GiB + data 20 GiB)
+replicating VSA-A to VSA-B, DRPC <b>Protected=True</b>.
+<br><br><b>Current blocker:</b> Failover attempted but <b>fails at volume promotion</b> on spoke-1. The Dell CSI driver
+on spoke-1 cannot resolve the volume handle because it encodes the source array ID (<code>PS3b37452a6e0f</code> = VSA-A).
+The driver only knows VSA-B and returns <code>array with ID PS3b37452a6e0f not found</code>. The replica volumes
+physically exist on VSA-B (replication sessions healthy); the failure is in volume handle translation.
+<br>&bull; <a href="https://issues.redhat.com/browse/VIRTDR-274" target="_blank" rel="noopener noreferrer">VIRTDR-274</a> -
+Failover fails: Dell CSI driver cannot resolve source-array volume handle on destination cluster
+<br><br><b>Previously resolved:</b>
+<br>&bull; <a href="https://issues.redhat.com/browse/VIRTDR-267" target="_blank" rel="noopener noreferrer">VIRTDR-267</a> /
+<a href="https://issues.redhat.com/browse/VIRTDR-268" target="_blank" rel="noopener noreferrer">VIRTDR-268</a> -
+ODR cluster operator CrashLoopBackOff (missing CRDs) - fixed via manual CRD WA
 </div>
 
 <div class="callout">
@@ -507,9 +528,11 @@ integration with Dell PowerStore is Tech Preview (Q3 2026); the documented fallb
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Deploy S3 / MinIO metadata store on the hub</span><span style="color:var(--muted);margin-left:auto">bucket ramen-metadata, r/w verified from all 3</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Install OpenShift Virtualization (CNV) on the spokes</span><span style="color:var(--muted);margin-left:auto">HyperConverged Available on both</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">OADP + csi-addons (RamenDR prerequisites)</span><span style="color:var(--muted);margin-left:auto">Velero DPA Ready + csi-addons controller Running + VolumeReplication CRDs</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell CSI with csi-addons VolumeReplication (Helm)</span><span style="color:var(--muted);margin-left:auto">VolumeReplicationClass present (5m RPO), test PVCs bind on VSA-A/VSA-B</span></div>
-<div class="check"><div class="ci blocked">&#33;</div><span>RamenDR operators + DR config (DRPolicy Validated)</span><span style="color:var(--red);margin-left:auto">Hub OK; spoke ODR operator CrashLoopBackOff - missing CRDs (VIRTDR-267/268)</span></div>
-<div class="check"><div class="ci todo">&#9711;</div><span>End-to-end failover test (Spoke 1 -&gt; Spoke 2)</span><span style="color:var(--muted);margin-left:auto">Pending ODR operator fix + VolumeReplication verification</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell CSI with csi-addons VolumeReplication (Helm)</span><span style="color:var(--muted);margin-left:auto">VolumeReplicationClass present (5m+15m RPO), test PVCs bind on VSA-A/VSA-B</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">RamenDR operators + DR config (DRPolicy Validated)</span><span style="color:var(--muted);margin-left:auto">Hub + spoke operators running; CRD WA for VIRTDR-267/268 applied</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">VolumeReplication + DRPC end-to-end test</span><span style="color:var(--muted);margin-left:auto">Dell driver drives replication via RamenDR API; DRPC Protected=True</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">HammerDB VM deployed (RHEL 9.8 + PostgreSQL + TPC-C)</span><span style="color:var(--muted);margin-left:auto">4 vCPU / 8 GiB, root+data disks on powerstore-sc, replicating to VSA-B</span></div>
+<div class="check"><div class="ci blocked">&#33;</div><span>End-to-end failover test (Spoke 1 -&gt; Spoke 2)</span><span style="color:var(--red);margin-left:auto">BLOCKED: VIRTDR-274 - volume handle resolution on destination cluster</span></div>
 </div>
 </div>
 
