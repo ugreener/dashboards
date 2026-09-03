@@ -158,14 +158,14 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="links"><a href="https://console-openshift-console.apps.ocp3m0w-ic4s22.qe.lab.redhat.com" target="_blank" rel="noopener noreferrer">Console</a></div>
 </div>
 <div class="card" id="hubops" style="top:146px;left:334px;width:290px;border-color:var(--purple)">
-<span class="info-icon" data-tip="Hub operators. ACM/MCE + MinIO S3 deployed. ODR/RamenDR hub operator (odr-hub-operator v4.22.2-rhodf) installed and running; DRClusters + DRPolicy created and Validated=True (caCertificates issue VIRTDR-238 resolved 2026-08-26). No Submariner on the Dell path.">i</span>
+<span class="info-icon" data-tip="Hub operators. ACM/MCE + MinIO S3 deployed. RamenDR hub operator (odr-hub-operator v4.22.2-rhodf, shipped as ODR = OpenShift DR) installed and running; DRClusters + DRPolicy created and Validated=True (caCertificates issue VIRTDR-238 resolved 2026-08-26). No Submariner on the Dell path.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--purple)">Hub Operators</div>
 <div class="detail">
 <div class="row"><span class="k">ACM</span><span class="badge done" style="font-size:9px">2.17.0</span></div>
 <div class="row"><span class="k">MCE</span><span class="badge done" style="font-size:9px">Deployed</span></div>
 <div class="row"><span class="k">S3 / MinIO (metadata)</span><span class="badge done" style="font-size:9px">Deployed</span></div>
-<div class="row"><span class="k">ODR/RamenDR hub operator</span><span class="badge done" style="font-size:9px">v4.22.2</span></div>
+<div class="row"><span class="k">RamenDR hub operator (ODR)</span><span class="badge done" style="font-size:9px">v4.22.2</span></div>
 <div class="row"><span class="k">DRPolicy validated</span><span class="badge done" style="font-size:9px">True</span></div>
 <div class="row"><span class="k">DRPC (hammerdb)</span><span class="badge done" style="font-size:9px">Protected</span></div>
 </div>
@@ -194,7 +194,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke1comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="DR components for Spoke 1: Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) -> VSA-A. VolumeReplicationClass present (5m+15m RPO ASYNC A->B). CNV Available. OADP + csi-addons controller deployed. ODR cluster operator running (CRD WA applied for VIRTDR-267/268). DRPC protecting HammerDB VM namespace, VRG Primary, both disks replicating.">i</span>
+<span class="info-icon" data-tip="DR components for Spoke 1: Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) -> VSA-A. VolumeReplicationClass present (5m+15m RPO ASYNC A->B). CNV Available. OADP + csi-addons controller deployed. RamenDR cluster operator (ODR) running (CRD WA applied for VIRTDR-267/268). DRPC protecting HammerDB VM namespace, VRG Primary, both disks replicating.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 1 DR Components</div>
 <div class="detail">
@@ -203,7 +203,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="row"><span class="k">VolumeReplicationClass</span><span class="badge done" style="font-size:9px">5m+15m RPO</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
-<div class="row"><span class="k">ODR cluster operator</span><span class="badge done" style="font-size:9px">Running (WA)</span></div>
+<div class="row"><span class="k">RamenDR cluster operator (ODR)</span><span class="badge done" style="font-size:9px">Running (WA)</span></div>
 <div class="row"><span class="k">VRG (HammerDB ns)</span><span class="badge done" style="font-size:9px">Primary</span></div>
 <div class="row"><span class="k">DRPC Protected</span><span class="badge done" style="font-size:9px">True</span></div>
 </div>
@@ -246,7 +246,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke2comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="DR components for Spoke 2: Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) -> VSA-B. VolumeReplicationClass present (5m+15m RPO ASYNC B->A). CNV Available. OADP + csi-addons controller deployed. ODR cluster operator running (CRD WA applied for VIRTDR-267/268). Failover target cluster.">i</span>
+<span class="info-icon" data-tip="DR components for Spoke 2: Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) -> VSA-B. VolumeReplicationClass present (5m+15m RPO ASYNC B->A). CNV Available. OADP + csi-addons controller deployed. RamenDR cluster operator (ODR) running (CRD WA applied for VIRTDR-267/268). Failover target cluster.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 2 DR Components</div>
 <div class="detail">
@@ -255,7 +255,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="row"><span class="k">VolumeReplicationClass</span><span class="badge done" style="font-size:9px">5m+15m RPO</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
-<div class="row"><span class="k">ODR cluster operator</span><span class="badge done" style="font-size:9px">Running (WA)</span></div>
+<div class="row"><span class="k">RamenDR cluster operator (ODR)</span><span class="badge done" style="font-size:9px">Running (WA)</span></div>
 </div>
 </div>
 </div>
@@ -434,7 +434,7 @@ setTimeout(function(){
 <b style="color:var(--red)">Current status (Steps 1-8 done, Step 9 blocked by VIRTDR-274).</b> The full DR stack is operational: both spokes
 imported into ACM (8/8 addons), MinIO S3 deployed, Dell CSI driver with <b>csi-addons VolumeReplication</b>
 installed on both spokes, <code>VolumeReplicationClass</code> present (5m + 15m RPO ASYNC), DRPolicy
-<b>Validated=True</b>, ODR cluster operators running (CRD WA applied for VIRTDR-267/268).
+<b>Validated=True</b>, RamenDR (ODR) cluster operators running (CRD WA applied for VIRTDR-267/268).
 <br><br><b>Test workload deployed:</b> RHEL 9.8 VM running <b>HammerDB v4.12</b> + <b>Percona PostgreSQL 16.8</b>
 on spoke-0 (4 vCPU, 8 GiB RAM). TPC-C transactions run on a 20 GiB Dell-replicated data disk. DRPC
 <code>hammerdb-drpc</code> protects the namespace: VRG state=Primary, both disks (root 35 GiB + data 20 GiB)
@@ -448,7 +448,7 @@ Failover fails: Dell CSI driver cannot resolve source-array volume handle on des
 <br><br><b>Previously resolved:</b>
 <br>&bull; <a href="https://issues.redhat.com/browse/VIRTDR-267" target="_blank" rel="noopener noreferrer">VIRTDR-267</a> /
 <a href="https://issues.redhat.com/browse/VIRTDR-268" target="_blank" rel="noopener noreferrer">VIRTDR-268</a> -
-ODR cluster operator CrashLoopBackOff (missing CRDs) - fixed via manual CRD WA
+RamenDR (ODR) cluster operator CrashLoopBackOff (missing CRDs) - fixed via manual CRD WA
 </div>
 
 <div class="callout">
