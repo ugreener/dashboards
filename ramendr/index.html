@@ -45,7 +45,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .zoom-toolbar button{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:6px;min-width:34px;height:30px;padding:0 10px;font-size:13px;font-weight:600;cursor:pointer;line-height:1;transition:background .15s,color .15s}
 .zoom-toolbar button:hover{background:#21262d;color:#fff}
 .zoom-toolbar #zoomLabel{min-width:54px;text-align:center}
-.diagram{position:relative;min-width:2260px;width:max-content;height:1200px;padding:30px}
+.diagram{position:relative;min-width:2260px;width:max-content;height:1400px;padding:30px}
 .corp-bg{position:absolute;top:20px;left:20px;right:20px;bottom:20px;border:2px dashed var(--border);border-radius:12px}
 .corp-label{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#0a0e14;padding:0 10px;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px}
 .site{position:absolute;border:2px dashed;border-radius:12px;padding:20px}
@@ -130,7 +130,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="diagram-wrap" id="diagramWrap">
 <div class="zoom-sizer" id="zoomSizer">
 <div class="diagram" id="dia">
-<svg id="svg" style="position:absolute;top:0;left:0;width:2260px;height:1200px;pointer-events:none;z-index:10;overflow:visible"></svg>
+<svg id="svg" style="position:absolute;top:0;left:0;width:2260px;height:1400px;pointer-events:none;z-index:10;overflow:visible"></svg>
 
 <div class="corp-bg"></div>
 <div class="corp-label">RED HAT LAB - eng.tlv2.redhat.com (corp routable 10.46.46.0/24 | Dell VSA 10.46.48.x mgmt + 10.46.49.x storage | cluster nets 192.168.126 hub / 192.168.130 spoke1 / 192.168.127 spoke2 behind NAT)</div>
@@ -173,7 +173,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 
 <!-- ===== SITE B: SPOKE 1 (edge95) ===== -->
-<div class="site" style="top:56px;left:760px;width:660px;height:480px;border-color:var(--cyan)">
+<div class="site" style="top:56px;left:760px;width:660px;height:680px;border-color:var(--cyan)">
 <div class="site-label" style="color:var(--cyan)">SITE B: ocp-edge95 (10.46.46.74) - SPOKE 1</div>
 <div class="hyper-bar" style="top:38px">
 <div class="step-badge dep">Deployed</div>
@@ -207,15 +207,12 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="row"><span class="k">VRG (HammerDB ns)</span><span class="badge done" style="font-size:9px">Primary</span></div>
 <div class="row"><span class="k">DRPC Protected</span><span class="badge done" style="font-size:9px">True</span></div>
 </div>
-</div>
-</div>
-
-<!-- HammerDB VM on Spoke 1 (positioned outside the site div) -->
-<div class="card" id="hammerdb" style="top:548px;left:1094px;width:290px;border-color:var(--green);z-index:15">
+    </div>
+<div class="card" id="hammerdb" style="top:450px;left:105px;width:450px;border-color:var(--green);z-index:15">
 <span class="info-icon" data-tip="RHEL 9.8 VM running HammerDB TPC-C workload + PostgreSQL 16. Root disk (35Gi) and data disk (20Gi) both on powerstore-sc, replicating to VSA-B. DRPC hammerdb-drpc protects the namespace. Failover blocked by VIRTDR-274 (volume handle resolution).">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="icon">&#128187;</div>
-<div class="title" style="color:var(--green)">HammerDB VM (on Spoke 1)</div>
+<div class="title" style="color:var(--green)">HammerDB VM</div>
 <div class="sub">RHEL 9.8 | 4 vCPU / 8 GiB | worker-0</div>
 <div class="detail">
 <div class="row"><span class="k">Root disk</span><span class="v">35 GiB (powerstore-sc)</span></div>
@@ -223,6 +220,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="row"><span class="k">PostgreSQL</span><span class="badge done" style="font-size:9px">Percona 16.8</span></div>
 <div class="row"><span class="k">HammerDB TPC-C</span><span class="badge done" style="font-size:9px">v4.12</span></div>
 <div class="row"><span class="k">Replication</span><span class="badge done" style="font-size:9px">Both disks &#8594; VSA-B</span></div>
+</div>
 </div>
 </div>
 
@@ -263,7 +261,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 
 <!-- ===== S3 / MinIO (on the hub) ===== -->
-<div class="hub-node" id="s3" style="top:580px;left:60px;width:300px">
+<div class="hub-node" id="s3" style="top:580px;left:160px;width:300px">
 <div class="icon">&#128451;</div>
 <div class="title">S3 / MinIO DR Metadata</div>
 <div class="line" style="color:var(--muted)">RamenDR stores PV/PVC/VRG metadata here</div>
@@ -274,7 +272,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 
 <!-- ===== DR note ===== -->
-<div class="note-card" id="drnote" style="top:790px;left:40px;width:420px">
+<div class="note-card" id="drnote" style="top:800px;left:40px;width:420px">
 <div class="step-badge plan">How failover works</div>
 <div class="detail" style="line-height:1.7">
 RamenDR failover is <b style="color:var(--blue)">hub-orchestrated</b>: the hub applies a
@@ -285,11 +283,11 @@ spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submarine
 </div>
 
 <!-- ===== STORAGE: eco-vCenter VSAs (visual grouping box) ===== -->
-<div class="site" style="top:750px;left:520px;width:1620px;height:280px;border-color:var(--orange)">
+<div class="site" style="top:800px;left:520px;width:1620px;height:280px;border-color:var(--orange)">
 <div class="site-label" style="color:var(--orange)">STORAGE: Dell PowerStore VSAs on eco-vCenter (shared, reached over NVMe-TCP)</div>
 </div>
 
-<div class="card" id="vsaa" style="top:790px;left:600px;width:300px;border-color:var(--orange)">
+<div class="card" id="vsaa" style="top:840px;left:600px;width:300px;border-color:var(--orange)">
 <span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter. Two-node HA pair, each node with its own storage/replication IP on 10.46.49.0/24. Array clean after redeploy; remote-system pairing to VSA-B is OK.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--orange)">Dell PowerStore VSA-A</div>
@@ -303,7 +301,7 @@ spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submarine
 </div>
 </div>
 
-<div class="card" id="vsab" style="top:790px;left:1560px;width:300px;border-color:var(--orange)">
+<div class="card" id="vsab" style="top:840px;left:1560px;width:300px;border-color:var(--orange)">
 <span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter. Two-node HA pair. Array clean after redeploy; both NodeA and NodeB healthy; remote-system pairing to VSA-A is OK.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--orange)">Dell PowerStore VSA-B</div>
@@ -367,6 +365,7 @@ setTimeout(function(){
   }
   var H=box('hub','A'), HO=box('hubops','A'),
       S1=box('spoke1','B'), S1C=box('spoke1comp','B'),
+      HDB=box('hammerdb','B'),
       S2=box('spoke2','C'), S2C=box('spoke2comp','C'),
       S3=box('s3',''), VA=box('vsaa',''), VB=box('vsab','');
 
@@ -376,10 +375,12 @@ setTimeout(function(){
   arrow(S2.l, S2.t+14, H.r, H.t+14, purple, 'ACM pull: klusterlet -> hub API 6443 (DNAT)', true);
   // Hub -> S3 metadata store (vertical, hub down to S3)
   arrow(H.cx, H.b, S3.cx, S3.t, blue, 'DR metadata (S3)', true);
-  // Spoke 1 DR components -> VSA-A (iSCSI)
+  // Spoke 1 DR components -> VSA-A (NVMe-TCP)
   arrow(S1C.cx, S1C.b, VA.cx, VA.t, orange, 'NVMe-TCP (Dell CSI)', true);
   // Spoke 2 DR components -> VSA-B (NVMe-TCP)
   arrow(S2C.cx, S2C.b, VB.cx, VB.t, orange, 'NVMe-TCP (Dell CSI)', true);
+  // HammerDB -> Spoke 1 DR components (workload runs on spoke 1 storage)
+  arrow(HDB.cx, HDB.t, S1C.cx, S1C.b, green, 'VM disks on powerstore-sc', true);
   // VSA-A -> VSA-B array replication (Dell native)
   arrow(VA.r, VA.cy, VB.l, VB.cy, red, 'Dell array A<->B replication (paired, RPO 5m/15m)', false);
 },120);
