@@ -101,6 +101,18 @@ async function main() {
     const keys = Object.keys(obj).sort();
     return JSON.stringify(keys.map((k) => [k, obj[k]]));
   };
+  // Safeguard: refuse to overwrite if the new fetch returned significantly fewer
+  // issues than the existing file (indicates a token permission or API problem).
+  const prevCount = prev.issues ? Object.keys(prev.issues).length : 0;
+  const newCount = Object.keys(issues).length;
+  if (prevCount > 0 && newCount < prevCount * 0.7) {
+    console.error(
+      "ABORTING: issue count dropped from " + prevCount + " to " + newCount +
+      " (below 70% threshold). This likely indicates a Jira token permission issue."
+    );
+    process.exit(1);
+  }
+
   const statusChanged = !(prev.issues && stableStr(prev.issues) === stableStr(issues));
   if (!statusChanged) {
     console.log("No status changes (" + Object.keys(issues).length + " issues unchanged)");
