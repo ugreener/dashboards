@@ -1,25 +1,385 @@
 {
-  "updated": "2026-09-12T00:18:21.911Z",
+  "updated": "2026-09-15T09:36:05.203Z",
   "issues": {
+    "RHWA-1400": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1396": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1391": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1390": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1389": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1388": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1387": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1386": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1254": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1193": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1140": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1139": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1138": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-836"
+    },
+    "RHWA-1113": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-836"
+    },
     "RHWA-1073": {
       "status": "ip",
       "name": "In Progress",
-      "parent": null
+      "parent": "RHWA-836"
+    },
+    "RHWA-982": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-976": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-975": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-836"
+    },
+    "RHWA-972": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-969": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-836"
+    },
+    "RHWA-961": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-836"
+    },
+    "RHWA-837": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-836"
+    },
+    "RHWA-836": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-957"
+    },
+    "RHWA-1777": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1770": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1712": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1656": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1654": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1626": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1624": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1608": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1504": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1493": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1492": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1491": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1490": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1412": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1411": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1397": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1365": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1364": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1363": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1138"
     },
     "RHWA-1362": {
       "status": "done",
       "name": "Closed",
       "parent": "RHWA-1073"
     },
+    "RHWA-1361": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1360": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1348": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1330": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1307": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1286": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1285": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1284": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1281": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1280": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1279": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1278": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1277": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
+    },
     "RHWA-1276": {
       "status": "todo",
       "name": "New",
       "parent": "RHWA-1073"
     },
+    "RHWA-1275": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1274": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1273": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1272": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1271": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1270": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1256": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1254"
+    },
+    "RHWA-1255": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1254"
+    },
     "RHWA-1253": {
       "status": "todo",
       "name": "New",
       "parent": "RHWA-1073"
+    },
+    "RHWA-1252": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1251": {
+      "status": "ip",
+      "name": "Dev Complete",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1250": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1249": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1248": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1247": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1246": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1245": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1244": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1243": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1138"
     },
     "RHWA-1242": {
       "status": "done",
@@ -31,20 +391,175 @@
       "name": "New",
       "parent": "RHWA-1073"
     },
+    "RHWA-1231": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1230": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1229": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
+    },
     "RHWA-1228": {
       "status": "todo",
       "name": "New",
       "parent": "RHWA-1073"
+    },
+    "RHWA-1227": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1222": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1221": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1220": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1219": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1138"
     },
     "RHWA-1218": {
       "status": "done",
       "name": "Closed",
       "parent": "RHWA-1073"
     },
+    "RHWA-1202": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1200": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1199": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1198": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1138"
+    },
     "RHWA-1197": {
       "status": "todo",
       "name": "New",
       "parent": "RHWA-1073"
+    },
+    "RHWA-1195": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-1194": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1192": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1146": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1145": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1140"
+    },
+    "RHWA-1144": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1143": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1139"
+    },
+    "RHWA-1142": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1141": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1138"
+    },
+    "RHWA-1137": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1122": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1121": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1120": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1119": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1114": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1107": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1113"
+    },
+    "RHWA-1105": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1095": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1094": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-837"
     },
     "RHWA-1082": {
       "status": "done",
@@ -90,6 +605,261 @@
       "status": "done",
       "name": "Closed",
       "parent": "RHWA-1073"
+    },
+    "RHWA-1072": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-1052": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1051": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1050": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1049": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1048": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1044": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1043": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1040": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1039": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1038": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1036": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1035": {
+      "status": "ip",
+      "name": "In Progress",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1034": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1023": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-1022": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1021": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-1020": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-1019": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-837"
+    },
+    "RHWA-991": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-990": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-983": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-981": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-980": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-837"
+    },
+    "RHWA-979": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-978": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-977": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-974": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-973": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-971": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-970": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-968": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-967": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-966": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-965": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-964": {
+      "status": "ip",
+      "name": "Dev Complete",
+      "parent": "RHWA-961"
+    },
+    "RHWA-963": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-962": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-961"
+    },
+    "RHWA-960": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-959": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-958": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-969"
+    },
+    "RHWA-875": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-874": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-855": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-844": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-837"
+    },
+    "RHWA-843": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
+    },
+    "RHWA-842": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-837"
+    },
+    "RHWA-841": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-982"
+    },
+    "RHWA-840": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-839": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-972"
+    },
+    "RHWA-838": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-837"
     }
   }
 }
