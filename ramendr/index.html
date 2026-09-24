@@ -236,7 +236,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 <div class="nat-line" style="top:122px"><span>NAT BOUNDARY</span></div>
 <div class="card" id="spoke2" style="top:146px;left:24px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="Secondary DR site (ManagedCluster spoke-1) on its own dedicated host. Standalone IPI 3m3w with large workers. Same factory-clone identity as Spoke 1 (api.ocp3m3w-ic4s22 / 192.168.129) - harmless: host-local NAT + ACM pull model, distinct clusterIDs. Imported: Joined/Available, 8/8 addons.">i</span>
+<span class="info-icon" data-tip="Secondary DR site (ManagedCluster spoke-1) on its own dedicated host. Standalone IPI 3m3w with large workers. Same factory-clone identity as Spoke 1 (api.ocp3m3w-ic4s22), but a different host-local subnet. Spoke 1 uses 192.168.130.0/24; Spoke 2 uses 192.168.127.0/24. Both are behind NAT, and ACM uses the pull model with distinct clusterIDs. Imported: Joined/Available, 8/8 addons.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 2 (Secondary DR Site)</div>
 <div class="sub">Standalone IPI 3m3w | OCP 4.22.9 | spoke-1</div>
