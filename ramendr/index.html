@@ -196,12 +196,12 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke1comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="DR components for Spoke 1 (primary DR site): Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) -> VSA-A. VolumeReplicationClass present (5m+15m RPO ASYNC A->B). CNV Available. OADP + csi-addons controller deployed. RHDR cluster operator (rhdr-cluster-operator v4.22.0-86.stable from rhdr-staging-catalog) running (CRD WA applied for VIRTDR-267/268). DRPC protecting HammerDB VM namespace, VRG Primary, both disks replicating.">i</span>
+<span class="info-icon" data-tip="DR components for Spoke 1 (primary DR site): Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) configured with BOTH arrays (VSA-A primary, VSA-B for failover target access). VolumeReplicationClass present (5m+15m RPO ASYNC A->B). CNV Available. OADP + csi-addons controller deployed. RHDR cluster operator (rhdr-cluster-operator v4.22.0-86.stable from rhdr-staging-catalog) running (CRD WA applied for VIRTDR-267/268). DRPC protecting HammerDB VM namespace, VRG Primary, both disks replicating.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 1 DR Components</div>
 <div class="detail">
 <div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
-<div class="row"><span class="k">Dell CSI (csi-addons) &#8594; VSA-A</span><span class="badge done" style="font-size:9px">7/7 Running</span></div>
+<div class="row"><span class="k">Dell CSI (csi-addons) &#8594; VSA-A+B</span><span class="badge done" style="font-size:9px">7/7 Running</span></div>
 <div class="row"><span class="k">VolumeReplicationClass</span><span class="badge done" style="font-size:9px">5m+15m RPO</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
@@ -248,12 +248,12 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke2comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="DR components for Spoke 2 (secondary DR site / failover target): Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) -> VSA-B. VolumeReplicationClass present (5m+15m RPO ASYNC B->A). CNV Available. OADP + csi-addons controller deployed. RHDR cluster operator (rhdr-cluster-operator v4.22.0-86.stable from rhdr-staging-catalog) running (CRD WA applied for VIRTDR-267/268). Failover target cluster.">i</span>
+<span class="info-icon" data-tip="DR components for Spoke 2 (secondary DR site / failover target): Dell CSI with csi-addons VolumeReplication (Helm, non-OLM) configured with BOTH arrays (VSA-B primary, VSA-A for reverse-replication access). VolumeReplicationClass present (5m+15m RPO ASYNC B->A). CNV Available. OADP + csi-addons controller deployed. RHDR cluster operator (rhdr-cluster-operator v4.22.0-86.stable from rhdr-staging-catalog) running (CRD WA applied for VIRTDR-267/268). Failover target cluster.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 2 DR Components</div>
 <div class="detail">
 <div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
-<div class="row"><span class="k">Dell CSI (csi-addons) &#8594; VSA-B</span><span class="badge done" style="font-size:9px">7/7 Running</span></div>
+<div class="row"><span class="k">Dell CSI (csi-addons) &#8594; VSA-A+B</span><span class="badge done" style="font-size:9px">7/7 Running</span></div>
 <div class="row"><span class="k">VolumeReplicationClass</span><span class="badge done" style="font-size:9px">5m+15m RPO</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
@@ -293,7 +293,7 @@ spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submarine
 <span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter. Two-node HA pair, each node with its own storage/replication IP on 10.46.49.0/24. Array clean after redeploy; remote-system pairing to VSA-B is OK.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--orange)">Dell PowerStore VSA-A</div>
-<div class="sub">Mgmt 10.46.48.20 | serves Spoke 1</div>
+<div class="sub">Mgmt 10.46.48.20 | primary for Spoke 1, secondary for Spoke 2</div>
 <div class="detail">
 <div class="row"><span class="k">HA</span><span class="v">2 nodes (Node A + Node B)</span></div>
 <div class="row"><span class="k">Node A storage IP</span><span class="v" style="font-family:monospace">10.46.49.1</span></div>
@@ -307,7 +307,7 @@ spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submarine
 <span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter. Two-node HA pair. Array clean after redeploy; both NodeA and NodeB healthy; remote-system pairing to VSA-A is OK.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--orange)">Dell PowerStore VSA-B</div>
-<div class="sub">Mgmt 10.46.48.30 | serves Spoke 2</div>
+<div class="sub">Mgmt 10.46.48.30 | primary for Spoke 2, secondary for Spoke 1</div>
 <div class="detail">
 <div class="row"><span class="k">HA</span><span class="v">2 nodes (Node A + Node B)</span></div>
 <div class="row"><span class="k">Node A storage IP</span><span class="v" style="font-family:monospace">10.46.49.4</span></div>
@@ -377,10 +377,14 @@ setTimeout(function(){
   arrow(S2.l, S2.t+14, H.r, H.t+14, purple, 'ACM pull: klusterlet -> hub API 6443 (DNAT)', true);
   // Hub -> S3 metadata store (vertical, hub down to S3)
   arrow(H.cx, H.b, S3.cx, S3.t, blue, 'DR metadata (S3)', true);
-  // Spoke 1 DR components -> VSA-A (NVMe-TCP)
-  arrow(S1C.cx, S1C.b, VA.cx, VA.t, orange, 'NVMe-TCP (Dell CSI)', true);
-  // Spoke 2 DR components -> VSA-B (NVMe-TCP)
-  arrow(S2C.cx, S2C.b, VB.cx, VB.t, orange, 'NVMe-TCP (Dell CSI)', true);
+  // Spoke 1 DR components -> VSA-A (primary, NVMe-TCP)
+  arrow(S1C.cx, S1C.b, VA.cx, VA.t, orange, 'NVMe-TCP primary (Dell CSI)', false);
+  // Spoke 1 DR components -> VSA-B (secondary, for failover target access)
+  arrow(S1C.r-30, S1C.b, VB.l+30, VB.t, gray, 'NVMe-TCP secondary', true);
+  // Spoke 2 DR components -> VSA-B (primary, NVMe-TCP)
+  arrow(S2C.cx, S2C.b, VB.cx, VB.t, orange, 'NVMe-TCP primary (Dell CSI)', false);
+  // Spoke 2 DR components -> VSA-A (secondary, for reverse-replication access)
+  arrow(S2C.l+30, S2C.b, VA.r-30, VA.t, gray, 'NVMe-TCP secondary', true);
   // HammerDB -> Spoke 1 DR components (workload runs on spoke 1 storage)
   arrow(HDB.cx, HDB.t, S1C.cx, S1C.b, green, 'VM disks on powerstore-sc', true);
   // VSA-A -> VSA-B array replication (Dell native)
@@ -514,7 +518,7 @@ integration with Dell PowerStore is Tech Preview (Q3 2026); the documented fallb
 <div class="flow-card" style="border-left:3px solid var(--orange)">
 <h3>Storage / Replication Plane</h3>
 <div class="steps">
-<div class="step"><span class="sn">1.</span>Each spoke's Dell CSI talks to its local VSA over NVMe-TCP</div>
+<div class="step"><span class="sn">1.</span>Each spoke's Dell CSI is configured with both VSAs (primary + secondary) over NVMe-TCP</div>
 <div class="step"><span class="sn">2.</span>VSA-A replicates async to VSA-B (Dell native, RPO 15m)</div>
 <div class="step"><span class="sn">3.</span>Replication runs on the storage network, not the pod network</div>
 <div class="step"><span class="sn">4.</span>VolumeReplication (VRG) ties the array state to RamenDR</div>
