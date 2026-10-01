@@ -4,7 +4,7 @@
   const ns=({291:'hammerdb',292:'gitops-vms',293:'hammerdb-win',294:'TBD'})[id];
   const vm=id==='293'?'hammerdb-win':pending?'TBD':'hammerdb-rhel9';
   const drpc=({291:'hammerdb-drpc',292:'dell-vm-drpc',293:'hammerdb-win-drpc',294:'TBD'})[id];
-  const placement=({291:'hammerdb-placement',292:'dell-vm-placement',293:'Verify placementRef',294:'TBD'})[id];
+  const placement=({291:'hammerdb-placement',292:'dell-vm-placement',293:'hammerdb-win-placement',294:'TBD'})[id];
   const esc=s=>String(s).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
   const why={
     ManagedCluster:'ACM needs an imported, reachable cluster identity to select a site and deliver work to it.',
@@ -71,7 +71,7 @@
   const n=(kind,name,scope,detail,type='cr')=>({kind,name,scope,detail,type});
   const hub='Hub / openshift-dr-ops', spoke=`Each spoke / ${ns}`;
   const d=n('DRPlacementControl',drpc,hub,'References DRPolicy, Placement, protectedNamespaces and PVC selector.');
-  const v=n('VolumeReplicationGroup','Generated application VRG',spoke,'Ramen reconciles selected PVCs and desired Primary/Secondary role.');
+  const v=n('VolumeReplicationGroup','Generated application VRG','Each spoke / namespace from DRPC + ManifestWork (verify)','Ramen reconciles selected PVCs and desired role. VRG namespace is not necessarily the protected workload namespace; inspect DRPC app-namespace annotation and delivered ManifestWork.');
   const m=n('VirtualMachine',vm,spoke,'VM configuration references root/data disks; starts a VirtualMachineInstance and launcher Pod.');
   const lanes=[
     ['Policy and DR site eligibility',[
