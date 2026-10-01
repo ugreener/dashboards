@@ -153,4 +153,7 @@
   document.getElementById('fit').onclick=()=>{z=Math.min(1,wrap.clientWidth/width);scale();};
   document.getElementById('reset').onclick=()=>{z=1;scale();};
   window.addEventListener('resize',draw);document.fonts.ready.then(draw);
+  const resourceStyles=document.createElement('link');resourceStyles.rel='stylesheet';resourceStyles.href='../resources.css';
+  resourceStyles.onload=()=>{const resourceScript=document.createElement('script');resourceScript.src='../resources.js';document.head.append(resourceScript);};
+  document.head.append(resourceStyles);
 })();
