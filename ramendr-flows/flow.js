@@ -225,10 +225,15 @@ Hub GitOps
   document.getElementById('fit').onclick=()=>{z=Math.min(1,wrap.clientWidth/width);scale();};
   document.getElementById('reset').onclick=()=>{z=1;scale();};
   window.addEventListener('resize',draw);document.fonts.ready.then(draw);
+  function loadPodcast() {
+    const script = document.createElement('script'); script.src = '../podcast.js'; document.head.append(script);
+  }
   if (configuration) {
   const resourceStyles=document.createElement('link');resourceStyles.rel='stylesheet';resourceStyles.href='../resources.css';
-  resourceStyles.onload=()=>{const resourceScript=document.createElement('script');resourceScript.src='../resources.js';document.head.append(resourceScript);};
+  resourceStyles.onload=()=>{const resourceScript=document.createElement('script');resourceScript.src='../resources.js';resourceScript.onload=()=>document.fonts.ready.then(()=>requestAnimationFrame(loadPodcast));document.head.append(resourceScript);};
   document.head.append(resourceStyles);
+  } else {
+    document.fonts.ready.then(()=>requestAnimationFrame(loadPodcast));
   }
   if(c.windows&&c.managed){
     document.querySelectorAll('pre').forEach(el=>{
