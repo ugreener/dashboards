@@ -1,21 +1,6 @@
 {
-  "updated": "2026-10-04T11:53:17.910Z",
+  "updated": "2026-10-04T12:01:51.262Z",
   "issues": {
-    "RHWA-1595": {
-      "status": "done",
-      "name": "Closed",
-      "parent": "RHWA-836"
-    },
-    "RHWA-1400": {
-      "status": "todo",
-      "name": "New",
-      "parent": "RHWA-836"
-    },
-    "RHWA-1396": {
-      "status": "todo",
-      "name": "New",
-      "parent": "RHWA-836"
-    },
     "RHWA-1391": {
       "status": "done",
       "name": "Closed",
@@ -166,6 +151,11 @@
       "name": "New",
       "parent": "RHWA-1193"
     },
+    "RHWA-1595": {
+      "status": "done",
+      "name": "Closed",
+      "parent": "RHWA-1193"
+    },
     "RHWA-1504": {
       "status": "todo",
       "name": "New",
@@ -201,9 +191,19 @@
       "name": "Closed",
       "parent": "RHWA-1113"
     },
+    "RHWA-1400": {
+      "status": "todo",
+      "name": "New",
+      "parent": "RHWA-1193"
+    },
     "RHWA-1397": {
       "status": "done",
       "name": "Closed",
+      "parent": "RHWA-1193"
+    },
+    "RHWA-1396": {
+      "status": "todo",
+      "name": "New",
       "parent": "RHWA-1193"
     },
     "RHWA-1365": {
