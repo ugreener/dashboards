@@ -1,10 +1,12 @@
 'use strict';
 (() => {
   const id=document.body.dataset.flow, managed=['292','294'].includes(id), pending=id==='294';
-  const ns=({291:'hammerdb',292:'gitops-vms',293:'hammerdb-win',294:'TBD'})[id];
-  const vm=id==='293'?'hammerdb-win':pending?'TBD':'hammerdb-rhel9';
-  const drpc=({291:'hammerdb-drpc',292:'dell-vm-drpc',293:'hammerdb-win-drpc',294:'TBD'})[id];
-  const placement=({291:'hammerdb-placement',292:'dell-vm-placement',293:'hammerdb-win-placement',294:'TBD'})[id];
+  const ns=({291:'hammerdb',292:'gitops-vms',293:'hammerdb-win',294:'Not configured'})[id];
+  const vm=id==='293'?'hammerdb-win':pending?'Not configured':'hammerdb-rhel9';
+  const drpc=({291:'hammerdb-drpc',292:'dell-vm-drpc',293:'hammerdb-win-drpc',294:'Not configured'})[id];
+  const placement=({291:'hammerdb-placement',292:'dell-vm-placement',293:'hammerdb-win-placement',294:'Not configured'})[id];
+  const decision=pending?'Not configured':placement+'-decision-1';
+  const bsl=pending?'Not configured':`openshift-dr-ops--${drpc}--0----minio-on-hub / openshift-dr-ops--${drpc}--1----minio-on-hub`;
   const esc=s=>String(s).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
   const why={
     ManagedCluster:'ACM needs an imported, reachable cluster identity to select a site and deliver work to it.',
@@ -54,24 +56,21 @@
     'openshift-marketplace':'#a5d6ff','openshift-dr-system':'#d2a8ff',
     powerstore:'#ffa657','csi-addons-system':'#ff7b72',minio:'#a5d675',
     'cluster-scoped':'#c9d1d9',external:'#8b949e',
-    'unverified / TBD':'#9ba7b4','mixed scope':'#9ba7b4',
-    'managed-cluster namespace (name unverified)':'#9ba7b4'
+    'not configured':'#9ba7b4','namespaced (no instances)':'#9ba7b4',test:'#9ba7b4','mixed scope':'#9ba7b4'
   };
   function namespaces(scope){
     const location=scope.split(' / ').slice(1).join(' / ');
     if(scope.startsWith('External')) return ['external'];
     if(location==='cluster-scoped') return ['cluster-scoped'];
-    if(location==='spoke-0 or spoke-1') return ['spoke-0','spoke-1'];
-    if(location==='managed-cluster namespace') return ['managed-cluster namespace (name unverified)'];
     if(location.includes('cluster-scoped;')) return ['mixed scope'];
     const keys=location.split(' + ');
-    return keys.every(key=>Object.hasOwn(palette,key))?keys:['unverified / TBD'];
+    return keys.every(key=>Object.hasOwn(palette,key))?keys:['mixed scope'];
   }
   palette['spoke-0']='#79c0ff';palette['spoke-1']='#f778ba';
   const n=(kind,name,scope,detail,type='cr')=>({kind,name,scope,detail,type});
-  const hub='Hub / openshift-dr-ops', spoke=`Each spoke / ${ns}`;
+  const hub='Hub / openshift-dr-ops', spoke=pending?'Spokes / not configured':`Spoke-0 (current); spoke-1 (recovery) / ${ns}`;
   const d=n('DRPlacementControl',drpc,hub,'References DRPolicy, Placement, protectedNamespaces and PVC selector.');
-  const v=n('VolumeReplicationGroup','Generated application VRG','Each spoke / namespace from DRPC + ManifestWork (verify)','Ramen reconciles selected PVCs and desired role. VRG namespace is not necessarily the protected workload namespace; inspect DRPC app-namespace annotation and delivered ManifestWork.');
+  const v=n('VolumeReplicationGroup',drpc,'Each spoke / openshift-dr-ops','Live inventory: VRG name matches DRPC, in openshift-dr-ops on both spokes. Protected PVCs remain in the workload namespace. Windows managed VRG is not configured.');
   const m=n('VirtualMachine',vm,spoke,'VM configuration references root/data disks; starts a VirtualMachineInstance and launcher Pod.');
   const lanes=[
     ['Policy and DR site eligibility',[
@@ -81,12 +80,12 @@
     ],['same site identity','drClusters[]','drPolicyRef']],
     ['DR placement and console observation',[
       d,n('Placement',placement,hub,'DRPC placementRef; DR controls the decision instead of ordinary scheduling.'),
-      n('PlacementDecision','Controller-generated name',hub,'status.decisions selects the active spoke.'),
-      n('ProtectedApplicationView','Discover instance / namespace','Hub / namespace unverified','Orchestrator correlates DRPC/application state for the UI. Observation, not deployment.')
+      n('PlacementDecision',decision,hub,'Observed controller-generated instance; status.decisions selects the active spoke. Names are a snapshot, not a universal naming guarantee.'),
+      n('ProtectedApplicationView',drpc,hub,'Live hub inventory verifies this per-DRPC view in openshift-dr-ops. Orchestrator correlates DRPC/application state for the UI. Observation, not deployment; Windows managed view is not configured.')
     ],['placementRef','decision status','UI correlates decision + DRPC']],
     ['Cross-cluster delivery and status',[
-      d,n('ManifestWork','Generated per spoke','Hub / spoke-0 or spoke-1','ACM agent delivers VRG and related control resources.'),v,
-      n('ManagedClusterView','Generated where used','Hub / managed-cluster namespace','Observes spoke resource status for hub reconciliation; does not own the VRG.')
+      d,n('ManifestWork',pending?'Not configured':drpc+'-openshift-dr-ops-vrg-mw','Hub / spoke-0 + spoke-1','One observed instance in each hub spoke namespace. ACM agent delivers the VRG to openshift-dr-ops on that spoke.'),v,
+      n('ManagedClusterView',pending?'Not configured':drpc+'-openshift-dr-ops-vrg-mcv','Hub / spoke-0 + spoke-1','One observed instance in each hub spoke namespace. Observes remote VRG status; does not own the VRG.')
     ],['Ramen reconciles','delivers VRG','observes status']],
     ['Protected disk replication',[
       v,n('VolumeReplication','One per selected PVC',spoke,'dataSource references PVC; desired role drives Dell replication.'),
@@ -95,77 +94,77 @@
       n('Array replica volumes','VSA-A / VSA-B','External / no namespace','Array-native block replication, separate from S3 and Git.','external')
     ],['creates for PVC','class reference','controller interprets','array API']],
     ['VM disk provisioning and binding',[
-      m,n('DataVolume',pending?'Root/data names TBD':`${vm}-rootdisk / ${vm}-datadisk`,spoke,'CDI provisions initial disks and owns corresponding PVCs. Recovery must reuse promoted disks.'),
-      n('PersistentVolumeClaim',pending?'Root/data names TBD':`${vm}-rootdisk / ${vm}-datadisk`,spoke,'VRG selects protected disks; excludes unlabeled CDI temporary claims.','builtin'),
+      m,n('DataVolume',pending?'Not configured':`${vm}-rootdisk / ${vm}-datadisk`,spoke,'CDI provisions initial disks and owns corresponding PVCs. Recovery must reuse promoted disks.'),
+      n('PersistentVolumeClaim',pending?'Not configured':`${vm}-rootdisk / ${vm}-datadisk`,spoke,'VRG selects protected disks; excludes unlabeled CDI temporary claims.','builtin'),
       n('PersistentVolume','Dynamic / restored name','Spokes / cluster-scoped','PVC binding; CSI volume handle identifies the actual array disk.','builtin'),
       n('VolumeAttachment','Generated attachment','Spokes / cluster-scoped','References PV + worker; CSI publishes disk to the VM launcher.','builtin')
     ],['references disk','owns initial PVC','volumeName binding','PV + worker']],
     ['Kubernetes object protection (not block data)',[
-      v,n('DataProtectionApplication','Discover configured instance','Spokes / openshift-adp','Runs Velero/plugins. Ramen requests capture/restore via kubeObjectProtection.'),
-      n('Backup / Restore','Run-generated instances','Spokes / openshift-adp','Selected Kubernetes objects, including VM configuration and dependencies.'),
-      n('BackupStorageLocation','Ramen-selected location','Spokes / openshift-adp','S3 endpoint and credential reference; inspect actual location name.'),
+      v,n('DataProtectionApplication','velero','Spokes / openshift-adp','Observed on both spokes. Runs Velero/plugins; Ramen requests capture/restore via kubeObjectProtection.'),
+      n('Backup / Restore','No current CR instances','Spokes / openshift-adp','Read-only inventory returned no Backup or Restore CRs. Run-generated names are transient; absence of a CR does not establish absence of a stored S3 archive.'),
+      n('BackupStorageLocation',bsl,'Spokes / openshift-adp',pending?'Windows managed location is not configured.':`Observed locations for slots 0 and 1. ${id==='292'?'Present on spoke-0; no dell-vm-drpc location on spoke-1 in this snapshot. This alone does not establish a recovery failure.':'Present on both spokes.'} S3 endpoint/credential references, not proof of archive completion.`),
       n('MinIO / S3','ramen-metadata','Hub / minio','Metadata and object archives; not VM disk writes.','external')
     ],['requests via Velero','executes backup / restore','storageLocation','S3 archive']]
   ];
   if(managed) lanes.push(
     ['GitOps workload handoff (intended; acceptance must be demonstrated)',[
-      n('PlacementDecision',pending?'TBD':placement+' decision',hub,'Selects a registered destination cluster.'),
-      n('ApplicationSet',pending?'TBD':'dell-vm-workload',hub,'clusterDecisionResource reads decision using built-in ConfigMap acm-placement.'),
-      n('Application',pending?'TBD':'dell-vm-workload-{{name}}','Hub / generated namespace to verify','Source: upstream ocp-4.22-rhdr-dell, clusters/dell-s4/workloads (RHEL reference).'),m
+      n('PlacementDecision',decision,hub,'Selects a registered destination cluster.'),
+      n('ApplicationSet',pending?'Not configured':'dell-vm-workload',hub,'Observed RHEL instance: Degraded, no clusterDecisionResources found. Generator uses acm-placement; existence is not a functioning handoff.'),
+      n('Application',pending?'Not configured':'No current instances; template dell-vm-workload-{{name}}',hub,'No Application instances returned by live hub inventory. Template source: upstream ocp-4.22-rhdr-dell, clusters/dell-s4/workloads (RHEL reference). Template is not an observed deployment.'),m
     ],['generator reads','generates','Argo CD syncs']],
     ['GitOps registration (separate from DR Placement)',[
-      n('ManagedClusterSet / Binding','Discover set / binding','Hub / set cluster-scoped; binding namespaced','Binding makes the set available to Placement in the binding namespace.'),
+      n('ManagedClusterSet / Binding','default / default','Hub / cluster-scoped; openshift-gitops + openshift-dr-ops','Observed default ManagedClusterSet and default bindings in openshift-gitops and openshift-dr-ops. Registration Placement remains separate from DR Placement.'),
       n('Placement','all-openshift-clusters','Hub / openshift-gitops','Registration selection, not the DR workload decision.'),
       n('GitOpsCluster','argo-acm-clusters','Hub / openshift-gitops','Uses registration Placement and supplies Argo CD cluster-registration Secrets.'),
-      n('ArgoCD','Discover actual instance','Hub / openshift-gitops','Requires registered destinations, watch scope and RBAC to reconcile Applications.')
+      n('ArgoCD','openshift-gitops','Hub / openshift-gitops','Observed instance in openshift-gitops. Requires registered destinations, watch scope and RBAC to reconcile Applications.')
     ],['exposes clusters','placementRef','registers for']]
   );
   lanes.push(
     ['Virtualization installation and execution',[
       n('HyperConverged','kubevirt-hyperconverged','Spokes / openshift-cnv','Installation CR enables virtualization.'),
-      n('KubeVirt / CDI','Discover child instance names','Spokes / inspect child scopes','HCO reconciles virtualization and disk import controllers.'),m,
+      n('KubeVirt / CDI','kubevirt-kubevirt-hyperconverged / cdi-kubevirt-hyperconverged','Spokes / openshift-cnv + cluster-scoped','Observed KubeVirt in openshift-cnv and cluster-scoped CDI on both spokes. HCO reconciles virtualization and disk import controllers.'),m,
       n('VirtualMachineInstance',vm,spoke,'Running guest instance; launcher Pod attaches the selected disks.')
     ],['reconciles','controllers implement','starts instance']],
     ['Operator installation (recorded mechanism, not an active upgrade)',[
       n('CatalogSource','rhdr-staging-catalog','All clusters / openshift-marketplace','Supplies RHDR bundles; catalog readiness does not prove an upgrade.'),
-      n('Subscription','No active RHDR instance in later snapshot','RHDR / openshift-dr-system','Historical installation mechanism; inspect current selection.'),
-      n('InstallPlan','Generated when subscribed','Operator installation namespace','Resolves selected bundle and install steps.'),
-      n('ClusterServiceVersion','Installed staging CSV','RHDR / openshift-dr-system','Defines installed operator and its controller workload.')
+      n('Subscription','No active RHDR instance in recorded snapshot','RHDR spokes / openshift-dr-system','Historical installation mechanism; absence of a Subscription does not mean the installed CSV/controller is absent.'),
+      n('InstallPlan','Run-generated installation record','RHDR spokes / openshift-dr-system','Historical OLM installation dependency; not an active workload-recovery resource.'),
+      n('ClusterServiceVersion','rhdr-cluster-operator.v4.22.0-86.stable','RHDR spokes / openshift-dr-system','Observed spoke CSV. Hub hub/multicluster CSVs are separate from this spoke controller.')
     ],['bundle catalog','resolves bundle','installs CSV']],
     ['Conditional API dependencies (not established workload instances)',[
-      n('Recipe','Instance usage unverified','Spokes / namespace unverified','CRD installed for controller API dependency; selected workload recipeRef must be inspected.'),
-      n('VolumeGroupReplication','Instance usage unverified','Spokes / protected namespace if used','Group-replication branch, not inferred from two individual VM disks.'),
+      n('Recipe','No current instances','Spokes / namespaced (no instances)','Namespaced CRD present, but no Recipe instances returned on either spoke. No active Recipe namespace to label.'),
+      n('VolumeGroupReplication','No selected-workload instances','Unrelated spoke-0 example / test','Only observed instance is vgr-4251c970ec7af885d6ec79c1d2c40661-busybox in spoke-0/test, unrelated to these workloads. No instance on spoke-1.'),
       n('VolumeGroupReplicationClass','powerstore-vgrc-5m (initial setup)','Spokes / cluster-scoped','Class for the optional group replication branch.'),
-      n('VolumeGroupSnapshotClass','CRD installed; instance unverified','Spokes / cluster-scoped','Separate snapshot branch/API dependency, not proof of a configured snapshot class.')
+      n('VolumeGroupSnapshotClass','No current instances','Spokes / cluster-scoped','CRD installed; no configured class instances returned on either spoke. Separate, conditional snapshot branch.')
     ],[null,'class if group API used',null]]
   );
   const section=document.createElement('section');section.id='resource-dependencies';
   const used=[...new Set(lanes.flatMap(([,nodes])=>nodes.flatMap(a=>namespaces(a.scope))))];
   const badges=a=>namespaces(a.scope).map(key=>`<span class="namespace-badge" style="--ns-color:${palette[key]}">${esc(key)}</span>`).join('');
   section.innerHTML=`<h2>CRD dependency diagram and namespaces</h2><p>A CustomResourceDefinition (CRD) itself is always cluster-scoped. The custom resources it defines can be namespaced or cluster-scoped, according to the CRD's <code>spec.scope</code>. These cards show <b>custom-resource instances</b> and their cluster/namespace, plus the built-in resources and services they depend on. Card stripes and badges identify namespace/scope; resource type is labeled separately. Connections describe references, reconciliation or observation, not universal ownership. Open <b>Use and why needed</b> on any card for an explanation (click, tap or keyboard).</p>
-    <div class="notice">Recorded configuration and intended architecture, not live state. Repeated cards represent the same object in different dependency paths; each spoke has separate instances. Generated names and unverified namespaces are explicit. ${pending?'Windows managed workload names and namespace are TBD; shared infrastructure is a reference model, not an observed Windows deployment.':`Protected namespace: <b>${ns}</b>. Hub DR enrollment: <b>openshift-dr-ops</b>.`} ${managed?'The fixed-spoke bootstrap Application is not part of the Placement-driven handoff.':'GitOps workload reconciliation is N/A here; ArgoCD APIs remain an orchestrator installation prerequisite.'}</div>
+    <div class="notice"><b>Resource identity snapshot: 2026-10-04, read-only inventory of hub edge36 and spokes edge95/edge97.</b> Concrete names/scopes below were observed; recovery connections remain intended handoffs, not a completed test or continuous monitoring. Repeated cards represent the same object. VM/VMI instances for all three configured workloads were on spoke-0, with none on spoke-1. ${pending?'Windows managed workload resources are not configured; shared infrastructure is verified, but it is not an observed Windows managed deployment.':`Protected namespace: <b>${ns}</b>. Hub DRPC/PAV and both spoke VRGs: <b>openshift-dr-ops/${drpc}</b>.`} ${managed?'The historical fixed-spoke bootstrap is not proof of Placement-driven handoff; no Applications were returned in the current inventory.':'GitOps workload reconciliation is N/A here; ArgoCD APIs remain an orchestrator installation prerequisite.'}</div>
     <div class="namespace-legend" aria-label="Namespace color legend">${used.map(key=>`<span class="namespace-badge" style="--ns-color:${palette[key]}">${esc(key)}</span>`).join('')}</div>
     <div class="toolbar"><button id="resource-fit">Fit dependencies</button><button id="resource-reset">100%</button><button id="resource-expand">Expand explanations</button><button id="resource-collapse">Collapse explanations</button><span class="muted">Scroll horizontally at full scale. Each row traces a labeled dependency path.</span></div>
     <div class="wrap" id="resource-wrap"><div class="sizer" id="resource-sizer"><div id="resource-dia"><svg id="resource-svg" aria-hidden="true"></svg>${lanes.map(([title,nodes],row)=>`<div class="resource-lane-title" data-row="${row}">${esc(title)}</div>${nodes.map((a,col)=>`<article class="resource-node" data-row="${row}" data-col="${col}" data-type="${a.type}" style="--ns-color:${namespaces(a.scope).length===1?palette[namespaces(a.scope)[0]]:palette['mixed scope']}"><small>${esc(a.scope)}</small><div class="namespace-badges">${badges(a)}</div><small class="resource-type">${a.type==='cr'?'Custom resource':a.type==='builtin'?'Built-in resource':'Controller / external service'}</small><h3>${esc(a.kind)}</h3><b>${esc(a.name)}</b><details><summary>Use and why needed<span class="sr-only">: ${esc(a.kind)}</span></summary><p><strong>Used for:</strong> ${esc(a.detail)}</p><p><strong>Why needed:</strong> ${esc(why[a.kind])}</p></details></article>`).join('')}`).join('')}</div></div></div>
     <h3>Supporting configuration and conditional custom resources</h3><div class="table-wrap"><table><thead><tr><th>Kind / resource</th><th>Cluster / namespace or scope</th><th>Relationship and applicability</th></tr></thead><tbody>
-    <tr><td>DRClusterConfig</td><td>Spokes / cluster-scoped; discover instance name</td><td>Cluster controller configuration. Setup records its controller startup; inspect delivered configuration.</td></tr>
-    <tr><td>HyperConverged; KubeVirt; CDI</td><td>Spokes / kubevirt-hyperconverged in openshift-cnv; inspect child scopes</td><td>Virtualization installation provides VM/VMI and CDI DataVolume controllers.</td></tr>
+    <tr><td>DRClusterConfig</td><td>Cluster-scoped: spoke-0 on edge95; spoke-1 on edge97</td><td>Observed cluster controller configuration instances.</td></tr>
+    <tr><td>HyperConverged; KubeVirt; CDI</td><td>Each spoke: openshift-cnv/kubevirt-hyperconverged; openshift-cnv/kubevirt-kubevirt-hyperconverged; cluster-scoped cdi-kubevirt-hyperconverged</td><td>Observed virtualization and disk-import configuration instances. CDI is cluster-scoped, not in openshift-cnv.</td></tr>
     <tr><td>DataSource</td><td>RHEL: openshift-virtualization-os-images/rhel9</td><td>Initial RHEL rootdisk sourceRef. Windows discovered uses golden PVC windows-golden-images/windows-server-2022-standard (built-in). Fresh cloning is not recovery.</td></tr>
     <tr><td>StorageClass; CSIDriver</td><td>Spokes / cluster-scoped (built-in)</td><td>PVC powerstore-sc selects csi-powerstore.dellemc.com; PV holds disk handle. Controllers run in powerstore.</td></tr>
-    <tr><td>Recipe; VolumeGroupReplication; VolumeGroupReplicationClass; VolumeGroupSnapshotClass</td><td>Spokes / Recipe and group replication namespaced; classes cluster-scoped</td><td>Recipe/group-snapshot APIs were installed to satisfy controller dependencies. powerstore-vgrc-5m is initial provider setup, not proof a selected workload uses group replication. Group/snapshot instance names and usage are unverified.</td></tr>
-    <tr><td>CatalogSource; Subscription; InstallPlan; ClusterServiceVersion</td><td>Catalog: openshift-marketplace; RHDR: openshift-dr-system; GitOps/orchestrator: inspect openshift-operators</td><td>OLM installation: catalog supplies bundle, Subscription requests version, InstallPlan installs CSV/controller. Later Setup snapshot has staging CSVs with no active Subscriptions; do not assume an active upgrade chain.</td></tr>
-    <tr><td>ManagedClusterSet / Binding; Klusterlet; MultiClusterHub / MultiClusterEngine</td><td>Hub set and spoke Klusterlet cluster-scoped; binding in Placement namespace; discover ACM/MCE installation namespaces</td><td>Cluster selection, agent delivery and ACM/MCE installation underpin the DR chain. Binding exposes a set to Placement; agent applies ManifestWork.</td></tr>
+    <tr><td>Recipe; VolumeGroupReplication; VolumeGroupReplicationClass; VolumeGroupSnapshotClass</td><td>Spokes / Recipe and group replication namespaced; classes cluster-scoped</td><td>No Recipe or VolumeGroupSnapshotClass instances observed. Group replication exists only in unrelated spoke-0/test. powerstore-vgrc-5m is initial provider setup, not evidence these workloads use group replication.</td></tr>
+    <tr><td>CatalogSource; Subscription; InstallPlan; ClusterServiceVersion</td><td>Catalog: openshift-marketplace; spoke RHDR CSV: openshift-dr-system; hub GitOps/RHDR controllers: openshift-operators</td><td>OLM installation path, distinct from workload recovery. Recorded absence of active RHDR Subscriptions does not remove installed CSV/controller instances.</td></tr>
+    <tr><td>ManagedClusterSet / Binding; Klusterlet; MultiClusterHub / MultiClusterEngine</td><td>Hub default/global sets: cluster-scoped; default bindings: openshift-dr-ops and openshift-gitops; spoke Klusterlet: cluster-scoped klusterlet; hub MCH: rhacm/multiclusterhub; MCE: cluster-scoped multiclusterengine</td><td>Observed identities for cluster selection, agent delivery and management installation. MCE operator namespace is multicluster-engine; its CR is cluster-scoped.</td></tr>
     <tr><td>Secret; ConfigMap; Service; Route; Deployment; Pod</td><td>Built-in, namespace of consuming controller or workload</td><td>Ramen S3 profiles/CA and ramen-s3-secret; RHEL cloudinit-hammerdb in VM namespace; managed acm-placement in openshift-dr-ops and cluster-registration Secrets in openshift-gitops; CSI array configuration and MinIO routing. No credential values shown.</td></tr>
     <tr><td>MirrorPeer; Submariner; DellCSIReplicationGroup</td><td>Not in this active Dell recovery path</td><td>ODF networking/replication and retired Dell CSM configuration must not be confused with csi-addons VolumeReplication.</td></tr>
     </tbody></table></div><p><b>How to trace a failure:</b> DRPC reference/validation, PlacementDecision, ManifestWork delivery, VRG/PVC selection, per-disk replication, target PV/attachment, object restore or GitOps destination reconciliation, then VM/VMI and guest. Follow actual owner references to distinguish ownership from a selector or status view.</p>
     <p>Sources: <a href="https://docs.google.com/document/d/1npumTvaf2SRj2wdEUoBBuYLZXwqXxJNUvY3SNqrLfe0/edit">Setup Doc, installation/transition and Step 11</a> · <a href="https://github.com/elsapassaro/ramendr-starter-kit/tree/ocp-4.22-rhdr-dell/clusters/dell-s4/hub-dr">Verified upstream DRPC / Placement / ApplicationSet</a>. Read live references before treating recorded names as current state.</p>`;
   const anchor=[...document.querySelectorAll('h2')].find(el=>el.textContent==='Start-to-finish flow');anchor.before(section);
   const supporting={
-    DRClusterConfig:['Spoke-side DR cluster configuration.','Provides cluster-specific settings used by the Ramen cluster controller; discover the actual instance.'],
+    DRClusterConfig:['Spoke-side DR cluster configuration: spoke-0 and spoke-1.','Provides cluster-specific settings used by the Ramen cluster controller; both instances are cluster-scoped.'],
     DataSource:['CDI reference to an image source such as rhel9.','Decouples initial rootdisk population from the underlying image PVC. It is not the failover disk source.'],
     Klusterlet:['ACM agent configuration on an imported spoke.','Enables the agents that receive hub work and report managed-cluster state.'],
-    MultiClusterHub:['ACM installation configuration.','Provides the hub management services behind cluster import, selection and observation; not a per-workload failover trigger.'],
-    MultiClusterEngine:['MCE installation configuration.','Provides cluster lifecycle/registration infrastructure supporting ACM delivery; inspect its actual installation namespace.'],
+    MultiClusterHub:['ACM installation configuration: rhacm/multiclusterhub.','Provides hub management services behind cluster import, selection and observation; not a per-workload failover trigger.'],
+    MultiClusterEngine:['MCE installation configuration: cluster-scoped multiclusterengine.','Provides cluster lifecycle/registration infrastructure; operator runs in multicluster-engine.'],
     MirrorPeer:['ODF multicluster storage relationship.','Not needed by this Dell array-native path; shown only to distinguish the ODF architecture.'],
     Submariner:['Cross-cluster networking configuration.','Not part of the current Dell path; array replication does not use an ODF pod-network tunnel.'],
     DellCSIReplicationGroup:['Resource from the retired Dell CSM replication path.','Not needed by the active Ramen/csi-addons VolumeReplication workflow.']

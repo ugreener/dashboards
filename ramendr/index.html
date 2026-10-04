@@ -120,6 +120,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 
 <div class="callout"><b>Recorded configuration, not live monitoring.</b> Diagram placement shows the home/preferred baseline on spoke-0, not a current-state observation. The <a href="https://docs.google.com/document/d/1npumTvaf2SRj2wdEUoBBuYLZXwqXxJNUvY3SNqrLfe0/edit">Setup Doc</a>'s latest recorded RHEL UI failover ended on spoke-1; Windows Step 10 records deployment on spoke-0. Verify live placement and protection before operations. GitOps-managed end-to-end recovery and Relocate/failback remain unverified in the doc. Version/readiness badges below are recorded snapshots.</div>
+<div class="callout"><b>Read-only identity and placement snapshot: 2026-10-04.</b> RHEL, Windows and gitops-vms VM/VMI instances are on spoke-0; none are on spoke-1. Their PlacementDecisions select spoke-0. Hub ProtectedApplicationViews are <code>openshift-dr-ops/hammerdb-drpc</code>, <code>openshift-dr-ops/hammerdb-win-drpc</code> and <code>openshift-dr-ops/dell-vm-drpc</code>; matching VRGs exist in <code>openshift-dr-ops</code> on both spokes. Both spokes have <code>openshift-adp/velero</code> DPA. Hub ArgoCD is <code>openshift-gitops/openshift-gitops</code>; <code>openshift-dr-ops/dell-vm-workload</code> ApplicationSet is Degraded with “no clusterDecisionResources found”, and no Applications were listed. Windows managed resources are not configured. These observations identify resources, not array health, archive completeness or successful managed recovery. Discovered DRPCs report FailedOver/Completed with preferredCluster spoke-1 and failoverCluster spoke-0; current PlacementDecision and VM location are spoke-0.</div>
 <p class="scroll-hint">Scroll or use the zoom controls to see the full architecture. Hover over cards and connecting lines for details.</p>
 
 <div class="zoom-toolbar" role="toolbar" aria-label="Diagram zoom">
@@ -143,7 +144,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="hyper-bar" style="top:38px">
 <div class="step-badge dep">Deployed</div>
 <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">Dedicated hub hypervisor</div>
-<div style="font-size:10px;color:var(--muted);margin-top:2px">edge36 | host OS/hardware and proxy service require verification</div>
+<div style="font-size:10px;color:var(--muted);margin-top:2px">edge36 | RHEL 9.6 | Xeon Gold 5218R, 80 logical CPUs | squid active (Oct 4)</div>
 </div>
 <div class="nat-line" style="top:122px"><span>NAT BOUNDARY (only 10.46.46.x routable)</span></div>
 <div class="card" id="hub" style="top:146px;left:24px;width:290px;border-color:var(--purple)">
@@ -183,8 +184,8 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="site-label" style="color:var(--cyan)">SITE B: ocp-edge95 (10.46.46.74) - SPOKE 1</div>
 <div class="hyper-bar" style="top:38px">
 <div class="step-badge dep">Deployed</div>
-<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">Dedicated spoke-0 hypervisor (OS/hardware unverified here)</div>
-<div style="font-size:10px;color:var(--muted);margin-top:2px">Dedicated host - big workers, CNV-ready</div>
+<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">Dedicated spoke-0 hypervisor</div>
+<div style="font-size:10px;color:var(--muted);margin-top:2px">RHEL 9.6 | Xeon Gold 5218R, 80 logical CPUs (Oct 4 inventory)</div>
 </div>
 <div class="nat-line" style="top:122px"><span>NAT BOUNDARY</span></div>
 <div class="card" id="spoke1" style="top:146px;left:24px;width:290px;border-color:var(--cyan)">
@@ -251,8 +252,8 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="site-label" style="color:var(--cyan)">SITE C: ocp-edge97 (10.46.46.76) - SPOKE 2</div>
 <div class="hyper-bar" style="top:38px">
 <div class="step-badge dep">Deployed</div>
-<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">Dedicated spoke-1 hypervisor (OS/hardware unverified here)</div>
-<div style="font-size:10px;color:var(--muted);margin-top:2px">Dedicated host - big workers, CNV-ready</div>
+<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-top:2px">Dedicated spoke-1 hypervisor</div>
+<div style="font-size:10px;color:var(--muted);margin-top:2px">RHEL 8.6 | Xeon Gold 5218R, 80 logical CPUs (Oct 4 inventory)</div>
 </div>
 <div class="nat-line" style="top:122px"><span>NAT BOUNDARY</span></div>
 <div class="card" id="spoke2" style="top:146px;left:24px;width:290px;border-color:var(--cyan)">
