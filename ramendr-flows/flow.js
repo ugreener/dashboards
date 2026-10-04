@@ -226,7 +226,11 @@ Hub GitOps
   document.getElementById('reset').onclick=()=>{z=1;scale();};
   window.addEventListener('resize',draw);document.fonts.ready.then(draw);
   function loadPodcast() {
-    const script = document.createElement('script'); script.src = '../podcast.js'; document.head.append(script);
+    const episodes = document.createElement('script'); episodes.src = '../episodes.js';
+    episodes.onload = () => {
+      const script = document.createElement('script'); script.src = '../podcast.js'; document.head.append(script);
+    };
+    document.head.append(episodes);
   }
   if (configuration) {
   const resourceStyles=document.createElement('link');resourceStyles.rel='stylesheet';resourceStyles.href='../resources.css';

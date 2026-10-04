@@ -3,75 +3,13 @@
   const app = document.getElementById('app');
   const synth = window.speechSynthesis;
   const supported = !!synth && typeof SpeechSynthesisUtterance === 'function';
-  const clean = text => text.replace(/\s+/g, ' ').trim();
-  const chapters = [];
-  const explanations = {
-    'Topology and the three independent recovery paths': 'Think of recovery as separate but cooperating paths. Replicated blocks preserve disk contents. Kubernetes object protection preserves the definitions needed to recreate the workload. DR control coordinates the selected site and storage roles. Managed applications add GitOps reconciliation. A successful result needs these paths to agree; one healthy component does not prove the whole recovery works.',
-    'CRD dependency diagram and namespaces': 'We will walk through every dependency lane and every resource card, including the explanations hidden behind expanders. A resource definition supplies an API; an instance supplies a particular configuration or observed state. Namespace and cluster scope determine where to inspect that instance. A reference, delivery connection, and observation connection have different meanings, and none should automatically be interpreted as ownership.',
-    'Pre-failover readiness gates': 'This page describes the baseline that must be established before a test. Inventory identifies the exact workload and its owners. Object recovery or a functioning GitOps handoff establishes how the VM configuration reaches the target. Source services and writes provide the database baseline. Every backing disk must meet the actual replication interval. Console and controller evidence then establishes the starting state.',
-    'Start-to-finish flow': 'The flow is a sequence of verification gates, not a timer or an automated execution. First confirm the paired configuration against fresh evidence. Then initiate through the authorized hub UI, verify promoted target disks, and follow the application-specific cleanup or reconciliation path. Guest recovery, exact history-gap analysis, Windows desktop verification when applicable, and stopping the writer complete the procedure.',
-    'Detailed handoffs and blocking gates': 'Each stage names the responsible surface, the individual observations or actions, and the gate that blocks progress. Listen to each item separately. A completed earlier stage is not permission to skip a later gate. Discovered applications require separately authorized source cleanup; managed applications require evidence of automatic controller reconciliation.',
-    'Resource map and configuration evidence': 'The next material preserves exact resource identities and configuration syntax. These names connect the hub view to spoke-local objects. The date and scope matter: recorded identities are not continuous monitoring. A repository excerpt establishes committed configuration, not proof that a live controller uses it or has reconciled it.',
-    'Read-only inspection and database examples': 'Inspection commands reveal configuration and observed state without changing the cluster. Context names and time ranges explicitly marked as placeholders must be resolved before use. Database history queries distinguish recovered writes from new writes after restart. Total order counts alone cannot establish the recovery gap or an exact loss verdict.',
-    'Evidence capture map': 'The evidence matrix specifies baseline, transition and completion observations for each surface. Read each row as a chain of proof: what was true before initiation, what changed during recovery, and what confirms completion. Browser screenshots and timestamped guest or database command output serve different purposes and must be paired.',
-    'Known history and diagnostic boundaries': 'Historical defects explain earlier observations, but their ticket state does not establish current reproduction or current health. Preserve the distinction between a recorded test, an intended handoff, and a verified live result. Old array symptoms and addresses do not by themselves identify a Ramen fault.',
-    'Run acceptance checklist': 'This checklist is a reviewer aid. Checking a box changes neither a cluster nor Jira, and does not create evidence. Each statement must be backed by the run-specific observations described earlier.'
-  };
-  function read(el) {
-    if (el.nodeType === Node.TEXT_NODE) return el.textContent;
-    if (el.nodeType !== Node.ELEMENT_NODE) return '';
-    if (['SCRIPT', 'STYLE', 'INPUT'].includes(el.tagName)) return '';
-    if (el.tagName === 'BR') return '\n';
-    if (el.tagName === 'SVG') {
-      const labels = [...el.querySelectorAll('text')].map(e => clean([...e.querySelectorAll('tspan')].map(t => t.textContent).join(' ') || e.textContent));
-      return labels.length ? '\nConnection labels, in diagram order: ' + labels.join('; ') + '.\n' : '';
-    }
-    if (el.tagName === 'TABLE') {
-      const headers = [...el.querySelectorAll('thead th')].map(e => clean(e.textContent));
-      return '\nTable columns: ' + headers.join('; ') + '.\n' + [...el.querySelectorAll('tbody tr')].map((row, i) =>
-        `Row ${i + 1}. ` + [...row.cells].map((cell, j) => `${headers[j] || 'Column ' + (j + 1)}: ${clean(read(cell))}`).join('. ') + '.\n'
-      ).join('');
-    }
-    if (el.tagName === 'PRE') {
-      const code = el.textContent.trim();
-      let context = 'This block preserves the exact recorded resource tree or example. Indentation expresses relationships, not verified ownership.';
-      if (code.includes('oc --context')) context = 'These are OpenShift read-only inspection commands. The context selects the cluster, get selects the resource, namespace narrows the scope, and YAML exposes fields and conditions. Read all comments for placeholder and applicability limits.';
-      else if (code.includes('SELECT')) context = 'These read-only SQL statements group history writes by minute, locate the timestamp boundary, count rows in the recovery window, and inspect the order baseline. Substitute the actual time range and verify the database timezone; recovered rows must be compared with source evidence.';
-      else if (code.includes('metadata:')) context = 'This partial YAML names the ApplicationSet and its namespace. The decision-resource generator reads a labeled PlacementDecision. The source specifies the authoritative repository, revision and path; destination identifies the generated target; automated prune and self-heal describe reconciliation intent, not proof of a working handoff.';
-      return '\n' + context + '\nFull block, line by line:\n' + code.split('\n').map((line, i) => `Line ${i + 1}: ${line || 'blank line'}`).join('\n') + '\n';
-    }
-    if (el.tagName === 'A') {
-      const text = [...el.childNodes].map(read).join('');
-      return ' ' + text + (el.getAttribute('href') ? ` (link: ${el.getAttribute('href')})` : '') + ' ';
-    }
-    const text = [...el.childNodes].map(read).join('');
-    if (el.classList.contains('namespace-badge')) return ' ' + text + ' ';
-    if (el.tagName === 'LI') return '\nItem: ' + text + '\n';
-    if (el.tagName === 'LABEL') return '\nChecklist or control: ' + text + '\n';
-    if (el.classList.contains('resource-node')) return '\nResource card. ' + text + '\n';
-    if (el.classList.contains('resource-lane-title')) return '\nDependency lane: ' + text + '\n';
-    if (el.tagName === 'SUMMARY') return '\nExpandable explanation: ' + text + '\n';
-    if (['P', 'DIV', 'SECTION', 'ARTICLE', 'FOOTER', 'NAV', 'H1', 'H2', 'H3', 'DETAILS', 'SMALL'].includes(el.tagName)) return '\n' + text + '\n';
-    return text;
-  }
-  const intro = `Welcome to the detailed podcast walkthrough of ${document.title}. This episode covers the information on this dashboard, including collapsed explanations, resource cards, table cells, exact code examples, evidence limits, acceptance items and reference links. It describes the page, not current cluster health. Playback never performs any of the operations described. Chapters follow the page order. You can listen using your browser reader or download the complete transcript.`;
-  chapters.push({title: 'Introduction, scenario and evidence boundaries', text: intro});
-  for (const el of app.children) {
-    if (el.tagName === 'H2') {
-      const title = clean(el.textContent);
-      chapters.push({title, text: `${title}.\n${explanations[title] || ''}`});
-    } else if (el.id === 'resource-dependencies') {
-      chapters.push({title: 'Resource dependencies, every lane and explanation', text: explanations['CRD dependency diagram and namespaces'] + '\n' + read(el)});
-    } else {
-      chapters.at(-1).text += '\n' + read(el);
-    }
-  }
+  const chapters = window.buildDellPodcast(document.body.dataset.flow, document.body.dataset.view);
   const section = document.createElement('section');
   section.id = 'podcast';
   section.className = 'panel';
   section.style.margin = '20px 0';
   section.innerHTML = `<h2 style="margin-top:0">Podcast: detailed dashboard walkthrough</h2>
-    <p>A complete, chaptered podcast script with additional explanations. Includes collapsed resource details, tables, exact code examples and references. Open the reader-friendly episode to listen with your browser reader, or use the optional speech controls below.</p>
+    <p>An authored podcast episode: follow the recovery story, understand why each component matters, and hear the evidence explained in plain language. Technical examples are explained rather than read as code. Open the reader-friendly episode for your browser reader, or use the optional speech controls below.</p>
     <div class="toolbar"><button id="pod-reader">Open reader-friendly episode</button><button id="pod-save-transcript">Download complete transcript</button></div>
     <details><summary>Optional browser narration (voice availability depends on your device)</summary>
     <div class="toolbar"><button id="pod-play">Play episode</button><button id="pod-pause">Pause</button><button id="pod-resume">Resume</button><button id="pod-stop">Stop</button><button id="pod-prev">Previous chapter</button><button id="pod-next">Next chapter</button></div>
