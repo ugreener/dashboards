@@ -158,7 +158,7 @@
     <tr><td>MirrorPeer; Submariner; DellCSIReplicationGroup</td><td>Not in this active Dell recovery path</td><td>ODF networking/replication and retired Dell CSM configuration must not be confused with csi-addons VolumeReplication.</td></tr>
     </tbody></table></div><p><b>How to trace a failure:</b> DRPC reference/validation, PlacementDecision, ManifestWork delivery, VRG/PVC selection, per-disk replication, target PV/attachment, object restore or GitOps destination reconciliation, then VM/VMI and guest. Follow actual owner references to distinguish ownership from a selector or status view.</p>
     <p>Sources: <a href="https://docs.google.com/document/d/1npumTvaf2SRj2wdEUoBBuYLZXwqXxJNUvY3SNqrLfe0/edit">Setup Doc, installation/transition and Step 11</a> · <a href="https://github.com/elsapassaro/ramendr-starter-kit/tree/ocp-4.22-rhdr-dell/clusters/dell-s4/hub-dr">Verified upstream DRPC / Placement / ApplicationSet</a>. Read live references before treating recorded names as current state.</p>`;
-  const anchor=[...document.querySelectorAll('h2')].find(el=>el.textContent==='Start-to-finish flow');anchor.before(section);
+  const anchor=[...document.querySelectorAll('h2')].find(el=>el.textContent==='Pre-failover readiness gates');anchor.before(section);
   const supporting={
     DRClusterConfig:['Spoke-side DR cluster configuration: spoke-0 and spoke-1.','Provides cluster-specific settings used by the Ramen cluster controller; both instances are cluster-scoped.'],
     DataSource:['CDI reference to an image source such as rhel9.','Decouples initial rootdisk population from the underlying image PVC. It is not the failover disk source.'],

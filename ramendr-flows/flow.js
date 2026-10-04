@@ -11,6 +11,8 @@
     294: {title:'Windows GitOps-managed application',status:'New',ns:'Not configured',vm:'Not configured',drpc:'Not configured',placement:'Not configured',db:'SQL Server 2022 Express',hdb:'5.0',managed:true,windows:true}
   };
   const id = document.body.dataset.flow, c = configs[id];
+  const configuration = document.body.dataset.view === 'configuration';
+  const viewTitle = configuration ? 'Pre-failover configuration' : 'Failover flow';
   const esc = s => String(s).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
   const jira = key => `<a href="https://redhat.atlassian.net/browse/${key}">${key}</a>`;
   const stage = (title,kind,owner,summary,items,gate) => ({title,kind,owner,summary,items,gate});
@@ -18,7 +20,7 @@
     stage('Inventory and ownership','hub','Hub + both spokes','Identify the exact protected application, both disks and the active DR direction.',[
       `Record DRPC ${c.drpc}, its Placement reference, protected namespace ${c.ns}, VM ${c.vm}, both DataVolumes/PVCs and current source VMI.${c.windows&&c.managed?' First establish and record the unspecified Windows managed object names.':''}`,
       'Read owner references and selectors. Map PlacementDecision, VRG, VolumeReplication, ManifestWork, ManagedClusterView and ProtectedApplicationView where used. Record installed controller versions and readiness.',
-      'This procedure requires source spoke-0 on edge95 and target spoke-1 on edge97. Verify actual placement first: the latest recorded RHEL failover ended on spoke-1. Do not treat this flow as authorization to reset or Relocate a workload.',
+      'This procedure requires source spoke-0 on edge95 and target spoke-1 on edge97. Home baseline and the 2026-10-04 resource snapshot place workloads on spoke-0; earlier recovery on spoke-1 is historical. Verify actual placement before a new run.',
       'Discover current namespaces and console scopes. Hub CR views do not substitute for spoke-local VM, VRG or storage views.'
     ],'Complete the dependency/evidence map before initiation.'),
     stage(c.managed?'Prove GitOps handoff':'Prove object recovery', 'hub',c.managed?'ACM + ApplicationSet + Argo CD':'Ramen + OADP / Velero',c.managed?'A real generated Application must follow PlacementDecision.':'VM configuration and dependencies must be recoverable independently of disk replication.',c.managed?[
@@ -106,6 +108,14 @@
     'Publish run results with before/after screenshot pairs, command evidence, RPO measurements, defects and unavailable views. Compare only applicable behavior with AWS/ODF; do not copy ODF thresholds, MirrorPeer/Submariner checks or cleanup scripts.',
     'End of this flow is recovery on spoke-1 with writers stopped. Relocate/failback is a separate test; after an authorized return, dashboard home placement becomes spoke-0 again.'
   ],'Completion needs placement, protection, guest, RPO and final evidence, not only a success banner.'));
+  const readinessStages = stages.splice(0, 5);
+  if (configuration) stages.splice(0, stages.length, ...readinessStages);
+  else stages.unshift(stage('Confirm configuration gates', 'hub', 'Configuration dashboard + fresh run evidence', 'Revalidate the documented baseline before initiating recovery.', [
+    'Open the paired pre-failover configuration dashboard. Require verified ownership, object recovery or active GitOps handoff, source services and timestamped TPC-C baseline.',
+    'Require every backing disk to pass the replication/RPO gate. Retain source history evidence and sync timestamps for the later continuity comparison.',
+    'Complete baseline Data Services and cross-operator UI verification. A dated resource snapshot is not current test readiness.',
+    'Resolve all managed-app blockers and unspecified Windows resources before proceeding.'
+  ], 'All configuration gates must pass for this run; initiation requires explicit authorization.'));
 
   const rhelRead = `# Read-only examples. Context names are placeholders; map to real kubeconfigs.\noc --context=hub get drpc ${c.drpc} -n openshift-dr-ops -o yaml\noc --context=hub get protectedapplicationview ${c.drpc} -n openshift-dr-ops -o yaml\noc --context=hub get placementdecision ${c.placement}-decision-1 -n openshift-dr-ops -o yaml\noc --context=hub get drpolicy dr-policy-15m -o yaml\noc --context=hub get drcluster spoke-0 spoke-1 -o yaml\noc --context=source get vm,vmi,dv,pvc -n ${c.ns}\n# Verified VRG namespace is separate from the protected PVC namespace.\noc --context=source get vrg ${c.drpc} -n openshift-dr-ops -o yaml\noc --context=target get vrg ${c.drpc} -n openshift-dr-ops -o yaml\noc --context=source get volumereplication -n ${c.ns} -o yaml\noc --context=target get volumereplication -n ${c.ns} -o yaml\noc --context=target get vm,vmi,dv,pvc -n ${c.ns}\noc --context=target get events -n ${c.ns} --field-selector=reason=FailedMount`;
   const sql = c.windows?`-- Read-only SQL Server queries in the recovered tpcc database.\n-- Replace time placeholders after establishing database timezone.\nSELECT CONVERT(VARCHAR(16), h_date, 120) AS minute, COUNT(*) AS rows\nFROM history WHERE h_date BETWEEN '<start>' AND '<end>'\nGROUP BY CONVERT(VARCHAR(16), h_date, 120) ORDER BY 1;\nSELECT MAX(h_date) FROM history;\nSELECT COUNT(*) FROM history\nWHERE h_date BETWEEN '<last_sync>' AND '<last_source_write>';\nSELECT SUM(d_next_o_id) AS total_orders FROM district;`:`-- Read-only PostgreSQL queries in the recovered tpcc database.\n-- Replace time placeholders after establishing database timezone.\nSHOW timezone;\nSELECT date_trunc('minute', h_date) AS minute, count(*) AS rows\nFROM history WHERE h_date BETWEEN '<start>' AND '<end>'\nGROUP BY 1 ORDER BY 1;\nSELECT max(h_date) FROM history;\nSELECT count(*) FROM history\nWHERE h_date BETWEEN '<last_sync>' AND '<last_source_write>';\nSELECT sum(d_next_o_id) FROM district;`;
@@ -149,7 +159,8 @@ Hub GitOps
   Fixed-spoke bootstrap Application: historical, not currently listed`:''}`;
   document.getElementById('app').innerHTML = `
     <nav><a href="../">Flow directory</a><a href="../../ramendr/">Environment</a>${Object.entries(configs).map(([n,v])=>`<a href="../virtdr-${n}/" ${n===id?'aria-current="page"':''}>${n}: ${v.title}</a>`).join('')}</nav>
-    <h1>${jira('VIRTDR-'+id)} · ${c.title}</h1><p class="muted">End-to-end Dell PowerStore asynchronous failover · spoke-0 to spoke-1 · ${jira('VIRTDR-218')}</p>
+    <h1>${jira('VIRTDR-'+id)} · ${viewTitle}</h1><p class="muted">${c.title} · Dell PowerStore · spoke-0 to spoke-1 · ${jira('VIRTDR-218')}</p>
+    <nav aria-label="Scenario dashboards"><a href="configuration.html" ${configuration?'aria-current="page"':''}>Pre-failover configuration</a><a href="failover.html" ${!configuration?'aria-current="page"':''}>Failover flow</a></nav>
     <div class="summary"><div class="panel"><span class="badge">Jira: ${c.status}</span><p>Status snapshot: 2026-10-01. ${c.managed?'Managed failover acceptance is still to be demonstrated.':'Jira records this discovered-flow task as closed; consult recorded evidence for the tested run.'}</p></div><div class="panel"><b>${c.db} + HammerDB ${c.hdb}</b><p>VM: ${c.vm}<br>Protected namespace: ${c.ns}<br>DRPC: ${c.drpc}</p></div><div class="panel"><b>${c.managed?'Controller-managed recovery':'Discovered workload recovery'}</b><p>${c.managed?'PlacementDecision / ApplicationSet / Argo CD; automatic source cleanup is required.':'OADP/Velero object restore; separate authorization is required for source cleanup.'}</p></div></div>
     <div class="notice"><b>Evidence boundaries:</b> this is a procedure diagram with a read-only resource-identity snapshot from 2026-10-04, not continuous monitoring or a completed run record. All three configured VM/VMI workloads and their PlacementDecisions were on spoke-0. Discovered DRPCs were FailedOver/Completed with preferredCluster spoke-1 and failoverCluster spoke-0; do not confuse their historical preferredDecision with current PlacementDecision. Home baseline remains spoke-0. No failover or cluster mutation is executed by this page.</div>
     ${c.windows&&!c.managed?'<div class="notice"><b>Windows result boundary:</b> Step 10 records deployment and protection, not a completed Windows failover. The Closed Jira snapshot is separate from Setup Doc test evidence. Recorded Placement: hammerdb-win-placement; verify the live DRPC placementRef.</div>':''}
@@ -178,6 +189,28 @@ Hub GitOps
     <h2>Run acceptance checklist</h2><p class="muted">Session-only reviewer checklist. Ticking boxes does not execute operations, persist run results or change Jira status.</p><div class="checklist">${checklist.map(t=>`<label><input type="checkbox">${esc(t)}</label>`).join('')}</div>
     <footer>Sources: ${jira('VIRTDR-218')} · ${jira('VIRTDR-'+id)} · <a href="${setup}">Setup Doc</a> · <a href="${notes}">Historical Dell notes</a> · <a href="${repo}/tree/ocp-4.22-rhdr-dell/clusters/dell-s4">Authoritative Dell workload branch</a> · <a href="https://github.com/RamenDR/ramen/blob/main/docs/usage.md">Ramen usage guide</a><p class="muted">Procedure/Jira snapshot: 2026-10-01. Resource identities and placement inspected read-only on hub/both spokes: 2026-10-04. This was not a health check or failover test. Results require run-specific evidence; failback is outside this failover flow.</p></footer>`;
 
+  // Keep each dashboard focused, while sharing the scenario identity and evidence model.
+  function removeSection(title) {
+    const heading = [...document.querySelectorAll('#app > h2')].find(el => el.textContent === title);
+    if (!heading) return;
+    let next = heading.nextElementSibling;
+    while (next && next.tagName !== 'H2' && next.tagName !== 'FOOTER') {
+      const current = next; next = next.nextElementSibling; current.remove();
+    }
+    heading.remove();
+  }
+  if (configuration) {
+    removeSection('Evidence capture map');
+    const queries = [...document.querySelectorAll('h3')].find(el => el.textContent === 'RPO history-gap queries');
+    queries.closest('section').remove();
+    document.querySelector('.checklist').innerHTML = checklist.slice(0,5).map(t=>`<label><input type="checkbox">${esc(t)}</label>`).join('');
+    [...document.querySelectorAll('h2')].find(el=>el.textContent==='Start-to-finish flow').textContent='Pre-failover readiness gates';
+    document.getElementById('fit').textContent='Fit readiness';
+  } else {
+    removeSection('Topology and the three independent recovery paths');
+    removeSection('Resource map and configuration evidence');
+  }
+  document.title = `VIRTDR-${id} | ${c.title} | ${viewTitle}`;
   const dia=document.getElementById('dia'), svg=document.getElementById('svg'), sizer=document.getElementById('sizer'), wrap=document.getElementById('wrap');
   let z=1, height=0;
   const width=stages.length*370-20;
@@ -192,9 +225,11 @@ Hub GitOps
   document.getElementById('fit').onclick=()=>{z=Math.min(1,wrap.clientWidth/width);scale();};
   document.getElementById('reset').onclick=()=>{z=1;scale();};
   window.addEventListener('resize',draw);document.fonts.ready.then(draw);
+  if (configuration) {
   const resourceStyles=document.createElement('link');resourceStyles.rel='stylesheet';resourceStyles.href='../resources.css';
   resourceStyles.onload=()=>{const resourceScript=document.createElement('script');resourceScript.src='../resources.js';document.head.append(resourceScript);};
   document.head.append(resourceStyles);
+  }
   if(c.windows&&c.managed){
     document.querySelectorAll('pre').forEach(el=>{
       if(el.textContent.includes('oc --context=hub get applicationset dell-vm-workload')) el.prepend(document.createTextNode('# RHEL MANAGED REFERENCE ONLY, not Windows configuration.\n# Resolve Windows-specific object names before inspection.\n'));
