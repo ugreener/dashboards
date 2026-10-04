@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-01T18:54:43.482Z",
+  "updated": "2026-10-04T07:18:10.567Z",
   "issues": {
     "RHWA-1400": {
       "status": "todo",
@@ -167,8 +167,8 @@
       "parent": "RHWA-961"
     },
     "RHWA-1493": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-961"
     },
     "RHWA-1492": {
@@ -272,23 +272,23 @@
       "parent": "RHWA-1193"
     },
     "RHWA-1279": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-1140"
     },
     "RHWA-1278": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-1139"
     },
     "RHWA-1277": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-1138"
     },
     "RHWA-1276": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-1073"
     },
     "RHWA-1275": {
@@ -702,8 +702,8 @@
       "parent": "RHWA-961"
     },
     "RHWA-1019": {
-      "status": "todo",
-      "name": "New",
+      "status": "done",
+      "name": "Closed",
       "parent": "RHWA-837"
     },
     "RHWA-991": {
