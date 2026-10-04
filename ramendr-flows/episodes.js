@@ -31,7 +31,14 @@ Those names are useful because recovery crosses several controllers. When we fol
 
 In that inventory, all three configured VM workloads were on spoke zero. Their PlacementDecisions also selected spoke zero. Earlier recovery records describe RHEL running on spoke one, so a historical success must not be confused with current placement.
 
-There is a subtle example in the discovered controls. They could retain a completed failover phase and a historical preferred decision while the actual current PlacementDecision selected spoke zero. To find where to inspect the workload, follow the current decision and the actual running VM instance, not one historical field in isolation.`;
+There is a subtle example in the discovered controls. The snapshot recorded a completed failed-over phase, a preferred-cluster field naming spoke one, and a failover-cluster field naming spoke zero. Yet the current PlacementDecision and running VM were on spoke zero.
+
+Those fields are describing different parts of the recovery history, not four independent location instructions. To find where to inspect the workload, follow the current decision and the actual running VM instance, not one historical field in isolation.`;
+  const runner = `There is a separate bootstrap problem to distinguish from that Argo CD generator error. The shared guest-installation helper recognizes cluster names called O C P primary and O C P secondary. The Dell decisions name spoke zero and spoke one, so that helper rejects the selected cluster before it can resolve the spoke kubeconfig.
+
+Changing the directory holding the kubeconfig does not fix an unsupported cluster name. The setup records an earlier host-only workaround, but repeatable bootstrap needs reviewed support in the shared script repository and the actual tested revision recorded. Keep environment paths and credentials external rather than relying on undocumented symlinks.
+
+The installer also initializes the guest data disk. Do not rerun installation on a recovered application to prove that failover worked. That could replace the very database we are trying to validate; installation and recovery validation are different operations.`;
   const history = `Before we close, let us put the troubleshooting history in its proper place. Earlier work encountered problems resolving a source-array volume handle, a discovered-app cleanup stall, and promoted-volume device discovery. The dashboard references these through the two seventy-four, two eighty-seven and two ninety Jira issues; the recorded references mark them closed.
 
 That does not mean every old workaround belongs in a new run. The cleanup stall was later understood as the discovered workflow waiting for source removal. The device-discovery issue was classified as infrastructure-related. Those distinctions change what we investigate and prevent us from attributing every storage symptom to Ramen.
@@ -65,8 +72,6 @@ Before a test, look for protection on the disaster recovery placement control, K
 
 Why go beyond checking whether the engine is ready? Because a healthy engine can still fail a particular backup. And an empty list of Backup or Restore objects does not prove the stored archive is absent: the transient Kubernetes record and the archived data are different things.
 
-For RHEL, the VM freezer hooks are another concrete concern. The backup must successfully freeze and unfreeze the guest, and the data mount needs correct security labeling. A database can be running while a wrongly labeled mount prevents the backup hook from working.
-
 For Windows, preserve its actual E F I and Hyper-V boot settings and its separate initialization dependencies. Do not substitute the Linux cloud-init approach. ${c.windows ? 'The setup document records Windows deployment and protection. A closed task is not, by itself, evidence of a completed Windows failover.' : 'The setup records RHEL recovery and resumed writes, but count growth alone does not establish an exact data-loss result.'}`;
   const replica = `Now imagine the source database acknowledges a transaction a few seconds before the latest replica is ready. That is the essential tension in asynchronous disaster recovery. The recovery point objective, or R P O, expresses the tolerated age of recoverable data, not a promise that every acknowledged write is already on the other array.
 
@@ -90,6 +95,7 @@ The sum of the district order counters gives us a convenient activity snapshot. 
 Also record the database timezone and the range of history timestamps. A UTC screenshot and a database timestamp in another timezone can appear to contradict each other even when they describe the same moment. Keep source-side evidence that can later establish the last source write and the number of writes awaiting replication.
 
 There is no assumption that the source is automatically stopped or fenced just because failover is requested. The test is crash-consistent recovery from asynchronously replicated state. Stopping the database is not a required readiness step, and changing workload state is not part of a read-only inspection.`;
+  const freezer = `For the RHEL object archive, also verify the VM freezer's freeze and unfreeze hooks. The data mount needs the correct SELinux security labels, because a permissions problem can prevent object capture even while PostgreSQL runs and disk replication is healthy. Establish successful backup or archive evidence before initiation; do not infer it from the guest's availability.`;
   const inspection = `Let us translate the inspection examples into questions rather than read command syntax. On the hub, ask the placement control which policy and Placement it references, what action it wants, and what its latest conditions say. Ask the ProtectedApplicationView how the application state is being correlated for the console.
 
 Then ask the PlacementDecision which cluster it selects now. Inspect the policy to establish the schedule and the two disaster recovery clusters to establish their validation. These checks connect application identity, site eligibility and desired recovery behavior.
@@ -153,7 +159,7 @@ A ManagedClusterView lets the hub observe the remote group's state when this flo
 
 Follow that chain in both directions. On the way out, inspect what the hub asked for and whether delivery succeeded. On the way back, inspect whether the remote group accepted the desired generation and what its conditions actually say.
 
-The spoke's DRClusterConfig supplies local disaster recovery configuration. The imported cluster's Klusterlet and agents support management delivery and reporting. On the hub, the MultiClusterHub and MultiClusterEngine installation objects supply the management platform; they are not application-specific failover buttons.
+The spoke's DRClusterConfig supplies local disaster recovery configuration and is cluster-scoped. The imported cluster's Klusterlet and agents support management delivery and reporting. On the hub, the MultiClusterHub and MultiClusterEngine installation objects supply the management platform; they are not application-specific failover buttons.
 
 ${pending ? 'The shared delivery mechanism is established infrastructure, but this Windows managed scenario still lacks its own application control and resulting workload delivery objects. We cannot manufacture those identities from the RHEL example.' : `For ${c.drpc}, correlate the hub work and view instances with the group on each spoke. Its protected claims are still in ${c.namespace}. That separation is the practical reason the inspection examples query the group and the disks in different namespaces.`}
 
@@ -164,7 +170,9 @@ A PersistentVolumeClaim is the workload's named request for a disk. A Persistent
 
 DataVolumes add the initial provisioning and population step through the Containerized Data Importer, known as C D I. They may create and own the initial claims. That is useful during deployment, but dangerous if blindly repeated during recovery: a golden-image clone or blank data disk is not the promoted database replica.
 
-Ramen's volume group selects the protected claims. A VolumeReplication object represents the role requested for each selected disk, and it references a matching VolumeReplicationClass. The class supplies provider-specific settings, including the relevant schedule and direction.
+Ramen's volume group selects the protected claims. The managed RHEL reference marks the intended disks with the D R protection label and selects the true value. That keeps temporary CDI prime or scratch claims out of the application's protected disk set; selecting every incidental claim would protect the wrong things.
+
+A VolumeReplication object represents the role requested for each selected disk, and it references a matching VolumeReplicationClass. The class supplies provider-specific settings, including the relevant schedule and direction.
 
 The csi-addons controller and Dell storage controllers interpret those requests into array operations. Their runtimes are on the spokes, in the powerstore and csi-addons-system namespaces. The external array replica volumes hold the operating-system and database blocks at the other site.
 
@@ -183,6 +191,8 @@ The difference is an observation to explain, not proof that a target archive is 
 
 ${protection}
 
+${!c.windows ? freezer : ''}
+
 That is the readiness standard: an available location and healthy MinIO are necessary dependencies, while successful capture or read-back establishes the actual application archive. If archive-content evidence is missing, say it is unverified and keep the gate closed.`),
     ...(c.managed ? [chapter('The GitOps registration path and the workload path', `There are two Placements in this conversation, and confusing them hides the integration problem. One is the application's D R Placement. The other selects clusters for GitOps registration.
 
@@ -195,6 +205,8 @@ Now return to the application-specific Placement. Its decision belongs with the 
 So there are several checks before declaring the managed path ready. The controller must watch the namespace. Its service account needs the appropriate permissions. The generator must actually find the correctly labeled decision. The destination must be registered, and the generated Application must show the expected source, target, synchronization and health.
 
 The RHEL reference polls its decision generator at a recorded interval of one hundred and eighty seconds. That is a reconciliation setting, not a guaranteed failover duration. The source branch and directory, selected server and target namespace must all match the tested configuration.
+
+${id === '292' ? runner : 'The RHEL bootstrap scripts are references for this pending Windows scenario. Their Dell cluster-name support must not be assumed, and a Windows-specific guest installation and access path still needs to be established.'}
 
 ${pending ? 'For Windows managed recovery, this is shared infrastructure and an intended contract. There is no verified Windows ApplicationSet, generated Application, namespace or workload path to narrate as a completed setup. Those definitions must be supplied and tested before initiation.' : 'For this RHEL managed scenario, the recorded generator error and absence of Applications prevent us from claiming that the contract works. The fixed-spoke bootstrap is historical deployment evidence only.'}
 
@@ -235,6 +247,8 @@ For managed recovery, include the GitOps operator, actual ArgoCD instance, clust
 
 Use one evidence index with capture time, cluster, scope, namespace, object and observed state. The purpose is to make a later change explainable. An image of a running controller cannot substitute for a database query, and terminal guest state cannot substitute for what a failover confirmation actually showed.
 
+Use a nineteen-twenty by ten-eighty browser viewport for the baseline console captures. Keep the session's images together, and use ordered filenames identifying the step, cluster, scope, resource and tab. Consistent framing helps us compare the same surface before and after an action without confusing a changed layout with a changed recovery state.
+
 When these questions have supported answers, we have a baseline. We still have not initiated failover, reset a workload, repaired storage, or demonstrated failback. Those are different actions and require their own scope and authorization.`),
     chapter('Reading history without importing its mistakes', history),
     chapter('The handoff to the recovery episode', `Let us bring the preparation back to the original question. The target needs recoverable blocks, the right machine definition, a selected site and controllers that can turn all of that into an executing guest. Our evidence must establish every link, not simply the existence of each resource.
@@ -270,6 +284,14 @@ ${writes}
 ${replica}
 
 ${c.managed ? pending ? 'For the future Windows managed scenario, require a real registration-to-decision-to-generated-Application chain and its own target credential provisioning. Establish which object-protection dependencies its actual recovery control selects; do not assume the RHEL reference already defines Windows recovery.' : 'For this managed RHEL scenario, require the real registration-to-decision-to-generated-Application chain and target credential provisioning. Also require its configured object-protection evidence; a GitOps label does not prove either dependency.' : 'For this discovered scenario, require protection on the application control, source Kubernetes object readiness and cluster-data protection, a ready OADP runtime and available backup location. Establish completed backup or archive read-back, including the VM, both DataVolumes and the required dependencies.'}
+
+${id === '292' ? `The RHEL managed control explicitly enables Kubernetes object protection in its committed configuration. In the recorded inventory, its backup storage locations existed on spoke zero but were not listed on spoke one. That absence does not, by itself, establish archive loss; verify the actual archive and recovery prerequisites rather than borrowing the discovered workloads' observation that their locations existed on both spokes.
+
+${runner}` : ''}
+
+${!c.windows ? freezer : ''}
+
+Before pressing Failover, retain the source history evidence and the verified synchronization timestamps together. They establish what existed before the switch, so the later recovered-row count can be compared with an expected source population rather than simply interpreted as a growing target workload.
 
 If one disk's synchronization or the VM restore evidence is unverified, stop here. This is not excessive paperwork: deleting the source later becomes destructive, and we must know that the target has a recoverable application before crossing that gate.`),
     chapter('The console moment, and the evidence around it', `Now we are at the hub console. In Fleet management, Data Services exposes disaster recovery through Overview, Topology, Policies and Protected applications. Before initiation, capture the active policy and the source-to-target cluster relationship, then expand the affected application's inline details.
@@ -336,6 +358,8 @@ Recheck the control chain at the same time. Source workload termination, a secon
 The writer is expected to resume with the guest configuration. That is useful proof of service recovery, but it creates the measurement problem we will address next: a higher transaction count now contains both recovered data and brand-new target writes.`),
     chapter('Measuring the actual write gap', `Suppose the source order count was large and the target count is even larger. It is tempting to call that zero loss. But the target writer may have been running long enough to hide missing source transactions with new ones.
 
+Failover is unplanned recovery from the latest replicated state. It does not promise a final synchronization from the source, even if that source remains reachable in a lab test. Planned relocation is a different operation; do not import its final-sync assumption into this measurement.
+
 We therefore examine the history table by time. First establish the guest database timezone and latest history timestamp. Select a window around the failover and group rows by minute. PostgreSQL truncates each timestamp to its minute; SQL Server converts the timestamp to a minute-level value for the same grouping purpose.
 
 The minute distribution reveals where writes stop and where they resume. Then locate the last row attributable to the source and the first row attributable to the recovered target. The distance between them describes the observed write gap, which is not the same quantity as the replication age.
@@ -381,7 +405,9 @@ PowerStore evidence connects Kubernetes handles with replicas, mappings, session
 
 Guest service commands and database queries need timestamped terminal evidence. They cannot be proved by a console image of the VM. Conversely, terminal output cannot prove which destination a confirmation dialog displayed. Pair each kind with the other where the claim spans them.
 
-Use a single session evidence folder and an index naming the time, workload, step, cluster, scope, namespace, object, tab and observed state. Capture immediately before and after authorized mutations. Repeat changed handoffs at transitions and the relevant readiness and placement chain at completion; an unchanged version page need not be duplicated at every poll.
+Use a single session evidence folder and an index naming the time, workload, step, cluster, scope, namespace, object, tab and observed state. Set the browser viewport to nineteen-twenty by ten-eighty, and name the images in step order with their cluster, scope, resource and tab. Keep the captures clean and exclude credentials or cluster-registration Secret contents.
+
+Capture immediately before and after authorized mutations. Repeat changed handoffs at transitions and the relevant readiness and placement chain at completion; unchanged operator version pages still need baseline and completion readiness coverage, without being duplicated at every poll.
 
 When a view is unavailable, mark that evidence unverified and explain why. Do not invoke sync, prune, rollback, edit, restart or delete just to exercise a control. If the UI misbehaves, capture the discrepancy immediately, compare it with the baseline and report it before the next action.`),
     chapter('What earlier runs teach us, and what they do not', history),
