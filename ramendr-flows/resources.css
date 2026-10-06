@@ -1,7 +1,7 @@
 #resource-dia{position:relative;width:max-content;transform-origin:top left}
 #resource-svg{position:absolute;inset:0;pointer-events:none}
 .resource-lane-title{position:absolute;left:20px;font-size:16px;font-weight:700;color:#f0f6fc}
-.resource-node{position:absolute;width:230px;padding:14px;border:1px solid #30363d;border-left:5px solid var(--ns-color);border-radius:9px;background:#161b22;font-size:12px;overflow-wrap:anywhere}
+.resource-node{position:absolute;width:320px;padding:16px;border:1px solid #30363d;border-left:5px solid var(--ns-color);border-radius:9px;background:#161b22;font-size:14px;overflow-wrap:break-word}
 .resource-node small{display:block;color:#bc8cff;line-height:1.5}
 .resource-node h3{font-size:15px;margin:9px 0}
 .resource-node b{display:block;color:#f0f6fc}

@@ -219,7 +219,11 @@ The staging catalog is in the marketplace namespace. The recorded spoke RHDR CSV
 
 On each spoke, OpenShift Virtualization has a HyperConverged installation instance in the virtualization namespace. It configures the KubeVirt and CDI capabilities underneath. The KubeVirt instance is namespaced there, while the CDI instance is cluster-scoped.
 
-StorageClass and CSIDriver resources connect claims to the selected provisioner. In this lab the claims use powerstore-sc, and the registered driver is Dell's PowerStore CSI driver. Secrets and ConfigMaps provide credentials, array settings, object-store profiles, trusted certificates and generator configuration; services, routes, deployments and pods provide the running endpoints.
+StorageClass is worth pausing on because it sounds like a custom resource, but it is built into Kubernetes. Think of it as a menu entry for requesting a disk. In this lab the claims name powerstore-sc. Kubernetes looks up that class and asks the Dell PowerStore CSI driver to supply the disk. Each spoke has its own cluster-wide class, even when both use the same name. The CSIDriver object is the driver registration; the actual controller and node pods carry out the work.
+
+Do not confuse that storage menu with VolumeReplicationClass. The first tells Kubernetes how to supply storage. The second tells the replication controller which driver-specific replication settings and schedule to use. Neither one contains the database, and neither proves that the recovered VM is using the promoted copy rather than a freshly provisioned disk. The configuration diagram now shows claims, StorageClass, driver registration and the running implementation as their own dependency row.
+
+Secrets and ConfigMaps provide credentials, array settings, object-store profiles, trusted certificates and generator configuration; services, routes, deployments and pods provide the running endpoints.
 
 We inspect readiness and references without exposing secret contents. A secret name in a diagram is a dependency, not an invitation to read a password aloud or capture it in a screenshot.
 
