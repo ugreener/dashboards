@@ -24,7 +24,7 @@
     stage('Inventory and ownership','hub','Hub + both spokes','Identify the exact protected application, both disks and the active DR direction.',[
       `Record DRPC ${c.drpc}, its Placement reference, protected namespace ${c.ns}, VM ${c.vm}, both DataVolumes/PVCs and current source VMI.${c.windows&&c.managed?' First establish and record the unspecified Windows managed object names.':''}`,
       'Read owner references and selectors. Map PlacementDecision, VRG, VolumeReplication, ManifestWork, ManagedClusterView and ProtectedApplicationView where used. Record installed controller versions and readiness.',
-      'This procedure requires source spoke-0 on edge95 and target spoke-1 on edge97. Home baseline is spoke-0, but the 2026-10-06 snapshot has the RHEL discovered and gitops-vms VMs on spoke-1 after failovers; only Windows is on spoke-0. Verify actual placement and relocate back before a new spoke-0 to spoke-1 run.',
+      'This procedure requires source spoke-0 on edge95 and target spoke-1 on edge97. Home baseline is spoke-0. Current placement changes with every failover and relocate, so read the live PlacementDecision and VM location and relocate back before a new spoke-0 to spoke-1 run.',
       'Discover current namespaces and console scopes. Hub CR views do not substitute for spoke-local VM, VRG or storage views.'
     ],'Complete the dependency/evidence map before initiation.'),
     stage(c.managed?'Prove GitOps handoff':'Prove object recovery', 'hub',c.managed?'ACM + ApplicationSet + Argo CD':'Ramen + OADP / Velero',c.managed?'A real generated Application must follow PlacementDecision.':'VM configuration and dependencies must be recoverable independently of disk replication.',c.managed?[
@@ -184,13 +184,13 @@ Both spokes
 # Live, read-only snapshot 2026-10-06 (not yet redeployed from the corrected repo)
   DRPC openshift-gitops/dell-vm-workload-placement-drpc: FailedOver / Cleaning Up since 2026-10-05
   Source: temporary fork whose workload owned the gitops-vms Namespace
-  spoke-0: gitops-vms Terminating; datadisk PVC holds an orphaned pvc-vr-protection finalizer
-  spoke-1: VM hammerdb-rhel9 Running; VRG Primary; only the data disk was protected`:`# Read-only resource identity snapshot, 2026-10-04
+  former source spoke: gitops-vms Terminating; datadisk PVC holds an orphaned pvc-vr-protection finalizer
+  target spoke: VM hammerdb-rhel9 Running; VRG Primary; only the data disk was protected`:`# Read-only resource identity snapshot, 2026-10-04
 Hub / openshift-dr-ops
   DRPC: ${c.drpc}
   ProtectedApplicationView: ${c.drpc}
   Placement: ${c.placement}
-  PlacementDecision: ${c.placement}-decision-1 (selects spoke-0)
+  PlacementDecision: ${c.placement}-decision-1 (selected cluster changes with DR operations)
   DRPolicy reference: dr-policy-15m
   protectedNamespaces: [${c.ns}]
 Hub / spoke-0 and spoke-1 (separate instances)
@@ -198,7 +198,7 @@ Hub / spoke-0 and spoke-1 (separate instances)
   ManagedClusterView: ${c.drpc}-openshift-dr-ops-vrg-mcv
 Both spokes / openshift-dr-ops
   VolumeReplicationGroup: ${c.drpc}
-Spoke-0 / ${c.ns} (no current VM/VMI on spoke-1)
+Active spoke / ${c.ns}
   VM / VMI: ${c.vm}
   DataVolume / PVC: ${c.vm}-rootdisk
   DataVolume / PVC: ${c.vm}-datadisk
@@ -208,13 +208,13 @@ Both spokes / openshift-adp
   BackupStorageLocation: openshift-dr-ops--${c.drpc}--0----minio-on-hub
   BackupStorageLocation: openshift-dr-ops--${c.drpc}--1----minio-on-hub
   Both locations observed on both spokes
-${id==='291'?'# 2026-10-06: hammerdb-drpc FailedOver/Completed to spoke-1 (2026-10-05); VM now on spoke-1.':''}`;
+`;
   document.getElementById('app').innerHTML = `
     <nav><a href="../">Flow directory</a><a href="../../ramendr/">Environment</a>${Object.entries(configs).map(([n,v])=>`<a href="../virtdr-${n}/" ${n===id?'aria-current="page"':''}>${n}: ${v.title}</a>`).join('')}</nav>
     <h1>${jira('VIRTDR-'+id)} · ${viewTitle}</h1><p class="muted">${c.title} · Dell PowerStore · spoke-0 to spoke-1 · ${jira('VIRTDR-218')}</p>
     <nav aria-label="Scenario dashboards"><a href="configuration.html" ${configuration?'aria-current="page"':''}>Pre-failover configuration</a><a href="failover.html" ${!configuration?'aria-current="page"':''}>Failover flow</a></nav>
     <div class="summary"><div class="panel"><span class="badge">Jira: ${c.status}</span><p>Status snapshot: 2026-10-06. ${c.managed?'Managed failover acceptance is still to be demonstrated; the corrected layout needs a fresh deployment.':'Jira records this discovered-flow task as closed; consult recorded evidence for the tested run.'}</p></div><div class="panel"><b>${c.db} + HammerDB ${c.hdb}</b><p>VM: ${c.vm}<br>Protected namespace: ${c.ns}<br>DRPC: ${c.drpc}</p></div><div class="panel"><b>${c.managed?'Controller-managed recovery':'Discovered workload recovery'}</b><p>${c.managed?'PlacementDecision / ApplicationSet / Argo CD; automatic source cleanup is required.':'OADP/Velero object restore; separate authorization is required for source cleanup.'}</p></div></div>
-    <div class="notice"><b>Evidence boundaries:</b> this is a procedure diagram with a read-only resource-identity snapshot from 2026-10-04, not continuous monitoring or a completed run record. On 2026-10-04 all three configured VMs were on spoke-0. By 2026-10-06 the RHEL discovered VM (hammerdb-drpc, 2026-10-05) and the gitops-vms VM had failed over to spoke-1; Windows remained on spoke-0. Do not confuse DRPC preferredCluster with current PlacementDecision. Home baseline remains spoke-0. No failover or cluster mutation is executed by this page.</div>
+    <div class="notice"><b>Evidence boundaries:</b> this is a procedure diagram with a read-only resource-identity snapshot from 2026-10-04, not continuous monitoring or a completed run record. Current workload placement changes with failover and relocate, so this page does not state which spoke runs each VM; read the live PlacementDecision and VM/VMI location. Do not confuse DRPC preferredCluster with current PlacementDecision. Home baseline remains spoke-0. No failover or cluster mutation is executed by this page.</div>
     ${c.windows&&!c.managed?'<div class="notice"><b>Windows result boundary:</b> Step 10 records deployment and protection, not a completed Windows failover. The Closed Jira snapshot is separate from Setup Doc test evidence. Recorded Placement: hammerdb-win-placement; verify the live DRPC placementRef.</div>':''}
     ${c.managed&&!c.windows?`<div class="notice"><b>Corrected managed layout:</b> following the <a href="${odfAppSet}">ODF 4.22 Regional-DR ApplicationSet procedure</a>, the pull-model ApplicationSet, DR Placement and DRPC are all in openshift-gitops, the DRPC uses pvcSelector without protectedNamespaces, and the workload path has no Namespace manifest. The first managed failover attempt (from a temporary fork whose workload owned gitops-vms) is stuck in FailedOver/Cleaning Up; Ramen dropped the VRG finalizer but left pvc-vr-protection on the source PVC. Redeploy from the corrected repository before the next test.</div>`:''}
     ${c.windows&&c.managed?'<div class="notice"><b>Windows managed readiness gap:</b> the verified upstream Dell folder contains RHEL VM manifests only. Namespace, DRPC, Placement, ApplicationSet, Windows manifest path and access Service for this scenario are not yet specified in the reviewed sources. These are explicit setup gates, not invented resource names.</div>':''}

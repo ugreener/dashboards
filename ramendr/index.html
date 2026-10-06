@@ -119,8 +119,8 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--blue)" stroke-width="2" stroke-dasharray="4,3"/></svg> Control / metadata (logical)</div>
 </div>
 
-<div class="callout"><b>Recorded configuration, not live monitoring.</b> Diagram placement shows the home/preferred baseline on spoke-0, not a current-state observation. The <a href="https://docs.google.com/document/d/1npumTvaf2SRj2wdEUoBBuYLZXwqXxJNUvY3SNqrLfe0/edit">Setup Doc</a>'s latest recorded RHEL UI failover ended on spoke-1; Windows Step 10 records deployment on spoke-0. Verify live placement and protection before operations. GitOps-managed end-to-end recovery and Relocate/failback remain unverified in the doc. Version/readiness badges below are recorded snapshots.</div>
-<div class="callout"><b>Read-only identity and placement snapshot: 2026-10-06.</b> The RHEL discovered VM (<code>hammerdb-drpc</code>) failed over to spoke-1 on 2026-10-05 and runs there (DRPC FailedOver/Completed; spoke-0 VRG Secondary). The Windows VM (<code>hammerdb-win-drpc</code>) runs on spoke-0. Discovered DRPCs and ProtectedApplicationViews are in <code>openshift-dr-ops</code>, with VRGs in <code>openshift-dr-ops</code> on both spokes. The GitOps-managed RHEL app now follows the ODF ApplicationSet layout in Git (upstream commit <code>e6237ef</code>): pull-model ApplicationSet <code>dell-vm-workload</code>, Placement <code>dell-vm-placement</code> and DRPC <code>dell-vm-drpc</code> all in <code>openshift-gitops</code>, VRG in <code>gitops-vms</code>, no Namespace manifest in the workload. The live managed app is still the earlier fork-based deployment (<code>openshift-gitops/dell-vm-workload-placement-drpc</code>, VM on spoke-1) stuck in FailedOver/Cleaning Up because Argo CD pruned the source <code>gitops-vms</code> namespace; it has not been redeployed from the corrected repository. OpenShift GitOps 1.22.0 runs on the hub and both spokes. Windows managed resources are not configured. These observations identify resources, not array health or a completed managed recovery.</div>
+<div class="callout"><b>Recorded configuration, not live monitoring.</b> Diagram placement shows the home/preferred baseline on spoke-0, not a current-state observation. Workloads move between spokes with every failover and relocate, so the diagram never shows the current cluster; see the <a href="https://docs.google.com/document/d/1npumTvaf2SRj2wdEUoBBuYLZXwqXxJNUvY3SNqrLfe0/edit">Setup Doc</a> for recorded test runs. Verify live placement and protection before operations. GitOps-managed end-to-end recovery and Relocate/failback remain unverified in the doc. Version/readiness badges below are recorded snapshots.</div>
+<div class="callout"><b>Configuration snapshot: 2026-10-06.</b> Discovered DRPCs (<code>hammerdb-drpc</code>, <code>hammerdb-win-drpc</code>) and their ProtectedApplicationViews are in <code>openshift-dr-ops</code>, with VRGs in <code>openshift-dr-ops</code> on both spokes. The GitOps-managed RHEL app follows the ODF ApplicationSet layout in Git (upstream commit <code>e6237ef</code>): pull-model ApplicationSet <code>dell-vm-workload</code>, Placement <code>dell-vm-placement</code> and DRPC <code>dell-vm-drpc</code> all in <code>openshift-gitops</code>, VRG in <code>gitops-vms</code>, no Namespace manifest in the workload. The live managed app is still the earlier fork-based deployment (<code>openshift-gitops/dell-vm-workload-placement-drpc</code>), stuck in FailedOver/Cleaning Up because Argo CD pruned the source <code>gitops-vms</code> namespace; it has not been redeployed from the corrected repository. OpenShift GitOps 1.22.0 runs on the hub and both spokes. Windows managed resources are not configured. The active cluster of each workload changes with DR operations and is not shown here; check the live PlacementDecision.</div>
 <p class="scroll-hint">Scroll or use the zoom controls to see the full architecture. Hover over cards and connecting lines for details.</p>
 
 <div class="zoom-toolbar" role="toolbar" aria-label="Diagram zoom">
@@ -211,12 +211,27 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
 <div class="row"><span class="k">RHDR cluster operator</span><span class="badge done" style="font-size:9px">v4.22.0-86</span></div>
-<div class="row"><span class="k">VRG (hammerdb)</span><span class="badge done" style="font-size:9px">Secondary</span></div>
-<div class="row"><span class="k">VRG (hammerdb-win)</span><span class="badge done" style="font-size:9px">Primary</span></div>
+<div class="row"><span class="k">VRG (hammerdb)</span><span class="badge done" style="font-size:9px">Protected</span></div>
+<div class="row"><span class="k">VRG (hammerdb-win)</span><span class="badge done" style="font-size:9px">Protected</span></div>
 </div>
     </div>
+<div class="card" id="hammerdb" style="top:440px;left:24px;width:420px;border-color:var(--green);z-index:15">
+<span class="info-icon" data-tip="RHEL 9.8 VM running HammerDB TPC-C workload + PostgreSQL 16. Root disk (35Gi) and data disk (20Gi) both on powerstore-sc. DRPC hammerdb-drpc protects the namespace. Home is spoke-0; the active cluster changes with failover and relocate, so check the live PlacementDecision. Both disks replicate between VSA-A and VSA-B.">i</span>
+<div class="step-badge dep">Deployed</div>
+<div class="icon">&#128187;</div>
+<div class="title" style="color:var(--green)">HammerDB RHEL VM</div>
+<div class="sub">RHEL 9.8 | 2 vCPU / 8 GiB | home: spoke-0</div>
+<div class="detail">
+<div class="row"><span class="k">Root disk</span><span class="v">35 GiB</span></div>
+<div class="row"><span class="k">Data disk</span><span class="v">20 GiB</span></div>
+<div class="row"><span class="k">PostgreSQL</span><span class="badge done" style="font-size:9px">Percona 16.15</span></div>
+<div class="row"><span class="k">HammerDB TPC-C</span><span class="badge done" style="font-size:9px">v4.12</span></div>
+<div class="row"><span class="k">DRPC</span><span class="badge done" style="font-size:9px">Deployed/Protected</span></div>
+<div class="row"><span class="k">Replication</span><span class="badge done" style="font-size:9px">Both &#8596; VSA-A / VSA-B</span></div>
+</div>
+</div>
 <div class="card" id="hammerdb-win" style="top:700px;left:24px;width:420px;border-color:var(--green);z-index:15">
-<span class="info-icon" data-tip="Windows Server 2022 VM running HammerDB 5.0 TPC-C + SQL Server Express. Root disk (45Gi) and data disk (10Gi) on powerstore-sc. DRPC hammerdb-win-drpc protects the namespace. Deployed on spoke-0. VIRTDR-293.">i</span>
+<span class="info-icon" data-tip="Windows Server 2022 VM running HammerDB 5.0 TPC-C + SQL Server Express. Root disk (45Gi) and data disk (10Gi) on powerstore-sc. DRPC hammerdb-win-drpc protects the namespace. Home: spoke-0. VIRTDR-293.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="icon">&#128187;</div>
 <div class="title" style="color:var(--green)">HammerDB Windows VM</div>
@@ -227,13 +242,13 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="row"><span class="k">SQL Server</span><span class="badge done" style="font-size:9px">Express 2022</span></div>
 <div class="row"><span class="k">HammerDB TPC-C</span><span class="badge done" style="font-size:9px">v5.0</span></div>
 <div class="row"><span class="k">DRPC</span><span class="badge done" style="font-size:9px">Deployed/Protected</span></div>
-<div class="row"><span class="k">Replication</span><span class="badge done" style="font-size:9px">Both &#8594; VSA-B</span></div>
+<div class="row"><span class="k">Replication</span><span class="badge done" style="font-size:9px">Both &#8596; VSA-A / VSA-B</span></div>
 </div>
 </div>
 </div>
 
 <!-- ===== SITE C: SPOKE 2 (edge97) ===== -->
-<div class="site" style="top:56px;left:1480px;width:660px;height:960px;border-color:var(--cyan)">
+<div class="site" style="top:56px;left:1480px;width:660px;height:480px;border-color:var(--cyan)">
 <div class="site-label" style="color:var(--cyan)">SITE C: ocp-edge97 (10.46.46.76) - SPOKE 2</div>
 <div class="hyper-bar" style="top:38px">
 <div class="step-badge dep">Deployed</div>
@@ -264,22 +279,6 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
 <div class="row"><span class="k">RHDR cluster operator</span><span class="badge done" style="font-size:9px">v4.22.0-86</span></div>
-<div class="row"><span class="k">VRG (hammerdb)</span><span class="badge done" style="font-size:9px">Primary</span></div>
-</div>
-</div>
-<div class="card" id="hammerdb" style="top:440px;left:24px;width:320px;border-color:var(--green);z-index:15">
-<span class="info-icon" data-tip="RHEL 9.8 VM running HammerDB TPC-C workload + PostgreSQL 16. Root disk (35Gi) and data disk (20Gi) both on powerstore-sc. DRPC hammerdb-drpc protects the namespace. Home is spoke-0; failed over to spoke-1 on 2026-10-05 (DRPC FailedOver/Completed). Both disks now Primary on VSA-B; spoke-0 VRG Secondary.">i</span>
-<div class="step-badge dep">Failed over</div>
-<div class="icon">&#128187;</div>
-<div class="title" style="color:var(--green)">HammerDB RHEL VM</div>
-<div class="sub">RHEL 9.8 | 2 vCPU / 8 GiB | home: spoke-0 | now: spoke-1</div>
-<div class="detail">
-<div class="row"><span class="k">Root disk</span><span class="v">35 GiB</span></div>
-<div class="row"><span class="k">Data disk</span><span class="v">20 GiB</span></div>
-<div class="row"><span class="k">PostgreSQL</span><span class="badge done" style="font-size:9px">Percona 16.15</span></div>
-<div class="row"><span class="k">HammerDB TPC-C</span><span class="badge done" style="font-size:9px">v4.12</span></div>
-<div class="row"><span class="k">DRPC</span><span class="badge done" style="font-size:9px">Deployed/Protected</span></div>
-<div class="row"><span class="k">Replication</span><span class="badge done" style="font-size:9px">Primary on VSA-B</span></div>
 </div>
 </div>
 </div>
@@ -389,7 +388,7 @@ setTimeout(function(){
   }
   var H=box('hub','A'), HO=box('hubops','A'),
       S1=box('spoke1','B'), S1C=box('spoke1comp','B'),
-      HDB=box('hammerdb','C'), HDBW=box('hammerdb-win','B'),
+      HDB=box('hammerdb','B'), HDBW=box('hammerdb-win','B'),
       S2=box('spoke2','C'), S2C=box('spoke2comp','C'),
       S3=box('s3',''), VA=box('vsaa',''), VB=box('vsab','');
 
@@ -403,8 +402,8 @@ setTimeout(function(){
   arrow(S1C.cx, S1C.b, VA.cx, VA.t, orange, 'NVMe-TCP primary (Dell CSI)', false);
   // Spoke 2 DR components -> VSA-B (primary, NVMe-TCP)
   arrow(S2C.cx, S2C.b, VB.cx, VB.t, orange, 'NVMe-TCP primary (Dell CSI)', false);
-  // HammerDB RHEL -> Spoke 2 DR components (failed over to spoke-1 on 2026-10-05)
-    arrow(HDB.cx, HDB.t, S2C.l+60, S2C.b, green, 'RHEL VM disks on powerstore-sc', true);
+  // HammerDB RHEL -> Spoke 1 DR components (home placement; live placement follows DR operations)
+    arrow(HDB.cx, HDB.t, S1C.l+60, S1C.b, green, 'RHEL VM disks on powerstore-sc', true);
     // HammerDB Win -> Spoke 1 DR components
     arrow(HDBW.cx, HDBW.t, S1C.r-60, S1C.b, green, 'Win VM disks on powerstore-sc', true);
   // VSA-A -> VSA-B array replication (Dell native)

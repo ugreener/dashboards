@@ -29,9 +29,9 @@ We know the intended operating system and database. We also know the shared hub,
 Those names are useful because recovery crosses several controllers. When we follow a delivery object or a remote status view, we need to establish that it belongs to this application, not another VM or another test. The root and data disk objects are named after the VM, with rootdisk and datadisk endings.`;
   const boundary = `One boundary belongs at the beginning of this conversation. The diagrams contain a resource inventory recorded on October fourth, twenty twenty-six, and task-status references from October first. They are not a live monitoring system.
 
-In that inventory, all three configured VM workloads were on spoke zero. Their PlacementDecisions also selected spoke zero. Earlier recovery records describe RHEL running on spoke one, so a historical success must not be confused with current placement.
+The diagrams also do not say which spoke is running each workload right now. That changes every time we fail over or relocate, so the live PlacementDecision and the running VM instance are the only reliable answer. Spoke zero is the home preference, nothing more.
 
-There is a subtle example in the discovered controls. The snapshot recorded a completed failed-over phase, a preferred-cluster field naming spoke one, and a failover-cluster field naming spoke zero. Yet the current PlacementDecision and running VM were on spoke zero.
+There is a subtle trap in the discovered controls. A placement control can report a completed failed-over phase with its preferred-cluster and failover-cluster fields naming different spokes, while the PlacementDecision points somewhere else again after later operations.
 
 Those fields are describing different parts of the recovery history, not four independent location instructions. To find where to inspect the workload, follow the current decision and the actual running VM instance, not one historical field in isolation.`;
   const runner = `There is a separate bootstrap problem to distinguish from that Argo CD generator error. The shared guest-installation helper recognizes cluster names called O C P primary and O C P secondary. The Dell decisions name spoke zero and spoke one, so that helper rejects the selected cluster before it can resolve the spoke kubeconfig.
@@ -185,7 +185,7 @@ The lesson is that protection and attachment solve different problems. Replicati
 
 The group, data-protection engine and object store therefore form a separate recovery path. The engine needs a DataProtectionApplication configuration. Each Backup or Restore object records a particular operation, and its BackupStorageLocation supplies the storage destination and references required to reach it.
 
-The recorded backup-storage locations encode the operations namespace, application control identity and rotating archive slot. For the discovered workloads, two slots were observed on both spokes. For the RHEL managed application, its locations were seen on spoke zero but not spoke one in that inventory.
+The recorded backup-storage locations encode the operations namespace, application control identity and rotating archive slot. For the discovered workloads, two slots were observed on both spokes. The corrected RHEL managed application does not use object protection, so it has no such locations.
 
 The difference is an observation to explain, not proof that a target archive is lost. Likewise, there were no current Backup or Restore custom-resource instances in the inventory. We cannot infer stored archive presence or absence from that list alone.
 
@@ -259,7 +259,7 @@ When these questions have supported answers, we have a baseline. We still have n
 
 For ${c.name}, the acceptance gates are ownership and scope, a meaningful source workload baseline, ${c.managed ? 'a generated Application that follows the recovery decision' : 'a recoverable VM object archive'}, healthy replicas for both disks, and the complete baseline UI and controller evidence.
 
-${pending ? 'For this Windows managed scenario, those workload-specific gates cannot pass until its definitions and access path are established. The shared lab is a starting point, not a finished Windows deployment.' : c.managed ? 'For this RHEL managed scenario, the corrected layout must be deployed fresh, with the stuck first attempt cleared, before the managed handoff can be tested. A generated Application for spoke zero and protection of both disks are the starting gates.' : 'For this discovered scenario, successful disk replication does not bypass the object archive gate. A future cleanup action will also need separate authorization after target promotion is proven.'}
+${pending ? 'For this Windows managed scenario, those workload-specific gates cannot pass until its definitions and access path are established. The shared lab is a starting point, not a finished Windows deployment.' : c.managed ? 'For this RHEL managed scenario, the corrected layout must be deployed fresh, with the stuck first attempt cleared, before the managed handoff can be tested. A generated Application for the home spoke and protection of both disks are the starting gates.' : 'For this discovered scenario, successful disk replication does not bypass the object archive gate. A future cleanup action will also need separate authorization after target promotion is proven.'}
 
 The setup document holds configuration and procedure evidence. The Dell notes supply troubleshooting history. The upstream Dell branch supplies workload manifests, and the Ramen usage guide explains the recovery model. The dashboard keeps those references available without making us listen to their URLs.
 
