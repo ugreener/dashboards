@@ -182,7 +182,7 @@
     ['GitOps workload handoff (configured; acceptance must be demonstrated)',[
       n('PlacementDecision',decision,hub,'Selects a registered destination cluster.'),
       n('ApplicationSet',pending?'Not configured':'dell-vm-workload',hub,'Pull-model ApplicationSet in openshift-gitops (commit e6237ef). Generator reads acm-placement and the dell-vm-placement decision in the same namespace.'),
-      n('Application',pending?'Not configured':'dell-vm-workload-{{name}} (generated)',hub,'Generated per selected spoke and pulled to that spoke’s Argo CD. Source: upstream ocp-4.22-rhdr-dell, clusters/dell-s4/workloads, which has no Namespace manifest. Not yet redeployed from the corrected repo.'),m
+      n('Application',pending?'Not configured':'dell-vm-workload-{{name}} (generated)',hub,'Generated per selected spoke and pulled to that spoke’s Argo CD. Source: upstream ocp-4.22-rhdr-dell, clusters/dell-s4/workloads, which has no Namespace manifest. Deployed from the corrected repo on 2026-10-06.'),m
     ],['generator reads','generates','spoke Argo CD syncs']],
     ['GitOps registration (separate from DR Placement)',[
       n('ManagedClusterSet / Binding','default / default','Hub / cluster-scoped; openshift-gitops + openshift-dr-ops','Observed default ManagedClusterSet and default bindings in openshift-gitops and openshift-dr-ops. Registration Placement remains separate from DR Placement.'),
