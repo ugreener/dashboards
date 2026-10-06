@@ -226,13 +226,73 @@
     'Operator installation (recorded mechanism, not an active upgrade)':'This row is about how the RHDR (Ramen) operator itself got installed, not about the workload. OLM reads bundles from the staging CatalogSource, a Subscription and InstallPlan pick a version, and the ClusterServiceVersion is the installed operator. It matters when testing a new staging build, not during a failover.',
     'Conditional API dependencies (not established workload instances)':'These APIs are installed and could be used for more advanced protection, such as Recipes for ordered capture or replicating several disks as one consistency group. The protected VMs in this lab do not use them today; they are shown so their presence is not mistaken for part of the active recovery path.'
   };
+  // Per-chain analogy, what changes when Failover runs, and the consequence if the chain is missing or broken.
+  const extra={
+    'Policy and DR site eligibility':['the insurance contract: which two sites cover each other, and how often the copy is refreshed.',
+      'Nothing in this row changes. The policy and both DR sites stay the same; Failover uses them to confirm that the target is a valid, validated peer.',
+      'If a DRCluster fails validation (for example its S3 metadata store is unreachable) or the DRPolicy is not validated, the application cannot reach a protected state and recovery cannot be trusted.'],
+    'DR placement and console observation':['the application\u2019s current address.',
+      'When you confirm Failover to spoke-1, Ramen records the action on the DRPC and moves the PlacementDecision from spoke-0 to spoke-1. The console view then shows the new site and the progression steps.',
+      'Without a Placement and its decision, nothing tells the rest of the system where the application should run'+(managed?', and the ApplicationSet has no destination to deploy to.':'.')],
+    'Cross-cluster delivery and status':['a courier envelope with a return receipt.',
+      'Ramen updates the delivered VRG instructions: the target spoke\u2019s VRG becomes Primary and the source spoke\u2019s VRG is asked to become Secondary. The views report each step back, which drives the DRPC progression you see in the console.',
+      'If a spoke\u2019s ACM agent cannot apply the ManifestWork, that spoke never learns its new role and the DRPC stalls mid-progression.'],
+    'Protected disk replication':['a scheduled photocopier that sends each disk to the other site.',
+      'The target VolumeReplications are promoted to Primary from the latest replicated copy on the target array. Failover does not wait for a final sync from the source, so anything written after the last sync is the RPO exposure.',
+      'If replication is degraded or the last sync is older than the RPO, the promoted disks are stale or promotion fails.'],
+    'Storage provisioning: claims, class and driver':['an order form (PVC), a catalog entry (StorageClass) and a supplier (CSI driver).',
+      'The target does not create blank disks for the VM. Its claims are bound to the promoted replica volumes, still through the same class and Dell driver.',
+      'If the StorageClass or CSI driver is missing or unhealthy on the target, the promoted volumes cannot be bound or attached.'],
+    'VM disk provisioning and binding':['following the cable from the VM down to the physical disk.',
+      'On the target, the VM\u2019s claims bind to PersistentVolumes that hold the promoted replica handles, and a VolumeAttachment connects them to the target worker so the guest boots from the replicated data.',
+      'If the target worker cannot attach the volume (for example an NVMe path or initiator problem), the VM stays pending with mount errors even though promotion succeeded.'],
+    'Kubernetes object protection (not block data)':pending?['the VM blueprint, kept separately from its contents.',
+      'Not decided for the Windows managed app until its DR resources are configured.',
+      'For discovered apps, a missing or incomplete backup leaves recovered disks with no VM definition to start.']:managed?['the VM blueprint, kept separately from its contents.',
+      'Not used in this managed scenario: Argo CD recreates the definitions from Git instead of Velero restoring them.',
+      'Not applicable here; for discovered apps a missing or incomplete backup leaves recovered disks with no VM definition to start.']:['the VM blueprint, kept separately from its contents.',
+      'Velero restores the VM, DataVolume and claim definitions on the target from the S3 archive, and those claims bind to the promoted disks.',
+      'If the latest backup did not complete or S3 is unreachable, the disks exist on the target but there is no VM definition to start.'],
+    'GitOps workload handoff (configured; acceptance must be demonstrated)':['a delivery order that automatically follows the current address.',
+      pending?'Intended to work like the RHEL reference once the Windows managed resources exist; nothing is configured yet.':'The ApplicationSet sees the new PlacementDecision, generates the Application for spoke-1 and removes the one for spoke-0. Spoke-1\u2019s Argo CD creates the VM on the promoted disks; spoke-0\u2019s Argo CD removes the source VM but leaves the namespace, so the source VRG can step down to Secondary.',
+      'If the generator cannot read the decision, no Application reaches the target and the source is never cleaned up, so the DRPC stays in Cleaning Up.'],
+    'GitOps registration (separate from DR Placement)':['Argo CD\u2019s address book.',
+      'Nothing changes; the target must already be registered. The registration Placement tolerates unavailable clusters, so a failed source is not unregistered in the middle of recovery.',
+      'If the target spoke is not a registered Argo CD destination, the generated Application has nowhere to go.'],
+    'Virtualization installation and execution':['the engine that actually runs the VM.',
+      'On the target, KubeVirt starts a new VirtualMachineInstance from the recovered VM definition; on the source, the instance stops.',
+      'If virtualization is unhealthy on the target, the disks and definitions are recovered but the guest never boots.'],
+    'Operator installation (recorded mechanism, not an active upgrade)':['the installer for the DR software itself.',
+      'Not involved in a failover.',
+      'A missing or failed operator means the Ramen controllers that drive every other row are not running.'],
+    'Conditional API dependencies (not established workload instances)':['optional add-ons that are installed but not switched on.',
+      'Not involved today.',
+      'Nothing currently depends on them; they matter only if these features are adopted later.']
+  };
+  const rowOf=t=>lanes.findIndex(([title])=>title===t);
+  const laneLink=t=>{const r=rowOf(t);return r<0?'':`<a href="#chain-${r}">${esc(t)}</a>`;};
+  const step=(label,titles,sep=true)=>{const links=titles.map(laneLink).filter(Boolean);return links.length?`<div class="chain-step${sep?' sep':''}"><b>${esc(label)}</b>${links.join('')}</div>`:'';};
+  const chainMap=`<nav class="chain-map" aria-label="How the chains fit together"><h3>How the chains fit together</h3><p>Read the rows below in this order. A failover starts at the left: the policy says which sites are eligible, the placement picks one, ACM delivers the instructions, and then two things must arrive on the target together, the disk data and the VM definition, before the VM can run. The foundation rows are installed once and used by all of these.</p><div class="chain-flow">
+    ${step('1. Which sites may protect it',['Policy and DR site eligibility'])}
+    ${step('2. Which site runs it now',['DR placement and console observation'])}
+    ${step('3. Instructions to each spoke',['Cross-cluster delivery and status'])}
+    ${step('4. Disk data reaches the target',['Protected disk replication'])}
+    ${step(managed?'5. VM definition reaches the target (Git)':'5. VM definition reaches the target (backup)',managed?['GitOps workload handoff (configured; acceptance must be demonstrated)']:['Kubernetes object protection (not block data)'])}
+    ${step('6. VM runs on the target disks',['VM disk provisioning and binding','Virtualization installation and execution'],false)}
+    </div><div class="chain-foundation"><b>Foundation:</b> ${['Storage provisioning: claims, class and driver',...(managed?['GitOps registration (separate from DR Placement)','Kubernetes object protection (not block data)']:[]),'Operator installation (recorded mechanism, not an active upgrade)','Conditional API dependencies (not established workload instances)'].map(laneLink).join('')}</div></nav>`;
+  const legend=`<div class="chain-legend"><div><b>Card stripe and badge</b>The color and badge show the namespace (or cluster-scoped / external). The line above the badge says which cluster the object lives on.</div><div><b>Card type</b><i>Custom resource</i>: defined by an operator CRD (Ramen, ACM, OADP\u2026). <i>Built-in resource</i>: standard Kubernetes. <i>Controller / external service</i>: software or hardware that acts on the resources.</div><div><b>Connection labels</b>A field name such as <code>drPolicyRef</code> or <code>placementRef</code> means one object points to another in its spec. A verb such as <i>delivers</i>, <i>generates</i> or <i>reconciles</i> means a controller acts. <i>Observes</i> or <i>correlates</i> means read-only status reporting.</div><div><b>Repeated cards</b>The same object can join several chains. \u201cAlso in\u201d on a card links to the other rows where it appears.</div></div>`;
+  const keyOf=a=>a.kind+'|'+a.name;
+  const appearances={};lanes.forEach(([title,nodes])=>nodes.forEach(a=>{(appearances[keyOf(a)]??=new Set()).add(title);}));
+  const alsoIn=(a,title)=>{const others=[...appearances[keyOf(a)]].filter(t=>t!==title);return others.length?`<div class="also-in">Also in: ${others.map(laneLink).join(', ')}</div>`:'';};
+  const introHtml=title=>{const [analogy,fo,br]=extra[title];return `<p><span class="analogy">Think of it as ${esc(analogy)}</span> ${esc(intros[title])}</p><p class="lane-failover"><b>During failover:</b> ${esc(fo)}</p><p class="lane-breaks"><b>If it is missing or broken:</b> ${esc(br)}</p>`;};
   const section=document.createElement('section');section.id='resource-dependencies';
   const used=[...new Set(lanes.flatMap(([,nodes])=>nodes.flatMap(a=>namespaces(a.scope))))];
   const badges=a=>namespaces(a.scope).map(key=>`<span class="namespace-badge" style="--ns-color:${palette[key]}">${esc(key)}</span>`).join('');
   section.innerHTML=`<h2>CRD dependency diagram and namespaces</h2><p>A CustomResourceDefinition (CRD) itself is always cluster-scoped. The custom resources it defines can be namespaced or cluster-scoped, according to the CRD's <code>spec.scope</code>. These cards show <b>custom-resource instances</b> and their cluster/namespace, plus the built-in resources and services they depend on. Card stripes and badges identify namespace/scope; resource type is labeled separately. Connections describe references, reconciliation or observation, not universal ownership. Open <b>Use and why needed</b> on any card for an explanation (click, tap or keyboard).</p>
+    ${chainMap}${legend}
     <div class="namespace-legend" aria-label="Namespace color legend">${used.map(key=>`<span class="namespace-badge" style="--ns-color:${palette[key]}">${esc(key)}</span>`).join('')}</div>
     <div class="toolbar"><button id="resource-fit">Fit dependencies</button><button id="resource-reset">100%</button><button id="resource-expand">Expand explanations</button><button id="resource-collapse">Collapse explanations</button><span class="muted">Scroll horizontally at full scale. Each row traces a labeled dependency path.</span></div>
-    <div class="wrap" id="resource-wrap"><div class="sizer" id="resource-sizer"><div id="resource-dia"><svg id="resource-svg" aria-hidden="true"></svg>${lanes.map(([title,nodes],row)=>`<div class="resource-lane-title" data-row="${row}">${esc(title)}</div><p class="resource-lane-intro" data-row="${row}">${esc(intros[title])}</p>${nodes.map((a,col)=>`<article class="resource-node" data-row="${row}" data-col="${col}" data-type="${a.type}" style="--ns-color:${namespaces(a.scope).length===1?palette[namespaces(a.scope)[0]]:palette['mixed scope']}"><small title="${esc(a.scope)}">${esc(clusterLabel(a.scope))}</small><div class="namespace-badges">${badges(a)}</div><small class="resource-type">${a.type==='cr'?'Custom resource':a.type==='builtin'?'Built-in resource':'Controller / external service'}</small><h3>${esc(a.kind)}</h3><b>${esc(a.name)}</b><details><summary>Use and why needed<span class="sr-only">: ${esc(a.kind)}</span></summary><p><strong>Used for:</strong> ${esc(a.detail)}</p><p><strong>Why needed:</strong> ${esc(why[a.kind])}</p></details></article>`).join('')}`).join('')}</div></div></div>
+    <div class="wrap" id="resource-wrap"><div class="sizer" id="resource-sizer"><div id="resource-dia"><svg id="resource-svg" aria-hidden="true"></svg>${lanes.map(([title,nodes],row)=>`<div class="resource-lane-title" id="chain-${row}" data-row="${row}"><a href="#chain-${row}">${esc(title)}</a></div><div class="resource-lane-intro" data-row="${row}">${introHtml(title)}</div>${nodes.map((a,col)=>`<article class="resource-node" data-row="${row}" data-col="${col}" data-type="${a.type}" style="--ns-color:${namespaces(a.scope).length===1?palette[namespaces(a.scope)[0]]:palette['mixed scope']}"><small title="${esc(a.scope)}">${esc(clusterLabel(a.scope))}</small><div class="namespace-badges">${badges(a)}</div><small class="resource-type">${a.type==='cr'?'Custom resource':a.type==='builtin'?'Built-in resource':'Controller / external service'}</small><h3>${esc(a.kind)}</h3><b>${esc(a.name)}</b>${alsoIn(a,title)}<details><summary>Use and why needed<span class="sr-only">: ${esc(a.kind)}</span></summary><p><strong>Used for:</strong> ${esc(a.detail)}</p><p><strong>Why needed:</strong> ${esc(why[a.kind])}</p></details></article>`).join('')}`).join('')}</div></div></div>
     <h3>Supporting configuration and conditional custom resources</h3><div class="table-wrap"><table><thead><tr><th>Kind / resource</th><th>Cluster / namespace or scope</th><th>Relationship and applicability</th></tr></thead><tbody>
     <tr><td>DRClusterConfig</td><td>Cluster-scoped: spoke-0 on edge95; spoke-1 on edge97</td><td>Observed cluster controller configuration instances.</td></tr>
     <tr><td>HyperConverged; KubeVirt; CDI</td><td>Each spoke: openshift-cnv/kubevirt-hyperconverged; openshift-cnv/kubevirt-kubevirt-hyperconverged; cluster-scoped cdi-kubevirt-hyperconverged</td><td>Observed virtualization and disk-import configuration instances. CDI is cluster-scoped, not in openshift-cnv.</td></tr>

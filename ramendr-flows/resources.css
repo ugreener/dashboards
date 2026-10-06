@@ -2,6 +2,20 @@
 #resource-svg{position:absolute;inset:0;pointer-events:none}
 .resource-lane-title{position:absolute;left:20px;font-size:16px;font-weight:700;color:#f0f6fc}
 .resource-lane-intro{position:absolute;left:20px;width:1680px;margin:0;padding:8px 12px;border-left:3px solid #58a6ff;background:#161b22;border-radius:4px;color:#c9d1d9;font-size:13px;line-height:1.5}
+.resource-lane-intro p{margin:0 0 4px}.resource-lane-intro p:last-child{margin:0}
+.resource-lane-intro .analogy{color:#d2a8ff;font-style:italic}
+.resource-lane-intro .lane-failover b{color:#ffa657}.resource-lane-intro .lane-breaks b{color:#ff7b72}
+.resource-lane-title a{color:inherit;text-decoration:none}
+.resource-node .also-in{margin-top:8px;font-size:11px;color:#9ba7b4}.resource-node .also-in a{color:#a5d6ff}
+.chain-map{border:1px solid #30363d;border-radius:8px;background:#0d1117;padding:12px 14px;margin:12px 0}
+.chain-map h3{margin:0 0 6px;font-size:15px}.chain-map>p{margin:0 0 10px;color:#c9d1d9;font-size:13px}
+.chain-flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.chain-step{flex:1 1 170px;border:1px solid #30363d;border-top:3px solid #58a6ff;border-radius:6px;padding:8px;background:#161b22;font-size:12px;position:relative}
+.chain-step.sep::after{content:"";position:absolute;right:-8px;top:50%;border:5px solid transparent;border-left-color:#58a6ff;transform:translateY(-50%)}
+.chain-step b{display:block;font-size:11px;color:#9ba7b4;margin-bottom:3px}.chain-step a{color:#a5d6ff;display:block;margin:2px 0}
+.chain-foundation{margin-top:10px;font-size:12px;color:#c9d1d9}.chain-foundation a{color:#a5d6ff;margin-right:12px}
+.chain-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;margin:10px 0;font-size:12px}
+.chain-legend div{border:1px solid #30363d;border-radius:6px;padding:8px;background:#161b22}.chain-legend b{display:block;margin-bottom:3px}
 .resource-node{position:absolute;width:320px;padding:16px;border:1px solid #30363d;border-left:5px solid var(--ns-color);border-radius:9px;background:#161b22;font-size:14px;overflow-wrap:break-word}
 .resource-node small{display:block;color:#bc8cff;line-height:1.5}
 .resource-node h3{font-size:15px;margin:9px 0}
