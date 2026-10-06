@@ -235,7 +235,7 @@
       'Nothing in this row changes. The policy and both DR sites stay the same; Failover uses them to confirm that the target is a valid, validated peer.',
       'If a DRCluster fails validation (for example its S3 metadata store is unreachable) or the DRPolicy is not validated, the application cannot reach a protected state and recovery cannot be trusted.'],
     'DR placement and console observation':['the application\u2019s current address.',
-      'When you confirm Failover to spoke-1, Ramen records the action on the DRPC and moves the PlacementDecision from spoke-0 to spoke-1. The console view then shows the new site and the progression steps.',
+      'When you confirm Failover to the peer cluster, Ramen records the action on the DRPC and moves the PlacementDecision from the source cluster to the target (for example spoke-0 to spoke-1, or the reverse). The console view then shows the new site and the progression steps.',
       'Without a Placement and its decision, nothing tells the rest of the system where the application should run'+(managed?', and the ApplicationSet has no destination to deploy to.':'.')],
     'Cross-cluster delivery and status':['a courier envelope with a return receipt.',
       'Ramen updates the delivered VRG instructions: the target spoke\u2019s VRG becomes Primary and the source spoke\u2019s VRG is asked to become Secondary. The views report each step back, which drives the DRPC progression you see in the console.',
