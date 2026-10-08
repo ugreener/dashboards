@@ -9,9 +9,10 @@
     291: {title:'RHEL discovered application',status:'Closed',ns:'hammerdb',vm:'hammerdb-rhel9',drpc:'hammerdb-drpc',placement:'hammerdb-placement',db:'PostgreSQL 16',hdb:'4.12',managed:false,windows:false},
     292: {title:'RHEL GitOps-managed application',status:'In Progress',ns:'gitops-vms',vm:'hammerdb-rhel9',drpc:'dell-vm-drpc',placement:'dell-vm-placement',db:'PostgreSQL 16',hdb:'5.0',managed:true,windows:false},
     293: {title:'Windows discovered application',status:'Closed',ns:'hammerdb-win',vm:'hammerdb-win',drpc:'hammerdb-win-drpc',placement:'hammerdb-win-placement',db:'SQL Server 2022 Express',hdb:'5.0',managed:false,windows:true},
-    294: {title:'Windows GitOps-managed application',status:'New',ns:'Not configured',vm:'Not configured',drpc:'Not configured',placement:'Not configured',db:'SQL Server 2022 Express',hdb:'5.0',managed:true,windows:true}
+    294: {title:'Windows GitOps-managed application',status:'New',ns:'gitops-vms-win',vm:'windows-hammerdb',disk:'hammerdb-win',drpc:'dell-win-drpc',placement:'dell-win-placement',appset:'dell-win-workload',path:'workloads-win',hubdr:'hub-dr-win',task:'ramendr-dr-hammerdb',sha:'ebfa8ac57a8972e0d02311718af3b5a05bb9c796',db:'SQL Server 2022 Express',hdb:'5.0',managed:true,windows:true}
   };
   const id = document.body.dataset.flow, c = configs[id];
+  c.disk=c.disk||c.vm; c.appset=c.appset||'dell-vm-workload'; c.path=c.path||'workloads'; c.hubdr=c.hubdr||'hub-dr'; c.task=c.task||'RamenDR-HammerDB'; c.sha=c.sha||sha;
   // Managed ApplicationSet DRPCs live with their Placement in the ArgoCD namespace and their VRG in the app namespace.
   const hubNs = c.managed ? 'openshift-gitops' : 'openshift-dr-ops';
   const vrgNs = c.managed ? c.ns : 'openshift-dr-ops';
@@ -22,18 +23,18 @@
   const stage = (title,kind,owner,summary,items,gate) => ({title,kind,owner,summary,items,gate});
   const stages = [
     stage('Inventory and ownership','hub','Hub + both spokes','Identify the exact protected application, both disks and the active DR direction.',[
-      `Record DRPC ${c.drpc}, its Placement reference, protected namespace ${c.ns}, VM ${c.vm}, both DataVolumes/PVCs and current source VMI.${c.windows&&c.managed?' First establish and record the unspecified Windows managed object names.':''}`,
+      `Record DRPC ${c.drpc}, its Placement reference, protected namespace ${c.ns}, VM ${c.vm}, both DataVolumes/PVCs and current source VMI.${c.windows&&c.managed?' Disk PVCs are hammerdb-win-rootdisk/-datadisk; the VM is windows-hammerdb.':''}`,
       'Read owner references and selectors. Map PlacementDecision, VRG, VolumeReplication, ManifestWork, ManagedClusterView and ProtectedApplicationView where used. Record installed controller versions and readiness.',
       'Either direction is valid: spoke-0 (edge95, VSA-A) to spoke-1 (edge97, VSA-B) or the reverse. Home baseline is spoke-0. The source is wherever the workload runs when the test starts; read the live PlacementDecision and VM location and record the actual source and target clusters and arrays.',
       'Discover current namespaces and console scopes. Hub CR views do not substitute for spoke-local VM, VRG or storage views.'
     ],'Complete the dependency/evidence map before initiation.'),
     stage(c.managed?'Prove GitOps handoff':'Prove object recovery', 'hub',c.managed?'ACM + ApplicationSet + Argo CD':'Ramen + OADP / Velero',c.managed?'A real generated Application must follow PlacementDecision.':'VM configuration and dependencies must be recoverable independently of disk replication.',c.managed?[
       'Verify both spokes are registered through GitOpsCluster argo-acm-clusters, its registration Placement all-openshift-clusters carries the unreachable/unavailable tolerations, and each spoke has the gitops-admin ClusterRoleBinding for the pull-model Argo CD controller. Inspect registration metadata only, never Secret contents.',
-      'Verify the pull-model ApplicationSet dell-vm-workload, DR Placement dell-vm-placement and DRPC dell-vm-drpc are all in openshift-gitops, the generator reads acm-placement there, and a generated Application dell-vm-workload-spoke-0 exists. Record source revision, workload path, destination, sync/health and operation status.',
+      `Verify the pull-model ApplicationSet ${c.appset}, DR Placement ${c.placement} and DRPC ${c.drpc} are all in openshift-gitops, the generator reads acm-placement there, and a generated Application ${c.appset}-spoke-0 exists. Record source revision, workload path, destination, sync/health and operation status.`,
       'The workload path must not contain a Namespace manifest. If Argo CD owns gitops-vms it prunes the namespace on the source during failover, deleting the VRG before Secondary and leaving DRPC in FailedOver/Cleaning Up (first attempt from a temporary fork). The DRPC must not set protectedNamespaces.',
       'Require an external credential-provisioning path on the target. RHEL needs namespace-local cloudinit-hammerdb; Windows has a separate initialization/credential mechanism.',
       'The committed RHEL DRPC selects both disks with pvcSelector drprotection=true and does not enable kubeObjectProtection: Git and Argo CD recreate workload objects. Verify DRPC Protected and VRG ClusterDataProtected; both root and data PVCs must be protected.',
-      c.windows?'VIRTDR-294 has no verified Windows managed manifest set in clusters/dell-s4. Define its workload, namespace and DR resources before testing; do not reuse the RHEL manifests as Windows definitions.':'Use the upstream clusters/dell-s4 manifests (hub-gitops, hub-dr, spoke-rbac, workloads), following the ODF Regional-DR ApplicationSet procedure. Record the tested commit. Resolve the shared runner spoke-0/spoke-1 name gap described in Setup Step 11 before repeatable bootstrap.'
+      c.windows?'Use the upstream clusters/dell-s4 workloads-win and hub-dr-win manifests (commit ebfa8ac), reusing hub-gitops and spoke-rbac from the RHEL set. The rootdisk clones from the spoke-0 golden PVC; target adoption of the restored PVC relies on the CDI DataVolumeClaimAdoption feature gate (enabled on both spokes) and must be shown by the failover.':'Use the upstream clusters/dell-s4 manifests (hub-gitops, hub-dr, spoke-rbac, workloads), following the ODF Regional-DR ApplicationSet procedure. Record the tested commit. Resolve the shared runner spoke-0/spoke-1 name gap described in Setup Step 11 before repeatable bootstrap.'
     ]:[
       'Require DRPC Protected=True, source VRG KubeObjectsReady=True and ClusterDataProtected=True, OADP DataProtectionApplication readiness and an Available BackupStorageLocation.',
       'Verify terminal Velero backup success or a controlled S3 archive read-back containing the VM, both DataVolumes and required dependencies. An empty Backup CR list does not establish that the stored archive is missing.',
@@ -41,7 +42,7 @@
       'MinIO readiness and storage metadata validation alone do not prove that the workload object archive completed.'
     ],c.managed?'BLOCK if generated Applications, destination credentials or controller ownership are unverified.':'BLOCK if VM restore/archive evidence is unverified.'),
     stage('Establish active writes','guest','Source guest + OpenShift Virtualization','Record a timestamped database baseline while the source VM is running.',[
-      c.windows?'Verify MSSQL$SQLEXPRESS is Running and RamenDR-HammerDB Scheduled Task is Running. Record TPC-C SUM(d_next_o_id) and UTC capture time.':'Verify ramendr-postgresql.service and ramendr-dr-hammerdb.service are active. Record TPC-C sum(d_next_o_id) and UTC capture time.',
+      c.windows?`Verify MSSQL$SQLEXPRESS is Running and ${c.task} Scheduled Task is Running (AtStartup trigger). Record TPC-C SUM(d_next_o_id) and UTC capture time.`:'Verify ramendr-postgresql.service and ramendr-dr-hammerdb.service are active. Record TPC-C sum(d_next_o_id) and UTC capture time.',
       `Recorded HammerDB version: ${c.hdb}. The managed RHEL bootstrap left writers stopped; start them only as part of an authorized test and prove sustained count growth. Start the writer at least two scheduled sync cycles (about 25 minutes with a 15m rule) before the replication gate, so the gating syncs carry HammerDB writes.`,
       'Record guest database timezone, history timestamp range and database identity. Save source-side continuity/audit evidence for later comparison.',
       'Failover is crash-consistent with active writes. A reachable source is not assumed stopped or fenced. A pre/post aggregate count is only a baseline, not a loss measurement.'
@@ -90,7 +91,7 @@
     ],c.managed?'Automatic reconciliation and recovered disk reuse must be evidenced.':'Do not confuse Cleaning Up with completion; destructive cleanup is separately authorized.'),
     stage('Boot and recover services','guest','Target OpenShift Virtualization + guest OS','Verify the recovered VMI and database auto-start on the target cluster.',[
       'Verify target VM/VMI Running, launcher ready, both recovered disks accessible, and final PlacementDecision on the target cluster.',
-      c.windows?'Verify MSSQL$SQLEXPRESS and RamenDR-HammerDB. SQL Server may auto-start after a 1-2 minute delay; inspect service/event evidence before any authorized manual intervention.':'Verify ramendr-postgresql.service and ramendr-dr-hammerdb.service auto-started. Inspect bounded systemd status/journal if either fails.',
+      c.windows?`Verify MSSQL$SQLEXPRESS and ${c.task}. SQL Server may auto-start after a 1-2 minute delay; inspect service/event evidence before any authorized manual intervention.`:'Verify ramendr-postgresql.service and ramendr-dr-hammerdb.service auto-started. Inspect bounded systemd status/journal if either fails.',
       c.windows?'Verify SQL Server crash recovery and that tpcc is queryable on the promoted data disk.':'Verify PostgreSQL WAL recovery and that tpcc is queryable from /mnt/ramendr-data/postgres/data.',
       'Confirm source workload is gone, source VRG Secondary, target VRG/VolumeReplications Primary and DRPC FailedOver/Completed. A running VM alone does not complete DR validation.'
     ],'Require both guest services and the completed protection/placement chain.'),
@@ -109,7 +110,7 @@
     'Record the RDP result. Do not substitute SSH service checks for desktop/BSOD verification.'
   ],'Windows acceptance remains incomplete until the user confirms desktop recovery.'));
   stages.push(stage('Stop writer and seal evidence','guest','Target guest + final cross-scope capture','Preserve a queryable database while preventing further load-driven disk growth.',[
-    c.windows?'Stop-ScheduledTask -TaskName RamenDR-HammerDB; Disable-ScheduledTask -TaskName RamenDR-HammerDB. Keep MSSQL$SQLEXPRESS running.':'sudo systemctl disable --now ramendr-dr-hammerdb.service. Keep ramendr-postgresql.service running.',
+    c.windows?`Stop-ScheduledTask -TaskName ${c.task}; Disable-ScheduledTask -TaskName ${c.task}. Keep MSSQL$SQLEXPRESS running.`:'sudo systemctl disable --now ramendr-dr-hammerdb.service. Keep ramendr-postgresql.service running.',
     'Verify the writer is stopped/disabled and the transaction count is unchanged across two observations. Capture timestamped output.',
     'Repeat final Data Services tabs/popovers, DRPC, placement, application, protection/replication and controller readiness evidence. Record whether the active DRPolicy changed.',
     'Publish run results with before/after screenshot pairs, command evidence, RPO measurements, defects and unavailable views. Compare only applicable behavior with AWS/ODF; do not copy ODF thresholds, MirrorPeer/Submariner checks or cleanup scripts.',
@@ -122,14 +123,14 @@
     'Require every backing disk to pass the two-sync gate: at least two scheduled PowerStore sync jobs since the replication was created or reversed, each carrying HammerDB writes, no failed sync job, all gaps and the latest sync within the RPO. Retain source history evidence and sync timestamps for the later continuity comparison.',
     c.windows?'Re-verify the gate manually within 2 minutes before Initiate.':'Run dell_dr_check.py preflight within 2 minutes before Initiate; proceed only on OVERALL: PASS and the user\'s go after reviewing its full output.',
     'Complete baseline Data Services and cross-operator UI verification. A dated resource snapshot is not current test readiness.',
-    'Resolve all managed-app blockers and unspecified Windows resources before proceeding.'
+    'Resolve all managed-app blockers before proceeding.'
   ], 'All configuration gates must pass for this run; initiation requires explicit authorization.'));
 
   const rhelRead = `# Read-only examples. Context names are placeholders; map to real kubeconfigs.\noc --context=hub get drpc ${c.drpc} -n ${hubNs} -o yaml\noc --context=hub get protectedapplicationview ${c.drpc} -n ${hubNs} -o yaml\noc --context=hub get placementdecision ${c.placement}-decision-1 -n ${hubNs} -o yaml\noc --context=hub get drpolicy dr-policy-15m -o yaml\noc --context=hub get drcluster spoke-0 spoke-1 -o yaml\noc --context=source get vm,vmi,dv,pvc -n ${c.ns}\n# ${c.managed?'Managed VRGs live in the application namespace.':'Discovered VRGs live in openshift-dr-ops, separate from the protected PVC namespace.'}\noc --context=source get vrg ${c.drpc} -n ${vrgNs} -o yaml\noc --context=target get vrg ${c.drpc} -n ${vrgNs} -o yaml\noc --context=source get volumereplication -n ${c.ns} -o yaml\noc --context=target get volumereplication -n ${c.ns} -o yaml\noc --context=target get vm,vmi,dv,pvc -n ${c.ns}\noc --context=target get events -n ${c.ns} --field-selector=reason=FailedMount`;
   const sql = c.windows?`-- Read-only SQL Server queries in the recovered tpcc database.\n-- Replace time placeholders after establishing database timezone.\nSELECT CONVERT(VARCHAR(16), h_date, 120) AS minute, COUNT(*) AS rows\nFROM history WHERE h_date BETWEEN '<start>' AND '<end>'\nGROUP BY CONVERT(VARCHAR(16), h_date, 120) ORDER BY 1;\nSELECT MAX(h_date) FROM history;\nSELECT COUNT(*) FROM history\nWHERE h_date BETWEEN '<last_sync>' AND '<last_source_write>';\nSELECT SUM(d_next_o_id) AS total_orders FROM district;`:`-- Read-only PostgreSQL queries in the recovered tpcc database.\n-- Replace time placeholders after establishing database timezone.\nSHOW timezone;\nSELECT date_trunc('minute', h_date) AS minute, count(*) AS rows\nFROM history WHERE h_date BETWEEN '<start>' AND '<end>'\nGROUP BY 1 ORDER BY 1;\nSELECT max(h_date) FROM history;\nSELECT count(*) FROM history\nWHERE h_date BETWEEN '<last_sync>' AND '<last_source_write>';\nSELECT sum(d_next_o_id) FROM district;`;
-  const snippet = `# Partial upstream ApplicationSet excerpt (commit e6237ef), not live state
+  const snippet = `# Partial upstream ApplicationSet excerpt (commit ${c.sha.slice(0,7)}), not live state
 metadata:
-  name: dell-vm-workload
+  name: ${c.appset}
   namespace: openshift-gitops
 spec:
   generators:
@@ -137,7 +138,7 @@ spec:
         configMapRef: acm-placement
         labelSelector:
           matchLabels:
-            cluster.open-cluster-management.io/placement: dell-vm-placement
+            cluster.open-cluster-management.io/placement: ${c.placement}
         requeueAfterSeconds: 180
   template:
     metadata:
@@ -159,14 +160,25 @@ spec:
       syncPolicy:
         automated: {prune: true, selfHeal: true}
         syncOptions: [CreateNamespace=true, PruneLast=true]
-# DRPC excerpt: openshift-gitops/dell-vm-drpc
-#   placementRef: openshift-gitops/dell-vm-placement, preferredCluster: spoke-0
+# DRPC excerpt: openshift-gitops/${c.drpc}
+#   placementRef: openshift-gitops/${c.placement}, preferredCluster: spoke-0
 #   drPolicyRef: dr-policy-15m, pvcSelector: drprotection=true, no protectedNamespaces`;
-  const resourceMap=c.windows&&c.managed?`Windows managed workload: not configured in reviewed upstream manifests or live inventory
-  Workload namespace, VM, disks, DRPC, Placement and ApplicationSet: not configured
-  Shared infrastructure below is verified, not a Windows managed deployment
-  ArgoCD: openshift-gitops/openshift-gitops
-  OADP DPA: openshift-adp/velero on both spokes`:c.managed?`# Configured in Git (upstream ocp-4.22-rhdr-dell, commit e6237ef)
+  const resourceMap=c.windows&&c.managed?`# Configured in Git (upstream ocp-4.22-rhdr-dell, commit ebfa8ac) and live-verified 2026-10-08
+Hub / openshift-gitops
+  GitOpsCluster: argo-acm-clusters (shared with VIRTDR-292)
+  ApplicationSet: dell-win-workload (pull model)
+    Generated Application: dell-win-workload-spoke-0 (Synced/Healthy)
+    Source: clusters/dell-s4/workloads-win (VM, DataVolumes, SSH + RDP Services; no Namespace)
+  Placement: dell-win-placement (spoke-0 initial, tolerations)
+  DRPC: dell-win-drpc (dr-policy-15m, pvcSelector drprotection=true) Deployed/Completed, Protected=True
+Spoke-0 / gitops-vms-win
+  VM windows-hammerdb, DataVolumes/PVCs hammerdb-win-rootdisk (45Gi, golden PVC clone) + hammerdb-win-datadisk (10Gi)
+  VRG dell-win-drpc Primary; both VolumeReplications Primary (powerstore-vrc-15m)
+  Services: windows-hammerdb (SSH NodePort), hammerdb-win-rdp (NodePort 30390)
+  Guest: SQL Server 2022 Express (Automatic), writer task ramendr-dr-hammerdb (AtStartup)
+Spoke-1 / gitops-vms-win
+  VRG dell-win-drpc Secondary
+`:c.managed?`# Configured in Git (upstream ocp-4.22-rhdr-dell, commit e6237ef)
 Hub / openshift-gitops
   GitOpsCluster: argo-acm-clusters (Placement all-openshift-clusters, with tolerations)
   ApplicationSet: dell-vm-workload (pull model)
@@ -181,7 +193,7 @@ Hub / spoke-0 and spoke-1 (Ramen-generated, per spoke)
 Both spokes
   ClusterRoleBinding: gitops-admin (cluster-admin for openshift-gitops-argocd-application-controller)
   gitops-vms / VolumeReplicationGroup: dell-vm-drpc
-  gitops-vms / VM: ${c.vm}; DataVolume/PVC: ${c.vm}-rootdisk, ${c.vm}-datadisk
+  gitops-vms / VM: ${c.vm}; DataVolume/PVC: ${c.disk}-rootdisk, ${c.disk}-datadisk
   gitops-vms / Secret: cloudinit-hammerdb (provisioned outside Git)
   OADP BackupStorageLocation: none (no kubeObjectProtection)
 
@@ -206,8 +218,8 @@ Both spokes / openshift-dr-ops
   VolumeReplicationGroup: ${c.drpc}
 Active spoke / ${c.ns}
   VM / VMI: ${c.vm}
-  DataVolume / PVC: ${c.vm}-rootdisk
-  DataVolume / PVC: ${c.vm}-datadisk
+  DataVolume / PVC: ${c.disk}-rootdisk
+  DataVolume / PVC: ${c.disk}-datadisk
 Both spokes / openshift-adp
   DataProtectionApplication: velero
   Backup / Restore: no current CRs (stored archive presence not established by this list)
@@ -219,11 +231,11 @@ Both spokes / openshift-adp
     <nav><a href="../">Flow directory</a><a href="../../ramendr/">Environment</a>${Object.entries(configs).map(([n,v])=>`<a href="../virtdr-${n}/" ${n===id?'aria-current="page"':''}>${n}: ${v.title}</a>`).join('')}</nav>
     <h1>${jira('VIRTDR-'+id)} · ${viewTitle}</h1><p class="muted">${c.title} · Dell PowerStore · either direction (spoke-0 ⇄ spoke-1) · ${jira('VIRTDR-218')}</p>
     <nav aria-label="Scenario dashboards"><a href="configuration.html" ${configuration?'aria-current="page"':''}>Pre-failover configuration</a><a href="failover.html" ${!configuration?'aria-current="page"':''}>Failover flow</a></nav>
-    <div class="summary"><div class="panel"><span class="badge">Jira: ${c.status}</span><p>Status snapshot: 2026-10-06. ${c.managed&&!c.windows?'Run 1 (spoke-0 to spoke-1, 19:29 UTC): automatic GitOps source cleanup and recovery on promoted disks worked, but RPO FAILED because VSA-A silently skipped the datadisk\'s first scheduled sync. Rerun pending behind the two-sync preflight gate; details in the VIRTDR-292 run log.':c.managed?'Managed failover acceptance is still to be demonstrated; define the Windows managed resources first.':'Jira records this discovered-flow task as closed; consult recorded evidence for the tested run.'}</p></div><div class="panel"><b>${c.db} + HammerDB ${c.hdb}</b><p>VM: ${c.vm}<br>Protected namespace: ${c.ns}<br>DRPC: ${c.drpc}</p></div><div class="panel"><b>${c.managed?'Controller-managed recovery':'Discovered workload recovery'}</b><p>${c.managed?'PlacementDecision / ApplicationSet / Argo CD; automatic source cleanup is required.':'OADP/Velero object restore; separate authorization is required for source cleanup.'}</p></div></div>
+    <div class="summary"><div class="panel"><span class="badge">Jira: ${c.status}</span><p>Status snapshot: ${c.windows&&c.managed?"2026-10-08":"2026-10-06"}. ${c.managed&&!c.windows?'Run 1 (spoke-0 to spoke-1, 19:29 UTC): automatic GitOps source cleanup and recovery on promoted disks worked, but RPO FAILED because VSA-A silently skipped the datadisk\'s first scheduled sync. Rerun pending behind the two-sync preflight gate; details in the VIRTDR-292 run log.':c.managed?'Configured and protected on spoke-0 (2026-10-08): DRPC Deployed/Completed, Protected=True, writer running. Failover not yet run; it waits for the two-sync replication gate with HammerDB writes.':'Jira records this discovered-flow task as closed; consult recorded evidence for the tested run.'}</p></div><div class="panel"><b>${c.db} + HammerDB ${c.hdb}</b><p>VM: ${c.vm}<br>Protected namespace: ${c.ns}<br>DRPC: ${c.drpc}</p></div><div class="panel"><b>${c.managed?'Controller-managed recovery':'Discovered workload recovery'}</b><p>${c.managed?'PlacementDecision / ApplicationSet / Argo CD; automatic source cleanup is required.':'OADP/Velero object restore; separate authorization is required for source cleanup.'}</p></div></div>
     <div class="notice"><b>Evidence boundaries:</b> this is a procedure diagram with a read-only resource-identity snapshot from 2026-10-04, not continuous monitoring or a completed run record. Current workload placement changes with failover and relocate, so this page does not state which spoke runs each VM; read the live PlacementDecision and VM/VMI location. Do not confuse DRPC preferredCluster with current PlacementDecision. Home baseline remains spoke-0. No failover or cluster mutation is executed by this page.</div>
     ${c.windows&&!c.managed?'<div class="notice"><b>Windows result boundary:</b> Step 10 records deployment and protection, not a completed Windows failover. The Closed Jira snapshot is separate from Setup Doc test evidence. Recorded Placement: hammerdb-win-placement; verify the live DRPC placementRef.</div>':''}
     ${c.managed&&!c.windows?`<div class="notice"><b>Corrected managed layout:</b> following the <a href="${odfAppSet}">ODF 4.22 Regional-DR ApplicationSet procedure</a>, the pull-model ApplicationSet, DR Placement and DRPC are all in openshift-gitops, the DRPC uses pvcSelector without protectedNamespaces, and the workload path has no Namespace manifest. The first managed failover attempt (from a temporary fork whose workload owned gitops-vms) stalled in FailedOver/Cleaning Up because Ramen dropped the VRG finalizer but left pvc-vr-protection on the source PVC. It was removed, and the corrected configuration was redeployed on 2026-10-06 with both disks protected and writers active.</div>`:''}
-    ${c.windows&&c.managed?'<div class="notice"><b>Windows managed readiness gap:</b> the verified upstream Dell folder contains RHEL VM manifests only. Namespace, DRPC, Placement, ApplicationSet, Windows manifest path and access Service for this scenario are not yet specified in the reviewed sources. These are explicit setup gates, not invented resource names.</div>':''}
+    ${c.windows&&c.managed?'<div class="notice"><b>Windows managed layout:</b> same model as VIRTDR-292 (ApplicationSet, DR Placement and DRPC in openshift-gitops; no Namespace manifest). The VM name starts with "windows" because the shared HammerDB installer selects its Windows path by name. Open acceptance item: the golden PVC exists only on spoke-0, so recovery must adopt the Ramen-restored PVCs (CDI DataVolumeClaimAdoption) instead of re-cloning.</div>':''}
     <h2>Topology and the three independent recovery paths</h2>
     <div class="sites"><div class="site hub"><h3>Control plane · hub / edge36</h3><p>ACM/MCE ManagedClusters are cluster-scoped. DRPC and Placement enrollment is in ${hubNs}${c.managed?' (managed ApplicationSet app)':' (discovered admin namespace)'}; ManifestWork delivery uses hub namespaces spoke-0/spoke-1. Ramen coordinates DR; DF Multicluster Orchestrator provides Data Services UI. MinIO stores metadata and object backup data.</p><p>${c.managed?'GitOps: ArgoCD registration, pull-model ApplicationSet, DR Placement and DRPC in openshift-gitops; spokes run Argo CD with the gitops-admin binding.':'Discovered: recover VM and dependencies through kube-object protection.'}</p></div><div class="site"><h3>Home site · spoke-0 / edge95</h3><p>Host-local subnet 192.168.130.0/24. Home cluster; source or target depending on the run, not a live placement claim. Ramen cluster controller, OpenShift Virtualization/CDI, OADP/Velero and PowerStore CSI/csi-addons.</p><p>VSA-A management 10.46.48.20<br>Storage 10.46.49.1 + 10.46.49.2, TCP/4420</p></div><div class="site storage"><h3>Recovery site · spoke-1 / edge97</h3><p>Host-local subnet 192.168.127.0/24. Peer cluster; source or target depending on the run. Verify actual worker topology and volume attachment.</p><p>VSA-B management 10.46.48.30<br>Storage 10.46.49.4 + 10.46.49.3, TCP/4420</p></div></div>
     <div class="table-wrap"><table><thead><tr><th>Path</th><th>Producer and consumer</th><th>What must be proven</th></tr></thead><tbody><tr><td>Storage data</td><td>Guest writes / source PVC / Dell CSI / VSA-A async replication / VSA-B / target PVC</td><td>Both disks recovered from replica handles; actual sync age within live RPO; usable NVMe namespaces and mounts.</td></tr><tr><td>DR control</td><td>UI / hub DRPC / DRPolicy / ManifestWork and views where used / spoke VRG / per-volume replication</td><td>Desired and observed generations, roles, conditions, placement and completion agree.</td></tr><tr><td>Application configuration</td><td>${c.managed?'Git revision / PlacementDecision / ApplicationSet / generated Application / Argo CD / target VM':'VM objects / OADP Velero backup / MinIO S3 / target object restore / target VM'}</td><td>${c.managed?'Correct destination and ownership; automatic source cleanup; promoted disk reuse; target credentials provisioned.':'Archive contains required objects; restore preserves boot configuration and dependencies; cleanup is separately authorized.'}</td></tr><tr><td>Metadata network</td><td>Spokes / hub HTTPS route and ACM cluster proxy / MinIO bucket ramen-metadata</td><td>Private CA trusted through configured system trust; validation and archive evidence. Host-local clone subnets do not imply direct cross-site pod networking.</td></tr></tbody></table></div>
@@ -232,8 +244,8 @@ Both spokes / openshift-adp
     <div class="wrap" id="wrap"><div class="sizer" id="sizer"><div id="dia"><svg id="svg" aria-hidden="true"></svg>${stages.map((s,i)=>`<article class="stage" data-kind="${s.kind}" style="left:${30+i*370}px;top:35px"><span class="num">STEP ${String(i+1).padStart(2,'0')}</span><h3>${s.title}</h3><p>${s.summary}</p><small>${s.owner}</small><a href="#step-${i+1}">Details and gate</a></article>`).join('')}</div></div></div>
     <h2>Detailed handoffs and blocking gates</h2><div class="details">${stages.map((s,i)=>`<section class="panel detail" id="step-${i+1}"><span class="owner">${s.owner}</span><h3>${String(i+1).padStart(2,'0')} · ${s.title}</h3><ul>${s.items.map(t=>`<li>${esc(t)}</li>`).join('')}</ul><p class="gate">Gate: ${esc(s.gate)}</p></section>`).join('')}</div>
     <h2>Resource map and configuration evidence</h2><pre>${esc(resourceMap)}</pre>
-    ${c.managed?`<p><a href="${repo}/blob/${sha}/clusters/dell-s4/hub-dr/applicationset.yaml">Verified RHEL ApplicationSet source</a> · <a href="${repo}/blob/${sha}/clusters/dell-s4/hub-dr/drpc.yaml">DRPC source</a> · <a href="${repo}/blob/${sha}/clusters/dell-s4/workloads/datavolumes.yaml">Initial disk provisioning source</a> · <a href="${repo}/blob/${sha}/clusters/dell-s4/hub-gitops/gitopscluster.yaml">GitOps registration</a> · <a href="${repo}/blob/${sha}/clusters/dell-s4/spoke-rbac/clusterrolebinding.yaml">Spoke RBAC</a> · <a href="${odfAppSet}">ODF ApplicationSet procedure</a></p><pre>${esc(snippet)}</pre><p class="muted">Upstream commit ${sha}. This excerpt belongs to the RHEL managed reference. The initial blank data-disk and golden-image root provisioning must not replace recovered disks during failover. Repository content does not prove live Application source or an actively reconciled generator.</p>`:''}
-    <h2>Read-only inspection and database examples</h2><div class="details"><section class="panel"><h3>Cluster-side inspection</h3><pre>${esc(c.windows&&c.managed?'# Placeholder contexts and object names; resolve before use.\noc --context=hub get applicationsets,applications -A\noc --context=hub get drpc -A\noc --context=hub get placementdecision -A\n# Inspect the selected Windows protected namespace on both spokes.':rhelRead)}</pre>${c.managed?`<pre>${esc('# Read-only, context is a placeholder; no Secret contents.\noc --context=hub get applicationset dell-vm-workload -n openshift-gitops -o yaml\noc --context=hub get applications.argoproj.io -n openshift-gitops -o yaml\noc --context=hub get gitopscluster,placement -n openshift-gitops\noc --context=hub get placementdecision -n openshift-gitops -l cluster.open-cluster-management.io/placement=dell-vm-placement -o yaml\noc --context=spoke get clusterrolebinding gitops-admin')}</pre>`:''}</section><section class="panel"><h3>RPO history-gap queries</h3><pre>${esc(sql)}</pre><p>Run SQL through the authenticated guest database client without exposing credentials. For SQL Server, use an input file to avoid nested shell quoting. Retain both source-side and recovered evidence.</p><p class="gate">Report: last source write, first target write, gap duration, sync timestamp/age, RPO-window count, continuity comparison and supported loss verdict.</p></section></div>
+    ${c.managed?`<p><a href="${repo}/blob/${c.sha}/clusters/dell-s4/${c.hubdr}/applicationset.yaml">Verified ApplicationSet source</a> · <a href="${repo}/blob/${c.sha}/clusters/dell-s4/${c.hubdr}/drpc.yaml">DRPC source</a> · <a href="${repo}/blob/${c.sha}/clusters/dell-s4/${c.path}/datavolumes.yaml">Initial disk provisioning source</a> · <a href="${repo}/blob/${sha}/clusters/dell-s4/hub-gitops/gitopscluster.yaml">GitOps registration</a> · <a href="${repo}/blob/${sha}/clusters/dell-s4/spoke-rbac/clusterrolebinding.yaml">Spoke RBAC</a> · <a href="${odfAppSet}">ODF ApplicationSet procedure</a></p><pre>${esc(snippet)}</pre><p class="muted">Upstream commit ${c.sha}. The initial blank data-disk and golden-image root provisioning must not replace recovered disks during failover. Repository content does not prove live Application source or an actively reconciled generator.</p>`:''}
+    <h2>Read-only inspection and database examples</h2><div class="details"><section class="panel"><h3>Cluster-side inspection</h3><pre>${esc(rhelRead)}</pre>${c.managed?`<pre>${esc(`# Read-only, context is a placeholder; no Secret contents.\noc --context=hub get applicationset ${c.appset} -n openshift-gitops -o yaml\noc --context=hub get applications.argoproj.io -n openshift-gitops -o yaml\noc --context=hub get gitopscluster,placement -n openshift-gitops\noc --context=hub get placementdecision -n openshift-gitops -l cluster.open-cluster-management.io/placement=${c.placement} -o yaml\noc --context=spoke get clusterrolebinding gitops-admin`)}</pre>`:''}</section><section class="panel"><h3>RPO history-gap queries</h3><pre>${esc(sql)}</pre><p>Run SQL through the authenticated guest database client without exposing credentials. For SQL Server, use an input file to avoid nested shell quoting. Retain both source-side and recovered evidence.</p><p class="gate">Report: last source write, first target write, gap duration, sync timestamp/age, RPO-window count, continuity comparison and supported loss verdict.</p></section></div>
     <h2>Evidence capture map</h2><div class="table-wrap"><table><thead><tr><th>Surface</th><th>Baseline</th><th>Transitions / promotion gate</th><th>Completion</th></tr></thead><tbody>
     <tr><td>Hub Fleet / Data Services</td><td>All four tabs, policy, topology, expanded DRPC, status popover, enabled Failover</td><td>Target and confirmation; each meaningful phase/progression; repeat tabs, links, popovers and Details before next action</td><td>Expanded DRPC Completed, policy comparison, topology and placement</td></tr>
     <tr><td>Hub Fleet / application and clusters</td><td>ManagedClusters, PlacementDecision, application topology, relevant ManifestWork/views</td><td>Decision and delivery handoffs; source/target availability</td><td>Final selected cluster and resource ownership</td></tr>
@@ -285,10 +297,5 @@ Both spokes / openshift-adp
   const resourceStyles=document.createElement('link');resourceStyles.rel='stylesheet';resourceStyles.href='../resources.css';
   resourceStyles.onload=()=>{const resourceScript=document.createElement('script');resourceScript.src='../resources.js';document.head.append(resourceScript);};
   document.head.append(resourceStyles);
-  }
-  if(c.windows&&c.managed){
-    document.querySelectorAll('pre').forEach(el=>{
-      if(el.textContent.includes('oc --context=hub get applicationset dell-vm-workload')) el.prepend(document.createTextNode('# RHEL MANAGED REFERENCE ONLY, not Windows configuration.\n# Resolve Windows-specific object names before inspection.\n'));
-    });
   }
 })();
