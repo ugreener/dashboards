@@ -22,7 +22,7 @@ meta:
   fps: 60
   audience: engineers
   narration: voice-over only, no captions
-  target_length_min: 13
+  target_length_min: 15
 
 cast:
   hub: {name: edge36, role: "ACM 2.17 hub, Ramen hub operator, OpenShift GitOps, MinIO S3 (bucket ramen-metadata)"}
@@ -71,7 +71,7 @@ beats:
   chapter: The environment
   visual: "Hub namespace openshift-gitops: four cards appear in order: Placement dell-vm-placement, DRPC dell-vm-drpc, ApplicationSet dell-vm-workload, PlacementDecision. Arrows labeled 'references'."
   narration: >
-    Nothing about this VM is applied by hand. It lives in Git, on the ocp-4.22-rhdr-dell branch,
+    The VM definition lives in Git, on the ocp-4.22-rhdr-dell branch,
     under clusters/dell-s4/workloads. On the hub, in openshift-gitops, four objects tie it together.
     A Placement, dell-vm-placement. A DRPlacementControl, dell-vm-drpc, pointing at that Placement and at
     the DR policy dr-policy-15m. An ApplicationSet, dell-vm-workload. And the PlacementDecision,
@@ -95,7 +95,8 @@ beats:
   narration: >
     The ApplicationSet uses the cluster decision resource generator. It reads the PlacementDecision through the
     acm-placement ConfigMap, and generates one Argo CD Application per listed cluster.
-    It does not watch the PlacementDecision. It polls it, every 180 seconds. Remember that number.
+    The generator polls the decision with a 180 second requeue interval. That is a polling setting,
+    not a guaranteed delivery time. Remember that number.
   pause_after: 1.6
   evidence: [repo, argocd]
 
@@ -134,7 +135,7 @@ beats:
   narration: >
     The csi-addons controller turns each VolumeReplication into gRPC calls on the PowerStore CSI driver,
     which creates an asynchronous replication session from VSA-B to VSA-A. With a 15 minute rule,
-    PowerStore actually syncs every 12 minutes, like clockwork.
+    the long-running sessions in this recorded run synced about every 12 minutes.
   pause_after: 1.2
   evidence: [csiaddons, setup, run]
 
@@ -162,12 +163,15 @@ beats:
 
 - id: 3.2
   chapter: Preflight gate
-  visual: "Checklist with 24 rows ticking green; the job history of both sessions scrolls (87 completed syncs each); two highlighted intervals with row counts 57,767 and 59,673."
+  visual: "Historical checklist with 24 green results and intervals carrying 57,767 and 59,673 rows. Compare preflight at 13:15:58 with Initiate at 13:26:40. Show 'outside the two-minute validity window'."
   narration: >
     So the rule now is scripted. At 13:15:58 the preflight passed 24 out of 24 checks. It reads the PowerStore job
     history, not the session summary. Each disk has 87 completed scheduled syncs since its VolumeReplication was created,
     no failures, every gap under 900 seconds. And the last two sync intervals each carried real writes:
     57,767 and 59,673 history rows. The gate is valid for two minutes.
+    This recorded preflight was more than ten minutes before Initiate. The attached evidence does not establish
+    a fresh scripted gate within two minutes of that click. The recovery result passed,
+    but this timing is not an example of today's required procedure.
   pause_after: 1.4
   evidence: [run]
 
@@ -239,8 +243,9 @@ beats:
   chapter: Promotion on spoke-0
   visual: "VRG condition ClusterDataReady goes green 'Restored 2 volrep PVs/PVCs'."
   narration: >
-    ClusterDataReady goes True. This ordering is the reason the restore exists: the PVCs must exist and be bound
-    to the replicated volumes before any application shows up, or the app would get brand new empty disks.
+    ClusterDataReady goes True after the storage definitions are restored. The recovery flow supplies the
+    replicated disks before the workload is deployed. That condition alone does not prove every PVC is Bound.
+    In this run, the target volume handles separately confirmed use of the promoted replicas.
   evidence: [ramen]
 
 - id: 6.3
@@ -255,11 +260,12 @@ beats:
 
 - id: 6.4
   chapter: Promotion on spoke-0
-  visual: "Array view: on VSA-A the two replica volumes flip from Destination to Source; the session arrow between arrays reverses direction."
+  visual: "VSA-A recovery copies become writable. Keep promotion distinct from the later reprotection and reversed replication shown in chapter 12."
   narration: >
-    On the arrays, the replication session fails over. The VSA-A copies stop being replication destinations and become
-    writable sources. The copies on VSA-B become the destinations.
+    On the arrays, failover makes the VSA-A recovery copies writable. Promotion is not the same operation as
+    establishing replication in the reverse direction. We confirm that later, after reprotection.
   evidence: [setup, notes]
+  unverified: "Exact PowerStore RPC sequence and deployed-driver SHA were not captured. Upstream promotion and reprotection are distinct."
 
 - id: 6.5
   chapter: Promotion on spoke-0
@@ -324,7 +330,9 @@ beats:
   visual: "Propagation controller wraps the Application in a ManifestWork in the spoke-0 cluster namespace; destination rewritten to kubernetes.default.svc; envelope flies to spoke-0."
   narration: >
     The propagation controller wraps it in a ManifestWork for spoke-0, rewriting the destination to the local API server.
-    Spoke-0's Argo CD receives it and syncs the manifests from Git at the same commit.
+    The work agent applies the Application, and spoke-0's Argo CD syncs its workload folder from Git.
+    The run records workload commit e6237efd8cba2c68908cf351c7b779d53be654f9.
+    A branch name by itself would not prove identical resolved commits on both spokes.
   evidence: [ocm, run]
 
 - id: 9.3
@@ -332,8 +340,8 @@ beats:
   visual: "Spoke-0 Argo CD applies DataVolumes, VM, Service; the DataVolumes snap onto the already-bound restored PVCs instead of creating new ones (green 'adopted' link)."
   narration: >
     Here is the moment the restore pays off. The DataVolume manifests name PVCs that already exist, restored by Ramen
-    and bound to the promoted VSA-A volumes. So no new disk is provisioned, and no OS image is cloned.
-    The VM is built on top of the replicated disks.
+    and bound to the promoted VSA-A volumes. The recorded handles and recovered database confirm replica reuse.
+    The exact CDI adoption sequence was not captured, so that part is explanatory inference.
   pause_after: 1.4
   evidence: [run, setup]
   unverified: "The exact CDI/Argo CD adoption mechanics are not traced in source; the outcome (promoted handles 9e3b6608 and 41b0880b in use) is recorded."
@@ -412,8 +420,8 @@ beats:
   visual: "DRPC: PeerReady flips green 'Ready', progression Completed, action duration 5m41s. Protected True."
   narration: >
     At 13:32:21 the hub confirms the spoke-1 VRG is Secondary. PeerReady goes True, the progression is Completed,
-    and the action duration is five minutes forty-one seconds. Protected is True: the new Primary on spoke-0 is
-    replicating and its cluster data is back in S3.
+    and the action duration is five minutes forty-one seconds. Protected is True.
+    That does not by itself prove a fresh reverse-direction array sync has completed.
   pause_after: 2.0
   evidence: [run, ramen]
 
@@ -421,7 +429,8 @@ beats:
   chapter: Completed
   visual: "Array view: sessions now VSA-A source to VSA-B destination, state OK. Reprotect icon."
   narration: >
-    On the arrays, replication now runs the other way, VSA-A to VSA-B. The workload is protected again, in the reverse direction.
+    The post-failover evidence shows reversed sessions, VSA-A to VSA-B, both reporting OK.
+    Fresh sync history is still a separate check, especially just after this reversal.
   evidence: [run, setup]
 
 # ---------------- Chapter 13: RPO ----------------
@@ -439,7 +448,8 @@ beats:
   narration: >
     Every one of the 277,433 rows written in the 59 minutes before that sync is present. The writes between 13:22:27
     and the source pause at 13:26:44 are gone. That is a recovery point 253 seconds before the click,
-    well inside the 900 second RPO. A pass, but not zero loss, and that is exactly what asynchronous replication promises.
+    inside the 900 second RPO for this recorded result. A pass, but not zero loss.
+    Asynchronous replication does not by itself guarantee that objective is met.
   pause_after: 2.2
   evidence: [run]
 
@@ -449,10 +459,20 @@ beats:
   visual: "Reversed sessions: rootdisk ticks at 13:36:57; datadisk clock stuck at 13:22:27 at 13:42 with a warning glyph."
   narration: >
     One last detail. Right after the reversal, the root disk synced at 13:36:57, but at 13:42 the data disk still had not.
-    Same first-sync skip as the day before. That is why the two-sync preflight must pass again before anyone relocates back.
+    At that observation the data disk's first post-reversal sync was delayed, not proven permanently skipped.
+    That is why the two-sync preflight must pass again before anyone relocates back.
   evidence: [run, notes]
 
 - id: 14.2
+  chapter: After the failover
+  visual: "Historical guest verification: ramendr-dr-hammerdb.service inactive/disabled, ramendr-postgresql.service active. Order-sequence sum stable at 1,443,612."
+  narration: >
+    After checking recovery, the writer was stopped and disabled while PostgreSQL remained running.
+    The order-sequence sum stayed at 1,443,612. The scripted stop hit an SSH error after disabling,
+    so the run log records a separate verification. This is an order-sequence metric, not an exact transaction count.
+  evidence: [run]
+
+- id: 14.3
   chapter: After the failover
   visual: "Pull back to the full topology; recap chain of handoffs lights up in order: Console, DRPC, ManifestWork, VRG, VolumeReplication, CSI, Array, PlacementDecision, ApplicationSet, ManifestWork, Argo CD, KubeVirt, PostgreSQL."
   narration: >
