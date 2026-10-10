@@ -79,7 +79,7 @@ export const ChapterCard: React.FC<{n: number; title: string; sub?: string; p: n
 /** Persistent HUD: chapter label (top-left) and run clock (top-right). */
 export const Hud: React.FC<{chapter: string; clock?: string | null; clockFlash?: number}> = ({chapter, clock, clockFlash = 0}) => (
   <>
-    <div style={{position: 'absolute', left: 48, top: 36, fontFamily: sans, fontSize: 24, color: C.dim, fontWeight: 600, letterSpacing: 0.5}}>
+    <div style={{position: 'absolute', left: 36, top: 28, fontFamily: sans, fontSize: 24, color: C.dim, fontWeight: 600, letterSpacing: 0.5, padding: '8px 18px', borderRadius: 10, background: `${C.bg}e6`, border: `1px solid ${C.border}`}}>
       <span style={{color: C.blue}}>VIRTDR-292</span>
       <span style={{margin: '0 14px', color: C.faint}}>/</span>
       {chapter}
@@ -116,7 +116,7 @@ export const Legend: React.FC<{appear: number}> = ({appear}) => {
     ['replicates data', C.orange, false],
   ];
   return (
-    <div style={{position: 'absolute', left: 48, bottom: 32, display: 'flex', gap: 26, opacity: appear, fontFamily: sans, fontSize: 18, color: C.dim}}>
+    <div style={{position: 'absolute', left: 36, bottom: 26, display: 'flex', gap: 26, opacity: appear, fontFamily: sans, fontSize: 18, color: C.dim, padding: '8px 18px', borderRadius: 10, background: `${C.bg}e6`, border: `1px solid ${C.border}`}}>
       {items.map(([t, c, d]) => (
         <span key={t} style={{display: 'flex', alignItems: 'center', gap: 8}}>
           <svg width={36} height={10}>

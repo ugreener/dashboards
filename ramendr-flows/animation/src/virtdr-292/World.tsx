@@ -41,8 +41,15 @@ export const mk = (c: Ctx) => {
     return prog(c.f, c.dur * a, c.dur * b);
   };
   const is = (...ids: string[]) => ids.includes(c.id);
+  /** Transient element: fully visible in beat `id`, fades out early in the following beat. */
+  const K = (id: string) => {
+    const si = idx(id);
+    if (bi === si) return 1;
+    if (bi === si + 1) return 1 - prog(c.f, -20, 25);
+    return 0;
+  };
   const after = (id: string) => bi >= idx(id);
-  return {A, H, T, is, after, bi};
+  return {A, H, T, K, is, after, bi};
 };
 
 // ---- layout (world units, 2400 x 1500) ----
@@ -167,7 +174,7 @@ const Volume: React.FC<{x: number; y: number; name: string; role: string; appear
   ) : null;
 
 export const World: React.FC<{c: Ctx}> = ({c}) => {
-  const {A, H, T, is, after} = mk(c);
+  const {A, H, T, K, is, after} = mk(c);
   const loop = (period: number) => (c.g % period) / period;
 
   // ---------- debut schedule ----------
@@ -289,7 +296,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         hl={hPlacement}
       />
       <Card x={card.appset[0]} y={card.appset[1]} w={W} kind="ApplicationSet" name="dell-vm-workload" lines={['clusterDecisionResource', 'requeueAfterSeconds 180']} appear={aSet} hl={hSet} />
-      <Card x={card.pd[0]} y={card.pd[1]} w={W} kind="PlacementDecision" name="dell-vm-placement-decision-1" lines={[<Pill text="spoke-1" color={C.spoke1} size={14} />]} appear={aPd} hl={hPd} />
+      <Card x={card.pd[0]} y={card.pd[1]} w={290} kind="PlacementDecision" name="dell-vm-placement-decision-1" lines={[<Pill text="spoke-1" color={C.spoke1} size={14} />]} appear={aPd} hl={hPd} />
       <Card x={card.drpolicy[0]} y={card.drpolicy[1]} w={300} kind="DRPolicy" name="dr-policy-15m" color={C.orange} lines={['cluster-scoped', 'schedulingInterval 15m']} appear={aPol} hl={H('1.3', 0.6, 0.72)} />
       <Card x={card.app1[0]} y={card.app1[1]} w={W} kind="Application" name="dell-vm-workload-spoke-1" lines={['skip-reconcile (hub)']} appear={aApp1} hl={H('1.5', 0.55, 0.8) + H('1.6', 0.0, 0.35)} />
 
@@ -366,38 +373,38 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
         {/* hub references */}
         <Flow a={mid(card.drpc, W, 40)} b={mid(card.placement, 0, 40)} bend="h" kind="ref" draw={T('1.3', 0.52, 0.6)} />
-        <Flow a={mid(card.drpc, W - 20, 130)} b={mid(card.drpolicy, 0, 50)} bend="h" kind="ref" draw={T('1.3', 0.62, 0.7)} opacity={0.6} />
+        <Flow a={mid(card.drpc, W - 20, 130)} b={mid(card.drpolicy, 0, 50)} bend="h" kind="ref" draw={T('1.3', 0.62, 0.7)} opacity={Math.max(K('1.3'), 0.0)} />
         <Flow a={mid(card.placement, W / 2, 110)} b={mid(card.pd, W / 2, 0)} bend="v" kind="ref" draw={T('1.3', 0.84, 0.92)} label="decision" />
         {/* Ramen writes PlacementDecision */}
-        <Flow a={[580, 540]} b={mid(card.pd, 0, 70)} bend="h" kind="reconcile" draw={T('1.4', 0.42, 0.55)} label="writes" opacity={is('1.4') ? 1 : 0.35} />
+        <Flow a={[580, 540]} b={mid(card.pd, 0, 70)} bend="h" kind="reconcile" draw={T('1.4', 0.42, 0.55)} label="writes" opacity={K('1.4')} />
         {/* AppSet reads PD, generates app */}
-        <Flow a={mid(card.appset, 0, 110)} b={mid(card.pd, W, 50)} bend="h" kind="observe" draw={T('1.5', 0.25, 0.35)} label={is('1.5') ? 'polls / 180 s' : undefined} />
+        <Flow a={mid(card.appset, 0, 110)} b={mid(card.pd, W, 50)} bend="h" kind="observe" draw={T('1.5', 0.25, 0.35)} label="polls / 180 s" opacity={K('1.5')} />
         <Flow a={mid(card.appset, W, 50)} b={mid(card.app1, 0, 50)} bend="h" kind="reconcile" draw={T('1.5', 0.55, 0.62)} label={is('1.5') ? 'generates' : undefined} />
         {/* app delivered to spoke-1 Argo CD */}
-        <Flow a={mid(card.app1, W / 2, 100)} b={[spoke.chip(3, 1)[0] + 115, spoke.chip(3, 1)[1]]} bend="v" kind="delivery" draw={T('1.6', 0.3, 0.45)} opacity={is('1.6') ? 1 : 0.3} />
+        <Flow a={mid(card.app1, W / 2, 100)} b={[spoke.chip(3, 1)[0] + 115, spoke.chip(3, 1)[1]]} bend="v" kind="delivery" draw={T('1.6', 0.3, 0.45)} opacity={K('1.6')} />
         <Envelope a={mid(card.app1, W / 2, 100)} b={[spoke.chip(3, 1)[0] + 115, spoke.chip(3, 1)[1]]} t={is('1.6') ? T('1.6', 0.35, 0.58) : 0} label="ManifestWork (Application)" />
         {/* git to spoke argo */}
-        <Flow a={[L.git.x + 200, L.git.y + 300]} b={[spoke.chip(3, 1)[0] + 30, spoke.chip(3, 1)[1]]} bend="v" kind="ref" draw={T('1.6', 0.6, 0.72)} label={is('1.6') ? 'pulls manifests' : undefined} opacity={is('1.6') ? 1 : 0.25} />
+        <Flow a={[L.git.x + 200, L.git.y + 300]} b={[spoke.chip(3, 1)[0] + 30, spoke.chip(3, 1)[1]]} bend="v" kind="ref" draw={T('1.6', 0.6, 0.72)} label="pulls manifests" opacity={K('1.6')} />
         {/* argo syncs workload */}
-        <Flow a={[spoke.chip(3, 1)[0] + 60, spoke.chip(3, 1)[1] + 46]} b={mid(spoke.vm(1), W, 40)} bend="v" kind="reconcile" draw={T('1.6', 0.74, 0.86)} label={is('1.6') ? 'prune · selfHeal' : undefined} opacity={is('1.6') ? 1 : 0.25} />
+        <Flow a={[spoke.chip(3, 1)[0] + 60, spoke.chip(3, 1)[1] + 46]} b={mid(spoke.vm(1), W, 40)} bend="v" kind="reconcile" draw={T('1.6', 0.74, 0.86)} label="prune · selfHeal" opacity={K('1.6')} />
 
-        {/* 2.1 VRG ManifestWorks + MCV */}
-        <Flow a={mid(card.drpc, 60, 120)} b={mid(spoke.vrg(1), 130, 0)} bend="v" kind="delivery" draw={T('2.1', 0.18, 0.3)} opacity={after('2.2') ? 0.25 : 1} />
-        <Flow a={mid(card.drpc, 180, 120)} b={mid(spoke.vrg(0), 130, 0)} bend="v" kind="delivery" draw={T('2.1', 0.3, 0.42)} opacity={after('2.2') ? 0.25 : 1} />
-        <Envelope a={mid(card.drpc, 60, 120)} b={mid(spoke.vrg(1), 130, 0)} t={is('2.1') ? T('2.1', 0.2, 0.36) : 0} label="ManifestWork (VRG Primary)" />
-        <Envelope a={mid(card.drpc, 180, 120)} b={mid(spoke.vrg(0), 130, 0)} t={is('2.1') ? T('2.1', 0.32, 0.48) : 0} label="ManifestWork (VRG Secondary)" />
-        <Flow a={mid(spoke.vrg(1), 230, 0)} b={mid(card.drpc, 20, 120)} bend="v" kind="observe" draw={is('2.1') ? T('2.1', 0.72, 0.85) : 0} label="ManagedClusterView" labelAt={0.4} />
-        <Flow a={mid(spoke.vrg(0), 30, 0)} b={mid(card.drpc, 220, 120)} bend="v" kind="observe" draw={is('2.1') ? T('2.1', 0.75, 0.88) : 0} />
+        {/* 2.1 VRG ManifestWorks + MCV, written/read by the Ramen hub operator */}
+        <Flow a={[520, 586]} b={mid(spoke.vrg(1), 130, 0)} bend="v" kind="delivery" draw={T('2.1', 0.18, 0.3)} opacity={K('2.1')} />
+        <Flow a={[620, 586]} b={mid(spoke.vrg(0), 130, 0)} bend="v" kind="delivery" draw={T('2.1', 0.3, 0.42)} opacity={K('2.1')} />
+        <Envelope a={[520, 586]} b={mid(spoke.vrg(1), 130, 0)} t={is('2.1') ? T('2.1', 0.2, 0.36) : 0} label="ManifestWork (VRG Primary)" />
+        <Envelope a={[620, 586]} b={mid(spoke.vrg(0), 130, 0)} t={is('2.1') ? T('2.1', 0.32, 0.48) : 0} label="ManifestWork (VRG Secondary)" />
+        <Flow a={mid(spoke.vrg(1), 230, 0)} b={[470, 586]} bend="v" kind="observe" draw={T('2.1', 0.72, 0.85)} opacity={K('2.1')} label="ManagedClusterView" labelAt={0.35} />
+        <Flow a={mid(spoke.vrg(0), 30, 0)} b={[670, 586]} bend="v" kind="observe" draw={T('2.1', 0.75, 0.88)} opacity={K('2.1')} />
 
         {/* 2.2 VRG selects PVCs, creates VRs */}
-        <Flow a={mid(spoke.vrg(1), 0, 60)} b={mid(spoke.pvcD(1), W / 2, 0)} bend="h" kind="reconcile" draw={is('2.2') ? T('2.2', 0.1, 0.25) : 0} label="selects by label" />
-        <Flow a={mid(spoke.vrg(1), 130, 110)} b={mid(spoke.vrR(1), W / 2 - 5, 0)} bend="v" kind="reconcile" draw={is('2.2') ? T('2.2', 0.62, 0.72) : 0} />
-        <Flow a={mid(spoke.vrg(1), 200, 110)} b={mid(spoke.vrD(1), W / 2 - 5, 0)} bend="v" kind="reconcile" draw={is('2.2') ? T('2.2', 0.64, 0.74) : 0} />
+        <Flow a={mid(spoke.vrg(1), 0, 60)} b={mid(spoke.pvcD(1), W / 2, 0)} bend="h" kind="reconcile" draw={T('2.2', 0.1, 0.25)} opacity={K('2.2')} label="selects by label" />
+        <Flow a={mid(spoke.vrg(1), 130, 110)} b={mid(spoke.vrR(1), W / 2 - 5, 0)} bend="v" kind="reconcile" draw={T('2.2', 0.62, 0.72)} opacity={K('2.2')} />
+        <Flow a={mid(spoke.vrg(1), 200, 110)} b={mid(spoke.vrD(1), W / 2 - 5, 0)} bend="v" kind="reconcile" draw={T('2.2', 0.64, 0.74)} opacity={K('2.2')} />
 
         {/* 2.3 VR to csi to array */}
-        <Flow a={[spoke.chip(2, 1)[0] + 125, spoke.chip(2, 1)[1] + 46]} b={mid(spoke.vrD(1), 115, 0)} bend="v" kind="reconcile" draw={is('2.3') ? T('2.3', 0.05, 0.18) : 0} label="gRPC EnableVolumeReplication" labelAt={0.55} />
-        <Flow a={mid(spoke.vrR(1), 115, 120)} b={[L.vsaB.x + 200, L.vsaB.y + 60]} bend="v" kind="data" draw={is('2.3') ? T('2.3', 0.25, 0.38) : 0} />
-        <Flow a={mid(spoke.vrD(1), 115, 120)} b={[L.vsaB.x + 560, L.vsaB.y + 60]} bend="v" kind="data" draw={is('2.3') ? T('2.3', 0.27, 0.4) : 0} />
+        <Flow a={[spoke.chip(2, 1)[0] + 125, spoke.chip(2, 1)[1] + 46]} b={mid(spoke.vrD(1), 115, 0)} bend="v" kind="reconcile" draw={T('2.3', 0.05, 0.18)} opacity={K('2.3')} label="gRPC EnableVolumeReplication" labelAt={0.2} />
+        <Flow a={mid(spoke.vrR(1), 115, 120)} b={[L.vsaB.x + 200, L.vsaB.y + 60]} bend="v" kind="data" draw={T('2.3', 0.25, 0.38)} opacity={K('2.3')} />
+        <Flow a={mid(spoke.vrD(1), 115, 120)} b={[L.vsaB.x + 560, L.vsaB.y + 60]} bend="v" kind="data" draw={T('2.3', 0.27, 0.4)} opacity={K('2.3')} />
         {aSyncLink > 0 && is('2.3') ? (
           <g opacity={aSyncLink}>
             {[0, 1].map((i) => (
@@ -407,7 +414,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         ) : null}
 
         {/* 2.4 metadata to S3 */}
-        <Flow a={mid(spoke.vrg(1), 130, 0)} b={[1800, 290]} bend="v" kind="delivery" color={C.s3} draw={is('2.4') ? T('2.4', 0.3, 0.45) : 0} label="upload PV/PVC YAML" />
+        <Flow a={mid(spoke.vrg(1), 130, 0)} b={[1800, 290]} bend="v" kind="delivery" color={C.s3} draw={T('2.4', 0.3, 0.45)} opacity={K('2.4')} label="upload PV/PVC YAML" />
         <Envelope a={mid(spoke.vrg(1), 130, 0)} b={[1800, 290]} t={is('2.4') ? T('2.4', 0.38, 0.6) : 0} label="PV + PVC" color={C.s3} />
       </svg>
     </div>

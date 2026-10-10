@@ -47,6 +47,56 @@ const camAt = (id: string, prevId: string | null, f: number, dur: number): Cam =
 
 const CLOCK: Record<string, string> = {};
 
+/** Teaser: VM moves from spoke-1 to spoke-0 while the arrays flip replication direction. */
+const ColdOpenDiagram: React.FC<{f: number; dur: number; appear: number; move: number}> = ({f, dur, appear, move}) => {
+  if (appear <= 0) return null;
+  const out = 1 - prog(f, dur * 0.9, dur);
+  const box = (x: number, label: string, col: string) => (
+    <g>
+      <rect x={x} y={420} width={560} height={300} rx={22} fill={`${col}10`} stroke={col} strokeWidth={3} />
+      <text x={x + 28} y={470} fill={col} fontFamily={sans} fontSize={34} fontWeight={700}>
+        {label}
+      </text>
+    </g>
+  );
+  const arr = (x: number, label: string, role: string, rc: string) => (
+    <g>
+      <rect x={x + 80} y={800} width={400} height={120} rx={16} fill={`${C.array}10`} stroke={C.array} strokeWidth={2.5} />
+      <text x={x + 110} y={850} fill={C.array} fontFamily={mono} fontSize={26} fontWeight={600}>
+        {label}
+      </text>
+      <text x={x + 110} y={892} fill={rc} fontFamily={mono} fontSize={22}>
+        {role}
+      </text>
+    </g>
+  );
+  const vmX = lerp(560, 1360, move);
+  const flip = move > 0.25;
+  const pulse = (f % 90) / 90;
+  const dir = flip ? -1 : 1;
+  const px = flip ? lerp(1300, 620, pulse) : lerp(620, 1300, pulse);
+  return (
+    <svg width={1920} height={1080} style={{position: 'absolute', opacity: appear * out}}>
+      {box(280, 'spoke-1', C.spoke1)}
+      {box(1080, 'spoke-0', C.spoke0)}
+      {arr(280, 'VSA-B', flip ? 'destination' : 'source', flip ? C.amber : C.green)}
+      {arr(1080, 'VSA-A', flip ? 'source' : 'destination', flip ? C.green : C.amber)}
+      <line x1={760} y1={860} x2={1160} y2={860} stroke={C.array} strokeWidth={4} />
+      <polygon points={dir > 0 ? '1160,848 1184,860 1160,872' : '760,848 736,860 760,872'} fill={C.array} />
+      <circle cx={px} cy={860} r={9} fill={C.array} style={{filter: `drop-shadow(0 0 10px ${C.array})`}} />
+      <g transform={`translate(${vmX}, 575)`} opacity={move > 0.05 && move < 0.6 ? 0.35 + 0.65 * Math.abs(Math.cos(move * 6)) : 1}>
+        <rect x={-110} y={-60} width={220} height={120} rx={16} fill={C.panel2} stroke={C.green} strokeWidth={3} style={{filter: `drop-shadow(0 0 18px ${C.green}88)`}} />
+        <text x={0} y={-10} textAnchor="middle" fill={C.green} fontFamily={sans} fontSize={22} fontWeight={700}>
+          VM
+        </text>
+        <text x={0} y={24} textAnchor="middle" fill={C.text} fontFamily={mono} fontSize={20}>
+          hammerdb-rhel9
+        </text>
+      </g>
+    </svg>
+  );
+};
+
 const ColdOpen: React.FC<{f: number; dur: number}> = ({f, dur}) => {
   const type = '13:26:40';
   const n = Math.floor(prog(f, 10, 70) * type.length);
@@ -69,6 +119,7 @@ const ColdOpen: React.FC<{f: number; dur: number}> = ({f, dur}) => {
           </div>
         ) : null}
       </div>
+      <ColdOpenDiagram f={f} dur={dur} appear={fade} move={prog(f, dur * 0.42, dur * 0.66)} />
       {timer > 0 ? (
         <div style={{position: 'absolute', right: 70, bottom: 60, fontFamily: mono, fontSize: 64, fontWeight: 600, color: timer >= 1 ? C.green : C.text, padding: '10px 26px', background: `${C.panel}ee`, borderRadius: 14, border: `2px solid ${timer >= 1 ? C.green : C.border}`}}>
           +{Math.floor(secs / 60)}m {String(secs % 60).padStart(2, '0')}s
@@ -170,7 +221,7 @@ const Overlays: React.FC<{id: string; f: number; dur: number}> = ({id, f, dur}) 
       const jobs = ['12:46:27', '12:58:27', '13:10:27'];
       const a = win(0.55, 0.99);
       return a > 0 ? (
-        <div style={{position: 'absolute', right: 70, top: 130, width: 520, opacity: a, background: `${C.bg}f0`, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: 20, fontFamily: mono}}>
+        <div style={{position: 'absolute', right: 50, bottom: 40, width: 540, opacity: a, background: `${C.bg}f0`, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: 20, fontFamily: mono}}>
           <div style={{color: C.dim, fontSize: 18}}>VSA-B · job history · Sync replication session</div>
           {jobs.map((j, i) => (
             <div key={j} style={{marginTop: 12, fontSize: 24, color: C.text, opacity: prog(f, dur * (0.62 + i * 0.08), dur * (0.62 + i * 0.08) + 18)}}>
