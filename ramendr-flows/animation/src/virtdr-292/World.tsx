@@ -262,8 +262,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       <Region b={L.vsaA} title="VSA-A" sub="PowerStore" color={C.array} opacity={aArr} small />
       <Region b={L.minio} title="minio" sub="S3" color={C.s3} opacity={aMinio * (0.3 + 0.7 * fMinio)} small glow={H('2.4', 0.4, 0.9) * 0.6} />
       {aNs > 0 ? <Region b={L.nsHub} title="openshift-gitops" color={C.blue} opacity={aNs} small dashed /> : null}
-      {aWork > 0 ? <Region b={{x: 70, y: 860, w: 1080, h: 405}} title="gitops-vms" color={C.spoke1} opacity={aWork} small dashed /> : null}
-      {aVrg > 0 ? <Region b={{x: 70 + DX, y: 860, w: 1080, h: 405}} title="gitops-vms" color={C.spoke0} opacity={aVrg} small dashed /> : null}
+      {aWork > 0 ? <Region b={{x: 70, y: 860, w: 1080, h: 425}} title="gitops-vms" color={C.spoke1} opacity={aWork} small dashed /> : null}
+      {aVrg > 0 ? <Region b={{x: 70 + DX, y: 860, w: 1080, h: 425}} title="gitops-vms" color={C.spoke0} opacity={aVrg} small dashed /> : null}
 
       {/* bucket */}
       {aMinio > 0 ? (
@@ -353,8 +353,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
             y={p[1]}
             w={250}
             kind="PersistentVolumeClaim"
-            name={d}
-            lines={[d === 'rootdisk' ? '35Gi' : '20Gi', <span style={{opacity: aLbl, color: C.amber}}>drprotection=true</span>]}
+            name={`hammerdb-rhel9-${d}`}
+            lines={[d === 'rootdisk' ? '35Gi · powerstore-sc' : '20Gi · powerstore-sc', <span style={{opacity: aLbl, color: C.amber}}>drprotection=true</span>]}
             appear={aDisks}
             hl={hDisks}
             focus={F('pvc1')}
@@ -378,7 +378,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       {(['rootdisk', 'datadisk'] as const).map((d) => {
         const p = d === 'rootdisk' ? spoke.vrR(1) : spoke.vrD(1);
         return (
-          <Card key={d} x={p[0]} y={p[1]} w={250} kind="VolumeReplication" name={d} lines={[<Cond k="state" v="primary" ok />, 'vrc-15m']} appear={aVr} hl={H('2.2', 0.65, 1) + H('2.3', 0.05, 0.3)} focus={F('vr1')} detail={detail} />
+          <Card key={d} x={p[0]} y={p[1]} w={250} kind="VolumeReplication" name={`hammerdb-rhel9-${d}`} lines={[<Cond k="state" v="primary" ok />, 'powerstore-vrc-15m']} appear={aVr} hl={H('2.2', 0.65, 1) + H('2.3', 0.05, 0.3)} focus={F('vr1')} detail={detail} />
         );
       })}
 
@@ -386,10 +386,10 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       <Card x={spoke.vrg(0)[0]} y={spoke.vrg(0)[1]} w={320} kind="VolumeReplicationGroup" name="dell-vm-drpc" lines={[<Cond k="state" v="Secondary" ok={null} />]} appear={aVrg} hl={H('2.1', 0.35, 0.6)} focus={F('vrg0')} detail={Math.max(detail, H('2.1', 0.3, 1))} />
 
       {/* array volumes */}
-      <Volume x={L.vsaB.x + 40} y={L.vsaB.y + 42} name="rootdisk volume" role="source" roleColor={C.green} appear={aVol} hl={H('2.3', 0.38, 0.6)} focus={F('vols')} />
-      <Volume x={L.vsaB.x + 440} y={L.vsaB.y + 42} name="datadisk volume" role="source" roleColor={C.green} appear={aVol} hl={H('2.3', 0.38, 0.6)} focus={F('vols')} />
-      <Volume x={L.vsaA.x + 40} y={L.vsaA.y + 42} name="rootdisk replica" role="destination · read-only" roleColor={C.amber} appear={aVol} focus={F('vols')} />
-      <Volume x={L.vsaA.x + 440} y={L.vsaA.y + 42} name="datadisk replica" role="destination · read-only" roleColor={C.amber} appear={aVol} focus={F('vols')} />
+      <Volume x={L.vsaB.x + 40} y={L.vsaB.y + 42} name="rootdisk · 1282bca9" role="source" roleColor={C.green} appear={aVol} hl={H('2.3', 0.38, 0.6)} focus={F('vols')} />
+      <Volume x={L.vsaB.x + 440} y={L.vsaB.y + 42} name="datadisk · e5ecb946" role="source" roleColor={C.green} appear={aVol} hl={H('2.3', 0.38, 0.6)} focus={F('vols')} />
+      <Volume x={L.vsaA.x + 40} y={L.vsaA.y + 42} name="rootdisk · 9e3b6608" role="destination · read-only" roleColor={C.amber} appear={aVol} focus={F('vols')} />
+      <Volume x={L.vsaA.x + 440} y={L.vsaA.y + 42} name="datadisk · 41b0880b" role="destination · read-only" roleColor={C.amber} appear={aVol} focus={F('vols')} />
 
       {/* ---------- connections ---------- */}
       <svg width={2400} height={1500} style={{position: 'absolute', left: 0, top: 0, overflow: 'visible'}}>

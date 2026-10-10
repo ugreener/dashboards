@@ -269,11 +269,11 @@ const Overlays: React.FC<{id: string; f: number; dur: number}> = ({id, f, dur}) 
           title="VolumeReplication (created by the VRG)"
           appear={win(0.6, 0.98)}
           reveal={prog(f, dur * 0.6, dur * 0.6 + 40)}
-          hl={[4, 5]}
+          hl={[6, 7]}
           x={40}
           y={300}
           w={610}
-          lines={['kind: VolumeReplication', 'metadata: {name: hammerdb-rhel9-datadisk}', 'spec:', '  dataSource: {kind: PVC, name: …-datadisk}', '  replicationState: primary', '  volumeReplicationClass: powerstore-vrc-15m', '  autoResync: false']}
+          lines={['kind: VolumeReplication', 'metadata: {name: hammerdb-rhel9-datadisk}', 'spec:', '  dataSource:', '    kind: PersistentVolumeClaim', '    name: hammerdb-rhel9-datadisk', '  replicationState: primary', '  volumeReplicationClass: powerstore-vrc-15m', '  autoResync: false']}
         />
       );
     case '2.3': {
