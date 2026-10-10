@@ -23,13 +23,13 @@ export const CHAPTERS: Chapter[] = [
 
 export type Segment =
   | {type: 'chapter'; chapter: Chapter; from: number; dur: number}
-  | {type: 'beat'; id: string; chapter: Chapter; from: number; dur: number; audio: number};
+  | {type: 'beat'; id: string; chapter: Chapter; from: number; dur: number; audio: number; afterChapter: boolean};
 
 const PAD_BEFORE = sec(0.35);
 const PAD_AFTER = sec(0.9);
 const CHAPTER_CARD = sec(2.6);
 
-const T = timing as Record<string, {seconds: number}>;
+const T = timing as Record<string, {seconds: number; pause?: number}>;
 
 /** Build the ordered segment list for the given chapters (beats with generated audio only). */
 export const buildTimeline = (chapters: number[]) => {
@@ -45,8 +45,8 @@ export const buildTimeline = (chapters: number[]) => {
     }
     lastCh = ch.n;
     const audio = Math.ceil(T[id].seconds * FPS);
-    const dur = PAD_BEFORE + audio + PAD_AFTER;
-    segs.push({type: 'beat', id, chapter: ch, from: f, dur, audio});
+    const dur = PAD_BEFORE + audio + (T[id].pause !== undefined ? sec(T[id].pause as number) : PAD_AFTER);
+    segs.push({type: 'beat', id, chapter: ch, from: f, dur, audio, afterChapter: segs.length > 0 && segs[segs.length - 1].type === 'chapter'});
     f += dur;
   }
   return {segs, total: f, beatOrder: ids};

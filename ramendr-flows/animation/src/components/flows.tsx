@@ -50,7 +50,9 @@ export const Flow: React.FC<{
   width?: number;
   opacity?: number;
   color?: string;
-}> = ({a, b, kind = 'ref', bend = 'v', draw = 1, label, labelAt = 0.5, flowT, packets = 3, width = 3, opacity = 1, color}) => {
+  labelDx?: number;
+  labelDy?: number;
+}> = ({a, b, kind = 'ref', bend = 'v', draw = 1, label, labelAt = 0.5, flowT, packets = 3, width = 3, opacity = 1, color, labelDx = 0, labelDy = 0}) => {
   if (draw <= 0) return null;
   const col = color ?? FLOW_COLOR[kind];
   const d = pathD(a, b, bend);
@@ -82,9 +84,9 @@ export const Flow: React.FC<{
           })
         : null}
       {label && draw > labelAt ? (
-        <g transform={`translate(${lp[0]},${lp[1]})`}>
-          <rect x={-label.length * 5.4 - 12} y={-16} width={label.length * 10.8 + 24} height={32} rx={16} fill={C.bg} stroke={col} strokeWidth={1.5} />
-          <text x={0} y={6} textAnchor="middle" fill={col} fontFamily={mono} fontSize={17} fontWeight={600}>
+        <g transform={`translate(${lp[0] + labelDx},${lp[1] + labelDy})`}>
+          <rect x={-label.length * 6.3 - 14} y={-19} width={label.length * 12.6 + 28} height={38} rx={19} fill={C.bg} stroke={col} strokeWidth={1.8} />
+          <text x={0} y={7} textAnchor="middle" fill={col} fontFamily={mono} fontSize={20} fontWeight={600}>
             {label}
           </text>
         </g>
@@ -109,7 +111,7 @@ export const Envelope: React.FC<{a: P; b: P; t: number; bend?: 'v' | 'h' | 'stra
     <g transform={`translate(${p[0]},${p[1]})`} opacity={o}>
       <rect x={-34} y={-24} width={68} height={48} rx={6} fill={C.panel2} stroke={color} strokeWidth={2.5} style={{filter: `drop-shadow(0 0 12px ${color})`}} />
       <polyline points="-34,-24 0,4 34,-24" fill="none" stroke={color} strokeWidth={2.5} />
-      <text y={46} textAnchor="middle" fill={color} fontFamily={mono} fontSize={16} fontWeight={600}>
+      <text y={50} textAnchor="middle" fill={color} fontFamily={mono} fontSize={20} fontWeight={600} stroke={C.bg} strokeWidth={5} paintOrder="stroke">
         {label}
       </text>
     </g>

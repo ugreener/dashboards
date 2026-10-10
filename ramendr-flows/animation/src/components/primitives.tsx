@@ -1,4 +1,5 @@
 import React from 'react';
+import {Easing} from 'remotion';
 import {C, KIND, mono, sans} from '../theme';
 
 export type Box = {x: number; y: number; w: number; h: number};
@@ -42,18 +43,20 @@ export const Region: React.FC<{
         color,
         fontFamily: small ? mono : sans,
         fontWeight: 700,
-        fontSize: small ? 18 : 26,
+        fontSize: small ? 21 : 28,
         letterSpacing: small ? 0 : 0.5,
         whiteSpace: 'nowrap',
       }}
     >
       {title}
-      {sub ? <span style={{color: C.dim, fontWeight: 500, marginLeft: 12, fontSize: small ? 16 : 20}}>{sub}</span> : null}
+      {sub ? <span style={{color: C.dim, fontWeight: 500, marginLeft: 12, fontSize: small ? 18 : 22}}>{sub}</span> : null}
     </div>
   </div>
 );
 
-/** A Kubernetes resource card. */
+const springOut = Easing.out(Easing.back(1.7));
+
+/** A Kubernetes resource card. `detail` (0..1) fades the secondary lines (hidden in wide shots). `focus` dims unfocused cards. */
 export const Card: React.FC<{
   x: number;
   y: number;
@@ -63,12 +66,16 @@ export const Card: React.FC<{
   lines?: React.ReactNode[];
   appear?: number;
   hl?: number;
-  dim?: boolean;
+  focus?: number;
+  detail?: number;
   color?: string;
   badge?: React.ReactNode;
-}> = ({x, y, w = 240, kind, name, lines = [], appear = 1, hl = 0, dim, color, badge}) => {
+  exit?: number;
+}> = ({x, y, w = 300, kind, name, lines = [], appear = 1, hl = 0, focus = 1, detail = 1, color, badge, exit = 0}) => {
   const col = color ?? KIND[kind] ?? C.blue;
-  if (appear <= 0) return null;
+  if (appear <= 0 || exit >= 1) return null;
+  const sp = springOut(Math.min(1, appear));
+  const kfs = Math.min(15, (w - 40) / (kind.length * 0.78));
   return (
     <div
       style={{
@@ -76,26 +83,31 @@ export const Card: React.FC<{
         left: x,
         top: y,
         width: w,
-        opacity: appear * (dim ? 0.35 : 1),
-        transform: `translateY(${(1 - appear) * 24}px) scale(${0.92 + 0.08 * appear + hl * 0.04})`,
+        opacity: Math.min(1, appear * 1.6) * (0.3 + 0.7 * focus) * (1 - exit),
+        transform: `translateY(${(1 - sp) * 26 + exit * 20}px) scale(${0.9 + 0.1 * sp + hl * 0.035 - exit * 0.08})`,
         transformOrigin: 'center',
-        borderRadius: 12,
+        borderRadius: 14,
         background: `linear-gradient(180deg, ${C.panel2}, ${C.panel})`,
-        border: `1.5px solid ${hl > 0 ? col : C.border}`,
-        borderLeft: `6px solid ${col}`,
-        boxShadow: hl > 0 ? `0 0 ${30 * hl}px ${col}aa, 0 8px 24px #000a` : '0 8px 24px #0008',
-        padding: '12px 14px 12px 14px',
+        border: `2px solid ${hl > 0 ? col : C.border}`,
+        borderLeft: `7px solid ${col}`,
+        boxShadow: hl > 0 ? `0 0 ${34 * hl}px ${col}aa, 0 10px 28px #000a` : '0 10px 28px #0009',
+        padding: '13px 16px',
         fontFamily: sans,
+        filter: focus < 1 ? `saturate(${0.4 + 0.6 * focus})` : undefined,
       }}
     >
-      <div style={{fontSize: 13, letterSpacing: 1.2, textTransform: 'uppercase', color: col, fontWeight: 700}}>{kind}</div>
-      <div style={{fontFamily: mono, fontSize: 17, color: C.text, fontWeight: 600, marginTop: 4, wordBreak: 'break-all'}}>{name}</div>
-      {lines.map((l, i) => (
-        <div key={i} style={{fontFamily: mono, fontSize: 14, color: C.dim, marginTop: 5}}>
-          {l}
+      <div style={{fontSize: kfs, letterSpacing: 1.3 * (kfs / 15), textTransform: 'uppercase', color: col, fontWeight: 700, whiteSpace: 'nowrap'}}>{kind}</div>
+      <div style={{fontFamily: mono, fontSize: 22, lineHeight: 1.25, color: C.text, fontWeight: 600, marginTop: 5, overflowWrap: 'break-word'}}>{name}</div>
+      {lines.length ? (
+        <div style={{opacity: detail}}>
+          {lines.map((l, i) => (
+            <div key={i} style={{fontFamily: mono, fontSize: 17, color: C.dim, marginTop: 6, overflowWrap: 'break-word'}}>
+              {l}
+            </div>
+          ))}
         </div>
-      ))}
-      {badge ? <div style={{position: 'absolute', right: -10, top: -14}}>{badge}</div> : null}
+      ) : null}
+      {badge ? <div style={{position: 'absolute', right: -10, top: -16}}>{badge}</div> : null}
     </div>
   );
 };

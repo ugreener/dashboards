@@ -67,7 +67,7 @@ const colorize = (l: string) => {
 /** Full-screen chapter title card. */
 export const ChapterCard: React.FC<{n: number; title: string; sub?: string; p: number; out: number}> = ({n, title, sub, p, out}) => (
   <AbsoluteFill style={{background: C.bg, justifyContent: 'center', alignItems: 'center', opacity: 1 - out}}>
-    <div style={{textAlign: 'center', transform: `translateY(${(1 - p) * 30}px)`, opacity: p}}>
+    <div style={{textAlign: 'center', transform: `translateY(${(1 - p) * 30}px) scale(${1 + out * 0.35})`, opacity: p * (1 - out * 0.6)}}>
       <div style={{fontFamily: mono, fontSize: 30, color: C.blue, letterSpacing: 6}}>CHAPTER {n}</div>
       <div style={{fontFamily: sans, fontSize: 92, fontWeight: 800, color: C.text, marginTop: 18, letterSpacing: -1}}>{title}</div>
       {sub ? <div style={{fontFamily: sans, fontSize: 32, color: C.dim, marginTop: 18}}>{sub}</div> : null}
@@ -116,7 +116,7 @@ export const Legend: React.FC<{appear: number}> = ({appear}) => {
     ['replicates data', C.orange, false],
   ];
   return (
-    <div style={{position: 'absolute', left: 36, bottom: 26, display: 'flex', gap: 26, opacity: appear, fontFamily: sans, fontSize: 18, color: C.dim, padding: '8px 18px', borderRadius: 10, background: `${C.bg}e6`, border: `1px solid ${C.border}`}}>
+    <div style={{position: 'absolute', right: 36, top: 28, display: 'flex', gap: 26, transform: `translateY(${(1 - appear) * -16}px)`, opacity: appear, fontFamily: sans, fontSize: 18, color: C.dim, padding: '8px 18px', borderRadius: 10, background: `${C.bg}e6`, border: `1px solid ${C.border}`}}>
       {items.map(([t, c, d]) => (
         <span key={t} style={{display: 'flex', alignItems: 'center', gap: 8}}>
           <svg width={36} height={10}>
@@ -126,5 +126,49 @@ export const Legend: React.FC<{appear: number}> = ({appear}) => {
         </span>
       ))}
     </div>
+  );
+};
+
+/** Run timeline (chapter 4 onward): key UTC events of the 2026-10-07 run with a playhead at `now`. */
+const EVENTS: [string, string, string][] = [
+  ['13:22:27', 'last sync = recovery point', C.amber],
+  ['13:26:40', 'Initiate', C.blue],
+  ['13:26:44', 'source paused', C.red],
+  ['13:26:49', 'Cleaning Up', C.orange],
+  ['13:29:40', 'target VMI', C.green],
+  ['13:31:37', 'first new write', C.green],
+  ['13:32:21', 'Completed', C.green],
+];
+const toS = (t: string) => {
+  const [h, m, s] = t.split(':').map(Number);
+  return h * 3600 + m * 60 + s;
+};
+export const TimelineBar: React.FC<{now: string | null}> = ({now}) => {
+  const t0 = toS('13:21:30');
+  const t1 = toS('13:33:00');
+  const X0 = 120;
+  const X1 = 1800;
+  const x = (t: string) => X0 + ((toS(t) - t0) / (t1 - t0)) * (X1 - X0);
+  return (
+    <svg width={1920} height={130} style={{position: 'absolute', left: 0, bottom: 0}}>
+      <rect x={0} y={0} width={1920} height={130} fill={`${C.bg}e6`} />
+      <line x1={X0} y1={60} x2={X1} y2={60} stroke={C.border} strokeWidth={4} strokeLinecap="round" />
+      {now ? <line x1={X0} y1={60} x2={x(now)} y2={60} stroke={C.blue} strokeWidth={4} strokeLinecap="round" /> : null}
+      {EVENTS.map(([t, label, col], i) => {
+        const done = now !== null && toS(now) >= toS(t);
+        return (
+          <g key={t} transform={`translate(${x(t)},60)`} opacity={done ? 1 : 0.45}>
+            <circle r={done ? 9 : 7} fill={done ? col : C.bg} stroke={col} strokeWidth={3} />
+            <text y={i % 2 ? 40 : -20} textAnchor="middle" fill={done ? C.text : C.dim} fontFamily={sans} fontSize={17} fontWeight={600}>
+              {label}
+            </text>
+            <text y={i % 2 ? 62 : -40} textAnchor="middle" fill={C.dim} fontFamily={mono} fontSize={15}>
+              {t}
+            </text>
+          </g>
+        );
+      })}
+      {now ? <polygon points={`${x(now) - 9},92 ${x(now) + 9},92 ${x(now)},80`} fill={C.blue} /> : null}
+    </svg>
   );
 };

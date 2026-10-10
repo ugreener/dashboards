@@ -20,6 +20,7 @@ from kokoro_onnx import Kokoro
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 MODELS = os.path.expanduser("~/.local/share/kokoro-models")
+DEFAULT_PAUSE = 0.8  # seconds of silence after a beat unless beats.yaml sets pause_after
 
 # Exact-token replacements applied before generic rules (order matters: longest first).
 SPOKEN = {
@@ -34,7 +35,7 @@ SPOKEN = {
     "dell-vm-workload": "dell V M workload",
     "dell-vm-drpc": "dell V M D R P C",
     "dr-policy-15m": "D R policy fifteen M",
-    "hammerdb-rhel9": "hammer D B rel nine",
+    "hammerdb-rhel9": "hammer D B R H E L nine",
     "ramen-metadata": "ramen metadata",
     "openshift-gitops": "openshift git ops",
     "powerstore-sc": "powerstore S C",
@@ -42,10 +43,10 @@ SPOKEN = {
     "acm-placement": "A C M placement",
     "skip-reconcile": "skip reconcile",
     "drprotection": "D R protection",
-    "PostgreSQL": "Postgres Q L",
+    "PostgreSQL": "Postgres",
     "HammerDB": "Hammer D B",
     "TPC-C": "T P C C",
-    "RHEL": "rel",
+    "RHEL": "R H E L",
     "VSA-A": "V S A A",
     "VSA-B": "V S A B",
     "edge36": "edge thirty-six",
@@ -81,16 +82,29 @@ def split_camel(word: str) -> str:
     return word
 
 
+ONES = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split()
+TENS = {2: "twenty", 3: "thirty", 4: "forty", 5: "fifty"}
+
+
+def num_words(n: int) -> str:
+    if n < 20:
+        return ONES[n]
+    t, o = divmod(n, 10)
+    return TENS[t] + ("" if o == 0 else "-" + ONES[o])
+
+
 def time_words(m: re.Match) -> str:
-    h, mi, s = m.group(1), m.group(2), m.group(3)
-    out = f"{int(h)} {int(mi):02d}".replace(" 0", " oh ")
+    h, mi, s = int(m.group(1)), int(m.group(2)), m.group(3)
+    minute = "hundred" if mi == 0 else ("oh " + ONES[mi] if mi < 10 else num_words(mi))
+    out = f"{num_words(h)} {minute}"
     if s:
-        out += f" and {int(s)} seconds"
+        out += f" and {num_words(int(s))} seconds"
     return out
 
 
 def speakable(text: str) -> str:
     t = " ".join(text.split())
+    t = re.sub(r"\ba (RHEL|VRG|VM|PVC|S3)\b", r"an \1", t)
     t = re.sub(r"\b(\d{1,2}):(\d{2})(?::(\d{2}))?\b", time_words, t)
     for k in sorted(SPOKEN, key=len, reverse=True):
         t = re.sub(r"(?<![\w-])" + re.escape(k) + r"(?![\w-])", SPOKEN[k], t)
@@ -116,6 +130,7 @@ def main() -> int:
     ap.add_argument("--voice", default="af_heart")
     ap.add_argument("--speed", type=float, default=1.0)
     ap.add_argument("--dry-run", action="store_true", help="print speakable text only")
+    ap.add_argument("--timing-only", action="store_true", help="refresh pause_after values without regenerating audio")
     a = ap.parse_args()
 
     beats = yaml.safe_load(open(os.path.join(ROOT, a.ticket, "beats.yaml")))["beats"]
@@ -134,11 +149,18 @@ def main() -> int:
     timing_path = os.path.join(ROOT, "src", a.ticket, "timing.json")
     timing = json.load(open(timing_path)) if os.path.exists(timing_path) else {}
 
+    if a.timing_only:
+        for b in beats:
+            bid = str(b["id"])
+            if bid in timing:
+                timing[bid]["pause"] = float(b.get("pause_after", DEFAULT_PAUSE))
+        beats = []
+
     for b in beats:
         bid = str(b["id"])
         samples, rate = kokoro.create(speakable(b["narration"]), voice=a.voice, speed=a.speed, lang="en-us")
         sf.write(os.path.join(out_dir, f"{bid}.wav"), samples, rate)
-        timing[bid] = {"seconds": round(len(samples) / rate, 3), "voice": a.voice}
+        timing[bid] = {"seconds": round(len(samples) / rate, 3), "voice": a.voice, "pause": float(b.get("pause_after", DEFAULT_PAUSE))}
         print(f"{bid}: {timing[bid]['seconds']}s", flush=True)
 
     os.makedirs(os.path.dirname(timing_path), exist_ok=True)
