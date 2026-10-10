@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""Generate per-beat narration audio with Kokoro (local, offline) and a timing file.
+
+Usage:
+  ~/.local/share/kokoro-venv/bin/python tools/tts.py virtdr-292 [--chapters 0,1,2] [--voice af_heart]
+
+Writes public/audio/<ticket>/<beat-id>.wav (git-ignored, regenerable) and
+src/<ticket>/timing.json (committed) with each beat's audio duration.
+"""
+import argparse
+import json
+import os
+import re
+import sys
+
+import soundfile as sf
+import yaml
+from kokoro_onnx import Kokoro
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+MODELS = os.path.expanduser("~/.local/share/kokoro-models")
+
+# Exact-token replacements applied before generic rules (order matters: longest first).
+SPOKEN = {
+    "ocp-4.22-rhdr-dell": "O C P four twenty-two R H D R Dell",
+    "clusters/dell-s4/workloads": "clusters, dell S four, workloads",
+    "experimental-scheduling-disable": "experimental scheduling disable",
+    "powerstore-vrc-15m": "powerstore V R C fifteen M",
+    "pvc-vr-protection": "P V C V R protection",
+    "dell-vm-placement": "dell V M placement",
+    "dell-vm-workload-spoke-0": "dell V M workload spoke zero",
+    "dell-vm-workload-spoke-1": "dell V M workload spoke one",
+    "dell-vm-workload": "dell V M workload",
+    "dell-vm-drpc": "dell V M D R P C",
+    "dr-policy-15m": "D R policy fifteen M",
+    "hammerdb-rhel9": "hammer D B rel nine",
+    "ramen-metadata": "ramen metadata",
+    "openshift-gitops": "openshift git ops",
+    "powerstore-sc": "powerstore S C",
+    "gitops-vms": "git ops V M S",
+    "acm-placement": "A C M placement",
+    "skip-reconcile": "skip reconcile",
+    "drprotection": "D R protection",
+    "PostgreSQL": "Postgres Q L",
+    "HammerDB": "Hammer D B",
+    "TPC-C": "T P C C",
+    "RHEL": "rel",
+    "VSA-A": "V S A A",
+    "VSA-B": "V S A B",
+    "edge36": "edge thirty-six",
+    "edge95": "edge ninety-five",
+    "edge97": "edge ninety-seven",
+    "spoke-0": "spoke zero",
+    "spoke-1": "spoke one",
+    "gRPC": "G R P C",
+    "NVMe": "N V M E",
+    "libvirt": "lib virt",
+    "PausedIOError": "Paused I O Error",
+    "csi-addons": "C S I addons",
+    "S3": "S three",
+    "Ramen": "Ramen",
+    "Argo CD": "Argo C D",
+    "ACM's": "A C M's",
+    "pvcSelector": "P V C selector",
+    "OpenShift 4.22": "OpenShift four twenty-two",
+    "MinIO": "min I O",
+}
+NO_SPLIT = {"OpenShift", "PowerStore", "GitOps"}
+ACRONYMS = {"DRPC", "VRG", "VRGs", "PVC", "PVCs", "PV", "PVs", "VMI", "VM", "VMs",
+            "UTC", "RPO", "ACM", "CSI", "TCP", "OS", "API", "DR", "YAML", "ID", "OCP"}
+
+
+def split_camel(word: str) -> str:
+    # ApplicationSet -> Application Set, DRPlacementControl -> D R Placement Control
+    m = re.match(r"^([A-Z]{2,})([A-Z][a-z].*)$", word)
+    if m:
+        return " ".join(m.group(1)) + " " + split_camel(m.group(2))
+    if re.search(r"[a-z][A-Z]", word):
+        return re.sub(r"(?<=[a-z])(?=[A-Z])", " ", word)
+    return word
+
+
+def time_words(m: re.Match) -> str:
+    h, mi, s = m.group(1), m.group(2), m.group(3)
+    out = f"{int(h)} {int(mi):02d}".replace(" 0", " oh ")
+    if s:
+        out += f" and {int(s)} seconds"
+    return out
+
+
+def speakable(text: str) -> str:
+    t = " ".join(text.split())
+    t = re.sub(r"\b(\d{1,2}):(\d{2})(?::(\d{2}))?\b", time_words, t)
+    for k in sorted(SPOKEN, key=len, reverse=True):
+        t = re.sub(r"(?<![\w-])" + re.escape(k) + r"(?![\w-])", SPOKEN[k], t)
+    words = []
+    for w in re.split(r"(\s+)", t):
+        core = w.strip(".,;:!?")
+        if core in ACRONYMS:
+            plural = core.endswith("s") and core[:-1] in ACRONYMS
+            spoken = " ".join(core[:-1]) + "s" if plural else " ".join(core)
+            w = w.replace(core, spoken)
+        elif core in NO_SPLIT:
+            pass
+        elif re.fullmatch(r"[A-Za-z]+", core):
+            w = w.replace(core, split_camel(core))
+        words.append(w)
+    return "".join(words)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("ticket")
+    ap.add_argument("--chapters", default="")
+    ap.add_argument("--voice", default="af_heart")
+    ap.add_argument("--speed", type=float, default=1.0)
+    ap.add_argument("--dry-run", action="store_true", help="print speakable text only")
+    a = ap.parse_args()
+
+    beats = yaml.safe_load(open(os.path.join(ROOT, a.ticket, "beats.yaml")))["beats"]
+    chapters = {c.strip() for c in a.chapters.split(",") if c.strip()}
+    if chapters:
+        beats = [b for b in beats if str(b["id"]).split(".")[0] in chapters]
+
+    if a.dry_run:
+        for b in beats:
+            print(f"[{b['id']}] {speakable(b['narration'])}\n")
+        return 0
+
+    kokoro = Kokoro(os.path.join(MODELS, "kokoro-v1.0.onnx"), os.path.join(MODELS, "voices-v1.0.bin"))
+    out_dir = os.path.join(ROOT, "public", "audio", a.ticket)
+    os.makedirs(out_dir, exist_ok=True)
+    timing_path = os.path.join(ROOT, "src", a.ticket, "timing.json")
+    timing = json.load(open(timing_path)) if os.path.exists(timing_path) else {}
+
+    for b in beats:
+        bid = str(b["id"])
+        samples, rate = kokoro.create(speakable(b["narration"]), voice=a.voice, speed=a.speed, lang="en-us")
+        sf.write(os.path.join(out_dir, f"{bid}.wav"), samples, rate)
+        timing[bid] = {"seconds": round(len(samples) / rate, 3), "voice": a.voice}
+        print(f"{bid}: {timing[bid]['seconds']}s", flush=True)
+
+    os.makedirs(os.path.dirname(timing_path), exist_ok=True)
+    with open(timing_path, "w") as f:
+        json.dump(dict(sorted(timing.items(), key=lambda kv: [int(x) for x in kv[0].split(".")])), f, indent=2)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
