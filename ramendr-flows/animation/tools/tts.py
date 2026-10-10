@@ -127,6 +127,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("ticket")
     ap.add_argument("--chapters", default="")
+    ap.add_argument("--beats", default="", help="comma-separated beat ids to (re)generate only")
     ap.add_argument("--voice", default="af_heart")
     ap.add_argument("--speed", type=float, default=1.0)
     ap.add_argument("--dry-run", action="store_true", help="print speakable text only")
@@ -137,6 +138,9 @@ def main() -> int:
     chapters = {c.strip() for c in a.chapters.split(",") if c.strip()}
     if chapters:
         beats = [b for b in beats if str(b["id"]).split(".")[0] in chapters]
+    only = {x.strip() for x in a.beats.split(",") if x.strip()}
+    if only:
+        beats = [b for b in beats if str(b["id"]) in only]
 
     if a.dry_run:
         for b in beats:
