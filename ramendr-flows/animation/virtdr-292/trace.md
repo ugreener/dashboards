@@ -40,3 +40,13 @@ PowerStore `getVolumeReplicationInfoForVolume` assigns `timestamppb.Now()` for O
 ## Automatic production
 
 Revised beats supersede existing drafts where corrected. The user requests autonomous script review, implementation, rendering and publishing without an explicit approval checkpoint. The complete video must include all revised beats with matching generated narration and visuals. The existing draft is not the corrected final video.
+
+## Newcomer rewrite: screenshots and live names
+
+The beat sheet was rewritten from scratch for the newcomer rules (glossary chapter, phase framing, recaps, screenshots).
+
+- All ten run-date screenshots (attachments 1237288 to 1237299, `tools/evidence.py virtdr-292 --date 2026-10-07`) were inspected. None shows credentials. Console times are browser-local (UTC+3), so captions convert to UTC.
+- Known open bugs visible in the captures are labeled on screen, not presented as correct: VIRTDR-308 (stale "Last available" in the confirmation dialog, shot 23) and VIRTDR-316 (popover title "Failover complete" at 3 of 4 steps, shot 25).
+- Shot 24 is named "initiated ... failingover" but already shows the FailedOver row and banner, so it is used at the Cleaning Up beat.
+- Exact names confirmed by a read-only hub listing on 2026-10-10 (objects created before the run): PlacementDecision `dell-vm-placement-decision-1`, ManifestWork `dell-vm-drpc-gitops-vms-vrg-mw` (and `dell-vm-drpc-gitops-vms-ns-mw`, the Ramen namespace parcel) in `spoke-0`/`spoke-1`, ManagedClusterView `dell-vm-drpc-gitops-vms-vrg-mcv`. The pull-model Application ManifestWork carries a generated suffix and is not named on screen.
+- The root-disk DataVolume at e6237ef clones `sourceRef` DataSource `rhel9`; replica reuse instead of a fresh clone is recorded via volume handles and recovered rows, while the CDI adoption mechanics stay unverified.
