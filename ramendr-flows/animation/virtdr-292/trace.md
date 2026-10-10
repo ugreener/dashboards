@@ -37,6 +37,6 @@ Research was delegated as required by flow-animation. Links are immutable. These
 
 PowerStore `getVolumeReplicationInfoForVolume` assigns `timestamppb.Now()` for OK/Failed_Over at this SHA. csi-addons copies it into VR status. This is not proof of a completed array sync. [Assignment](https://github.com/dell/csi-powerstore/blob/c35ca28883044f240bab36d47e43da3f96f080cd/pkg/controller/csiaddons_replication.go#L1861-L1884), [status copy](https://github.com/csi-addons/kubernetes-csi-addons/blob/e755c40fd8dd2364db86a0dba53aff11ae4c7e40/internal/controller/replication.storage/volumereplication_controller.go#L447-L464). Deployed-driver provenance and console readiness calculation remain unverified by this trace.
 
-## Approval gate
+## Automatic production
 
-Revised beats supersede existing drafts where corrected. Rendering is paused for beat-sheet approval. Video.tsx, World.tsx and generated timing/audio must be brought into agreement after approval. The existing draft is not the corrected final video.
+Revised beats supersede existing drafts where corrected. The user requests autonomous script review, implementation, rendering and publishing without an explicit approval checkpoint. The complete video must include all revised beats with matching generated narration and visuals. The existing draft is not the corrected final video.

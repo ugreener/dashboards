@@ -37,7 +37,7 @@ export const YamlPanel: React.FC<{
         <span style={{width: 11, height: 11, borderRadius: 6, background: C.green}} />
         <span style={{marginLeft: 10}}>{title}</span>
       </div>
-      <pre style={{margin: 0, padding: '14px 0', fontFamily: mono, fontSize: 19, lineHeight: 1.55}}>
+      <pre style={{margin: 0, padding: '14px 0', fontFamily: mono, fontSize: 19, lineHeight: 1.55, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere'}}>
         {lines.slice(0, shown).map((l, i) => {
           const on = hl.includes(i);
           return (
@@ -101,6 +101,7 @@ export const Hud: React.FC<{chapter: string; clock?: string | null; clockFlash?:
           boxShadow: clockFlash > 0 ? `0 0 ${40 * clockFlash}px ${C.amber}` : undefined,
         }}
       >
+        <span style={{fontSize: 16, color: C.dim, display: 'block'}}>Recorded milestone (held between events)</span>
         {clock} <span style={{fontSize: 22, color: C.dim}}>UTC</span>
       </div>
     ) : null}
@@ -144,14 +145,24 @@ const toS = (t: string) => {
   return h * 3600 + m * 60 + s;
 };
 export const TimelineBar: React.FC<{now: string | null}> = ({now}) => {
-  const t0 = toS('13:21:30');
-  const t1 = toS('13:33:00');
   const X0 = 120;
   const X1 = 1800;
-  const x = (t: string) => X0 + ((toS(t) - t0) / (t1 - t0)) * (X1 - X0);
+  // Separate near-simultaneous events for legibility. Milestone spacing is
+  // deliberately categorical, with interpolation only for the playhead.
+  const step = (X1 - X0) / (EVENTS.length - 1);
+  const x = (t: string) => {
+    const value = toS(t);
+    if (value <= toS(EVENTS[0][0])) return X0;
+    for (let i = 1; i < EVENTS.length; i++) {
+      const left = toS(EVENTS[i - 1][0]), right = toS(EVENTS[i][0]);
+      if (value <= right) return X0 + step * (i - 1 + (value - left) / (right - left));
+    }
+    return X1;
+  };
   return (
     <svg width={1920} height={130} style={{position: 'absolute', left: 0, bottom: 0}}>
       <rect x={0} y={0} width={1920} height={130} fill={`${C.bg}e6`} />
+      <text x={960} y={15} textAnchor="middle" fill={C.faint} fontFamily={sans} fontSize={13}>Recorded milestones, spacing simplified for readability</text>
       <line x1={X0} y1={60} x2={X1} y2={60} stroke={C.border} strokeWidth={4} strokeLinecap="round" />
       {now ? <line x1={X0} y1={60} x2={x(now)} y2={60} stroke={C.blue} strokeWidth={4} strokeLinecap="round" /> : null}
       {EVENTS.map(([t, label, col], i) => {

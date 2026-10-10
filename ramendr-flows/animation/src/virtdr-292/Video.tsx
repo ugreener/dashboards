@@ -5,9 +5,10 @@ import {lerp, prog, progIO, sec} from '../lib/anim';
 import {ChapterCard, Hud, Legend, TimelineBar, YamlPanel} from '../components/overlays';
 import {buildTimeline, PAD_BEFORE, Segment} from './timeline';
 import {Ctx, World} from './World';
+import {RunScene, SCENES} from './RunScenes';
 
 type Cam = {x: number; y: number; z: number};
-const OVERVIEW: Cam = {x: 1200, y: 770, z: 0.7};
+const OVERVIEW: Cam = {x: 1200, y: 770, z: 0.62};
 
 /** Camera keyframes per beat: [fraction of beat audio, cam]. Fraction 0 starts during the lead-in. */
 const CAMS: Record<string, [number, Cam][]> = {
@@ -24,13 +25,13 @@ const CAMS: Record<string, [number, Cam][]> = {
     [0, {x: 1500, y: 420, z: 1.1}],
     [0.4, {x: 800, y: 760, z: 0.78}],
   ],
-  '2.1': [[0, {x: 1200, y: 650, z: 0.72}]],
+  '2.1': [[0, OVERVIEW]],
   '2.2': [[0, {x: 610, y: 1010, z: 1.45}]],
   '2.3': [
     [0, {x: 760, y: 1080, z: 1.2}],
     [0.42, {x: 1200, y: 1250, z: 0.82}],
   ],
-  '2.4': [[0, {x: 1350, y: 640, z: 0.72}]],
+  '2.4': [[0, OVERVIEW]],
 };
 
 const camAt = (id: string, prevId: string | null, f: number, dur: number): Cam => {
@@ -46,7 +47,18 @@ const camAt = (id: string, prevId: string | null, f: number, dur: number): Cam =
 };
 
 /** Run clock shown in the HUD per beat (UTC), from chapter 4 onward. */
-const CLOCK: Record<string, string> = {};
+const CLOCK: Record<string, string> = {
+  '4.1': '13:22:27', '4.2': '13:26:40',
+  '5.1': '13:26:40', '5.2': '13:26:40', '5.3': '13:26:40', '5.4': '13:26:40',
+  '6.1': '13:26:40', '6.2': '13:26:40', '6.3': '13:26:40', '6.4': '13:26:40', '6.5': '13:26:45',
+  '7.1': '13:26:44', '8.1': '13:26:45', '8.2': '13:26:45', '8.3': '13:26:49',
+  '9.1': '13:26:49', '9.2': '13:26:49', '9.3': '13:26:49',
+  '10.1': '13:29:40', '10.2': '13:31:37',
+  '11.1': '13:26:49', '11.2': '13:26:49', '11.3': '13:26:49', '11.4': '13:26:49', '11.5': '13:26:49',
+  '12.1': '13:32:21', '12.2': '13:32:21',
+  '13.1': '13:31:37', '13.2': '13:26:40',
+  '14.1': '13:42:00', '14.2': '13:32:21', '14.3': '13:32:21',
+};
 
 // ---------------- sound effects ----------------
 type Sfx = 'click' | 'type' | 'pop' | 'tick' | 'whoosh' | 'land' | 'flip' | 'chime' | 'alert';
@@ -230,11 +242,11 @@ const Overlays: React.FC<{id: string; f: number; dur: number}> = ({id, f, dur}) 
           title="hub-dr/placement.yaml"
           appear={win(0.03, 0.97)}
           reveal={prog(f, 0, 40)}
-          hl={[4]}
+          hl={[5]}
           x={1240}
           y={680}
           w={640}
-          lines={['kind: Placement', 'metadata:', '  name: dell-vm-placement', '  annotations:', '    experimental-scheduling-disable: "true"', 'spec:', '  tolerations: [unreachable, unavailable]']}
+           lines={['kind: Placement', 'metadata:', '  name: dell-vm-placement', '  namespace: openshift-gitops', '  annotations:', '    cluster.open-cluster-management.io/experimental-scheduling-disable: "true"']}
         />
       );
     case '1.5':
@@ -247,7 +259,7 @@ const Overlays: React.FC<{id: string; f: number; dur: number}> = ({id, f, dur}) 
           x={1180}
           y={600}
           w={700}
-          lines={['generators:', '  - clusterDecisionResource:', '      configMapRef: acm-placement', '      labelSelector: {placement: dell-vm-placement}', '      requeueAfterSeconds: 180', 'template:', '  metadata: {name: dell-vm-workload-{{name}}}']}
+           lines={['generators:', '  - clusterDecisionResource:', '      configMapRef: acm-placement', '      labelSelector:', '        matchLabels:', '          cluster.open-cluster-management.io/placement: dell-vm-placement', '      requeueAfterSeconds: 180']}
         />
       );
     case '1.6':
@@ -260,7 +272,7 @@ const Overlays: React.FC<{id: string; f: number; dur: number}> = ({id, f, dur}) 
           x={1180}
           y={600}
           w={700}
-          lines={['metadata:', '  annotations:', '    argocd.argoproj.io/skip-reconcile: "true"', '    ocm-managed-cluster: spoke-1', 'spec:', '  syncPolicy: {automated: {prune: true, selfHeal: true}}', '  syncOptions: [CreateNamespace=true, PruneLast=true]']}
+           lines={['metadata:', '  annotations:', '    argocd.argoproj.io/skip-reconcile: "true"', '    apps.open-cluster-management.io/ocm-managed-cluster: spoke-1', 'spec:', '  syncPolicy:', '    automated: {prune: true, selfHeal: true}', '    syncOptions: [CreateNamespace=true, PruneLast=true]']}
         />
       );
     case '2.2':
@@ -323,6 +335,10 @@ export const VirtDr292: React.FC<{chapters: number[]}> = ({chapters}) => {
   for (const b of beats) {
     const base = b.from + PAD_BEFORE;
     for (const [frac, s, v] of SFX[b.id] ?? []) sfx.push({at: base + Math.round(frac * b.audio), s, v});
+    if (SCENES[b.id]) {
+      sfx.push({at: base + 10, s: 'pop', v: 0.18});
+      for (const frac of [.2, .42, .64]) sfx.push({at: base + Math.round(frac * b.audio), s: 'land', v: 0.16});
+    }
     if (b.id === '0.1') {
       for (let fr = 1; fr < 80; fr++) if (typedCount(fr) > typedCount(fr - 1)) sfx.push({at: base + fr, s: 'type', v: 0.35});
       sfx.push({at: base + 90, s: 'click', v: 0.5});
@@ -332,9 +348,9 @@ export const VirtDr292: React.FC<{chapters: number[]}> = ({chapters}) => {
 
   return (
     <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%, #0b1320, ${C.bg} 70%)`, overflow: 'hidden'}}>
-      <div style={{position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', transform: `translate(${960 - cam.x * cam.z}px, ${540 - cam.y * cam.z}px) scale(${cam.z})`}}>
-        <World c={ctx} />
-      </div>
+       {beat.chapter.n >= 3 ? <RunScene id={beat.id} f={f} dur={beat.audio} /> : <div style={{position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', transform: `translate(${960 - cam.x * cam.z}px, ${540 - cam.y * cam.z}px) scale(${cam.z})`}}>
+         <World c={ctx} />
+       </div>}
       {seg.type === 'beat' && beat.id !== '0.1' ? <Hud chapter={beat.chapter.title} clock={CLOCK[beat.id] ?? null} /> : null}
       {seg.type === 'beat' && legendA > 0 ? <Legend appear={legendA} /> : null}
       {seg.type === 'beat' && beat.chapter.n >= 4 ? <TimelineBar now={CLOCK[beat.id] ?? null} /> : null}
@@ -344,7 +360,7 @@ export const VirtDr292: React.FC<{chapters: number[]}> = ({chapters}) => {
       ) : null}
       {beats.map((b) => (
         <Sequence key={b.id} from={b.from + PAD_BEFORE} durationInFrames={b.audio + 10}>
-          <Audio src={staticFile(`audio/virtdr-292/${b.id}.wav`)} />
+           <Audio src={staticFile(`audio/virtdr-292/${b.id}.wav`)} volume={0.72} />
         </Sequence>
       ))}
       {sfx.map((x, i) => (

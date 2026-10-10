@@ -125,7 +125,7 @@ beats:
   visual: "Primary VRG selects the two PVCs by label; finalizer pvc-vr-protection appears on each PVC; PV reclaim policy flips to Retain; two VolumeReplication CRs spawn."
   narration: >
     The Primary VRG selects PVCs with the pvcSelector drprotection equals true. For each one it adds the
-    pvc-vr-protection finalizer, sets the PV to Retain, and creates a VolumeReplication with replicationState primary
+    volumereplicationgroups.ramendr.openshift.io/pvc-vr-protection finalizer, sets the PV to Retain, and creates a VolumeReplication with replicationState primary
     and the class powerstore-vrc-15m.
   evidence: [ramen, setup]
 
@@ -331,7 +331,7 @@ beats:
   narration: >
     The propagation controller wraps it in a ManifestWork for spoke-0, rewriting the destination to the local API server.
     The work agent applies the Application, and spoke-0's Argo CD syncs its workload folder from Git.
-    The run records workload commit e6237efd8cba2c68908cf351c7b779d53be654f9.
+    The workload revision is recorded in the run log and shown on screen.
     A branch name by itself would not prove identical resolved commits on both spokes.
   evidence: [ocm, run]
 
@@ -344,7 +344,7 @@ beats:
     The exact CDI adoption sequence was not captured, so that part is explanatory inference.
   pause_after: 1.4
   evidence: [run, setup]
-  unverified: "The exact CDI/Argo CD adoption mechanics are not traced in source; the outcome (promoted handles 9e3b6608 and 41b0880b in use) is recorded."
+  unverified: "The exact CDI/Argo CD adoption mechanics are not traced in source. Recorded handles: root 9e3b6608-30f4-42e8-aaca-4f774fe7662a, data 41b0880b-916d-42a1-b4b6-a55f9c853c91."
 
 # ---------------- Chapter 10: target VM ----------------
 - id: 10.1
@@ -390,7 +390,7 @@ beats:
   t: "~13:31"
   visual: "Spoke-1 Argo CD prunes: VM, VMI, DataVolumes, PVCs vanish one by one. Namespace gitops-vms stays, with a highlight 'not owned by Argo CD'."
   narration: >
-    Spoke-1's Argo CD prunes what it owned: the paused VM, its DataVolumes, and their PVCs. No human deleted anything.
+    On spoke-1, Argo CD prunes what it owned: the paused VM, its DataVolumes, and their PVCs. No human deleted anything.
     The namespace stays, because it is not in Git. An earlier attempt had a namespace manifest, Argo CD pruned the
     whole namespace, took the VRG with it mid-demotion, and left the DRPC stuck in Cleaning Up.
   pause_after: 1.4
@@ -409,7 +409,7 @@ beats:
   visual: "Spoke-1 VolumeReplications: replicationState secondary, autoResync true; gRPC Demote then Resync; conditions Degraded True, Resyncing True."
   narration: >
     It sets both VolumeReplications to secondary with auto resync. csi-addons calls Demote, then Resync.
-    The VRG accepts Resyncing as healthy for a Secondary, deletes the VolumeReplications, removes the pvc-vr-protection
+    The VRG accepts Resyncing as healthy for a Secondary, deletes the VolumeReplications, removes the same PVC protection
     finalizer, and the terminating PVCs finally go away. The spoke-1 VRG reports Secondary.
   evidence: [ramen, csiaddons]
 

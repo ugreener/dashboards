@@ -24,6 +24,7 @@ DEFAULT_PAUSE = 0.8  # seconds of silence after a beat unless beats.yaml sets pa
 
 # Exact-token replacements applied before generic rules (order matters: longest first).
 SPOKEN = {
+    "volumereplicationgroups.ramendr.openshift.io/pvc-vr-protection": "volume replication groups, ramen D R dot openshift dot I O, slash P V C V R protection",
     "ocp-4.22-rhdr-dell": "O C P four twenty-two R H D R Dell",
     "clusters/dell-s4/workloads": "clusters, dell S four, workloads",
     "experimental-scheduling-disable": "experimental scheduling disable",
@@ -41,6 +42,8 @@ SPOKEN = {
     "powerstore-sc": "powerstore S C",
     "gitops-vms": "git ops V M S",
     "acm-placement": "A C M placement",
+    "ramendr-postgresql.service": "ramen D R Postgres service",
+    "ramendr-dr-hammerdb.service": "ramen D R Hammer D B service",
     "skip-reconcile": "skip reconcile",
     "drprotection": "D R protection",
     "PostgreSQL": "Postgres",
@@ -54,6 +57,7 @@ SPOKEN = {
     "edge97": "edge ninety-seven",
     "spoke-0": "spoke zero",
     "spoke-1": "spoke one",
+    "worker-2": "worker two",
     "gRPC": "G R P C",
     "NVMe": "N V M E",
     "libvirt": "lib virt",
@@ -69,7 +73,7 @@ SPOKEN = {
 }
 NO_SPLIT = {"OpenShift", "PowerStore", "GitOps"}
 ACRONYMS = {"DRPC", "VRG", "VRGs", "PVC", "PVCs", "PV", "PVs", "VMI", "VM", "VMs",
-            "UTC", "RPO", "ACM", "CSI", "TCP", "OS", "API", "DR", "YAML", "ID", "OCP"}
+             "UTC", "RPO", "ACM", "CSI", "TCP", "OS", "API", "DR", "YAML", "ID", "OCP", "CDI", "SSH"}
 
 
 def split_camel(word: str) -> str:

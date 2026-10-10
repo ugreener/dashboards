@@ -177,7 +177,7 @@ const Volume: React.FC<{x: number; y: number; name: string; role: string; appear
         left: x,
         top: y,
         width: 360,
-        height: 84,
+         height: 108,
         opacity: Math.min(1, appear * 1.5) * (0.3 + 0.7 * focus),
         borderRadius: 12,
         background: C.panel,
@@ -194,8 +194,8 @@ const Volume: React.FC<{x: number; y: number; name: string; role: string; appear
         <path d="M2 7v26c0 3.3 6.7 6 15 6s15-2.7 15-6V7" fill="none" stroke={C.array} strokeWidth={2.5} />
         <path d="M2 20c0 3.3 6.7 6 15 6s15-2.7 15-6" fill="none" stroke={C.array} strokeWidth={1.5} opacity={0.6} />
       </svg>
-      <div>
-        <div style={{fontFamily: mono, fontSize: 20, color: C.text}}>{name}</div>
+       <div style={{minWidth: 0}}>
+         <div style={{fontFamily: mono, fontSize: 16, color: C.text, overflowWrap: 'anywhere'}}>{name}</div>
         <div style={{marginTop: 6}}>
           <Pill text={role} color={roleColor} size={15} />
         </div>
@@ -315,14 +315,14 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         y={card.placement[1]}
         kind="Placement"
         name="dell-vm-placement"
-        lines={[<span style={{color: H('1.4', 0.05, 0.6) ? C.amber : C.dim}}>scheduling-disable: "true"</span>]}
+         lines={[<span style={{color: H('1.4', 0.05, 0.6) ? C.amber : C.dim}}>ACM scheduler disabled</span>]}
         appear={aPl}
         hl={H('1.3', 0.38, 0.5) + H('1.4', 0.05, 0.95)}
         focus={F('placement')}
         detail={Math.max(detail, H('1.4', 0.0, 1))}
       />
       <Card x={card.appset[0]} y={card.appset[1]} kind="ApplicationSet" name="dell-vm-workload" lines={['clusterDecisionResource', 'requeueAfterSeconds 180']} appear={aSet} hl={H('1.3', 0.7, 0.82) + H('1.5', 0.0, 0.6)} focus={F('appset')} detail={detail} />
-      <Card x={card.pd[0]} y={card.pd[1]} w={330} kind="PlacementDecision" name="dell-vm-placement-decision-1" lines={[<Pill text="spoke-1" color={C.spoke1} size={16} />]} appear={aPd} hl={H('1.3', 0.82, 1) + H('1.4', 0.45, 0.9) + H('1.5', 0.25, 0.55)} focus={F('pd')} />
+       <Card x={card.pd[0]} y={card.pd[1]} w={330} kind="PlacementDecision" name="Selected clusters" lines={['For dell-vm-placement', <Pill text="spoke-1 (recorded run)" color={C.spoke1} size={16} />]} appear={aPd} hl={H('1.3', 0.82, 1) + H('1.4', 0.45, 0.9) + H('1.5', 0.25, 0.55)} focus={F('pd')} />
       <Card x={card.drpolicy[0]} y={card.drpolicy[1]} w={330} kind="DRPolicy" name="dr-policy-15m" color={C.orange} lines={['cluster-scoped', 'schedulingInterval 15m']} appear={aPol} hl={H('1.3', 0.6, 0.72)} focus={F('drpolicy')} detail={detail} />
       <Card x={card.app1[0]} y={card.app1[1]} w={320} kind="Application" name="dell-vm-workload-spoke-1" lines={['skip-reconcile (hub copy)']} appear={aApp1} hl={H('1.5', 0.55, 0.8) + H('1.6', 0.0, 0.35)} focus={F('app1')} detail={detail} />
 
@@ -359,7 +359,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
             hl={hDisks}
             focus={F('pvc1')}
             detail={Math.max(detail, H('1.2', 0.4, 1))}
-            badge={aFin > 0 ? <Pill text="pvc-vr-protection" color={C.orange} appear={aFin} size={14} /> : undefined}
+             badge={aFin > 0 ? <Pill text="Protected PVC" color={C.orange} appear={aFin} size={14} /> : undefined}
           />
         );
       })}
@@ -386,10 +386,10 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       <Card x={spoke.vrg(0)[0]} y={spoke.vrg(0)[1]} w={320} kind="VolumeReplicationGroup" name="dell-vm-drpc" lines={[<Cond k="state" v="Secondary" ok={null} />]} appear={aVrg} hl={H('2.1', 0.35, 0.6)} focus={F('vrg0')} detail={Math.max(detail, H('2.1', 0.3, 1))} />
 
       {/* array volumes */}
-      <Volume x={L.vsaB.x + 40} y={L.vsaB.y + 42} name="rootdisk · 1282bca9" role="source" roleColor={C.green} appear={aVol} hl={H('2.3', 0.38, 0.6)} focus={F('vols')} />
-      <Volume x={L.vsaB.x + 440} y={L.vsaB.y + 42} name="datadisk · e5ecb946" role="source" roleColor={C.green} appear={aVol} hl={H('2.3', 0.38, 0.6)} focus={F('vols')} />
-      <Volume x={L.vsaA.x + 40} y={L.vsaA.y + 42} name="rootdisk · 9e3b6608" role="destination · read-only" roleColor={C.amber} appear={aVol} focus={F('vols')} />
-      <Volume x={L.vsaA.x + 440} y={L.vsaA.y + 42} name="datadisk · 41b0880b" role="destination · read-only" roleColor={C.amber} appear={aVol} focus={F('vols')} />
+       <Volume x={L.vsaB.x + 40} y={L.vsaB.y + 42} name="1282bca9-29aa-416f-b890-2a29a44e3fac" role="root disk · source" roleColor={C.green} appear={aVol} hl={H('2.3', 0.38, 0.6)} focus={F('vols')} />
+       <Volume x={L.vsaB.x + 440} y={L.vsaB.y + 42} name="e5ecb946-25b6-4f1a-afe0-8173392f2b7d" role="data disk · source" roleColor={C.green} appear={aVol} hl={H('2.3', 0.38, 0.6)} focus={F('vols')} />
+       <Volume x={L.vsaA.x + 40} y={L.vsaA.y + 42} name="9e3b6608-30f4-42e8-aaca-4f774fe7662a" role="root disk · replica" roleColor={C.amber} appear={aVol} focus={F('vols')} />
+       <Volume x={L.vsaA.x + 440} y={L.vsaA.y + 42} name="41b0880b-916d-42a1-b4b6-a55f9c853c91" role="data disk · replica" roleColor={C.amber} appear={aVol} focus={F('vols')} />
 
       {/* ---------- connections ---------- */}
       <svg width={2400} height={1500} style={{position: 'absolute', left: 0, top: 0, overflow: 'visible'}}>
@@ -436,7 +436,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         {aSyncLink > 0 && is('2.3') ? (
           <g opacity={aSyncLink}>
             {[0, 1].map((i) => (
-              <Flow key={i} a={[L.vsaB.x + 220 + i * 400, L.vsaB.y + 128]} b={[L.vsaA.x + 220 + i * 400, L.vsaA.y + 128]} bend="v" kind="data" draw={1} flowT={loop(120 + i * 7)} packets={3} width={2.5} opacity={0.8} />
+              <Flow key={i} a={[L.vsaB.x + 220 + i * 400, L.vsaB.y + 178]} b={[L.vsaA.x + 220 + i * 400, L.vsaA.y + 178]} bend="straight" kind="data" draw={1} flowT={loop(120 + i * 7)} packets={3} width={2.5} opacity={0.8} />
             ))}
           </g>
         ) : null}
