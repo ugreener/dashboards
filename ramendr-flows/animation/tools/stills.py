@@ -28,13 +28,11 @@ def frames(ticket, chapters, beats, fracs):
     f, last, out = 0, -1, []
     for bid, v in timing.items():
         ch = int(bid.split(".")[0])
-        if chapters and ch not in chapters:
-            continue
         if ch != last and ch > 0:
             f += CARD
         last = ch
         audio = math.ceil(v["seconds"] * FPS)
-        if not beats or bid in beats:
+        if (not beats or bid in beats) and (not chapters or ch in chapters):
             out += [(bid, fr, f + LEAD + int(audio * fr)) for fr in fracs]
         f += LEAD + audio + round(v.get("pause", 0.8) * FPS)
     return out
@@ -54,15 +52,14 @@ def main():
     sd, hd = os.path.join(ROOT, "out", "stills"), os.path.join(ROOT, "out", "sheets")
     os.makedirs(sd, exist_ok=True)
     os.makedirs(hd, exist_ok=True)
-    shots = []
-    for bid, fr, n in frames(a.ticket, chapters, beats, fracs):
-        p = os.path.join(sd, f"{bid}_{fr}.png")
-        r = subprocess.run(["npx", "remotion", "still", "src/index.ts", a.comp, p, f"--frame={n}", "--log=error"],
-                           cwd=ROOT, capture_output=True, text=True)
-        if r.returncode != 0:
-            print(f"FAILED {bid} frame {n}: {r.stderr[-400:]}", file=sys.stderr)
-            continue
-        shots.append(p)
+    # Frames are always counted over the full timeline: use the full composition.
+    todo = [(bid, fr, n, os.path.join(sd, f"{bid}_{fr}.png")) for bid, fr, n in frames(a.ticket, chapters, beats, fracs)]
+    job = os.path.join(ROOT, "out", "still_job.json")
+    json.dump({"comp": a.comp, "shots": [{"frame": n, "out": p} for _, _, n, p in todo]}, open(job, "w"))
+    r = subprocess.run(["node", "tools/still_batch.mjs", job], cwd=ROOT, capture_output=True, text=True)
+    if r.returncode != 0:
+        print(r.stderr[-1500:], file=sys.stderr)
+    shots = [p for *_, p in todo if os.path.exists(p)]
     for i in range(0, len(shots), 4):
         sheet = Image.new("RGB", (1920, 1080))
         for j, p in enumerate(shots[i:i + 4]):

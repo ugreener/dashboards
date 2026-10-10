@@ -30,6 +30,17 @@ SPOKEN = {
     "experimental-scheduling-disable": "experimental scheduling disable",
     "powerstore-vrc-15m": "powerstore V R C fifteen M",
     "pvc-vr-protection": "P V C V R protection",
+    "dell-vm-placement-decision-1": "dell V M placement decision one",
+    "dell-vm-drpc-gitops-vms-vrg-mw": "dell V M D R P C, git ops V M S, V R G M W",
+    "dell-vm-drpc-gitops-vms-vrg-mcv": "dell V M D R P C, git ops V M S, V R G M C V",
+    "hammerdb-rhel9-rootdisk": "hammer D B R H E L nine root disk",
+    "hammerdb-rhel9-datadisk": "hammer D B R H E L nine data disk",
+    "VIRTDR-308": "VIRT D R three oh eight",
+    "VIRTDR-316": "VIRT D R three sixteen",
+    "9e3b6608": "nine E three B, six six oh eight",
+    "41b0880b": "four one B, oh eight eight oh B",
+    "systemd": "system D",
+    "KubeVirt": "Kube Virt",
     "dell-vm-placement": "dell V M placement",
     "dell-vm-workload-spoke-0": "dell V M workload spoke zero",
     "dell-vm-workload-spoke-1": "dell V M workload spoke one",
@@ -71,7 +82,7 @@ SPOKEN = {
     "OpenShift 4.22": "OpenShift four twenty-two",
     "MinIO": "min I O",
 }
-NO_SPLIT = {"OpenShift", "PowerStore", "GitOps"}
+NO_SPLIT = {"OpenShift", "PowerStore", "GitOps", "KubeVirt"}
 ACRONYMS = {"DRPC", "VRG", "VRGs", "PVC", "PVCs", "PV", "PVs", "VMI", "VM", "VMs",
              "UTC", "RPO", "ACM", "CSI", "TCP", "OS", "API", "DR", "YAML", "ID", "OCP", "CDI", "SSH"}
 

@@ -59,11 +59,11 @@ beats:
   chapter: Cast of characters
   card: {kind: VirtualMachine, name: hammerdb-rhel9, role: "the database VM we are protecting"}
   def:
-    what: "OpenShift Virtualization runs full virtual machines as Kubernetes objects. A VirtualMachine is the definition; a VirtualMachineInstance, VMI, is the running copy inside a pod."
-    creator: "Argo CD applies it from Git."
+    what: "OpenShift Virtualization runs full virtual machines as Kubernetes objects. A VirtualMachine is the definition. A VirtualMachineInstance, VMI, is the running copy inside a pod."
+    creator: "Applied from Git by GitOps (Argo CD, introduced below)."
     reader: "KubeVirt starts a virt-launcher pod that runs the guest."
     where: "Namespace gitops-vms on whichever spoke runs the app."
-    analogy: "The VirtualMachine is the recipe; the VMI is the dish on the table."
+    analogy: "The VirtualMachine is the recipe, the VMI is the dish on the table."
   narration: >
     The workload is a virtual machine. OpenShift Virtualization lets a cluster run full VMs as Kubernetes objects.
     A VirtualMachine is the definition, and a VirtualMachineInstance, or V M I, is the running copy, inside a pod.
@@ -75,8 +75,8 @@ beats:
   card: {kind: DataVolume, name: hammerdb-rhel9-rootdisk, role: "creates and fills a VM disk"}
   def:
     what: "A DataVolume asks the Containerized Data Importer, CDI, to create a PersistentVolumeClaim and fill it, for example by cloning an OS image or leaving it blank."
-    creator: "Argo CD applies two DataVolumes from Git: rootdisk and datadisk."
-    reader: "CDI creates PVCs with the same names; the VM mounts them."
+    creator: "Applied from Git by GitOps (introduced below): rootdisk and datadisk."
+    reader: "CDI creates PVCs with the same names, and the VM mounts them."
     where: "gitops-vms on the spoke."
     analogy: "An order form that says: give me a 35 gig disk, preloaded with RHEL."
   narration: >
@@ -87,7 +87,7 @@ beats:
 
 - id: "1.4"
   chapter: Cast of characters
-  card: {kind: "PowerStore replication session", name: "VSA-B to VSA-A", role: "the array copies changed blocks"}
+  card: {kind: "PowerStore replication session", name: 23dfdc6d-3feb-4281-83bb-69287b7b1a35, role: "the data-disk session: VSA-B copies changed blocks to VSA-A"}
   def:
     what: "Each spoke stores its disks on its own Dell PowerStore virtual array. A replication session on the array copies a volume's changed blocks to the peer array on a schedule."
     creator: "The PowerStore CSI driver, when replication is enabled."
@@ -120,7 +120,7 @@ beats:
   card: {kind: VolumeReplication, name: hammerdb-rhel9-datadisk, role: "turns replication on for one PVC"}
   def:
     what: "Asks for one PVC's volume to be replicated, and in which role: primary means writable source, secondary means read-only destination."
-    creator: "Ramen's VolumeReplicationGroup creates one per protected PVC."
+    creator: "The VolumeReplicationGroup (next) creates one per protected PVC."
     reader: "The csi-addons controller translates it into gRPC calls on the PowerStore CSI driver."
     where: "Same namespace as the PVC, on the spoke."
     analogy: "A work order for the courier: this disk, this timetable, you are the sender."
@@ -136,7 +136,7 @@ beats:
   def:
     what: "Ramen's per-spoke object for one application. It finds the app's PVCs by label, creates their VolumeReplications, and saves their definitions to S3. Its state is Primary or Secondary."
     creator: "The hub delivers it to both spokes."
-    reader: "Ramen's spoke controller acts on it; the hub reads its status back."
+    reader: "Ramen's spoke controller acts on it, and the hub reads its status back."
     where: "gitops-vms on each spoke."
     analogy: "A site manager at each office who knows which boxes belong to this customer."
   narration: >
@@ -210,7 +210,7 @@ beats:
   card: {kind: DRPlacementControl, name: dell-vm-drpc, role: "the DR control panel for one app"}
   def:
     what: "Ramen's hub object for one protected application. It points at a Placement and a DRPolicy, selects PVCs by label, and accepts actions like Failover."
-    creator: "Applied from Git; the console edits its action field."
+    creator: "Applied from Git. The console edits its action field."
     reader: "Ramen's hub operator reconciles it and reports phase and conditions."
     where: "Hub, openshift-gitops, next to its Placement."
     analogy: "The control panel with the big red failover switch."
@@ -313,7 +313,7 @@ beats:
   chapter: The environment
   visual: "Git card; hub namespace openshift-gitops: Placement, DRPC, ApplicationSet, PlacementDecision, DRPolicy."
   narration: >
-    The VM's definition lives in Git, on the ocp-4.22-rhdr-dell branch, under clusters/dell-s4/workloads.
+    The virtual machine's definition lives in Git, on the ocp-4.22-rhdr-dell branch, under clusters/dell-s4/workloads.
     On the hub, in openshift-gitops, sit the Placement, the D R P C, the ApplicationSet and the PlacementDecision,
     with the DRPolicy alongside. All three app objects share one namespace on purpose: Ramen and Argo CD each require it.
   evidence: [repo]
@@ -344,7 +344,7 @@ beats:
   narration: >
     This is the pull model. The hub copy of the Application carries a skip-reconcile annotation, so the hub's Argo CD leaves it alone.
     A propagation controller packs it into a ManifestWork for the chosen spoke, the work agent applies it,
-    and the spoke's own Argo CD pulls the Git folder and syncs it, with automatic prune and self-heal.
+    and the spoke's own Argo CD pulls the Git folder and syncs it. Automatic prune and self-heal are on: self-heal puts back anything changed by hand.
   evidence: [repo, ocm]
 
 - id: "2.7"
@@ -600,11 +600,11 @@ beats:
   chapter: Promotion on spoke-0
   t: "13:26:45"
   screenshot: VIRTDR-292-2026-10-07-27-promotion-spoke-0-target-vrg-conditions.png
-  focus: {x: 335, y: 860, w: 1500, h: 190}
+  focus: {x: 340, y: 862, w: 1180, h: 188}
   caption: "spoke-0 · VRG dell-vm-drpc conditions after promotion (console shows local time 4:26 PM = 13:26 UTC)"
   narration: >
     At 13:26:45, five seconds after the click, both target VolumeReplications reported Primary and completed.
-    Here is the spoke-0 V R G a moment later. Data ready, cluster data restored, kube objects restored, cluster data protected.
+    Here is the spoke-0 V R G a moment later: data ready, and cluster data restored from S3, both true.
     Data protected still says replicating, because the new direction has not synced yet.
   pause_after: 1.2
   evidence: [run, shot]
@@ -621,7 +621,7 @@ beats:
   chapter: The source stops writing
   visual: "Spoke-1 VM still running; write to VSA-B volume; array rejects."
   narration: >
-    Meanwhile, what happens to the old VM? Spoke-1 was not actually down in this test, so the VM kept running and writing.
+    Meanwhile, what happens to the old VM? In this test spoke-1 was not actually down in this test, so the VM kept running and writing.
     But its volumes on VSA-B had just become read-only replication destinations. The next write from the guest was rejected by the array.
   evidence: [run, setup]
 
@@ -629,7 +629,7 @@ beats:
   chapter: The source stops writing
   t: "13:26:44"
   screenshot: VIRTDR-292-2026-10-07-26-promotion-spoke-1-source-vmi-paused.png
-  focus: {x: 335, y: 865, w: 1500, h: 50}
+  focus: {x: 340, y: 866, w: 1240, h: 46}
   caption: "spoke-1 · source VMI hammerdb-rhel9 · Ready False, VM paused after I/O error (4:26 PM local = 13:26 UTC)"
   define: {term: "PausedIOError", text: "The hypervisor pauses a VM whose disk write failed, instead of letting the guest crash."}
   narration: >
@@ -665,7 +665,7 @@ beats:
   chapter: Placement moves
   t: "13:26:49"
   screenshot: VIRTDR-292-2026-10-07-24-initiated-hub-managed-failingover.png
-  focus: {x: 315, y: 365, w: 1555, h: 75}
+  focus: {x: 318, y: 368, w: 700, h: 70}
   caption: "Shortly after Initiate · banner: failed over to spoke-0, while cleanup still ran"
   define: {term: "Cleaning Up", text: "FailedOver, but the source side is not finished yet. Not the same as Completed."}
   narration: >
@@ -723,7 +723,7 @@ beats:
   chapter: GitOps redeploys
   visual: "Volume handles on screen: root 9e3b6608-30f4-42e8-aaca-4f774fe7662a, data 41b0880b-916d-42a1-b4b6-a55f9c853c91."
   narration: >
-    The run log proves it: the target claims use VSA-A volumes 9e3b6608 for the root disk and 41b0880b for the data disk, the promoted replicas.
+    The run log proves it. Each target claim is bound to the VSA-A volume that was the replica of that same disk, shown here next to its VSA-B source volume.
   evidence: [run]
 
 - id: "10.5"
@@ -738,7 +738,7 @@ beats:
   chapter: VM boots on spoke-0
   t: "13:29:40"
   screenshot: VIRTDR-292-2026-10-07-29-completed-spoke-0-target-vmi-ready.png
-  focus: {x: 335, y: 865, w: 1500, h: 50}
+  focus: {x: 340, y: 866, w: 1240, h: 46}
   caption: "spoke-0 · target VMI hammerdb-rhel9 on worker-2 · Ready True (4:29 PM local = 13:29 UTC)"
   narration: >
     Why does the guest matter separately? A running pod does not mean a working database.
@@ -839,7 +839,7 @@ beats:
 - id: "13.3"
   chapter: Completed
   screenshot: VIRTDR-292-2026-10-07-30-completed-hub-dr-policy-unchanged.png
-  focus: {x: 315, y: 445, w: 1555, h: 60}
+  focus: {x: 318, y: 448, w: 1380, h: 56}
   caption: "After completion · dr-policy-15m still Validated, async interval 15m"
   narration: >
     The DRPolicy is unchanged: dr-policy-15m, still validated, async every fifteen minutes. Failover moves an app, not the policy.

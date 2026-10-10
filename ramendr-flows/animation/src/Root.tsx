@@ -5,7 +5,7 @@ import {VirtDr292} from './virtdr-292/Video';
 import {buildTimeline} from './virtdr-292/timeline';
 
 const FIRST_CUT = [0, 1, 2];
-const ALL = Array.from({length: 15}, (_, i) => i);
+const ALL = Array.from({length: 16}, (_, i) => i);
 
 export const Root: React.FC = () => (
   <>

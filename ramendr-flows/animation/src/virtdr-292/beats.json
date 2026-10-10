@@ -1,0 +1,588 @@
+{
+ "0.1": {
+  "chapter": "Cold open",
+  "t": "13:26:40"
+ },
+ "1.1": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Hub and managed clusters",
+   "name": "edge36 hub \u00b7 spoke-0 \u00b7 spoke-1",
+   "role": "one cluster manages the other two"
+  },
+  "def": {
+   "what": "Red Hat Advanced Cluster Management, ACM, runs on a hub cluster and manages other clusters, called managed clusters or spokes.",
+   "creator": "Clusters are registered to the hub once, at setup.",
+   "reader": "Every controller in this video runs on either the hub or a spoke.",
+   "where": "Hub: edge36. spoke-0: edge95. spoke-1: edge97.",
+   "analogy": "Head office and two branch offices."
+  }
+ },
+ "1.2": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VirtualMachine",
+   "name": "hammerdb-rhel9",
+   "role": "the database VM we are protecting"
+  },
+  "def": {
+   "what": "OpenShift Virtualization runs full virtual machines as Kubernetes objects. A VirtualMachine is the definition. A VirtualMachineInstance, VMI, is the running copy inside a pod.",
+   "creator": "Applied from Git by GitOps (Argo CD, introduced below).",
+   "reader": "KubeVirt starts a virt-launcher pod that runs the guest.",
+   "where": "Namespace gitops-vms on whichever spoke runs the app.",
+   "analogy": "The VirtualMachine is the recipe, the VMI is the dish on the table."
+  }
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DataVolume",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "creates and fills a VM disk"
+  },
+  "def": {
+   "what": "A DataVolume asks the Containerized Data Importer, CDI, to create a PersistentVolumeClaim and fill it, for example by cloning an OS image or leaving it blank.",
+   "creator": "Applied from Git by GitOps (introduced below): rootdisk and datadisk.",
+   "reader": "CDI creates PVCs with the same names, and the VM mounts them.",
+   "where": "gitops-vms on the spoke.",
+   "analogy": "An order form that says: give me a 35 gig disk, preloaded with RHEL."
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PowerStore replication session",
+   "name": "23dfdc6d-3feb-4281-83bb-69287b7b1a35",
+   "role": "the data-disk session: VSA-B copies changed blocks to VSA-A"
+  },
+  "def": {
+   "what": "Each spoke stores its disks on its own Dell PowerStore virtual array. A replication session on the array copies a volume's changed blocks to the peer array on a schedule.",
+   "creator": "The PowerStore CSI driver, when replication is enabled.",
+   "reader": "The peer array keeps a read-only destination copy.",
+   "where": "spoke-0 uses VSA-A, spoke-1 uses VSA-B, over NVMe over TCP.",
+   "analogy": "A courier that drives a fresh copy of your files to the other office every few minutes."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationClass",
+   "name": "powerstore-vrc-15m",
+   "role": "says how often to replicate"
+  },
+  "def": {
+   "what": "A cluster-scoped class that tells the storage driver which replication settings to use, here a 15 minute schedule.",
+   "creator": "Created once on each spoke during setup.",
+   "reader": "csi-addons passes its parameters to the PowerStore driver.",
+   "where": "Cluster-scoped, on each spoke.",
+   "analogy": "The courier's timetable."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplication",
+   "name": "hammerdb-rhel9-datadisk",
+   "role": "turns replication on for one PVC"
+  },
+  "def": {
+   "what": "Asks for one PVC's volume to be replicated, and in which role: primary means writable source, secondary means read-only destination.",
+   "creator": "The VolumeReplicationGroup (next) creates one per protected PVC.",
+   "reader": "The csi-addons controller translates it into gRPC calls on the PowerStore CSI driver.",
+   "where": "Same namespace as the PVC, on the spoke.",
+   "analogy": "A work order for the courier: this disk, this timetable, you are the sender."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationGroup",
+   "name": "dell-vm-drpc",
+   "role": "protects all the app's disks on one spoke"
+  },
+  "def": {
+   "what": "Ramen's per-spoke object for one application. It finds the app's PVCs by label, creates their VolumeReplications, and saves their definitions to S3. Its state is Primary or Secondary.",
+   "creator": "The hub delivers it to both spokes.",
+   "reader": "Ramen's spoke controller acts on it, and the hub reads its status back.",
+   "where": "gitops-vms on each spoke.",
+   "analogy": "A site manager at each office who knows which boxes belong to this customer."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "S3 bucket",
+   "name": "ramen-metadata",
+   "role": "remembers which disk belongs to which claim"
+  },
+  "def": {
+   "what": "An S3 bucket, served by MinIO on the hub, where Ramen stores copies of the protected PV and PVC definitions.",
+   "creator": "The Primary VRG uploads them.",
+   "reader": "A VRG that becomes Primary on the other spoke downloads them.",
+   "where": "MinIO on the hub, bucket ramen-metadata.",
+   "analogy": "The labels for the boxes, kept in a safe at head office."
+  }
+ },
+ "1.9": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPolicy",
+   "name": "dr-policy-15m",
+   "role": "pairs the two spokes, 15 minute schedule"
+  },
+  "def": {
+   "what": "A cluster-scoped hub object that names the two peer clusters and the replication interval.",
+   "creator": "Created once on the hub during setup.",
+   "reader": "Each DRPlacementControl points at one DRPolicy.",
+   "where": "Hub, cluster-scoped.",
+   "analogy": "The contract between the two branch offices."
+  }
+ },
+ "1.10": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Placement",
+   "name": "dell-vm-placement",
+   "role": "the question: which cluster runs this app?"
+  },
+  "def": {
+   "what": "An ACM object that asks which clusters an application should run on.",
+   "creator": "Applied from Git into openshift-gitops on the hub.",
+   "reader": "Normally the ACM scheduler answers it. Here an annotation switches that off, so only Ramen answers.",
+   "where": "Hub, namespace openshift-gitops.",
+   "analogy": "A job posting: we need one office to run this."
+  }
+ },
+ "1.11": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PlacementDecision",
+   "name": "dell-vm-placement-decision-1",
+   "role": "the answer: the chosen cluster list"
+  },
+  "def": {
+   "what": "The answer to a Placement: a list of selected cluster names.",
+   "creator": "Here, written only by Ramen's hub operator.",
+   "reader": "The ApplicationSet generator polls it to decide where to deploy.",
+   "where": "Hub, openshift-gitops, labeled with the Placement name.",
+   "analogy": "The posted result: office spoke-1 gets the job."
+  }
+ },
+ "1.12": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPlacementControl",
+   "name": "dell-vm-drpc",
+   "role": "the DR control panel for one app"
+  },
+  "def": {
+   "what": "Ramen's hub object for one protected application. It points at a Placement and a DRPolicy, selects PVCs by label, and accepts actions like Failover.",
+   "creator": "Applied from Git. The console edits its action field.",
+   "reader": "Ramen's hub operator reconciles it and reports phase and conditions.",
+   "where": "Hub, openshift-gitops, next to its Placement.",
+   "analogy": "The control panel with the big red failover switch."
+  }
+ },
+ "1.13": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ManifestWork",
+   "name": "dell-vm-drpc-gitops-vms-vrg-mw",
+   "role": "a parcel the hub ships to a spoke"
+  },
+  "def": {
+   "what": "An ACM object on the hub that wraps Kubernetes manifests. The work agent on the named spoke applies them there.",
+   "creator": "Ramen (for VRGs) and the GitOps propagation controller (for Applications).",
+   "reader": "The work agent on the spoke.",
+   "where": "Hub, in the spoke's cluster namespace.",
+   "analogy": "A sealed parcel addressed to one branch office."
+  }
+ },
+ "1.14": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ManagedClusterView",
+   "name": "dell-vm-drpc-gitops-vms-vrg-mcv",
+   "role": "a window to read spoke status"
+  },
+  "def": {
+   "what": "An ACM object on the hub that asks a spoke for the current copy of one of its objects.",
+   "creator": "Ramen's hub operator.",
+   "reader": "Ramen reads the returned VRG status to decide its next step.",
+   "where": "Hub, in the spoke's cluster namespace.",
+   "analogy": "A status report the branch office faxes back."
+  }
+ },
+ "1.15": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ApplicationSet",
+   "name": "dell-vm-workload",
+   "role": "stamps out one Application per chosen cluster"
+  },
+  "def": {
+   "what": "An Argo CD object that generates Applications from a template. Our generator reads the PlacementDecision.",
+   "creator": "Applied from Git into openshift-gitops on the hub.",
+   "reader": "The ApplicationSet controller polls the decision every 180 seconds.",
+   "where": "Hub, openshift-gitops.",
+   "analogy": "A mail-merge: one letter per name on the list."
+  }
+ },
+ "1.16": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Application",
+   "name": "dell-vm-workload-spoke-0",
+   "role": "deploy this Git folder to that cluster"
+  },
+  "def": {
+   "what": "An Argo CD object: sync this Git path to this cluster and namespace, and keep it that way.",
+   "creator": "Generated by the ApplicationSet, one per selected cluster.",
+   "reader": "Argo CD on the spoke syncs it (pull model).",
+   "where": "Hub copy in openshift-gitops, delivered to the spoke's openshift-gitops.",
+   "analogy": "One mail-merged letter: office spoke-0, build exactly what is in this folder."
+  }
+ },
+ "1.17": {
+  "chapter": "Cast of characters"
+ },
+ "2.1": {
+  "chapter": "The environment"
+ },
+ "2.2": {
+  "chapter": "The environment"
+ },
+ "2.3": {
+  "chapter": "The environment"
+ },
+ "2.4": {
+  "chapter": "The environment"
+ },
+ "2.5": {
+  "chapter": "The environment"
+ },
+ "2.6": {
+  "chapter": "The environment",
+  "define": {
+   "term": "pull model",
+   "text": "The hub only generates the Application. The spoke's own Argo CD does the sync."
+  }
+ },
+ "2.7": {
+  "chapter": "The environment"
+ },
+ "2.8": {
+  "chapter": "The environment"
+ },
+ "3.1": {
+  "chapter": "Protected steady state"
+ },
+ "3.2": {
+  "chapter": "Protected steady state"
+ },
+ "3.3": {
+  "chapter": "Protected steady state",
+  "define": {
+   "term": "finalizer",
+   "text": "A tag that blocks deletion of an object until a controller removes it."
+  }
+ },
+ "3.4": {
+  "chapter": "Protected steady state"
+ },
+ "3.5": {
+  "chapter": "Protected steady state"
+ },
+ "3.6": {
+  "chapter": "Protected steady state"
+ },
+ "4.1": {
+  "chapter": "Preflight gate"
+ },
+ "4.2": {
+  "chapter": "Preflight gate",
+  "screenshot": "VIRTDR-292-2026-10-07-21-pre-initiate-hub-managed-status.png",
+  "focus": {
+   "x": 925,
+   "y": 400,
+   "w": 330,
+   "h": 220
+  },
+  "caption": "Before Initiate \u00b7 status popover: All volumes are synced, last synced 13:15 UTC"
+ },
+ "4.3": {
+  "chapter": "Preflight gate"
+ },
+ "4.4": {
+  "chapter": "Preflight gate"
+ },
+ "4.5": {
+  "chapter": "Preflight gate"
+ },
+ "5.1": {
+  "chapter": "Initiate",
+  "t": "13:22:27",
+  "define": {
+   "term": "recovery point",
+   "text": "The moment the newest copy on the other array was taken. Writes after it are not on the replica."
+  }
+ },
+ "5.2": {
+  "chapter": "Initiate",
+  "t": "13:26:40",
+  "screenshot": "VIRTDR-292-2026-10-07-22-pre-initiate-hub-managed-failover-menu.png",
+  "focus": {
+   "x": 1570,
+   "y": 675,
+   "w": 280,
+   "h": 235
+  },
+  "caption": "Before Initiate \u00b7 row action menu with Failover"
+ },
+ "5.3": {
+  "chapter": "Initiate",
+  "t": "13:26:40",
+  "screenshot": "VIRTDR-292-2026-10-07-23-confirmation-hub-managed-target-spoke-0.png",
+  "focus": {
+   "x": 560,
+   "y": 470,
+   "w": 780,
+   "h": 175
+  },
+  "caption": "Confirmation \u00b7 target spoke-0 \u00b7 stale 'Last available' value is open bug VIRTDR-308"
+ },
+ "5.4": {
+  "chapter": "Initiate"
+ },
+ "5.5": {
+  "chapter": "Initiate"
+ },
+ "6.1": {
+  "chapter": "Hub checks the target",
+  "define": {
+   "term": "PeerReady",
+   "text": "True when both clusters are settled and another DR action is allowed."
+  }
+ },
+ "6.2": {
+  "chapter": "Hub checks the target",
+  "unverified": "Individual progression timestamps were not recorded in this run."
+ },
+ "6.3": {
+  "chapter": "Hub checks the target",
+  "define": {
+   "term": "RetainedForFailover",
+   "text": "Ramen keeps the source in the decision on purpose until the target is ready."
+  }
+ },
+ "6.4": {
+  "chapter": "Hub checks the target"
+ },
+ "6.5": {
+  "chapter": "Hub checks the target"
+ },
+ "7.1": {
+  "chapter": "Promotion on spoke-0"
+ },
+ "7.2": {
+  "chapter": "Promotion on spoke-0"
+ },
+ "7.3": {
+  "chapter": "Promotion on spoke-0",
+  "unverified": "Which promote variant PowerStore needed in this run is not recorded."
+ },
+ "7.4": {
+  "chapter": "Promotion on spoke-0",
+  "unverified": "Exact PowerStore RPC sequence and deployed-driver build were not captured."
+ },
+ "7.5": {
+  "chapter": "Promotion on spoke-0",
+  "t": "13:26:45",
+  "screenshot": "VIRTDR-292-2026-10-07-27-promotion-spoke-0-target-vrg-conditions.png",
+  "focus": {
+   "x": 340,
+   "y": 862,
+   "w": 1180,
+   "h": 188
+  },
+  "caption": "spoke-0 \u00b7 VRG dell-vm-drpc conditions after promotion (console shows local time 4:26 PM = 13:26 UTC)"
+ },
+ "7.6": {
+  "chapter": "Promotion on spoke-0"
+ },
+ "8.1": {
+  "chapter": "The source stops writing"
+ },
+ "8.2": {
+  "chapter": "The source stops writing",
+  "t": "13:26:44",
+  "screenshot": "VIRTDR-292-2026-10-07-26-promotion-spoke-1-source-vmi-paused.png",
+  "focus": {
+   "x": 340,
+   "y": 866,
+   "w": 1240,
+   "h": 46
+  },
+  "caption": "spoke-1 \u00b7 source VMI hammerdb-rhel9 \u00b7 Ready False, VM paused after I/O error (4:26 PM local = 13:26 UTC)",
+  "define": {
+   "term": "PausedIOError",
+   "text": "The hypervisor pauses a VM whose disk write failed, instead of letting the guest crash."
+  }
+ },
+ "8.3": {
+  "chapter": "The source stops writing"
+ },
+ "9.1": {
+  "chapter": "Placement moves"
+ },
+ "9.2": {
+  "chapter": "Placement moves"
+ },
+ "9.3": {
+  "chapter": "Placement moves",
+  "t": "13:26:49",
+  "screenshot": "VIRTDR-292-2026-10-07-24-initiated-hub-managed-failingover.png",
+  "focus": {
+   "x": 318,
+   "y": 368,
+   "w": 700,
+   "h": 70
+  },
+  "caption": "Shortly after Initiate \u00b7 banner: failed over to spoke-0, while cleanup still ran",
+  "define": {
+   "term": "Cleaning Up",
+   "text": "FailedOver, but the source side is not finished yet. Not the same as Completed."
+  }
+ },
+ "9.4": {
+  "chapter": "Placement moves",
+  "screenshot": "VIRTDR-292-2026-10-07-25-transition-hub-managed-cleaning-up-popover.png",
+  "focus": {
+   "x": 925,
+   "y": 455,
+   "w": 330,
+   "h": 270
+  },
+  "caption": "During Cleaning Up \u00b7 popover title says complete while 3 of 4 steps are done (open bug VIRTDR-316)"
+ },
+ "9.5": {
+  "chapter": "Placement moves"
+ },
+ "10.1": {
+  "chapter": "GitOps redeploys",
+  "unverified": "Generation time is recorded only as about 13:29; attributing the wait to the 180 s poll is inferred."
+ },
+ "10.2": {
+  "chapter": "GitOps redeploys"
+ },
+ "10.3": {
+  "chapter": "GitOps redeploys",
+  "unverified": "Replica reuse is recorded through volume handles and recovered rows; the exact CDI adoption sequence was not traced."
+ },
+ "10.4": {
+  "chapter": "GitOps redeploys"
+ },
+ "10.5": {
+  "chapter": "GitOps redeploys"
+ },
+ "11.1": {
+  "chapter": "VM boots on spoke-0",
+  "t": "13:29:40",
+  "screenshot": "VIRTDR-292-2026-10-07-29-completed-spoke-0-target-vmi-ready.png",
+  "focus": {
+   "x": 340,
+   "y": 866,
+   "w": 1240,
+   "h": 46
+  },
+  "caption": "spoke-0 \u00b7 target VMI hammerdb-rhel9 on worker-2 \u00b7 Ready True (4:29 PM local = 13:29 UTC)"
+ },
+ "11.2": {
+  "chapter": "VM boots on spoke-0",
+  "t": "13:31:37",
+  "define": {
+   "term": "crash-consistent",
+   "text": "The disk looks as if the power was pulled at the sync moment. The database repairs itself on start."
+  }
+ },
+ "11.3": {
+  "chapter": "VM boots on spoke-0"
+ },
+ "12.1": {
+  "chapter": "Cleaning up the source"
+ },
+ "12.2": {
+  "chapter": "Cleaning up the source",
+  "unverified": "The spoke-1 Application removal is recorded only as about 13:29 to 13:31."
+ },
+ "12.3": {
+  "chapter": "Cleaning up the source",
+  "t": "13:31:00"
+ },
+ "12.4": {
+  "chapter": "Cleaning up the source"
+ },
+ "12.5": {
+  "chapter": "Cleaning up the source"
+ },
+ "12.6": {
+  "chapter": "Cleaning up the source"
+ },
+ "13.1": {
+  "chapter": "Completed",
+  "t": "13:32:21"
+ },
+ "13.2": {
+  "chapter": "Completed",
+  "screenshot": "VIRTDR-292-2026-10-07-28-completed-hub-managed-status.png",
+  "focus": {
+   "x": 925,
+   "y": 515,
+   "w": 330,
+   "h": 215
+  },
+  "caption": "After completion \u00b7 row on spoke-0, healthy \u00b7 'last synced' 13:27 UTC"
+ },
+ "13.3": {
+  "chapter": "Completed",
+  "screenshot": "VIRTDR-292-2026-10-07-30-completed-hub-dr-policy-unchanged.png",
+  "focus": {
+   "x": 318,
+   "y": 448,
+   "w": 1380,
+   "h": 56
+  },
+  "caption": "After completion \u00b7 dr-policy-15m still Validated, async interval 15m"
+ },
+ "13.4": {
+  "chapter": "Completed"
+ },
+ "14.1": {
+  "chapter": "What did we lose"
+ },
+ "14.2": {
+  "chapter": "What did we lose"
+ },
+ "14.3": {
+  "chapter": "What did we lose"
+ },
+ "14.4": {
+  "chapter": "What did we lose"
+ },
+ "15.1": {
+  "chapter": "After the failover",
+  "t": "13:42:00"
+ },
+ "15.2": {
+  "chapter": "After the failover"
+ },
+ "15.3": {
+  "chapter": "After the failover"
+ },
+ "15.4": {
+  "chapter": "After the failover"
+ },
+ "15.5": {
+  "chapter": "After the failover"
+ }
+}

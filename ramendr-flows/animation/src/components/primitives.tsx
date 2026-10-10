@@ -71,7 +71,9 @@ export const Card: React.FC<{
   color?: string;
   badge?: React.ReactNode;
   exit?: number;
-}> = ({x, y, w = 300, kind, name, lines = [], appear = 1, hl = 0, focus = 1, detail = 1, color, badge, exit = 0}) => {
+  role?: string;
+  nameSize?: number;
+}> = ({x, y, w = 300, kind, name, lines = [], appear = 1, hl = 0, focus = 1, detail = 1, color, badge, exit = 0, role, nameSize = 22}) => {
   const col = color ?? KIND[kind] ?? C.blue;
   if (appear <= 0 || exit >= 1) return null;
   const sp = springOut(Math.min(1, appear));
@@ -97,7 +99,8 @@ export const Card: React.FC<{
       }}
     >
       <div style={{fontSize: kfs, letterSpacing: 1.3 * (kfs / 15), textTransform: 'uppercase', color: col, fontWeight: 700, whiteSpace: 'nowrap'}}>{kind}</div>
-      <div style={{fontFamily: mono, fontSize: 22, lineHeight: 1.25, color: C.text, fontWeight: 600, marginTop: 5, overflowWrap: 'break-word'}}>{name}</div>
+      <div style={{fontFamily: mono, fontSize: nameSize, lineHeight: 1.25, color: C.text, fontWeight: 600, marginTop: 5, overflowWrap: 'break-word'}}>{name}</div>
+      {role ? <div style={{fontFamily: sans, fontSize: nameSize * 0.78, lineHeight: 1.3, color: C.dim, fontStyle: 'italic', marginTop: 5}}>{role}</div> : null}
       {lines.length ? (
         <div style={{opacity: detail}}>
           {lines.map((l, i) => (
