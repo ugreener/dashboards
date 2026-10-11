@@ -174,18 +174,18 @@ export const BeatPanel: React.FC<PP & {id: string}> = ({id, f, dur}) => {
       );
     case '4.4':
       return (
-        <Frame a={w(0.02, 0.98)} title="Gate validity versus the recorded click">
+        <Frame a={w(0.02, 0.98)} title="Initiate deadline versus the recorded click">
           <div style={{display: 'flex', gap: 30, marginTop: 24}}>
-            {[['Preflight finished', '13:15:58', C.green], ['Initiate', '13:26:40', C.blue]].map(([k, v, col], i) => (
+            {[['Last sync at preflight', '13:10:27', C.green], ['Deadline', '13:24:27', C.amber], ['Initiate', '13:26:40', C.blue]].map(([k, v, col], i) => (
               <div key={k} style={{flex: 1, padding: 20, border: `2px solid ${col}`, borderRadius: 14, opacity: at(f, dur, 0.08 + i * 0.12)}}>
                 <div style={{fontSize: 20, color: C.dim}}>{k}</div>
                 <div style={{fontFamily: mono, fontSize: 52, fontWeight: 600, color: col as string}}>{v}</div>
               </div>
             ))}
           </div>
-          <Row a={at(f, dur, 0.35)} size={34}>Elapsed <span style={{fontFamily: mono, color: C.amber, fontWeight: 700}}>10m 42s</span> · required <span style={{fontFamily: mono}}>≤ 2 min</span></Row>
-          <Row a={at(f, dur, 0.55)} color={C.amber}>No fresh scripted PASS is evidenced inside the window.</Row>
-          <Row a={at(f, dur, 0.7)} color={C.dim}>Recovery result: PASS. Procedure timing: not an example to copy.</Row>
+          <Row a={at(f, dur, 0.4)} size={34}>Deadline = last sync + RPO 15 min − 1 min · click <span style={{fontFamily: mono, color: C.amber, fontWeight: 700}}>2m 13s late</span></Row>
+          <Row a={at(f, dur, 0.55)} color={C.amber}>A fresh preflight was required; none is recorded.</Row>
+          <Row a={at(f, dur, 0.7)} color={C.green}>Both disks synced at 13:22:28, 252 s before the click: the gate held at Initiate.</Row>
         </Frame>
       );
     case '5.4':

@@ -451,10 +451,11 @@ beats:
 
 - id: "4.4"
   chapter: Preflight gate
-  visual: "Two clocks: preflight 13:15:58, Initiate 13:26:40; '10m 42s' versus 'valid 2 min' in amber."
+  visual: "Timeline: last sync 13:10:27, deadline 13:24:27 (amber), Initiate 13:26:40 past it; second sync 13:22:28 marked green, 252s before the click."
   narration: >
-    One honest caveat. The gate is valid for only two minutes, and this recorded preflight finished more than ten minutes before the click.
-    The attachments show no fresh scripted pass inside that window. The run's recovery passed, but its timing is not an example of the required procedure.
+    One honest caveat. The preflight printed a deadline of 13:24:27, the last sync plus the fifteen-minute objective minus a minute of margin.
+    The click came at 13:26:40, two minutes late, so the procedure called for a fresh preflight, and none was recorded.
+    The array's job history shows both disks synced again at 13:22:28, so the data was still within the objective when failover started.
   pause_after: 1.4
   evidence: [run]
 
