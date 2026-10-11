@@ -468,7 +468,7 @@ Both workloads have home/preferred placement on <b>spoke-0</b>. The doc's latest
 <br><br><b>Protected workloads:</b>
 <br>&bull; <b>RHEL discovered workload</b> (hammerdb): RHEL 9.8 + PostgreSQL 16 + HammerDB 4.12. Home: spoke-0; latest recorded recovery: spoke-1.
 <br>&bull; <b>Windows discovered workload</b> (hammerdb-win, <a href="https://issues.redhat.com/browse/VIRTDR-293" target="_blank" rel="noopener noreferrer">VIRTDR-293</a>): Windows Server 2022 + SQL Express + HammerDB 5.0. Step 10 records deployment/protection on spoke-0, not a Windows failover result.
-<br>&bull; <b>Windows managed workload</b> (windows-hammerdb in gitops-vms-win, <a href="https://redhat.atlassian.net/browse/VIRTDR-294" target="_blank" rel="noopener noreferrer">VIRTDR-294</a>): ApplicationSet dell-win-workload, DRPC openshift-gitops/dell-win-drpc, Protected=True on spoke-0 (Setup Doc Step 12); failover not yet run.
+<br>&bull; <b>Windows managed workload</b> (windows-hammerdb in gitops-vms-win, <a href="https://redhat.atlassian.net/browse/VIRTDR-294" target="_blank" rel="noopener noreferrer">VIRTDR-294</a>): ApplicationSet dell-win-workload, DRPC openshift-gitops/dell-win-drpc, Setup Doc Step 12. 2026-10-11 failover spoke-0 to spoke-1 PASSED: automatic GitOps cleanup, recovery on promoted VSA-B replicas, RPO within 900s (656s window), RDP OK.
 <br><br><b>Recorded array snapshot:</b> the Setup Doc reports remote-system connections and checked replication sessions <b>OK</b>, with two active Major detached-port alerts per VSA. This is not a live alert inventory or proof that those alerts are functionally harmless.
 <br><br><b>New UI bugs filed:</b>
 <br>&bull; <a href="https://issues.redhat.com/browse/VIRTDR-308" target="_blank" rel="noopener noreferrer">VIRTDR-308</a>,
@@ -567,7 +567,7 @@ was removed; the alternative CSM + ACM + GitOps design is historical, not the cu
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Recorded RHEL UI failover (spoke-0 -&gt; spoke-1)</span><span style="color:var(--green);margin-left:auto">Sep 27, 9m24s; VM auto-restored, writes resumed; exact loss unverified</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Windows VM + SQL Server + HammerDB (VIRTDR-293)</span><span style="color:var(--muted);margin-left:auto">Win Server 2022 + SQL Express + HammerDB 5.0 on spoke-0, DRPC Protected</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">GitOps-managed RHEL recovery (Step 11, VIRTDR-292)</span><span style="color:var(--green);margin-left:auto">Oct 7 rerun PASS: automatic GitOps cleanup, RPO within 900s (not zero loss)</span></div>
-<div class="check"><div class="ci todo">&#9675;</div><span style="font-weight:600">GitOps-managed Windows recovery (Step 12, VIRTDR-294)</span><span style="color:var(--muted);margin-left:auto">Configured + protected on spoke-0 (dell-win-drpc); failover pending replication gate</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">GitOps-managed Windows recovery (Step 12, VIRTDR-294)</span><span style="color:var(--green);margin-left:auto">Oct 11 PASS: automatic GitOps cleanup, RPO within 900s (not zero loss), RDP OK</span></div>
 <div class="check"><div class="ci todo">&#9675;</div><span style="font-weight:600">Relocate / failback</span><span style="color:var(--muted);margin-left:auto">Not verified in the Setup Doc</span></div>
 </div>
 </div>
