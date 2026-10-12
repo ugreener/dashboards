@@ -57,7 +57,7 @@ const fit = (id: string): Cam => {
     const pad = 60;
     x0 -= pad;
     y0 -= pad + 40;
-    if (y0 > 690 && y0 < 900) y0 = 690; // keep spoke region headers clear of the HUD
+    if (y0 > 690 && y0 < 1100) y0 = 690; // keep spoke region headers clear of the HUD
     x1 += pad;
     yb += pad;
   }
