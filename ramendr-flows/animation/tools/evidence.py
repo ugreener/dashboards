@@ -10,6 +10,7 @@ import argparse, base64, json, os, pathlib, re, urllib.request
 ap = argparse.ArgumentParser()
 ap.add_argument('ticket'); ap.add_argument('--date', required=True)
 ap.add_argument('--user', default='ugreener@redhat.com')
+ap.add_argument('--any-name', action='store_true', help='do not require the date in the filename (filter by created date only)')
 a = ap.parse_args()
 root = pathlib.Path(__file__).resolve().parent.parent
 auth = 'Basic ' + base64.b64encode(f"{a.user}:{os.environ['JIRA_API_TOKEN']}".encode()).decode()
@@ -21,14 +22,14 @@ out = root / 'public' / 'evidence' / a.ticket; out.mkdir(parents=True, exist_ok=
 rows = []
 for x in atts:
     fn = x['filename']
-    if not fn.lower().endswith('.png') or a.date not in fn or not x['created'].startswith(a.date):
+    if not fn.lower().endswith('.png') or (not a.any_name and a.date not in fn) or not x['created'].startswith(a.date):
         continue
     if 'WRONG' in fn.upper():
         continue
     p = out / fn
     if not p.exists() or p.stat().st_size != x['size']:
         p.write_bytes(get(x['content']))
-    m = re.search(re.escape(a.date) + r'-(\d+)-(.+)\.png$', fn)
+    m = re.search(re.escape(a.date) + r'-(\d+)-(.+)\.png$', fn) or re.search(r'^(\d+)-(.+)\.png$', fn)
     rows.append({'file': fn, 'id': x['id'], 'size': x['size'], 'created': x['created'],
                  'step': m.group(2) if m else None})
 rows.sort(key=lambda r: r['file'])
