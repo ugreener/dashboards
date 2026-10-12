@@ -8,20 +8,10 @@ import {buildTimeline as buildTimeline291} from './virtdr-291/timeline';
 
 const ALL_291 = Array.from({length: 14}, (_, i) => i);
 
-const FIRST_CUT = [0, 1, 2];
 const ALL = Array.from({length: 16}, (_, i) => i);
 
 export const Root: React.FC = () => (
   <>
-    <Composition
-      id="virtdr-292-first-cut"
-      component={VirtDr292}
-      durationInFrames={buildTimeline(FIRST_CUT).total}
-      fps={FPS}
-      width={1920}
-      height={1080}
-      defaultProps={{chapters: FIRST_CUT}}
-    />
     <Composition
       id="virtdr-292"
       component={VirtDr292}
