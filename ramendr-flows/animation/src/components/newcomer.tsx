@@ -9,8 +9,9 @@ export type Rect = {x: number; y: number; w: number; h: number};
  * Historical run screenshot in a browser-style frame on the right half of the screen.
  * `a` 0..1 slide-in/out, `z` 0..1 slow zoom toward `focus` (image pixels, 1920x1080 source).
  */
-export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a: number; z: number; x?: number; y?: number; w?: number}> = ({
+export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a: number; z: number; x?: number; y?: number; w?: number; date?: string}> = ({
   src,
+  date = '2026-10-07',
   focus,
   caption,
   a,
@@ -77,7 +78,7 @@ export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a
       </div>
       <div style={{padding: '12px 18px', background: C.panel, borderTop: `1px solid ${C.border}`, fontFamily: sans, fontSize: 20, color: C.text, lineHeight: 1.35}}>
         <span style={{color: C.amber, fontWeight: 700}}>Captured during the run</span>
-        <span style={{color: C.faint}}> · 2026-10-07 · </span>
+        <span style={{color: C.faint}}> · {date} · </span>
         {caption}
       </div>
     </div>
@@ -87,10 +88,10 @@ export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a
 export const PHASES = ['Protect', 'Gate', 'Initiate', 'Validate', 'Promote', 'Switch placement', 'Redeploy', 'Clean up', 'Complete', 'Verify data'];
 
 /** Persistent phase tracker, top centre under the HUD. `current` index into PHASES (-1 hides highlight). */
-export const PhaseTracker: React.FC<{current: number; appear?: number}> = ({current, appear = 1}) => (
+export const PhaseTracker: React.FC<{current: number; appear?: number; phases?: string[]}> = ({current, appear = 1, phases = PHASES}) => (
   <div style={{position: 'absolute', left: 0, right: 0, top: 118, display: 'flex', justifyContent: 'center', opacity: appear}}>
     <div style={{display: 'flex', gap: 6, padding: '6px 10px', borderRadius: 12, background: `${C.bg}e6`, border: `1px solid ${C.border}`, fontFamily: sans}}>
-      {PHASES.map((p, i) => {
+      {phases.map((p, i) => {
         const on = i === current;
         const done = i < current;
         return (

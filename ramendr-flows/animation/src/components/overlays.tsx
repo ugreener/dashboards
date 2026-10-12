@@ -131,7 +131,8 @@ export const Legend: React.FC<{appear: number}> = ({appear}) => {
 };
 
 /** Run timeline (chapter 4 onward): key UTC events of the 2026-10-07 run with a playhead at `now`. */
-const EVENTS: [string, string, string][] = [
+export type TEvent = [string, string, string];
+const EVENTS: TEvent[] = [
   ['13:22:27', 'last sync = recovery point', C.amber],
   ['13:26:40', 'Initiate', C.blue],
   ['13:26:44', 'source paused', C.red],
@@ -144,17 +145,18 @@ const toS = (t: string) => {
   const [h, m, s] = t.split(':').map(Number);
   return h * 3600 + m * 60 + s;
 };
-export const TimelineBar: React.FC<{now: string | null}> = ({now}) => {
+export const TimelineBar: React.FC<{now: string | null; events?: TEvent[]}> = ({now, events = EVENTS}) => {
+  const EV = events;
   const X0 = 120;
   const X1 = 1800;
   // Separate near-simultaneous events for legibility. Milestone spacing is
   // deliberately categorical, with interpolation only for the playhead.
-  const step = (X1 - X0) / (EVENTS.length - 1);
+  const step = (X1 - X0) / (EV.length - 1);
   const x = (t: string) => {
     const value = toS(t);
-    if (value <= toS(EVENTS[0][0])) return X0;
-    for (let i = 1; i < EVENTS.length; i++) {
-      const left = toS(EVENTS[i - 1][0]), right = toS(EVENTS[i][0]);
+    if (value <= toS(EV[0][0])) return X0;
+    for (let i = 1; i < EV.length; i++) {
+      const left = toS(EV[i - 1][0]), right = toS(EV[i][0]);
       if (value <= right) return X0 + step * (i - 1 + (value - left) / (right - left));
     }
     return X1;
@@ -165,7 +167,7 @@ export const TimelineBar: React.FC<{now: string | null}> = ({now}) => {
       <text x={960} y={15} textAnchor="middle" fill={C.faint} fontFamily={sans} fontSize={13}>Recorded milestones, spacing simplified for readability</text>
       <line x1={X0} y1={60} x2={X1} y2={60} stroke={C.border} strokeWidth={4} strokeLinecap="round" />
       {now ? <line x1={X0} y1={60} x2={x(now)} y2={60} stroke={C.blue} strokeWidth={4} strokeLinecap="round" /> : null}
-      {EVENTS.map(([t, label, col], i) => {
+      {EV.map(([t, label, col], i) => {
         const done = now !== null && toS(now) >= toS(t);
         return (
           <g key={t} transform={`translate(${x(t)},60)`} opacity={done ? 1 : 0.45}>

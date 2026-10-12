@@ -1,0 +1,818 @@
+# yamllint disable rule:line-length
+# VIRTDR-291 discovered-app failover explainer, newcomer edition.
+# Run: 2026-10-05, DRPC openshift-dr-ops/hammerdb-drpc (protectedNamespaces: [hammerdb]), VM hammerdb/hammerdb-rhel9,
+# recorded direction spoke-0 (edge95, VSA-A, home cluster) to spoke-1 (edge97, VSA-B).
+# The HammerDB writer was already stopped before the test: this run shows recovery of a quiet database, not an RPO-gap measurement.
+#
+# evidence tags:
+#   pause    = source-pause investigation log (attachment 1234014)
+#   done     = authorized cleanup and completion log (attachment 1234166) + command log (1234338)
+#   roles    = replication role evidence JSON (1234034): session IDs, volume IDs, PV handles, VRG/DRPC snapshot
+#   shot     = run-date console screenshot (attachments 1234021..1234192)
+#   ramen    = RamenDR/ramen @ 4191ad115cd48701b2f2fb95b5f623db773bc702 (see trace.md)
+#   csiaddons= csi-addons/kubernetes-csi-addons @ eca6e16ba6a5f68a04a10591dc587e4b48132743
+#   powerstore = dell/csi-powerstore @ c35ca28883044f240bab36d47e43da3f96f080cd
+#   kubevirt = kubevirt/kubevirt @ 4717f10d96cfb0dab5898a1fd3996fbc61686f40
+#   live     = read-only hub listing (objects older than the run): hammerdb-placement-decision-1, hammerdb-drpc-openshift-dr-ops-vrg-mw,
+#              hammerdb-drpc-hammerdb-ns-mw, hammerdb-drpc-openshift-dr-ops-vrg-mcv, DRPC spec, Placement annotation, DRPolicy spec, S3 profile
+#   setup    = Setup Google Doc
+# Screenshot captions use UTC from the evidence index CSVs (the console shows browser-local time, UTC+3).
+# Screenshot `focus` boxes are in image pixels (1920x1080).
+
+meta:
+  title: "Anatomy of a failover: a discovered VM on Dell PowerStore with RamenDR"
+  ticket: VIRTDR-291
+  run_date: 2026-10-05
+  direction: "spoke-0 (VSA-A, home cluster) to spoke-1 (VSA-B)"
+
+beats:
+
+# ================= Chapter 0: cold open =================
+- id: "0.1"
+  chapter: Cold open
+  t: "13:57:26"
+  visual: "Typed timestamp, click ripple, VM teaser moves spoke-0 to spoke-1, elapsed counter to +1m 02s, then a frozen source VM and a slow second counter."
+  narration: >
+    At 13:57:26 UTC on October 5th, someone clicked Failover in a web console.
+    About one minute later, a database virtual machine was running on another OpenShift cluster, on disks that two Dell storage arrays had been copying.
+    But the old copy of the virtual machine froze in place, and the failover could only finish after a person cleaned it up by hand.
+    This video walks through every handoff, and explains why.
+  pause_after: 1.8
+  evidence: [pause, done]
+
+# ================= Chapter 1: cast of characters =================
+- id: "1.1"
+  chapter: Cast of characters
+  card: {kind: "Hub and managed clusters", name: "edge36 hub · spoke-0 · spoke-1", role: "one cluster manages the other two"}
+  def:
+    what: "Red Hat Advanced Cluster Management, ACM, runs on a hub cluster and manages other clusters, called managed clusters or spokes."
+    creator: "Clusters are registered to the hub once, at setup."
+    reader: "Every controller in this video runs on either the hub or a spoke."
+    where: "Hub: edge36. spoke-0: edge95. spoke-1: edge97."
+    analogy: "Head office and two branch offices."
+  narration: >
+    First, the cast. Everything happens on three clusters.
+    One hub cluster runs Advanced Cluster Management, A C M, and manages the other two, called managed clusters, or spokes.
+    Think of a head office and two branch offices. The hub is edge36, spoke-0 is edge95, and spoke-1 is edge97.
+  evidence: [setup]
+
+- id: "1.2"
+  chapter: Cast of characters
+  card: {kind: VirtualMachine, name: hammerdb-rhel9, role: "the database VM we are protecting"}
+  def:
+    what: "An OpenShift Virtualization virtual machine: a full RHEL 9 guest running inside a pod."
+    creator: "Created directly with oc, not from Git. That makes it a discovered application."
+    reader: "KubeVirt starts it as a VirtualMachineInstance, the running copy."
+    where: "Namespace hammerdb, home cluster spoke-0."
+    analogy: "A computer packed into a container."
+  narration: >
+    The star is a virtual machine called hammerdb-rhel9, in namespace hammerdb.
+    It runs RHEL 9 with a Postgres database and the HammerDB benchmark, which can write orders into the database.
+    Someone created it directly on the cluster, not from a Git repository. Remember that. It matters a lot later.
+  evidence: [setup, pause]
+
+- id: "1.3"
+  chapter: Cast of characters
+  card: {kind: DataVolume, name: hammerdb-rhel9-rootdisk, role: "recipe that fills a VM disk"}
+  def:
+    what: "A request to the Containerized Data Importer, CDI, to create a disk and fill it, for example from an OS image."
+    creator: "Created together with the VM."
+    reader: "CDI creates and owns the disk claim it describes."
+    where: "Namespace hammerdb. Two of them: hammerdb-rhel9-rootdisk and hammerdb-rhel9-datadisk."
+    analogy: "A work order: build this disk and fill it."
+  narration: >
+    The VM has two disks. Each one starts life as a DataVolume, a recipe that tells the data importer, C D I, to create a disk and fill it.
+    Here they are hammerdb-rhel9-rootdisk for the operating system and hammerdb-rhel9-datadisk for the database.
+    A DataVolume owns the disk claim it creates. Deleting the DataVolume deletes its claim too.
+  evidence: [done]
+
+- id: "1.4"
+  chapter: Cast of characters
+  card: {kind: PersistentVolumeClaim, name: hammerdb-rhel9-datadisk, role: "the VM's claim on a real disk"}
+  def:
+    what: "A PersistentVolumeClaim, PVC, is a request for storage. It is bound to a PersistentVolume, PV, that points at a real volume on the array."
+    creator: "CDI, for each DataVolume. The Dell CSI driver creates the PV and the array volume."
+    reader: "The VM's pod mounts the claim as a block device."
+    where: "Namespace hammerdb. StorageClass powerstore-sc."
+    analogy: "A ticket stub that says which locker on the array is yours."
+  narration: >
+    The disk itself is a PersistentVolumeClaim, P V C, a request for storage.
+    The claim is bound to a PersistentVolume, P V, which holds the volume handle, the address of the real volume on the Dell array.
+    The data disk is 20 gigabytes and the root disk 35, both from the storage class powerstore-sc.
+  evidence: [roles]
+
+- id: "1.5"
+  chapter: Cast of characters
+  card: {kind: "PowerStore replication session", name: "52001a43-4c9e-44c2-ad24-df241b86b69d", role: "the array copies one volume to its peer"}
+  def:
+    what: "An array-level link that copies one volume to a partner array on a schedule. One side is Source, the other is Destination."
+    creator: "The Dell CSI driver, when replication is enabled for a volume."
+    reader: "The arrays themselves. Kubernetes never touches the copy traffic."
+    where: "Between VSA-A (spoke-0) and VSA-B (spoke-1). One session per disk."
+    analogy: "A courier that ships a fresh photocopy of a folder every few minutes."
+  narration: >
+    The copying is done by the arrays, not by Kubernetes. Each disk has a PowerStore replication session.
+    This one copies the root disk from array VSA-A to array VSA-B. The data disk has its own session.
+    The source side is writable. The destination side is a read-only copy that is refreshed on a schedule.
+  evidence: [roles]
+
+- id: "1.6"
+  chapter: Cast of characters
+  card: {kind: VolumeReplicationClass, name: powerstore-vrc-15m, role: "how often and with which driver to copy"}
+  def:
+    what: "A cluster-wide settings object for replication: which CSI driver, which partner array, and how often."
+    creator: "Created once by the administrator on each spoke."
+    reader: "csi-addons, when it enables replication for a volume."
+    where: "Cluster-scoped, on both spokes."
+    analogy: "The courier's contract: route and pickup schedule."
+  narration: >
+    How the arrays should copy is described in a VolumeReplicationClass called powerstore-vrc-15m.
+    It names the Dell driver, the partner array, and a fifteen-minute schedule. It is cluster-wide settings, created once per spoke.
+  evidence: [pause]
+
+- id: "1.7"
+  chapter: Cast of characters
+  card: {kind: VolumeReplication, name: hammerdb-rhel9-rootdisk, role: "switch: this disk is primary or secondary"}
+  def:
+    what: "A Kubernetes request to replicate one claim, with a desired role: primary (writable source) or secondary (read-only copy)."
+    creator: "Ramen, one per protected claim, named after the claim."
+    reader: "The csi-addons controller, which calls the Dell driver over gRPC."
+    where: "Namespace hammerdb, next to its claim."
+    analogy: "A light switch for one disk: writable here, or copy here."
+  narration: >
+    Kubernetes controls the arrays through VolumeReplication objects, one per disk, named after its claim.
+    Each one says: this disk should be primary, the writable source, or secondary, the read-only copy.
+    A controller called csi-addons watches them and tells the Dell driver what to do.
+  evidence: [ramen, csiaddons]
+
+- id: "1.8"
+  chapter: Cast of characters
+  card: {kind: VolumeReplicationGroup, name: hammerdb-drpc, role: "Ramen's site manager on one spoke"}
+  def:
+    what: "Ramen's per-cluster object for one protected app. It selects the claims, creates the VolumeReplications, and backs up definitions to S3."
+    creator: "Delivered to each spoke by the Ramen hub operator."
+    reader: "The Ramen cluster operator on that spoke."
+    where: "Namespace openshift-dr-ops on both spokes, named hammerdb-drpc."
+    analogy: "The branch manager who carries out head office orders."
+  narration: >
+    On each spoke, Ramen, the disaster recovery operator, keeps a VolumeReplicationGroup, V R G.
+    It is the site manager for this app. It finds the claims, creates their VolumeReplications, and saves backups to S3.
+    Here it is named hammerdb-drpc and lives in namespace openshift-dr-ops, not in the app namespace.
+  evidence: [roles, live]
+
+- id: "1.9"
+  chapter: Cast of characters
+  card: {kind: "S3 bucket", name: ramen-metadata, role: "off-cluster notebook both sites can read"}
+  def:
+    what: "An S3 bucket on a MinIO object store, reachable from all three clusters through the profile minio-on-hub."
+    creator: "Configured once in the Ramen hub settings."
+    reader: "The VRG on whichever spoke is active writes to it. The other spoke reads it during a failover."
+    where: "MinIO, outside both spokes' storage."
+    analogy: "A shared safe deposit box for blueprints."
+  narration: >
+    The arrays copy disk contents, but not Kubernetes objects. Those go to an S3 bucket called ramen-metadata,
+    on a MinIO object store that both spokes can reach. Think of it as a shared safe deposit box for blueprints.
+  evidence: [live]
+
+- id: "1.10"
+  chapter: Cast of characters
+  card: {kind: "Velero (OADP)", name: openshift-adp, role: "packs the VM's objects into S3, and unpacks them"}
+  def:
+    what: "Velero is a backup tool for Kubernetes objects. OADP is Red Hat's packaging of it, in namespace openshift-adp."
+    creator: "Ramen creates Velero Backup and Restore requests on the spoke."
+    reader: "Velero writes archives to the S3 bucket and restores them."
+    where: "openshift-adp on both spokes."
+    analogy: "Movers who box up the furniture and unpack it at the new address."
+  narration: >
+    For a discovered app there is no Git copy of the VM definition, so Ramen asks Velero, packaged by Red Hat as O A D P,
+    to back up the app's Kubernetes objects to the same bucket: the VirtualMachine, its two DataVolumes and its cloud-init Secret.
+    Velero is the moving company: it boxes things up and unpacks them at the new address.
+  evidence: [pause, live, shot]
+
+- id: "1.11"
+  chapter: Cast of characters
+  card: {kind: DRPolicy, name: dr-policy-15m, role: "pairs the two spokes · 15-minute schedule"}
+  def:
+    what: "A cluster-scoped hub object that pairs two clusters for disaster recovery and sets the replication interval."
+    creator: "The administrator, once."
+    reader: "Ramen, for every app that uses the policy."
+    where: "Hub, cluster-scoped."
+    analogy: "The insurance policy: which two sites, how often."
+  narration: >
+    On the hub, a DRPolicy called dr-policy-15m pairs spoke-0 and spoke-1, and sets the replication interval to fifteen minutes.
+    That interval is the recovery point objective, R P O: the most recent writes we can afford to lose.
+  evidence: [live]
+
+- id: "1.12"
+  chapter: Cast of characters
+  card: {kind: Placement, name: hammerdb-placement, role: "asks: which cluster runs the app?"}
+  def:
+    what: "An ACM question: which managed cluster should run this app?"
+    creator: "The administrator, when protecting the app."
+    reader: "Normally the ACM scheduler. Here an annotation turns the scheduler off, so only Ramen answers."
+    where: "Hub, namespace openshift-dr-ops."
+    analogy: "A question on a whiteboard."
+  narration: >
+    A Placement called hammerdb-placement asks a question: which cluster should run this app?
+    Normally the A C M scheduler answers it. Here an annotation switches the scheduler off, so only Ramen writes the answer.
+  evidence: [live]
+
+- id: "1.13"
+  chapter: Cast of characters
+  card: {kind: PlacementDecision, name: hammerdb-placement-decision-1, role: "answer: the chosen cluster list"}
+  def:
+    what: "The answer to a Placement: a list of cluster names."
+    creator: "Ramen, because the scheduler is switched off."
+    reader: "People and tools that need to know where the app should run, including the console."
+    where: "Hub, namespace openshift-dr-ops."
+    analogy: "The answer written under the question."
+  narration: >
+    The answer is a PlacementDecision called hammerdb-placement-decision-1: a short list of cluster names.
+    Watching this list change is how you know where the app is supposed to run.
+  evidence: [live]
+
+- id: "1.14"
+  chapter: Cast of characters
+  card: {kind: DRPlacementControl, name: hammerdb-drpc, role: "DR control panel for this app"}
+  def:
+    what: "The hub object people act on. It links the app's Placement to a DRPolicy and holds the requested action, such as Failover."
+    creator: "The administrator. The console edits it when you click Failover."
+    reader: "The Ramen hub operator."
+    where: "Hub, namespace openshift-dr-ops, with protectedNamespaces: hammerdb."
+    analogy: "The control panel with the big red button."
+  narration: >
+    The control panel is a DRPlacementControl, D R P C, called hammerdb-drpc.
+    It links the Placement to the DRPolicy, and it lists protected namespaces, here just hammerdb.
+    That list is what makes this a discovered application: protect everything in this namespace, wherever it came from.
+  evidence: [live]
+
+- id: "1.15"
+  chapter: Cast of characters
+  card: {kind: ManifestWork, name: hammerdb-drpc-openshift-dr-ops-vrg-mw, role: "envelope that carries an object to a spoke"}
+  def:
+    what: "An ACM delivery envelope. A hub object that contains other objects to create on one managed cluster."
+    creator: "The Ramen hub operator, one per spoke."
+    reader: "The work agent on that spoke, which applies the contents."
+    where: "Hub, in the cluster namespaces spoke-0 and spoke-1."
+    analogy: "A sealed envelope with instructions for one branch."
+  narration: >
+    The hub never edits a spoke directly. It sends envelopes called ManifestWorks.
+    Ramen puts the V R G inside one called hammerdb-drpc-openshift-dr-ops-vrg-mw, one per spoke, and the work agent on that spoke opens it and applies it.
+  evidence: [live]
+
+- id: "1.16"
+  chapter: Cast of characters
+  card: {kind: ManagedClusterView, name: hammerdb-drpc-openshift-dr-ops-vrg-mcv, role: "a window from the hub into a spoke"}
+  def:
+    what: "An ACM read-only mirror of one object on a managed cluster, refreshed into the hub."
+    creator: "The Ramen hub operator, one per spoke."
+    reader: "Ramen reads the VRG status through it."
+    where: "Hub, in the cluster namespaces spoke-0 and spoke-1."
+    analogy: "A security camera pointed at the branch's notice board."
+  narration: >
+    To read the answer back, Ramen uses a ManagedClusterView called hammerdb-drpc-openshift-dr-ops-vrg-mcv: a read-only window that mirrors the spoke's V R G status into the hub.
+    Envelopes go out, views come back.
+  evidence: [live]
+
+- id: "1.17"
+  chapter: Cast of characters
+  define: {term: "discovered application", text: "An app deployed straight onto a cluster, not from Git. Ramen protects whole namespaces and restores objects from a Velero backup."}
+  narration: >
+    That is the whole cast: the workload, the storage path, the off-site backups, the D R controls on the hub, and the delivery envelopes.
+    One more term. A discovered application is one deployed straight onto a cluster. Nothing in Git can rebuild it, so Ramen must carry its definitions too.
+  pause_after: 1.5
+  evidence: [live]
+
+# ================= Chapter 2: environment =================
+- id: "2.1"
+  chapter: The environment
+  visual: "Hub on top, spoke-0 left, spoke-1 right, VSA-A and VSA-B under them, replication link between arrays."
+  narration: >
+    Here is the lab. The hub is on top. spoke-0, the home cluster, is on the left, backed by the Dell array VSA-A.
+    spoke-1 is on the right, backed by VSA-B. Each spoke reaches its array over N V M E over T C P, and the two arrays copy to each other.
+  evidence: [setup, pause]
+
+- id: "2.2"
+  chapter: The environment
+  visual: "VM card in hammerdb namespace on spoke-0, two PVC cards, DataVolume card."
+  narration: >
+    The VM lives in namespace hammerdb on its home cluster, spoke-0. Its two DataVolumes created two claims,
+    hammerdb-rhel9-rootdisk and hammerdb-rhel9-datadisk, backed by volumes on VSA-A.
+    The video always draws the workload at its home cluster. In this run, it fails over to spoke-1.
+  evidence: [roles]
+
+- id: "2.3"
+  chapter: The environment
+  visual: "openshift-dr-ops namespace on hub: DRPC, Placement, PlacementDecision; DRPolicy right."
+  narration: >
+    On the hub, the D R objects live in namespace openshift-dr-ops, Ramen's working namespace for discovered apps:
+    the D R P C hammerdb-drpc, the Placement, and its decision. The DRPolicy is cluster-wide, so it sits outside any namespace.
+  evidence: [live]
+
+- id: "2.4"
+  chapter: The environment
+  visual: "Placement YAML: experimental-scheduling-disable; ACM scheduler chip crossed out; Ramen hub chip is the only writer to the decision."
+  narration: >
+    The Placement carries one important annotation: experimental scheduling disable, set to true.
+    That switches the A C M scheduler off for this question, so the Ramen hub operator is the only writer of the decision.
+    Otherwise the scheduler could move the app on its own.
+  evidence: [live]
+
+- id: "2.5"
+  chapter: The environment
+  visual: "DRPC YAML excerpt from the live object."
+  narration: >
+    This is the D R P C spec. Preferred cluster spoke-0. Protected namespaces: hammerdb.
+    An empty P V C selector, which means every claim in that namespace. And kube object protection every fifteen minutes,
+    which is the Velero backup of the VM's definition.
+  evidence: [live]
+
+- id: "2.6"
+  chapter: The environment
+  narration: >
+    So far: one VM with two disks on spoke-0, two arrays that can copy those disks, and a D R control panel on the hub
+    that protects the whole hammerdb namespace.
+  evidence: [setup]
+
+# ================= Chapter 3: protected steady state =================
+- id: "3.1"
+  chapter: Protected steady state
+  narration: >
+    Why does protection need several pieces? Because a failover needs three things on the other site:
+    a recent copy of the disks, a way to reconnect claims to those copies, and the VM definition itself.
+    Miss any one, and there is nothing to start.
+  evidence: [ramen]
+
+- id: "3.2"
+  chapter: Protected steady state
+  visual: "Ramen hub sends ManifestWorks: VRG Primary to spoke-0, VRG Secondary to spoke-1; status back via ManagedClusterView."
+  narration: >
+    The Ramen hub operator sends a V R G envelope to each spoke. spoke-0 gets role Primary: protect the running app.
+    spoke-1 gets role Secondary: be ready to receive it. A second envelope, hammerdb-drpc-hammerdb-ns-mw, makes sure namespace hammerdb exists on both.
+    Status comes back through the cluster views.
+  evidence: [live, ramen]
+
+- id: "3.3"
+  chapter: Protected steady state
+  visual: "VRG on spoke-0 selects both PVCs in hammerdb and creates two VolumeReplications, role primary."
+  narration: >
+    On spoke-0, the Primary V R G looks in the protected namespace and, because the selector is empty, picks up both claims.
+    For each one it creates a VolumeReplication with role primary and class powerstore-vrc-15m.
+  evidence: [ramen, live]
+
+- id: "3.4"
+  chapter: Protected steady state
+  visual: "csi-addons calls the driver; VSA-A to VSA-B copy flows."
+  narration: >
+    csi-addons sees the new VolumeReplications and asks the Dell driver, over g R P C, to enable replication.
+    From then on VSA-A copies each disk to VSA-B on the fifteen-minute rule. In practice the array syncs about every twelve minutes.
+  evidence: [csiaddons, roles]
+
+- id: "3.5"
+  chapter: Protected steady state
+  visual: "VRG uploads PV + PVC definitions to ramen-metadata."
+  narration: >
+    The V R G also uploads the P V and P V C definitions to the S3 bucket, including the array volume handles.
+    The other site will need them to reconnect claims to the copied volumes.
+  evidence: [ramen]
+
+- id: "3.6"
+  chapter: Protected steady state
+  visual: "Velero chip on spoke-0 sends kube objects to the bucket."
+  define: {term: "kube object protection", text: "Ramen asks Velero to back up the namespace's Kubernetes objects to S3 on a schedule, so a discovered app can be rebuilt elsewhere."}
+  narration: >
+    This is the part that is special for discovered apps. Every fifteen minutes the V R G asks Velero to back up the objects in namespace hammerdb:
+    the VirtualMachine, both DataVolumes and the cloud-init Secret. Before this run, both Velero archive copies were read back from MinIO and contained all four.
+  evidence: [pause, ramen]
+
+- id: "3.7"
+  chapter: Protected steady state
+  narration: >
+    So far: two V R Gs, Primary on spoke-0 and Secondary on spoke-1. Disks copying from VSA-A to VSA-B.
+    Claim definitions and VM definitions saved in S3. That is what protected means.
+  evidence: [ramen]
+
+# ================= Chapter 4: before the click =================
+- id: "4.1"
+  chapter: Before the click
+  define: {term: "recovery point", text: "The moment the newest copy on the other array was taken. Writes after it are not on the replica."}
+  narration: >
+    Why check anything before clicking? Because a failover uses whatever copy the other array already has.
+    The time of that copy is the recovery point. If a disk silently missed its syncs, the copy could be far older than fifteen minutes.
+  evidence: [ramen]
+
+- id: "4.2"
+  chapter: Before the click
+  visual: "Baseline panel: both sessions OK, last syncs, VSA-A Source / VSA-B Destination."
+  narration: >
+    At 13:53:45, the baseline inventory showed both replication sessions healthy, with no error.
+    The root disk last synced at 13:51:26 and the data disk at 13:50:26. VSA-A was the source for both, VSA-B the destination.
+  evidence: [pause, roles]
+
+- id: "4.3"
+  chapter: Before the click
+  visual: "Guest panel: PostgreSQL active, HammerDB inactive/disabled, order sum 8,482,937, last history row 2026-09-29."
+  narration: >
+    One important limit. Inside the VM, Postgres was running, but the HammerDB writer had already been switched off before this test.
+    The order counter stood at eight million, four hundred eighty-two thousand, nine hundred thirty-seven, and the newest history row was from September 29th.
+    So this run tests recovery of a quiet database, not data loss under load.
+  pause_after: 1.4
+  evidence: [pause]
+
+- id: "4.4"
+  chapter: Before the click
+  narration: >
+    At the click, the oldest disk copy would be seven minutes old, well inside the fifteen-minute objective.
+    So far: healthy sessions, recent copies, definitions backed up, and a database that is not writing.
+  evidence: [pause]
+
+# ================= Chapter 5: initiate =================
+- id: "5.1"
+  chapter: Initiate
+  narration: >
+    In the hub console, under Data Services, Disaster recovery, Protected applications, the operator opens the row for hammerdb-drpc and chooses Failover, with target cluster spoke-1.
+    The dialog says failover readiness is Ready, and warns that for a discovered app, cleaning up the old site is a manual step.
+  evidence: [pause]
+
+- id: "5.2"
+  chapter: Initiate
+  t: "13:57:26"
+  visual: "Console writes action and failoverCluster into the DRPC spec."
+  narration: >
+    At 13:57:26, Initiate. The console does not move anything itself. It writes two fields into the D R P C:
+    action, Failover, and failover cluster, spoke-1. Everything after this is controllers reacting to that edit.
+  pause_after: 1.2
+  evidence: [done, live]
+
+- id: "5.3"
+  chapter: Initiate
+  visual: "Ramen hub chip lights up reading the DRPC."
+  narration: >
+    The Ramen hub operator watches every D R P C. It notices the new action and starts working through the failover, one check at a time.
+  evidence: [ramen]
+
+# ================= Chapter 6: hub checks the target =================
+- id: "6.1"
+  chapter: Hub checks the target
+  visual: "Ramen reads spoke-1 VRG through the ManagedClusterView; DRPC phase FailingOver; PeerReady False."
+  narration: >
+    First, is the target ready to take over? Through the cluster view, Ramen reads spoke-1's V R G. It must be a settled Secondary.
+    It is, so the D R P C phase becomes FailingOver, and PeerReady turns False: until this is over, there is no healthy spare site.
+  evidence: [ramen]
+
+- id: "6.2"
+  chapter: Hub checks the target
+  visual: "PlacementDecision keeps spoke-0 with a retained marker."
+  narration: >
+    Ramen does not drop spoke-0 from the decision yet. It keeps it, marked as retained for the failover,
+    so nothing on spoke-0 is torn down before the new site works.
+  evidence: [ramen]
+
+- id: "6.3"
+  chapter: Hub checks the target
+  t: "13:57:38"
+  visual: "ManifestWork envelope to spoke-1: VRG primary, action Failover. Progression WaitingForResourceRestore."
+  narration: >
+    Then it updates the envelope for spoke-1: V R G role Primary, action Failover. The work agent applies it.
+    The progression shows WaitingForResourceRestore, observed at 13:57:38. The hub now waits for spoke-1 to rebuild the app.
+  evidence: [pause, ramen]
+
+- id: "6.4"
+  chapter: Hub checks the target
+  narration: >
+    So far: target checked, the old site kept in the decision as a safety net, and spoke-1 told to become Primary.
+  evidence: [ramen]
+
+# ================= Chapter 7: promotion on spoke-1 =================
+- id: "7.1"
+  chapter: Promotion on spoke-1
+  narration: >
+    Why is promotion needed? Because on spoke-1 the copied volumes exist only on the array. No claim points at them, and the array keeps them read-only.
+    Both problems must be fixed before a VM can use them.
+  evidence: [ramen, powerstore]
+
+- id: "7.2"
+  chapter: Promotion on spoke-1
+  visual: "VRG on spoke-1 downloads PV + PVC from S3, recreates claims pointing at VSA-B handles."
+  narration: >
+    The V R G on spoke-1 becomes Primary. Before anything else, it downloads the P V and P V C definitions from S3,
+    swaps in the address of the copy on VSA-B, and recreates both claims. Now the claims point at the replicas.
+  evidence: [ramen, roles]
+
+- id: "7.3"
+  chapter: Promotion on spoke-1
+  visual: "VRG creates VolumeReplications role primary; csi-addons calls Promote."
+  narration: >
+    Then it creates a VolumeReplication for each claim with role primary. csi-addons calls Promote on the Dell driver.
+    Because this is a failover, not a planned move, the driver runs an unplanned failover on each replication session.
+  evidence: [ramen, csiaddons, powerstore]
+
+- id: "7.4"
+  chapter: Promotion on spoke-1
+  visual: "Array roles flip: VSA-B writable source, VSA-A read-only destination. Handles panel."
+  narration: >
+    The roles on the arrays flip. The copies on VSA-B become the writable sources. The originals on VSA-A become destinations, which means read-only.
+    The run recorded both target claims bound to VSA-B handles, and the VSA-A sessions now listed as Destination.
+  pause_after: 1.4
+  evidence: [pause, roles]
+
+- id: "7.5"
+  chapter: Promotion on spoke-1
+  narration: >
+    So far: claims rebuilt from S3 on spoke-1, pointing at the copies on VSA-B, and those copies made writable.
+    The disks are ready. But there is still no VM.
+  evidence: [ramen]
+
+# ================= Chapter 8: restoring the VM =================
+- id: "8.1"
+  chapter: Restoring the VM
+  narration: >
+    In a Git-managed app, a GitOps tool would now redeploy the VM from the repository. A discovered app has no repository.
+    The only copy of the VM definition is the Velero archive in S3.
+  evidence: [ramen]
+
+- id: "8.2"
+  chapter: Restoring the VM
+  visual: "Velero chip on spoke-1 restores VM, DataVolumes, Secret from the bucket into hammerdb."
+  narration: >
+    So once the volumes are ready, the V R G asks Velero on spoke-1 to restore the protected namespace from the latest archive:
+    the VirtualMachine, both DataVolumes and the Secret. Volumes first, then objects, so the VM finds its disks already waiting.
+    When this finishes, the V R G reports kube objects ready.
+  evidence: [ramen, shot]
+
+- id: "8.3"
+  chapter: Restoring the VM
+  visual: "DataVolumes on spoke-1 find existing claims and report Succeeded."
+  narration: >
+    The restored DataVolumes find claims with their names already in place, the ones rebuilt from S3, and report Succeeded, instead of creating blank disks.
+    The run recorded that outcome. The exact importer steps behind it were not traced, so treat that detail as inference.
+  unverified: "CDI adoption mechanics for restored DataVolumes"
+  evidence: [done]
+
+- id: "8.4"
+  chapter: Restoring the VM
+  t: "13:58:28"
+  screenshot: 14-promotion-hub-fleet-source-paused-target-running.png
+  focus: {x: 350, y: 440, w: 1200, h: 300}
+  caption: "14:00:21 UTC · Fleet search: hammerdb-rhel9 Paused on spoke-0, Running on spoke-1"
+  narration: >
+    At 13:58:28, about one minute after the click, the VM on spoke-1 was running and ready, on worker-2.
+    This search a little later shows two VMs with the same name: the new one running on spoke-1, and the old one on spoke-0, marked Paused.
+  pause_after: 1.4
+  evidence: [pause, shot]
+
+- id: "8.5"
+  chapter: Restoring the VM
+  visual: "Guest panel on spoke-1."
+  narration: >
+    Inside the recovered guest at 14:01:16, Postgres was active, and the writer was still off, exactly as before.
+    The order counter matched: eight million, four hundred eighty-two thousand, nine hundred thirty-seven.
+    So far: the VM is rebuilt on spoke-1 from S3 definitions and promoted disks.
+  evidence: [pause]
+
+# ================= Chapter 9: the source freezes =================
+- id: "9.1"
+  chapter: The source freezes
+  narration: >
+    Now back to spoke-0. Nobody stopped the old VM. A failover assumes the old site may already be gone, so it does not shut it down first.
+    What happened to it?
+  evidence: [pause]
+
+- id: "9.2"
+  chapter: The source freezes
+  t: "13:57:36"
+  visual: "Red arrow: write from spoke-0 VM to VSA-A rejected: read-only."
+  narration: >
+    At 13:57:36, ten seconds after the click, the old VM tried to write to its root disk. The volume on VSA-A was now a replication destination,
+    so the array refused: attempted write to read-only range. The investigation matched the disk's identity to this VM's original root volume.
+  pause_after: 1.2
+  evidence: [pause]
+
+- id: "9.3"
+  chapter: The source freezes
+  define: {term: "Paused vs powered off", text: "Paused: the VM process and memory stay, but the guest stops running. Powered off: the running state is gone."}
+  narration: >
+    The VM's disk settings say error policy stop, which is the KubeVirt default. So on a disk error, the hypervisor pauses the guest instead of passing the error inside.
+    Paused is not powered off: the process and memory stay, but the guest stops executing.
+  evidence: [pause, kubevirt]
+
+- id: "9.4"
+  chapter: The source freezes
+  screenshot: 15-promotion-spoke-0-fleet-vm-paused-ioerror-conditions.png
+  focus: {x: 358, y: 830, w: 1200, h: 225}
+  caption: "14:00:53 UTC · spoke-0 VM conditions: Ready False, readiness gate virtual-machine-unpaused is False"
+  narration: >
+    KubeVirt then marks the VM instance Paused, with reason PausedIOError: low-level I O error detected.
+    This view of the spoke-0 VM shows the side effect: Ready is False, because the unpaused readiness gate is False.
+  evidence: [pause, shot, kubevirt]
+
+- id: "9.5"
+  chapter: The source freezes
+  narration: >
+    The logs also show automatic resume attempts, each followed by another pause on the next failed write.
+    So this is a side effect of the storage roles flipping, not a deliberate shutdown by Ramen, and not a guaranteed fence.
+    Its process stays alive, and its disks stay attached.
+  evidence: [pause]
+
+- id: "9.6"
+  chapter: The source freezes
+  narration: >
+    So far: the target is running, and the source is frozen but still present. That leftover copy is the next problem.
+  evidence: [pause]
+
+# ================= Chapter 10: placement and the wait =================
+- id: "10.1"
+  chapter: Placement and the wait
+  visual: "Ramen reads spoke-1 VRG ready; adds spoke-1 to PlacementDecision; phase FailedOver."
+  narration: >
+    Back on the hub, Ramen sees through the view that spoke-1's V R G is Primary and ready.
+    Only then does it add spoke-1 to the PlacementDecision. The D R P C phase becomes FailedOver.
+  evidence: [ramen, pause]
+
+- id: "10.2"
+  chapter: Placement and the wait
+  define: {term: "WaitOnUserToCleanUp", text: "Ramen will not delete a discovered app's objects. It waits until a person removes them from the old cluster."}
+  narration: >
+    Next, Ramen wants the old site to become the new Secondary, so replication can run in reverse. For that, the old VM must be gone.
+    In a Git-managed app the GitOps tool would remove it. For a discovered app Ramen will not delete your objects.
+    So the progression becomes WaitOnUserToCleanUp.
+  pause_after: 1.2
+  evidence: [ramen, pause]
+
+- id: "10.3"
+  chapter: Placement and the wait
+  screenshot: 21-cleanup-gate-hub-fleet-hammerdb-status-1920.png
+  focus: {x: 400, y: 100, w: 1100, h: 520}
+  caption: "14:08:59 UTC · Protected applications: WaitOnUserToCleanUp, Action needed, 3 of 4 steps completed"
+  narration: >
+    The console shows it plainly. Action needed, three of four steps completed: preparing, failover and restoring are done, clean up is pending.
+    It asks the user to delete the application on the failed cluster, spoke-0.
+  evidence: [shot]
+
+- id: "10.4"
+  chapter: Placement and the wait
+  visual: "Lock on spoke-0 VRG: claims still in use by the paused VM's pod."
+  narration: >
+    Why can't it just carry on? Before the old V R G can step down, Ramen checks that no pod still uses its claims.
+    The paused VM's pod still holds both disks, so the lock stays closed.
+  evidence: [ramen]
+
+- id: "10.5"
+  chapter: Placement and the wait
+  narration: >
+    In this run, the failover was deliberately left at this gate for about an hour and a half, while the pause was investigated.
+    Deleting the old VM needed its own explicit approval, separate from the approval to fail over.
+    So far: placement moved, and the hub waits for a human.
+  evidence: [pause, done]
+
+# ================= Chapter 11: manual cleanup =================
+- id: "11.1"
+  chapter: Manual cleanup
+  narration: >
+    The cleanup follows a fixed order on spoke-0 only. First the VM, so its pod lets go of the disks. Then the two DataVolumes, which take their claims with them.
+    Never anything on spoke-1, and never the array volumes.
+  evidence: [setup, done]
+
+- id: "11.2"
+  chapter: Manual cleanup
+  t: "15:30:00"
+  screenshot: 23-before-delete-spoke-0-vm-paused-target-running.png
+  focus: {x: 350, y: 440, w: 1200, h: 300}
+  caption: "15:36:26 UTC · before deletion: spoke-0 Paused, spoke-1 Running"
+  narration: >
+    At 15:30 the prechecks ran again: the target V R G and both VolumeReplications Primary, both target claims bound to the VSA-B handles,
+    and the cluster identity confirmed as spoke-0 before each delete. Here is the state just before: old VM paused, new VM running.
+  evidence: [done, shot]
+
+- id: "11.3"
+  chapter: Manual cleanup
+  t: "15:36:53"
+  screenshot: 24-after-delete-source-vm-absent-target-running.png
+  focus: {x: 350, y: 440, w: 1200, h: 270}
+  caption: "15:38:56 UTC · after deleting the source VM: only spoke-1 remains, Running"
+  narration: >
+    At 15:36:53, the VirtualMachine on spoke-0 is deleted, and the operator waits until its running instance is gone.
+    Now only one hammerdb-rhel9 VM is left, on spoke-1.
+  evidence: [done, shot]
+
+- id: "11.4"
+  chapter: Manual cleanup
+  t: "15:40:35"
+  screenshot: 25-before-delete-source-root-datavolume.png
+  focus: {x: 358, y: 520, w: 780, h: 440}
+  caption: "15:40:10 UTC · four DataVolumes before cleanup: two on spoke-0, two on spoke-1"
+  narration: >
+    Then the DataVolumes. Before, there are four: two on each spoke. At 15:40:35 the root disk DataVolume on spoke-0 is deleted,
+    and at 15:41:56 the data disk DataVolume. Each owned claim disappears through normal garbage collection.
+  evidence: [done, shot]
+
+- id: "11.5"
+  chapter: Manual cleanup
+  screenshot: 27-after-delete-source-datavolumes-absent.png
+  focus: {x: 350, y: 410, w: 1200, h: 400}
+  caption: "15:43:26 UTC · after cleanup: only the two spoke-1 DataVolumes remain"
+  narration: >
+    After: only the two DataVolumes on spoke-1 remain. No force delete, no finalizer removal, no manual P V or array volume deletion.
+    The old volumes on VSA-A stay on the array, because they are now the replication destinations for the reverse direction.
+  pause_after: 1.2
+  evidence: [done, shot]
+
+# ================= Chapter 12: completed =================
+- id: "12.1"
+  chapter: Completed
+  visual: "Lock opens on spoke-0 VRG; VolumeReplications set secondary; csi-addons Demote, Resync."
+  narration: >
+    With the pod gone, the lock on spoke-0 opens. The V R G there sets its VolumeReplications to secondary,
+    and csi-addons calls Demote and Resync. For a failed-over session the Dell driver runs Reprotect, which reverses the copy direction: now VSA-B copies to VSA-A.
+  evidence: [ramen, csiaddons, powerstore]
+
+- id: "12.2"
+  chapter: Completed
+  screenshot: 30-completed-hub-core-hammerdb-drpc-conditions.png
+  focus: {x: 1085, y: 355, w: 500, h: 650}
+  caption: "15:49:39 UTC · DRPC hammerdb-drpc: FailedOver, progression Completed, peer ready True"
+  narration: >
+    The old V R G reports Secondary. Ramen removes the retained spoke-0 entry, so the decision lists only spoke-1,
+    and PeerReady turns True: there is a healthy spare site again. The D R P C shows FailedOver, progression Completed.
+  pause_after: 1.4
+  evidence: [done, shot, ramen]
+
+- id: "12.3"
+  chapter: Completed
+  t: "15:42:17"
+  narration: >
+    The recorded duration is one hour, forty-four minutes and fifty seconds, from 13:57:26 to about 15:42:17.
+    Most of that was the deliberate wait for investigation and approval. It is not the time the VM needed to recover. That took about a minute.
+  evidence: [done]
+
+- id: "12.4"
+  chapter: Completed
+  screenshot: 28-completed-hub-fleet-hammerdb-synced-status.png
+  focus: {x: 400, y: 325, w: 1100, h: 300}
+  caption: "15:43:58 UTC · status popover: All volumes & Kubernetes resources are synced, on spoke-1"
+  narration: >
+    The status popover now says all volumes and Kubernetes resources are synced. The arrays agree:
+    in the reversed direction the root disk synced at 15:35:17 and the data disk at 15:38:17, both healthy.
+  evidence: [done, shot]
+
+- id: "12.5"
+  chapter: Completed
+  screenshot: 29-completed-source-pvcs-absent-target-bound.png
+  focus: {x: 350, y: 410, w: 1100, h: 410}
+  caption: "15:48:16 UTC · PVCs in hammerdb: only spoke-1, both Bound"
+  narration: >
+    And the claims: only two left, both on spoke-1, both bound to the promoted volumes.
+    So far: old site cleaned, roles reversed, failover completed.
+  evidence: [done, shot]
+
+# ================= Chapter 13: what was verified =================
+- id: "13.1"
+  chapter: What was verified
+  visual: "Guest panel: two reads, same sum, last row 2026-09-29, zero rows since 13:40."
+  narration: >
+    The data check. At 15:44:22 and again 30 seconds later, the recovered database showed the same order counter as before the failover,
+    and no history rows newer than September 29th. Nothing was lost, and nothing new was written.
+  evidence: [done]
+
+- id: "13.2"
+  chapter: What was verified
+  narration: >
+    Be careful what that proves. With the writer off, there were no recent writes that could be lost. So this run proves the recovery chain,
+    the source pause and the manual cleanup. It does not measure data loss under load. That needs a separate run with the writer on.
+  pause_after: 1.4
+  evidence: [done]
+
+- id: "13.3"
+  chapter: What was verified
+  screenshot: 32-bug-completed-hub-fleet-topology-no-clusters.png
+  focus: {x: 700, y: 200, w: 800, h: 250}
+  caption: "15:51:17 UTC · Topology tab: No clusters found (open bug VIRTDR-310)"
+  narration: >
+    The DRPolicy stayed validated with its fifteen-minute interval. One console issue remained: the Topology tab said no clusters found, before and after the run.
+    That is the open bug VIRTDR-310, not a failover problem.
+  evidence: [done, shot]
+
+- id: "13.4"
+  chapter: What was verified
+  visual: "Recap panel, first half."
+  narration: >
+    Let's replay the chain. Protect: two V R Gs, copying disks, claim and VM definitions in S3. Check: recent syncs, quiet database.
+    Initiate: the console sets action and failover cluster. Validate: target checked, spoke-0 kept as retained. Promote: claims rebuilt from S3, copies made writable.
+  evidence: [ramen]
+
+- id: "13.5"
+  chapter: What was verified
+  visual: "Recap panel, second half."
+  narration: >
+    Restore: Velero rebuilds the VM on spoke-1. Switch placement: the decision gains spoke-1, while the old VM freezes on a read-only disk.
+    Manual cleanup: a person deletes the old VM and DataVolumes. Complete: the old V R G steps down, replication reverses, PeerReady True.
+  evidence: [ramen, done]
+
+- id: "13.6"
+  chapter: What was verified
+  visual: "Result card."
+  narration: >
+    The recorded result: VM running on spoke-1 about a minute after the click, source paused by an I O error, cleanup by hand,
+    then Completed with the database intact. Each controller did one small job, and for a discovered app, the last job belongs to a person.
+  pause_after: 2.5
+  evidence: [pause, done]

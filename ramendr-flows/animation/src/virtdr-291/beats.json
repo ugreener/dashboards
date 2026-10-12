@@ -1,0 +1,549 @@
+{
+ "0.1": {
+  "chapter": "Cold open",
+  "t": "13:57:26"
+ },
+ "1.1": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Hub and managed clusters",
+   "name": "edge36 hub \u00b7 spoke-0 \u00b7 spoke-1",
+   "role": "one cluster manages the other two"
+  },
+  "def": {
+   "what": "Red Hat Advanced Cluster Management, ACM, runs on a hub cluster and manages other clusters, called managed clusters or spokes.",
+   "creator": "Clusters are registered to the hub once, at setup.",
+   "reader": "Every controller in this video runs on either the hub or a spoke.",
+   "where": "Hub: edge36. spoke-0: edge95. spoke-1: edge97.",
+   "analogy": "Head office and two branch offices."
+  }
+ },
+ "1.2": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VirtualMachine",
+   "name": "hammerdb-rhel9",
+   "role": "the database VM we are protecting"
+  },
+  "def": {
+   "what": "An OpenShift Virtualization virtual machine: a full RHEL 9 guest running inside a pod.",
+   "creator": "Created directly with oc, not from Git. That makes it a discovered application.",
+   "reader": "KubeVirt starts it as a VirtualMachineInstance, the running copy.",
+   "where": "Namespace hammerdb, home cluster spoke-0.",
+   "analogy": "A computer packed into a container."
+  }
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DataVolume",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "recipe that fills a VM disk"
+  },
+  "def": {
+   "what": "A request to the Containerized Data Importer, CDI, to create a disk and fill it, for example from an OS image.",
+   "creator": "Created together with the VM.",
+   "reader": "CDI creates and owns the disk claim it describes.",
+   "where": "Namespace hammerdb. Two of them: hammerdb-rhel9-rootdisk and hammerdb-rhel9-datadisk.",
+   "analogy": "A work order: build this disk and fill it."
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PersistentVolumeClaim",
+   "name": "hammerdb-rhel9-datadisk",
+   "role": "the VM's claim on a real disk"
+  },
+  "def": {
+   "what": "A PersistentVolumeClaim, PVC, is a request for storage. It is bound to a PersistentVolume, PV, that points at a real volume on the array.",
+   "creator": "CDI, for each DataVolume. The Dell CSI driver creates the PV and the array volume.",
+   "reader": "The VM's pod mounts the claim as a block device.",
+   "where": "Namespace hammerdb. StorageClass powerstore-sc.",
+   "analogy": "A ticket stub that says which locker on the array is yours."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PowerStore replication session",
+   "name": "52001a43-4c9e-44c2-ad24-df241b86b69d",
+   "role": "the array copies one volume to its peer"
+  },
+  "def": {
+   "what": "An array-level link that copies one volume to a partner array on a schedule. One side is Source, the other is Destination.",
+   "creator": "The Dell CSI driver, when replication is enabled for a volume.",
+   "reader": "The arrays themselves. Kubernetes never touches the copy traffic.",
+   "where": "Between VSA-A (spoke-0) and VSA-B (spoke-1). One session per disk.",
+   "analogy": "A courier that ships a fresh photocopy of a folder every few minutes."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationClass",
+   "name": "powerstore-vrc-15m",
+   "role": "how often and with which driver to copy"
+  },
+  "def": {
+   "what": "A cluster-wide settings object for replication: which CSI driver, which partner array, and how often.",
+   "creator": "Created once by the administrator on each spoke.",
+   "reader": "csi-addons, when it enables replication for a volume.",
+   "where": "Cluster-scoped, on both spokes.",
+   "analogy": "The courier's contract: route and pickup schedule."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplication",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "switch: this disk is primary or secondary"
+  },
+  "def": {
+   "what": "A Kubernetes request to replicate one claim, with a desired role: primary (writable source) or secondary (read-only copy).",
+   "creator": "Ramen, one per protected claim, named after the claim.",
+   "reader": "The csi-addons controller, which calls the Dell driver over gRPC.",
+   "where": "Namespace hammerdb, next to its claim.",
+   "analogy": "A light switch for one disk: writable here, or copy here."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationGroup",
+   "name": "hammerdb-drpc",
+   "role": "Ramen's site manager on one spoke"
+  },
+  "def": {
+   "what": "Ramen's per-cluster object for one protected app. It selects the claims, creates the VolumeReplications, and backs up definitions to S3.",
+   "creator": "Delivered to each spoke by the Ramen hub operator.",
+   "reader": "The Ramen cluster operator on that spoke.",
+   "where": "Namespace openshift-dr-ops on both spokes, named hammerdb-drpc.",
+   "analogy": "The branch manager who carries out head office orders."
+  }
+ },
+ "1.9": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "S3 bucket",
+   "name": "ramen-metadata",
+   "role": "off-cluster notebook both sites can read"
+  },
+  "def": {
+   "what": "An S3 bucket on a MinIO object store, reachable from all three clusters through the profile minio-on-hub.",
+   "creator": "Configured once in the Ramen hub settings.",
+   "reader": "The VRG on whichever spoke is active writes to it. The other spoke reads it during a failover.",
+   "where": "MinIO, outside both spokes' storage.",
+   "analogy": "A shared safe deposit box for blueprints."
+  }
+ },
+ "1.10": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Velero (OADP)",
+   "name": "openshift-adp",
+   "role": "packs the VM's objects into S3, and unpacks them"
+  },
+  "def": {
+   "what": "Velero is a backup tool for Kubernetes objects. OADP is Red Hat's packaging of it, in namespace openshift-adp.",
+   "creator": "Ramen creates Velero Backup and Restore requests on the spoke.",
+   "reader": "Velero writes archives to the S3 bucket and restores them.",
+   "where": "openshift-adp on both spokes.",
+   "analogy": "Movers who box up the furniture and unpack it at the new address."
+  }
+ },
+ "1.11": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPolicy",
+   "name": "dr-policy-15m",
+   "role": "pairs the two spokes \u00b7 15-minute schedule"
+  },
+  "def": {
+   "what": "A cluster-scoped hub object that pairs two clusters for disaster recovery and sets the replication interval.",
+   "creator": "The administrator, once.",
+   "reader": "Ramen, for every app that uses the policy.",
+   "where": "Hub, cluster-scoped.",
+   "analogy": "The insurance policy: which two sites, how often."
+  }
+ },
+ "1.12": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Placement",
+   "name": "hammerdb-placement",
+   "role": "asks: which cluster runs the app?"
+  },
+  "def": {
+   "what": "An ACM question: which managed cluster should run this app?",
+   "creator": "The administrator, when protecting the app.",
+   "reader": "Normally the ACM scheduler. Here an annotation turns the scheduler off, so only Ramen answers.",
+   "where": "Hub, namespace openshift-dr-ops.",
+   "analogy": "A question on a whiteboard."
+  }
+ },
+ "1.13": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PlacementDecision",
+   "name": "hammerdb-placement-decision-1",
+   "role": "answer: the chosen cluster list"
+  },
+  "def": {
+   "what": "The answer to a Placement: a list of cluster names.",
+   "creator": "Ramen, because the scheduler is switched off.",
+   "reader": "People and tools that need to know where the app should run, including the console.",
+   "where": "Hub, namespace openshift-dr-ops.",
+   "analogy": "The answer written under the question."
+  }
+ },
+ "1.14": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPlacementControl",
+   "name": "hammerdb-drpc",
+   "role": "DR control panel for this app"
+  },
+  "def": {
+   "what": "The hub object people act on. It links the app's Placement to a DRPolicy and holds the requested action, such as Failover.",
+   "creator": "The administrator. The console edits it when you click Failover.",
+   "reader": "The Ramen hub operator.",
+   "where": "Hub, namespace openshift-dr-ops, with protectedNamespaces: hammerdb.",
+   "analogy": "The control panel with the big red button."
+  }
+ },
+ "1.15": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ManifestWork",
+   "name": "hammerdb-drpc-openshift-dr-ops-vrg-mw",
+   "role": "envelope that carries an object to a spoke"
+  },
+  "def": {
+   "what": "An ACM delivery envelope. A hub object that contains other objects to create on one managed cluster.",
+   "creator": "The Ramen hub operator, one per spoke.",
+   "reader": "The work agent on that spoke, which applies the contents.",
+   "where": "Hub, in the cluster namespaces spoke-0 and spoke-1.",
+   "analogy": "A sealed envelope with instructions for one branch."
+  }
+ },
+ "1.16": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ManagedClusterView",
+   "name": "hammerdb-drpc-openshift-dr-ops-vrg-mcv",
+   "role": "a window from the hub into a spoke"
+  },
+  "def": {
+   "what": "An ACM read-only mirror of one object on a managed cluster, refreshed into the hub.",
+   "creator": "The Ramen hub operator, one per spoke.",
+   "reader": "Ramen reads the VRG status through it.",
+   "where": "Hub, in the cluster namespaces spoke-0 and spoke-1.",
+   "analogy": "A security camera pointed at the branch's notice board."
+  }
+ },
+ "1.17": {
+  "chapter": "Cast of characters",
+  "define": {
+   "term": "discovered application",
+   "text": "An app deployed straight onto a cluster, not from Git. Ramen protects whole namespaces and restores objects from a Velero backup."
+  }
+ },
+ "2.1": {
+  "chapter": "The environment"
+ },
+ "2.2": {
+  "chapter": "The environment"
+ },
+ "2.3": {
+  "chapter": "The environment"
+ },
+ "2.4": {
+  "chapter": "The environment"
+ },
+ "2.5": {
+  "chapter": "The environment"
+ },
+ "2.6": {
+  "chapter": "The environment"
+ },
+ "3.1": {
+  "chapter": "Protected steady state"
+ },
+ "3.2": {
+  "chapter": "Protected steady state"
+ },
+ "3.3": {
+  "chapter": "Protected steady state"
+ },
+ "3.4": {
+  "chapter": "Protected steady state"
+ },
+ "3.5": {
+  "chapter": "Protected steady state"
+ },
+ "3.6": {
+  "chapter": "Protected steady state",
+  "define": {
+   "term": "kube object protection",
+   "text": "Ramen asks Velero to back up the namespace's Kubernetes objects to S3 on a schedule, so a discovered app can be rebuilt elsewhere."
+  }
+ },
+ "3.7": {
+  "chapter": "Protected steady state"
+ },
+ "4.1": {
+  "chapter": "Before the click",
+  "define": {
+   "term": "recovery point",
+   "text": "The moment the newest copy on the other array was taken. Writes after it are not on the replica."
+  }
+ },
+ "4.2": {
+  "chapter": "Before the click"
+ },
+ "4.3": {
+  "chapter": "Before the click"
+ },
+ "4.4": {
+  "chapter": "Before the click"
+ },
+ "5.1": {
+  "chapter": "Initiate"
+ },
+ "5.2": {
+  "chapter": "Initiate",
+  "t": "13:57:26"
+ },
+ "5.3": {
+  "chapter": "Initiate"
+ },
+ "6.1": {
+  "chapter": "Hub checks the target"
+ },
+ "6.2": {
+  "chapter": "Hub checks the target"
+ },
+ "6.3": {
+  "chapter": "Hub checks the target",
+  "t": "13:57:38"
+ },
+ "6.4": {
+  "chapter": "Hub checks the target"
+ },
+ "7.1": {
+  "chapter": "Promotion on spoke-1"
+ },
+ "7.2": {
+  "chapter": "Promotion on spoke-1"
+ },
+ "7.3": {
+  "chapter": "Promotion on spoke-1"
+ },
+ "7.4": {
+  "chapter": "Promotion on spoke-1"
+ },
+ "7.5": {
+  "chapter": "Promotion on spoke-1"
+ },
+ "8.1": {
+  "chapter": "Restoring the VM"
+ },
+ "8.2": {
+  "chapter": "Restoring the VM"
+ },
+ "8.3": {
+  "chapter": "Restoring the VM",
+  "unverified": "CDI adoption mechanics for restored DataVolumes"
+ },
+ "8.4": {
+  "chapter": "Restoring the VM",
+  "t": "13:58:28",
+  "screenshot": "14-promotion-hub-fleet-source-paused-target-running.png",
+  "focus": {
+   "x": 350,
+   "y": 440,
+   "w": 1200,
+   "h": 300
+  },
+  "caption": "14:00:21 UTC \u00b7 Fleet search: hammerdb-rhel9 Paused on spoke-0, Running on spoke-1"
+ },
+ "8.5": {
+  "chapter": "Restoring the VM"
+ },
+ "9.1": {
+  "chapter": "The source freezes"
+ },
+ "9.2": {
+  "chapter": "The source freezes",
+  "t": "13:57:36"
+ },
+ "9.3": {
+  "chapter": "The source freezes",
+  "define": {
+   "term": "Paused vs powered off",
+   "text": "Paused: the VM process and memory stay, but the guest stops running. Powered off: the running state is gone."
+  }
+ },
+ "9.4": {
+  "chapter": "The source freezes",
+  "screenshot": "15-promotion-spoke-0-fleet-vm-paused-ioerror-conditions.png",
+  "focus": {
+   "x": 358,
+   "y": 830,
+   "w": 1200,
+   "h": 225
+  },
+  "caption": "14:00:53 UTC \u00b7 spoke-0 VM conditions: Ready False, readiness gate virtual-machine-unpaused is False"
+ },
+ "9.5": {
+  "chapter": "The source freezes"
+ },
+ "9.6": {
+  "chapter": "The source freezes"
+ },
+ "10.1": {
+  "chapter": "Placement and the wait"
+ },
+ "10.2": {
+  "chapter": "Placement and the wait",
+  "define": {
+   "term": "WaitOnUserToCleanUp",
+   "text": "Ramen will not delete a discovered app's objects. It waits until a person removes them from the old cluster."
+  }
+ },
+ "10.3": {
+  "chapter": "Placement and the wait",
+  "screenshot": "21-cleanup-gate-hub-fleet-hammerdb-status-1920.png",
+  "focus": {
+   "x": 400,
+   "y": 100,
+   "w": 1100,
+   "h": 520
+  },
+  "caption": "14:08:59 UTC \u00b7 Protected applications: WaitOnUserToCleanUp, Action needed, 3 of 4 steps completed"
+ },
+ "10.4": {
+  "chapter": "Placement and the wait"
+ },
+ "10.5": {
+  "chapter": "Placement and the wait"
+ },
+ "11.1": {
+  "chapter": "Manual cleanup"
+ },
+ "11.2": {
+  "chapter": "Manual cleanup",
+  "t": "15:30:00",
+  "screenshot": "23-before-delete-spoke-0-vm-paused-target-running.png",
+  "focus": {
+   "x": 350,
+   "y": 440,
+   "w": 1200,
+   "h": 300
+  },
+  "caption": "15:36:26 UTC \u00b7 before deletion: spoke-0 Paused, spoke-1 Running"
+ },
+ "11.3": {
+  "chapter": "Manual cleanup",
+  "t": "15:36:53",
+  "screenshot": "24-after-delete-source-vm-absent-target-running.png",
+  "focus": {
+   "x": 350,
+   "y": 440,
+   "w": 1200,
+   "h": 270
+  },
+  "caption": "15:38:56 UTC \u00b7 after deleting the source VM: only spoke-1 remains, Running"
+ },
+ "11.4": {
+  "chapter": "Manual cleanup",
+  "t": "15:40:35",
+  "screenshot": "25-before-delete-source-root-datavolume.png",
+  "focus": {
+   "x": 358,
+   "y": 520,
+   "w": 780,
+   "h": 440
+  },
+  "caption": "15:40:10 UTC \u00b7 four DataVolumes before cleanup: two on spoke-0, two on spoke-1"
+ },
+ "11.5": {
+  "chapter": "Manual cleanup",
+  "screenshot": "27-after-delete-source-datavolumes-absent.png",
+  "focus": {
+   "x": 350,
+   "y": 410,
+   "w": 1200,
+   "h": 400
+  },
+  "caption": "15:43:26 UTC \u00b7 after cleanup: only the two spoke-1 DataVolumes remain"
+ },
+ "12.1": {
+  "chapter": "Completed"
+ },
+ "12.2": {
+  "chapter": "Completed",
+  "screenshot": "30-completed-hub-core-hammerdb-drpc-conditions.png",
+  "focus": {
+   "x": 1085,
+   "y": 355,
+   "w": 500,
+   "h": 650
+  },
+  "caption": "15:49:39 UTC \u00b7 DRPC hammerdb-drpc: FailedOver, progression Completed, peer ready True"
+ },
+ "12.3": {
+  "chapter": "Completed",
+  "t": "15:42:17"
+ },
+ "12.4": {
+  "chapter": "Completed",
+  "screenshot": "28-completed-hub-fleet-hammerdb-synced-status.png",
+  "focus": {
+   "x": 400,
+   "y": 325,
+   "w": 1100,
+   "h": 300
+  },
+  "caption": "15:43:58 UTC \u00b7 status popover: All volumes & Kubernetes resources are synced, on spoke-1"
+ },
+ "12.5": {
+  "chapter": "Completed",
+  "screenshot": "29-completed-source-pvcs-absent-target-bound.png",
+  "focus": {
+   "x": 350,
+   "y": 410,
+   "w": 1100,
+   "h": 410
+  },
+  "caption": "15:48:16 UTC \u00b7 PVCs in hammerdb: only spoke-1, both Bound"
+ },
+ "13.1": {
+  "chapter": "What was verified"
+ },
+ "13.2": {
+  "chapter": "What was verified"
+ },
+ "13.3": {
+  "chapter": "What was verified",
+  "screenshot": "32-bug-completed-hub-fleet-topology-no-clusters.png",
+  "focus": {
+   "x": 700,
+   "y": 200,
+   "w": 800,
+   "h": 250
+  },
+  "caption": "15:51:17 UTC \u00b7 Topology tab: No clusters found (open bug VIRTDR-310)"
+ },
+ "13.4": {
+  "chapter": "What was verified"
+ },
+ "13.5": {
+  "chapter": "What was verified"
+ },
+ "13.6": {
+  "chapter": "What was verified"
+ }
+}
