@@ -168,9 +168,11 @@ def main() -> int:
     ap.add_argument("--speed", type=float, default=1.0)
     ap.add_argument("--dry-run", action="store_true", help="print speakable text only")
     ap.add_argument("--timing-only", action="store_true", help="refresh pause_after values without regenerating audio")
+    ap.add_argument("--prune", action="store_true", help="drop timing.json entries whose beat id is no longer in beats.yaml")
     a = ap.parse_args()
 
     beats = yaml.safe_load(open(os.path.join(ROOT, a.ticket, "beats.yaml")))["beats"]
+    all_ids = {str(b["id"]) for b in beats}
     chapters = {c.strip() for c in a.chapters.split(",") if c.strip()}
     if chapters:
         beats = [b for b in beats if str(b["id"]).split(".")[0] in chapters]
@@ -188,6 +190,12 @@ def main() -> int:
     os.makedirs(out_dir, exist_ok=True)
     timing_path = os.path.join(ROOT, "src", a.ticket, "timing.json")
     timing = json.load(open(timing_path)) if os.path.exists(timing_path) else {}
+
+    if a.prune:
+        for k in [k for k in timing if k not in all_ids]:
+            del timing[k]
+            print(f"pruned {k}")
+        beats = []
 
     if a.timing_only:
         for b in beats:
