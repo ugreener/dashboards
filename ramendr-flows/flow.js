@@ -6,7 +6,7 @@
   const sha = 'e6237efd8cba2c68908cf351c7b779d53be654f9';
   const odfAppSet = 'https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation/4.22/html/configuring_openshift_data_foundation_disaster_recovery_for_openshift_workloads/rdr-solution#creating-applicationset-application_manage-rdr';
   const configs = {
-    291: {title:'RHEL discovered application',status:'Closed',ns:'hammerdb',vm:'hammerdb-rhel9',drpc:'hammerdb-drpc',placement:'hammerdb-placement',db:'PostgreSQL 16',hdb:'4.12',managed:false,windows:false},
+    291: {title:'RHEL discovered application',status:'Closed',ns:'hammerdb',vm:'hammerdb-rhel9',drpc:'hammerdb-drpc',placement:'hammerdb-placement',db:'PostgreSQL 16',hdb:'4.12',managed:false,windows:false,anim:'https://github.com/ugreener/animations/releases/tag/virtdr-291-anim'},
     292: {title:'RHEL GitOps-managed application',status:'Closed',ns:'gitops-vms',vm:'hammerdb-rhel9',drpc:'dell-vm-drpc',placement:'dell-vm-placement',db:'PostgreSQL 16',hdb:'5.0',managed:true,windows:false,anim:'https://github.com/ugreener/animations/releases/tag/virtdr-292-anim'},
     293: {title:'Windows discovered application',status:'Closed',ns:'hammerdb-win',vm:'hammerdb-win',drpc:'hammerdb-win-drpc',placement:'hammerdb-win-placement',db:'SQL Server 2022 Express',hdb:'5.0',managed:false,windows:true},
     294: {title:'Windows GitOps-managed application',status:'Closed',ns:'gitops-vms-win',vm:'windows-hammerdb',disk:'hammerdb-win',drpc:'dell-win-drpc',placement:'dell-win-placement',appset:'dell-win-workload',path:'workloads-win',hubdr:'hub-dr-win',task:'ramendr-dr-hammerdb',sha:'ebfa8ac57a8972e0d02311718af3b5a05bb9c796',db:'SQL Server 2022 Express',hdb:'5.0',managed:true,windows:true}
