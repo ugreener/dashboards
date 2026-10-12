@@ -34,8 +34,8 @@ const fit = (id: string): Cam => {
   const ch = Number(id.split('.')[0]);
   const side = !!META[id]?.screenshot || PANEL_BEATS.has(id);
   const def = !!META[id]?.define;
-  const top = ch >= 3 ? 175 : 90;
-  const bottom = ch >= 5 && ch <= 12 ? 945 : 1060;
+  const top = ch >= 3 ? 205 : 100;
+  const bottom = ch >= 5 && ch <= 12 ? 905 : 1050;
   const areaX0 = side ? 30 : 40;
   const areaX1 = side ? 845 : 1880;
   const y1 = def ? Math.min(bottom, 770) : bottom;
@@ -56,7 +56,7 @@ const fit = (id: string): Cam => {
     }
     const pad = 60;
     x0 -= pad;
-    y0 -= pad;
+    y0 -= pad + 40;
     x1 += pad;
     yb += pad;
   }
@@ -281,7 +281,7 @@ export const VirtDr291: React.FC<{chapters: number[]}> = ({chapters}) => {
         </div>
       ) : null}
       {seg.type === 'beat' && ch === 1 ? <GlossaryScene id={beat.id} f={f} dur={beat.audio} card={meta.card} def={meta.def} /> : null}
-      {seg.type === 'beat' && beat.id !== '0.1' ? <Hud chapter={beat.chapter.title} clock={CLOCK[beat.id] ?? null} /> : null}
+      {seg.type === 'beat' && beat.id !== '0.1' ? <Hud chapter={beat.chapter.title} clock={CLOCK[beat.id] ?? null} ticket="VIRTDR-291" /> : null}
       {seg.type === 'beat' && ch >= 3 ? <PhaseTracker current={PHASE_OF[ch] ?? -1} phases={PHASES_291} /> : null}
       {seg.type === 'beat' && legendA > 0 ? <Legend appear={legendA} /> : null}
       {seg.type === 'beat' && ch >= 5 && ch <= 12 ? <TimelineBar now={CLOCK[beat.id] ?? null} events={EVENTS_291} /> : null}

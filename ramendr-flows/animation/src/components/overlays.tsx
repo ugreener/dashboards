@@ -77,10 +77,10 @@ export const ChapterCard: React.FC<{n: number; title: string; sub?: string; p: n
 );
 
 /** Persistent HUD: chapter label (top-left) and run clock (top-right). */
-export const Hud: React.FC<{chapter: string; clock?: string | null; clockFlash?: number}> = ({chapter, clock, clockFlash = 0}) => (
+export const Hud: React.FC<{chapter: string; clock?: string | null; clockFlash?: number; ticket?: string}> = ({chapter, clock, clockFlash = 0, ticket = 'VIRTDR-292'}) => (
   <>
     <div style={{position: 'absolute', left: 36, top: 28, fontFamily: sans, fontSize: 24, color: C.dim, fontWeight: 600, letterSpacing: 0.5, padding: '8px 18px', borderRadius: 10, background: `${C.bg}e6`, border: `1px solid ${C.border}`}}>
-      <span style={{color: C.blue}}>VIRTDR-292</span>
+      <span style={{color: C.blue}}>{ticket}</span>
       <span style={{margin: '0 14px', color: C.faint}}>/</span>
       {chapter}
     </div>

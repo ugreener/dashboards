@@ -590,7 +590,6 @@ beats:
 
 - id: "9.3"
   chapter: The source freezes
-  define: {term: "Paused vs powered off", text: "Paused: the VM process and memory stay, but the guest stops running. Powered off: the running state is gone."}
   narration: >
     The VM's disk settings say error policy stop, which is the KubeVirt default. So on a disk error, the hypervisor pauses the guest instead of passing the error inside.
     Paused is not powered off: the process and memory stay, but the guest stops executing.

@@ -48,8 +48,9 @@ const RECAP: [string, string][] = [
   ['Validate', 'Target checked, spoke-0 kept in the decision.'],
   ['Promote', 'Claims rebuilt from S3, copies made writable.'],
   ['Restore VM', 'Velero rebuilds the VM on spoke-1.'],
-  ['Switch placement', 'Decision gains spoke-1; old VM freezes.'],
-  ['Manual cleanup', 'A person deletes the old VM and DataVolumes.'],
+  ['Source pauses', 'Old VM freezes on a read-only disk; decision gains spoke-1.'],
+  ['Wait', 'WaitOnUserToCleanUp: Ramen will not delete your objects.'],
+  ['Clean up', 'A person deletes the old VM and DataVolumes.'],
   ['Complete', 'Old VRG steps down, replication reverses, PeerReady True.'],
 ];
 
@@ -249,7 +250,7 @@ export const BeatPanel: React.FC<PP & {id: string}> = ({id, f, dur}) => {
     case '13.4':
     case '13.5': {
       const base = id === '13.4' ? 0 : 5;
-      const n = id === '13.4' ? 5 : 4;
+      const n = 5;
       return (
         <Frame a={id === '13.4' ? w(0.02, 1.2) : w(-0.2, 0.98)} title="Full chain recap">
           {RECAP.map(([k, v], i) => {

@@ -56,7 +56,7 @@ export const FOCUS: Record<string, string[]> = {
   '9.5': ['vm0', 'volA'],
   '9.6': ['vm0', 'vm1'],
   '10.1': ['vrg1', 'ramenHub', 'pd', 'drpc'],
-  '10.2': ['drpc', 'vm0', 'dv0'],
+  '10.2': ['drpc', 'pd'],
   '10.3': ['drpc'],
   '10.4': ['vrg0', 'vm0', 'pvc0'],
   '10.5': ['drpc', 'vm0'],
@@ -72,7 +72,7 @@ export const FOCUS: Record<string, string[]> = {
   '12.5': ['pvc1', 'vm1'],
   '13.1': ['vm1'],
   '13.2': ['vm1'],
-  '13.3': ['drpolicy'],
+  '13.3': ['drpolicy', 'drpc', 'pd'],
 };
 
 // ---------------- run state machine ----------------
@@ -225,8 +225,8 @@ const spoke = {
   pvcD: (s: 0 | 1) => sp(610, 1075, s),
   vrg: (s: 0 | 1) => sp(905, 895, s),
 };
-const CHIP_X = [70, 330, 590, 880];
-const CHIP_W = [240, 240, 270, 250];
+const CHIP_X = [880, 70, 590, 330];
+const CHIP_W = [250, 240, 270, 240];
 const chip = (i: number, s: 0 | 1): P => sp(CHIP_X[i], 772, s);
 const chipMid = (i: number, s: 0 | 1, dy = 0): P => [chip(i, s)[0] + CHIP_W[i] / 2, chip(i, s)[1] + dy];
 const mid = (p: P, dx = W / 2, dy = 0): P => [p[0] + dx, p[1] + dy];
@@ -444,8 +444,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
       {/* regions */}
       <Region b={L.hub} title="hub" sub="edge36 · ACM · Ramen hub · Data Services console" color={C.hub} opacity={aHub} />
-      <Region b={L.s0} title="spoke-0" sub="edge95 · home cluster · source in the recorded run" color={C.spoke0} opacity={aS0} />
-      <Region b={L.s1} title="spoke-1" sub="edge97 · target in the recorded run" color={C.spoke1} opacity={aS1} />
+      <Region b={L.s0} title="spoke-0" sub="edge95 · home" color={C.spoke0} opacity={aS0} />
+      <Region b={L.s1} title="spoke-1" sub="edge97" color={C.spoke1} opacity={aS1} />
       <Region b={L.vsaA} title="VSA-A" sub="PowerStore · spoke-0 storage" color={C.array} opacity={aArr} small glow={H('7.4', 0.2, 0.8) * 0.6} />
       <Region b={L.vsaB} title="VSA-B" sub="PowerStore · spoke-1 storage" color={C.array} opacity={aArr} small glow={H('7.4', 0.2, 0.8) * 0.6} />
       <Region b={L.minio} title="minio-on-hub" sub="S3" color={C.s3} opacity={aMinio * (0.3 + 0.7 * fMinio)} small glow={(H('3.5', 0.3, 0.9) + H('3.6', 0.4, 0.9) + H('7.2', 0.2, 0.7) + H('8.2', 0.2, 0.6)) * 0.6} />
@@ -468,7 +468,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
             <Pill text="PV + PVC definitions" color={C.s3} size={17} />
           </div>
           <div style={{marginTop: 10, opacity: aArch}}>
-            <Pill text="Velero archive: VM, DataVolumes, Secret" color={C.s3} size={17} />
+            <Pill text="Velero archive: VM, DataVolumes, Secret" color={C.s3} size={15} />
           </div>
         </div>
       ) : null}
@@ -609,8 +609,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         <Flow a={[chip(0, 0)[0] + 30, chip(0, 0)[1]]} b={hubChip('ramen', 0.08, 50)} bend="v" kind="observe" draw={T('3.2', 0.75, 0.88)} opacity={K('3.2')} label="status via ManagedClusterView" labelAt={0.3} labelDx={40} />
 
         {/* 3.3 VRG selects PVCs, creates VRs */}
-        <Flow a={mid(spoke.vrg(0), 0, 150)} b={mid(spoke.pvcD(0), W, 40)} bend="h" kind="reconcile" draw={T('3.3', 0.08, 0.22)} opacity={K('3.3') * (1 - T('3.3', 0.55, 0.6))} label="all claims in hammerdb" labelAt={0.5} labelDy={-14} />
-        <Flow a={mid(spoke.vrg(0), 0, 60)} b={mid(spoke.vrD(0), W, 60)} bend="h" kind="reconcile" draw={T('3.3', 0.62, 0.72)} opacity={K('3.3')} label="creates" labelAt={0.5} labelDy={-14} />
+        <Flow a={mid(spoke.vrg(0), 0, 150)} b={mid(spoke.pvcD(0), W, 40)} bend="h" kind="reconcile" draw={T('3.3', 0.08, 0.22)} opacity={K('3.3') * (1 - T('3.3', 0.55, 0.6))} />
+        <Flow a={mid(spoke.vrg(0), 0, 60)} b={mid(spoke.vrD(0), W, 60)} bend="h" kind="reconcile" draw={T('3.3', 0.62, 0.72)} opacity={K('3.3')} />
 
         {/* 3.4 VR to csi to array */}
         <Flow a={chipMid(2, 0, 50)} b={mid(spoke.vrD(0), 125, 0)} bend="v" kind="reconcile" draw={T('3.4', 0.05, 0.18)} opacity={K('3.4')} label="watches" labelAt={0.4} labelDx={70} />
@@ -640,9 +640,9 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         <Flow a={[BUCKET[0] + 200, L.minio.y + L.minio.h]} b={[2230, 712]} bend="v" kind="delivery" color={C.s3} draw={T('7.2', 0.25, 0.38)} opacity={K('7.2')} />
         <Flow a={[2230, 712]} b={mid(spoke.vrg(1), 200, 0)} bend="v" kind="delivery" color={C.s3} draw={T('7.2', 0.38, 0.48)} opacity={K('7.2')} label="downloads PV + PVC" labelAt={0.2} labelDx={-130} />
         <Envelope a={[BUCKET[0] + 200, L.minio.y + L.minio.h]} b={[2230, 712]} t={is('7.2') ? T('7.2', 0.27, 0.45) : 0} label="PV + PVC" color={C.s3} />
-        <Flow a={mid(spoke.vrg(1), 0, 150)} b={mid(spoke.pvcD(1), W, 40)} bend="h" kind="reconcile" draw={T('7.2', 0.55, 0.7)} opacity={K('7.2')} label="recreates claims" labelAt={0.5} labelDy={-14} />
+        <Flow a={mid(spoke.vrg(1), 0, 150)} b={mid(spoke.pvcD(1), W, 40)} bend="h" kind="reconcile" draw={T('7.2', 0.55, 0.7)} opacity={K('7.2')} />
         {/* 7.3 VR + promote */}
-        <Flow a={mid(spoke.vrg(1), 0, 60)} b={mid(spoke.vrD(1), W, 60)} bend="h" kind="reconcile" draw={T('7.3', 0.12, 0.24)} opacity={K('7.3')} label="creates" labelAt={0.5} labelDy={-14} />
+        <Flow a={mid(spoke.vrg(1), 0, 60)} b={mid(spoke.vrD(1), W, 60)} bend="h" kind="reconcile" draw={T('7.3', 0.12, 0.24)} opacity={K('7.3')} />
         <Flow a={mid(spoke.pvcR(1), 125, 170)} b={[L.vsaB.x + 220, L.vsaB.y + 34]} bend="v" kind="data" draw={T('7.3', 0.45, 0.58)} opacity={K('7.3')} label="gRPC: Promote" labelAt={0.5} />
         <Flow a={mid(spoke.pvcD(1), 125, 170)} b={[L.vsaB.x + 620, L.vsaB.y + 34]} bend="v" kind="data" draw={T('7.3', 0.47, 0.6)} opacity={K('7.3')} />
 
