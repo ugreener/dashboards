@@ -477,8 +477,8 @@ Both workloads have home/preferred placement on <b>spoke-0</b>. The doc's latest
 <br><br><b>Previously resolved:</b>
 <br>&bull; <a href="https://issues.redhat.com/browse/VIRTDR-287" target="_blank" rel="noopener noreferrer">VIRTDR-287</a> - VRG Secondary cleanup stall: closed as Not a Bug (expected for discovered apps; manual cleanup unblocks)
 <br>&bull; <a href="https://issues.redhat.com/browse/VIRTDR-274" target="_blank" rel="noopener noreferrer">VIRTDR-274</a> - Failover volume handle resolution: fixed by destinfo changes in RHDR staging build
-<br>&bull; <a href="https://issues.redhat.com/browse/VIRTDR-267" target="_blank" rel="noopener noreferrer">VIRTDR-267</a> /
-<a href="https://issues.redhat.com/browse/VIRTDR-268" target="_blank" rel="noopener noreferrer">VIRTDR-268</a> - RHDR cluster operator CrashLoopBackOff (missing CRDs): fixed via manual CRD WA
+<br>&bull; <a href="https://redhat.atlassian.net/browse/VIRTDR-267" target="_blank" rel="noopener noreferrer">VIRTDR-267</a> /
+<a href="https://redhat.atlassian.net/browse/VIRTDR-268" target="_blank" rel="noopener noreferrer">VIRTDR-268</a> - RHDR cluster operator CrashLoopBackOff (missing CRDs): fixed in the rebuilt RHDR cluster operator, CRD WA removed (closed)
 </div>
 
 <div class="callout">
@@ -560,7 +560,7 @@ was removed; the alternative CSM + ACM + GitOps design is historical, not the cu
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Install OpenShift Virtualization (CNV) on the spokes</span><span style="color:var(--muted);margin-left:auto">HyperConverged Available on both</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">OADP + csi-addons (RamenDR prerequisites)</span><span style="color:var(--muted);margin-left:auto">Velero DPA Ready + csi-addons controller Running + VolumeReplication CRDs</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell CSI with csi-addons VolumeReplication (Helm)</span><span style="color:var(--muted);margin-left:auto">VolumeReplicationClass present (5m+15m RPO), test PVCs bind on VSA-A/VSA-B</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">RHDR operators + DR config (DRPolicy Validated)</span><span style="color:var(--muted);margin-left:auto">Hub + spoke operators (RHDR staging v4.22.0-86); CRD WA for VIRTDR-267/268</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">RHDR operators + DR config (DRPolicy Validated)</span><span style="color:var(--muted);margin-left:auto">Hub + spoke operators (RHDR staging v4.22.0-86, spokes on the rebuilt VIRTDR-267/268 fix); no CRD WA</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">DF Multicluster Orchestrator + OpenShift GitOps</span><span style="color:var(--muted);margin-left:auto">v4.22.0-87.keytype + GitOps v1.21.4; Data Services DR console enabled</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">VolumeReplication + DRPC end-to-end test</span><span style="color:var(--muted);margin-left:auto">Dell driver drives replication via RamenDR API; DRPC Protected=True</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">HammerDB VM deployed (RHEL 9.8 + PostgreSQL + TPC-C)</span><span style="color:var(--muted);margin-left:auto">Recorded 2 vCPU / 8 GiB, root+data disks on powerstore-sc</span></div>
