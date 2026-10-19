@@ -90,6 +90,11 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     })}
     <svg width={2480} height={1380} style={{position:'absolute',left:0,top:0,pointerEvents:'none'}}>
       <defs><marker id="tip342" markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill={C.cyan}/></marker></defs>
+      {keys.includes('array0')&&keys.includes('array1')?<g>
+        <path d={chapter>=8?'M660,1295 L660,1320 L1820,1320 L1820,1295':'M1820,1295 L1820,1320 L660,1320 L660,1295'} fill="none" stroke={C.orange} strokeWidth={5} markerEnd="url(#tip342)"/>
+        <circle cx={chapter>=8?660+1160*((c.f%180)/180):1820-1160*((c.f%180)/180)} cy={1320} r={9} fill={C.orange}/>
+        <rect x={875} y={1299} width={730} height={40} rx={12} fill={C.bg}/><text x={1240} y={1328} textAnchor="middle" fill={C.orange} fontSize={27} fontFamily={sans}>{chapter>=8?'Recorded reverse copy: VSA-A to VSA-B':'Recorded baseline copy: VSA-B to VSA-A'}</text>
+      </g>:null}
       {chapter>=4&&chapter<=7?[1370,1510,1650,1870,2010,2150].map((x,i)=><g key={x} opacity={frozen?1:.55}><rect x={x-35} y={696} width={70} height={32} rx={7} fill={frozen?`${C.red}44`:`${C.green}33`} stroke={frozen?C.red:C.green} strokeWidth={2}/><text x={x} y={719} textAnchor="middle" fill={C.text} fontSize={16} fontFamily={sans}>{i<3?'master':'worker'}</text></g>):null}
       {c.id==='2.2'?arrow('drpc','vrg0','ManifestWork delivers instructions',C.cyan,0):null}
       {c.id==='2.3'?<g opacity={prog(c.f,c.dur*.15,c.dur*.15+25)}>
