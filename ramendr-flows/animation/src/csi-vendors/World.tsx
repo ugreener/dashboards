@@ -56,8 +56,8 @@ const EDGES: Record<string, Edge> = {
   rookLink: {d: 'M1950,1160 L1950,1322', color: C.dim, intro: '4.1', src: 'rook', dst: 'ceph_drv', dashed: true, end: [1950, 1322], ang: 90, noArrow: true},
   cephCmd: {d: 'M2185,1415 L2235,1415', color: C.orange, intro: '4.2', src: 'ceph_drv', dst: 'ceph_hw', end: [2235, 1415], ang: 0, packets: true, dot: [2185, 2235, 1415, 0]},
   // Cross arrows: the same three relationships, into both vendor stacks.
-  xCsiPstore: {d: 'M400,182 C700,115 1500,115 1590,320 C1660,460 1780,500 1900,512', label: 'implements', lx: 1000, ly: 150, color: C.blue, intro: '5.1', src: 'csi', dst: 'pstore_drv', frac: 0.18, end: [1900, 512], ang: 74},
-  xCsiCeph: {d: 'M400,178 C700,82 1500,82 1500,660 C1500,1250 1580,1305 1715,1335', label: 'implements', lx: 760, ly: 55, color: C.blue, intro: '5.1', src: 'csi', dst: 'ceph_drv', frac: 0.3, end: [1715, 1335], ang: 8},
+  xCsiPstore: {d: 'M400,182 C700,115 1450,115 1500,200 C1550,300 1700,450 1900,512', label: 'implements', lx: 1000, ly: 150, color: C.blue, intro: '5.1', src: 'csi', dst: 'pstore_drv', frac: 0.18, end: [1900, 512], ang: 74},
+  xCsiCeph: {d: 'M400,178 C700,82 1400,82 1500,120 L1500,1200 C1500,1290 1620,1315 1715,1335', label: 'implements', lx: 760, ly: 55, color: C.blue, intro: '5.1', src: 'csi', dst: 'ceph_drv', frac: 0.3, end: [1715, 1335], ang: 8},
   xAddonsPstore: {d: 'M1445,265 C1540,265 1640,400 1715,555', label: 'via sidecar', lx: 1540, ly: 360, color: C.blue, intro: '5.2', src: 'addons', dst: 'pstore_drv', frac: 0.16, dashed: true, end: [1715, 555], ang: 55},
   xAddonsCeph: {d: 'M1445,290 C1530,290 1530,950 1530,1250 C1530,1420 1620,1438 1715,1445', label: 'via sidecar', lx: 1580, ly: 1000, color: C.blue, intro: '5.2', src: 'addons', dst: 'ceph_drv', frac: 0.32, dashed: true, end: [1715, 1445], ang: 6},
   xK8sPstore: {d: 'M1445,715 C1560,715 1650,660 1715,625', label: 'gRPC', lx: 1570, ly: 762, color: C.cyan, intro: '5.2', src: 'k8saddons', dst: 'pstore_drv', frac: 0.52, end: [1715, 625], ang: -22},
