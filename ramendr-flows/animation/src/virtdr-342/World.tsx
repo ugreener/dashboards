@@ -26,7 +26,7 @@ export const RECT = Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k,
 export const FOCUS: Record<string, string[]> = {
   '0.1': ['array0', 'array1', 'vm0', 'site'],
   '2.1': ['drpc', 'vm0', 'site', 'array0', 'array1'],
-  '2.2': ['drpc', 'placement'], '2.3': ['vrg1', 'vr1'], '2.4': ['s3', 'restore'], '2.5': ['array0', 'array1'],
+  '2.2': ['drpc', 'vrg0'], '2.3': ['vrg1', 'vr1', 'array1'], '2.4': ['s3', 'restore'], '2.5': ['array0', 'array1'],
   '3.1': ['drpc', 'policy'], '3.2': ['array1'], '3.3': ['array1'], '3.4': ['drpc'], '3.5': ['array0', 'array1'],
   '4.1': ['site', 'array1'], '4.2': ['site'], '4.3': ['drpc'], '4.4': ['drpc'], '4.5': ['site', 'array1'], '4.6': ['site'],
   '5.1': ['drpc', 'vrg0'], '5.2': ['vrg0'], '5.3': ['vr0', 'array0'], '5.4': ['s3', 'restore'], '5.5': ['vm0'], '5.6': ['drpc'],
@@ -89,10 +89,21 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     <svg width={2480} height={1380} style={{position:'absolute',left:0,top:0,pointerEvents:'none'}}>
       <defs><marker id="tip342" markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill={C.cyan}/></marker></defs>
       {c.id==='2.2'?arrow('drpc','vrg0','ManifestWork delivers instructions',C.cyan,0):null}
-      {c.id==='2.3'?arrow('vrg1','array1','VolumeReplication asks CSI to copy',C.orange,0):null}
-      {c.id==='2.4'||c.id==='5.4'?arrow('s3','restore','Velero reads saved workload definitions',C.s3,0):null}
+      {c.id==='2.3'?<g opacity={prog(c.f,c.dur*.15,c.dur*.15+25)}>
+        <path d="M1530,682 L1530,710 L2110,710 L2110,682" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#tip342)"/>
+        <rect x={1630} y={694} width={400} height={32} rx={10} fill={C.bg}/><text x={1830} y={716} textAnchor="middle" fill={C.green} fontSize={20} fontFamily={sans}>VRG writes the per-disk request</text>
+        <path d="M2368,585 L2440,585 L2440,1015 L1820,1015 L1820,1080" fill="none" stroke={C.orange} strokeWidth={4} markerEnd="url(#tip342)"/>
+        <rect x={1840} y={995} width={575} height={34} rx={10} fill={C.bg}/><text x={2125} y={1018} textAnchor="middle" fill={C.orange} fontSize={20} fontFamily={sans}>csi-addons calls Dell CSI, then PowerStore</text>
+      </g>:null}
+      {c.id==='2.4'||c.id==='5.4'?<g opacity={prog(c.f,c.dur*.15,c.dur*.15+25)}>
+        <path d="M2368,185 L2450,185 L2450,365 L1220,365 L1220,1010 L950,1010 L950,950" fill="none" stroke={C.s3} strokeWidth={4} markerEnd="url(#tip342)"/>
+        <rect x={1450} y={347} width={650} height={34} rx={10} fill={C.bg}/><text x={1775} y={371} textAnchor="middle" fill={C.s3} fontSize={20} fontFamily={sans}>Velero reads saved object definitions, not disk blocks</text>
+      </g>:null}
       {c.id==='5.1'?arrow('drpc','vrg0','deliver the target VRG request',C.cyan,0):null}
-      {c.id==='5.3'?arrow('vr0','array0','CSI promotes the replica',C.orange,0):null}
+      {c.id==='5.3'?<g opacity={prog(c.f,c.dur*.15,c.dur*.15+25)}>
+        <path d="M1208,585 L1220,585 L1220,1015 L660,1015 L660,1080" fill="none" stroke={C.orange} strokeWidth={4} markerEnd="url(#tip342)"/>
+        <rect x={675} y={995} width={520} height={34} rx={10} fill={C.bg}/><text x={935} y={1018} textAnchor="middle" fill={C.orange} fontSize={20} fontFamily={sans}>csi-addons calls Dell CSI to promote</text>
+      </g>:null}
     </svg>
     {frozen?<div style={{position:'absolute',left:1300,top:950,fontFamily:mono,fontSize:21,color:C.red}}>All 3 masters + all 3 workers frozen. Array still online.</div>:null}
   </div>;

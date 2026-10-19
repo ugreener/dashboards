@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame} from 'remotion';
 import {C} from '../theme';
 import {lerp,prog,progIO,sec} from '../lib/anim';
-import {ChapterCard,Hud,TimelineBar,TEvent} from '../components/overlays';
+import {ChapterCard,Hud,Legend,TimelineBar,TEvent} from '../components/overlays';
 import {DefinitionPanel,Def,PhaseTracker,Screenshot} from '../components/newcomer';
 import {buildTimeline,PAD_BEFORE,Segment} from './timeline';
 import {World,FOCUS,RECT,CH} from './World';
@@ -58,6 +58,7 @@ export const VirtDr342:React.FC<{chapters:number[]}>=({chapters})=>{
     {seg.type==='beat'&&ch===1?<GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def}/>:null}
     {seg.type==='beat'?<Hud chapter={b.chapter.title} clock={CLOCK[b.id]??null} ticket="VIRTDR-342"/>:null}
     {seg.type==='beat'&&ch>=2?<PhaseTracker current={ch-2} phases={PHASES_342}/>:null}
+    {seg.type==='beat'&&b.id==='2.3'?<Legend appear={win(.04,.96)}/>:null}
     {seg.type==='beat'&&ch>=3?<TimelineBar now={CLOCK[b.id]??null} events={EVENTS_342}/>:null}
     {seg.type==='beat'?<BeatPanel id={b.id} f={f} dur={b.audio}/>:null}
     {seg.type==='beat'&&m.screenshot?<Screenshot src={`evidence/virtdr-342/${m.screenshot}`} date="2026-10-19" caption={m.caption??''} focus={m.focus} a={win(.14,.98)} z={progIO(f,b.audio*.2,b.audio*.65)} y={215} x={865} w={1010} sourceLabel={m.screenshot.includes('vsa-')?'PowerStore console · historical capture':'hub console · historical capture'}/>:null}
