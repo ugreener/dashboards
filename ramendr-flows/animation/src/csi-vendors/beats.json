@@ -1,0 +1,184 @@
+{
+ "0.1": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "The shared half"
+ },
+ "1.2": {
+  "chapter": "The shared half",
+  "define": {
+   "term": "Contract",
+   "text": "A written agreement of the exact requests one side may make, and the replies the other side must give."
+  }
+ },
+ "1.3": {
+  "chapter": "The shared half"
+ },
+ "1.4": {
+  "chapter": "The shared half",
+  "define": {
+   "term": "gRPC",
+   "text": "A way for two programs to call each other directly, like a phone line between pieces of software."
+  }
+ },
+ "1.5": {
+  "chapter": "The shared half",
+  "define": {
+   "term": "Orchestrator",
+   "text": "A coordinator that drives multi-step jobs automatically, instead of humans running them by hand."
+  }
+ },
+ "1.6": {
+  "chapter": "The shared half"
+ },
+ "2.1": {
+  "chapter": "Cast two vendor stacks"
+ },
+ "2.2": {
+  "chapter": "Cast two vendor stacks",
+  "card": {
+   "kind": "Dell modules",
+   "name": "Dell CSM Replication",
+   "role": "Dell enterprise add-ons: authz, resiliency, observability"
+  },
+  "def": {
+   "what": "Dell Container Storage Modules, extra enterprise pieces around the Dell drivers.",
+   "creator": "Dell, for its storage customers.",
+   "reader": "The Dell CSI drivers and the teams operating them.",
+   "where": "Deployed alongside the Dell drivers.",
+   "analogy": "Optional accessories sold with the printer."
+  }
+ },
+ "2.3": {
+  "chapter": "Cast two vendor stacks",
+  "define": {
+   "term": "Sidecar",
+   "text": "A small helper program running right next to a main program, packaged together with it."
+  },
+  "card": {
+   "kind": "Dell CSI driver",
+   "name": "csi-powerstore",
+   "role": "translates the contracts for PowerStore arrays"
+  },
+  "def": {
+   "what": "The Dell driver that implements the contracts for PowerStore arrays.",
+   "creator": "Dell publishes it. The board notes these builds come from Owen.",
+   "reader": "Kubernetes, through CSI and the add-ons sidecar.",
+   "where": "Running in the cluster, talking to PowerStore.",
+   "analogy": "The interpreter for one brand of storage."
+  }
+ },
+ "2.4": {
+  "chapter": "Cast two vendor stacks",
+  "card": {
+   "kind": "Storage array",
+   "name": "PowerStore Array",
+   "role": "Dell storage appliances (identifiers as drawn: PSa97b49e924cd / PSdc7f3064c752)"
+  },
+  "def": {
+   "what": "Dell machines full of disks that store data and can replicate it.",
+   "creator": "Dell.",
+   "reader": "The csi-powerstore driver commands them.",
+   "where": "In the data center, on the storage network.",
+   "analogy": "The actual library, not the librarian."
+  }
+ },
+ "2.5": {
+  "chapter": "Cast two vendor stacks",
+  "define": {
+   "term": "Operator",
+   "text": "Software that installs and manages other software on Kubernetes, keeping it running and repaired."
+  },
+  "card": {
+   "kind": "Operator",
+   "name": "Rook",
+   "role": "runs and manages a Ceph cluster on Kubernetes"
+  },
+  "def": {
+   "what": "Software that installs and manages a Ceph storage cluster on Kubernetes itself.",
+   "creator": "The Rook open source project.",
+   "reader": "It turns ordinary cluster machines into Ceph storage nodes.",
+   "where": "Running inside the same Kubernetes cluster.",
+   "analogy": "A gardener who grows the library inside the building."
+  }
+ },
+ "2.6": {
+  "chapter": "Cast two vendor stacks",
+  "card": {
+   "kind": "Ceph CSI driver",
+   "name": "ceph-csi",
+   "role": "translates the contracts for Ceph storage"
+  },
+  "def": {
+   "what": "The driver that implements the contracts for Ceph storage.",
+   "creator": "The Ceph community.",
+   "reader": "Kubernetes, through CSI and the add-ons sidecar.",
+   "where": "Running in the cluster, talking to the Ceph cluster Rook manages.",
+   "analogy": "The interpreter for Ceph."
+  }
+ },
+ "2.7": {
+  "chapter": "Cast two vendor stacks",
+  "card": {
+   "kind": "Software storage",
+   "name": "Ceph Cluster",
+   "role": "storage software providing RBD block disks and CephFS files"
+  },
+  "def": {
+   "what": "Open source storage software providing block disks and a shared filesystem.",
+   "creator": "Rook deploys and manages it on the cluster.",
+   "reader": "The ceph-csi driver talks to it.",
+   "where": "On the same machines as the workloads.",
+   "analogy": "A library built from bookshelves in every room."
+  }
+ },
+ "2.8": {
+  "chapter": "Cast two vendor stacks"
+ },
+ "3.1": {
+  "chapter": "The Dell stack"
+ },
+ "3.2": {
+  "chapter": "The Dell stack"
+ },
+ "3.3": {
+  "chapter": "The Dell stack"
+ },
+ "3.4": {
+  "chapter": "The Dell stack"
+ },
+ "4.1": {
+  "chapter": "The Red Hat stack"
+ },
+ "4.2": {
+  "chapter": "The Red Hat stack"
+ },
+ "4.3": {
+  "chapter": "The Red Hat stack"
+ },
+ "4.4": {
+  "chapter": "The Red Hat stack"
+ },
+ "5.1": {
+  "chapter": "One contract both stacks"
+ },
+ "5.2": {
+  "chapter": "One contract both stacks"
+ },
+ "5.3": {
+  "chapter": "One contract both stacks"
+ },
+ "5.4": {
+  "chapter": "One contract both stacks"
+ },
+ "6.1": {
+  "chapter": "The whole picture"
+ },
+ "6.2": {
+  "chapter": "The whole picture"
+ },
+ "6.3": {
+  "chapter": "The whole picture"
+ }
+}

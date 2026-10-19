@@ -1,0 +1,184 @@
+# yamllint disable rule:line-length
+ticket: csi-vendors
+diagram: 'Miro board uXjVHt-1XPA=, widget 3458764681984341001, titled "CSI with vendors"'
+beats:
+  - id: '0.1'
+    chapter: Cold open
+    visual: 'Cold-open title panel: CSI with vendors. The full board dimmed behind it.'
+    narration: 'The first diagram on this board showed three layers of contracts and programs. How Kubernetes talks to storage, and how disaster recovery rides on top. This second diagram asks the next question. What do those layers look like when you plug in real products? It keeps the same four boxes on the left, and adds two complete vendor stacks on the right. One from Dell, one from Red Hat. Same contracts, very different machines. Again, no prior knowledge is needed. We will build it piece by piece.'
+    evidence: [miro-board]
+    pause_after: 2
+
+  - id: '1.1'
+    chapter: The shared half
+    visual: 'World: the left column of four boxes. Chapter panel: the shared half.'
+    narration: 'First, the left half, quickly, because it is the same cast as the first diagram. Four boxes. A contract, its extension, the cluster-side software, and the orchestrator that consumes them. Here is the one-minute version of each. If any sentence feels too fast, the companion video covers all four in full.'
+    evidence: [miro-board]
+  - id: '1.2'
+    chapter: The shared half
+    visual: 'CSI box in focus. Definition panel for contract.'
+    define: {term: 'Contract', text: 'A written agreement of the exact requests one side may make, and the replies the other side must give.'}
+    narration: 'The container storage interface is the written contract for storage. Any vendor that implements it can plug its storage into Kubernetes. Its menu covers the basics. Create a disk. Delete it. Attach it. Expand it. And several cluster systems besides Kubernetes accept the same contract.'
+    evidence: [miro-board, github-repos]
+  - id: '1.3'
+    chapter: The shared half
+    visual: 'csi-addons box in focus. The extends arrow appears.'
+    narration: 'The csi-addons specification extends that contract with requests CSI never defined. Copying a disk to another storage system. Promoting that copy to be the live one. Not yet a CNCF standard, but the same idea. A public written agreement that vendors can choose to honor.'
+    evidence: [miro-board, github-repos]
+  - id: '1.4'
+    chapter: The shared half
+    visual: 'kubernetes-csi-addons box in focus. The implements arrow appears. Definition panel for gRPC.'
+    define: {term: 'gRPC', text: 'A way for two programs to call each other directly, like a phone line between pieces of software.'}
+    narration: 'On the cluster side, kubernetes-csi-addons is the running software. It implements the extension. Its controller watches for requests, and it calls each driver sidecar over gRPC, which is simply a direct phone line between two programs.'
+    evidence: [miro-board, github-repos]
+  - id: '1.5'
+    chapter: The shared half
+    visual: 'Ramen box in focus. The consumed-by arrow appears. Definition panel for orchestrator.'
+    define: {term: 'Orchestrator', text: 'A coordinator that drives multi-step jobs automatically, instead of humans running them by hand.'}
+    narration: 'And Ramen, the disaster recovery orchestrator. Across a pair of clusters, it decides when copies must be made, switched, or cleaned up, and asks kubernetes-csi-addons to do it. It never talks to storage directly.'
+    evidence: [miro-board, github-repos]
+  - id: '1.6'
+    chapter: The shared half
+    visual: 'All four left boxes in focus. Chapter panel: now the new half.'
+    narration: 'Four boxes on the left. A contract, an extension, a cluster-side speaker, and an orchestrator. Now the new part of this diagram. On the right, two complete vendor stacks answer to all of them. Six new boxes, three per vendor.'
+    evidence: [miro-board]
+    pause_after: 1.5
+
+  - id: '2.1'
+    chapter: Cast two vendor stacks
+    visual: 'Cast intro beat. Six new boxes listed.'
+    narration: 'Each vendor stack fills the same three jobs differently. Extra vendor pieces around the driver. The driver itself, a contract translator. And the storage. Dell fills them with modules, a driver, and appliances. Red Hat fills them with an operator, a driver, and software storage. One plain job each.'
+    evidence: [miro-board]
+  - id: '2.2'
+    chapter: Cast two vendor stacks
+    visual: 'Glossary card: Dell CSM Replication.'
+    card: {kind: 'Dell modules', name: 'Dell CSM Replication', role: 'Dell enterprise add-ons: authz, resiliency, observability'}
+    def: {what: 'Dell Container Storage Modules, extra enterprise pieces around the Dell drivers.', creator: 'Dell, for its storage customers.', reader: 'The Dell CSI drivers and the teams operating them.', where: 'Deployed alongside the Dell drivers.', analogy: 'Optional accessories sold with the printer.'}
+    narration: 'In the Dell stack, the first box is named Dell CSM Replication. CSM stands for container storage modules, Dell family of add-ons around its drivers. The diagram lists authorization, resiliency, and observability as the enterprise extras. The board draws this box connected to the driver, as optional Dell-provided pieces around the translator. Not part of the contracts above.'
+    evidence: [miro-board, github-repos]
+  - id: '2.3'
+    chapter: Cast two vendor stacks
+    visual: 'Glossary card: csi-powerstore driver. Definition panel for sidecar.'
+    card: {kind: 'Dell CSI driver', name: 'csi-powerstore', role: 'translates the contracts for PowerStore arrays'}
+    def: {what: 'The Dell driver that implements the contracts for PowerStore arrays.', creator: 'Dell publishes it. The board notes these builds come from Owen.', reader: 'Kubernetes, through CSI and the add-ons sidecar.', where: 'Running in the cluster, talking to PowerStore.', analogy: 'The interpreter for one brand of storage.'}
+    define: {term: 'Sidecar', text: 'A small helper program running right next to a main program, packaged together with it.'}
+    narration: 'Next to it, the csi-powerstore driver. This is the Dell translator for PowerStore arrays, and its repository describes it exactly that way. CSI driver for Dell PowerStore. It implements the CSI contract, so Kubernetes can order PowerStore disks, and it carries the add-ons sidecar for the extended requests. One note from the board. These are Owen''s builds, custom builds of the driver, not the stock release.'
+    evidence: [miro-board, github-repos]
+  - id: '2.4'
+    chapter: Cast two vendor stacks
+    visual: 'Glossary card: PowerStore Array.'
+    card: {kind: 'Storage array', name: 'PowerStore Array', role: 'Dell storage appliances (identifiers as drawn: PSa97b49e924cd / PSdc7f3064c752)'}
+    def: {what: 'Dell machines full of disks that store data and can replicate it.', creator: 'Dell.', reader: 'The csi-powerstore driver commands them.', where: 'In the data center, on the storage network.', analogy: 'The actual library, not the librarian.'}
+    narration: 'And the storage itself. PowerStore, the Dell family of storage appliances. This diagram shows two of them by their identifiers, exactly as drawn on the board. Everything above this line is software. This box is where the bytes actually live, on machines full of disks, in a rack.'
+    evidence: [miro-board]
+  - id: '2.5'
+    chapter: Cast two vendor stacks
+    visual: 'Glossary card: Rook. Definition panel for operator.'
+    card: {kind: 'Operator', name: 'Rook', role: 'runs and manages a Ceph cluster on Kubernetes'}
+    def: {what: 'Software that installs and manages a Ceph storage cluster on Kubernetes itself.', creator: 'The Rook open source project.', reader: 'It turns ordinary cluster machines into Ceph storage nodes.', where: 'Running inside the same Kubernetes cluster.', analogy: 'A gardener who grows the library inside the building.'}
+    define: {term: 'Operator', text: 'Software that installs and manages other software on Kubernetes, keeping it running and repaired.'}
+    narration: 'The Red Hat stack starts differently, and the difference is the point. Its first box, Rook, is not a module group. It is an operator, software that installs and manages other software. Rook takes ordinary machines in your Kubernetes cluster and turns them into a Ceph storage cluster. The storage here is software running on the same machines, not a separate appliance.'
+    evidence: [miro-board, github-repos]
+  - id: '2.6'
+    chapter: Cast two vendor stacks
+    visual: 'Glossary card: ceph-csi driver.'
+    card: {kind: 'Ceph CSI driver', name: 'ceph-csi', role: 'translates the contracts for Ceph storage'}
+    def: {what: 'The driver that implements the contracts for Ceph storage.', creator: 'The Ceph community.', reader: 'Kubernetes, through CSI and the add-ons sidecar.', where: 'Running in the cluster, talking to the Ceph cluster Rook manages.', analogy: 'The interpreter for Ceph.'}
+    narration: 'The ceph-csi driver is the Ceph translator, and its repository says just that. CSI driver for Ceph. Same job as the Dell driver, different language. It implements the CSI contract, and it also carries an add-ons sidecar. From the point of view of the contracts, the two drivers are interchangeable.'
+    evidence: [miro-board, github-repos]
+  - id: '2.7'
+    chapter: Cast two vendor stacks
+    visual: 'Glossary card: Ceph Cluster.'
+    card: {kind: 'Software storage', name: 'Ceph Cluster', role: 'storage software providing RBD block disks and CephFS files'}
+    def: {what: 'Open source storage software providing block disks and a shared filesystem.', creator: 'Rook deploys and manages it on the cluster.', reader: 'The ceph-csi driver talks to it.', where: 'On the same machines as the workloads.', analogy: 'A library built from bookshelves in every room.'}
+    narration: 'And the Ceph cluster itself. Ceph is distributed storage software, and it offers two flavors. RBD, which are block disks like the ones PowerStore serves. And CephFS, a shared filesystem. Same job as the array box in the Dell stack, but built from software on your own machines, grown by Rook.'
+    evidence: [miro-board, github-repos]
+  - id: '2.8'
+    chapter: Cast two vendor stacks
+    visual: 'Summary grid: two stacks, six boxes.'
+    narration: 'Two stacks, six boxes. Dell. Modules, a driver, appliances. Red Hat. An operator, a driver, software storage. Now watch what connects the left half to both. It is not six new mechanisms. It is the same three relationships, twice.'
+    evidence: [miro-board]
+    pause_after: 1.5
+
+  - id: '3.1'
+    chapter: The Dell stack
+    visual: 'World: Dell region in focus. The module link and the driver-to-array arrow appear.'
+    narration: 'Zoom into the Dell stack. Three boxes in a row. The module group connects to the driver, drawn as a plain link. The driver points at the array. Read the row as, accessories around a translator, and a translator pointing at the machine it speaks for.'
+    evidence: [miro-board]
+  - id: '3.2'
+    chapter: The Dell stack
+    visual: 'Driver and array in focus. A disk request flows CSI to driver to array.'
+    narration: 'In practice. A program on Kubernetes asks for a PowerStore disk. The request travels the CSI contract into the csi-powerstore driver. The driver turns it into PowerStore commands, and the array does the work. The CSM modules wrap that path with enterprise behavior, things like authorization and resiliency, without changing the contract above.'
+    evidence: [miro-board, github-repos]
+  - id: '3.3'
+    chapter: The Dell stack
+    visual: 'The extended request path highlighted: sidecar in the driver, arrow to the array.'
+    narration: 'When the request is an extended one, say, promote the copy of this disk, the same driver receives it through its add-ons sidecar instead. The driver translates it into PowerStore replication commands. Nothing above the contract changed. Dell honored the appendix, so Dell storage can take part in disaster recovery.'
+    evidence: [miro-board]
+  - id: '3.4'
+    chapter: The Dell stack
+    visual: 'Board honesty panel: Owen builds and drawn identifiers.'
+    narration: 'Two honesty notes from the board itself. The driver box says Owen''s builds. Custom builds, not the stock release, so behavior may differ from what Dell ships. And the array identifiers are names as drawn, not a live inventory of any particular rack. The diagram describes architecture, not a running lab.'
+    evidence: [miro-board]
+    pause_after: 1.5
+
+  - id: '4.1'
+    chapter: The Red Hat stack
+    visual: 'World: Red Hat region in focus. Rook highlighted.'
+    narration: 'Now the Red Hat stack, and notice what is different before anything else. There is no appliance at the bottom. Rook grows the storage inside the Kubernetes cluster itself. The machines that run your programs can also store your bytes.'
+    evidence: [miro-board, github-repos]
+  - id: '4.2'
+    chapter: The Red Hat stack
+    visual: 'The Rook link and the driver-to-Ceph arrow appear. A disk request flows through ceph-csi.'
+    narration: 'The middle box has the same shape as the Dell one: a driver implementing the CSI contract for Ceph. Programs ask for disks through the contract. The driver translates to Ceph operations. And the Ceph cluster that Rook grows provides them. RBD for block disks, CephFS for a shared filesystem.'
+    evidence: [miro-board, github-repos]
+  - id: '4.3'
+    chapter: The Red Hat stack
+    visual: 'The sidecar path highlighted on the Ceph side.'
+    narration: 'The extended requests work here too. This driver carries an add-ons sidecar, so when the controller calls it over gRPC, it can translate replication requests into Ceph language. Different storage, different language, same contract. That sentence is the entire point of this diagram.'
+    evidence: [miro-board]
+  - id: '4.4'
+    chapter: The Red Hat stack
+    visual: 'Both stacks side by side, bottom boxes compared.'
+    narration: 'So the two stacks differ at the bottom. Appliance versus software. And they differ in who builds each translator. They do not differ in what they owe the layers above. Both owe the same two contracts, and both pay.'
+    evidence: [miro-board]
+    pause_after: 1.5
+
+  - id: '5.1'
+    chapter: One contract both stacks
+    visual: 'The two implements arrows from CSI into both drivers appear.'
+    narration: 'Here is the test of that claim. Take the arrows that cross from the left half to the drivers. The CSI specification points at the Dell driver, labeled implements. And it points at the Ceph driver, labeled implements. One contract, honored twice, by very different machines.'
+    evidence: [miro-board]
+  - id: '5.2'
+    chapter: One contract both stacks
+    visual: 'The via-sidecar arrows and the gRPC arrows into both drivers appear, staggered.'
+    narration: 'The csi-addons specification also points at both drivers, labeled implements, via sidecar. Both carry a sidecar that speaks the extension. And kubernetes-csi-addons calls gRPC to both sidecars, the same phone line into each. Three relationships on the left, two vendors on the right, six arrows, zero exceptions.'
+    evidence: [miro-board]
+  - id: '5.3'
+    chapter: One contract both stacks
+    visual: 'Camera wide: Ramen on top, both stacks below. One request fans out to both.'
+    narration: 'Now the payoff for disaster recovery. Ramen asks for an operation once, in contract language. It never needs to know whether a Dell appliance or a Ceph cluster will perform it. Swap one stack for the other, and nothing above the drivers changes. Not Ramen, not the controller, not the specs.'
+    evidence: [miro-board]
+  - id: '5.4'
+    chapter: One contract both stacks
+    visual: 'Panel: what standards buy.'
+    narration: 'That is what standards buy. Vendors still compete on machines, speed, and features. But every one of them answers the same menu of calls, so the recovery logic above them stays generic, and is written once.'
+    evidence: [miro-board]
+    pause_after: 1.5
+
+  - id: '6.1'
+    chapter: The whole picture
+    visual: 'Recap: full board, camera on the left half first.'
+    narration: 'Replay the whole board. On the left, the CSI contract, extended by csi-addons, implemented on the cluster by kubernetes-csi-addons, consumed by Ramen. On the right, two vendor stacks. Dell, with modules, the csi-powerstore driver, and PowerStore arrays. Red Hat, with Rook, ceph-csi, and a Ceph cluster.'
+    evidence: [miro-board]
+  - id: '6.2'
+    chapter: The whole picture
+    visual: 'Recap: camera on the cross arrows and both stacks.'
+    narration: 'Between the halves, only contracts and calls. Implements. Implements, via sidecar. Calls gRPC. The vendors differ below the drivers, and the recovery logic above never notices. Plug any compliant storage underneath, and the disaster recovery stack on top just works. That is the diagram.'
+    evidence: [miro-board]
+  - id: '6.3'
+    chapter: The whole picture
+    visual: 'Final panel over the full board.'
+    narration: 'If you want the left half in depth, box by box, the companion video explains the three layers of CSI. One last framing. This board describes architecture. It is not a report of any particular running cluster, and the identifiers on it are labels, not live state.'
+    evidence: [miro-board]
+    pause_after: 2.5

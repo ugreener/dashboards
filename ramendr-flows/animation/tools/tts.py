@@ -99,6 +99,17 @@ SPOKEN = {
     "libvirt": "lib virt",
     "PausedIOError": "Paused I O Error",
     "csi-addons": "C S I addons",
+    "RamenDR/ramen": "Ramen D R, ramen",
+    "RamenDR": "Ramen D R",
+    "container-storage-interface/spec": "container storage interface, spec",
+    "container-storage-interface": "container storage interface",
+    "csi-addons/spec": "C S I addons, spec",
+    "csi-addons/kubernetes-csi-addons": "C S I addons, kubernetes C S I addons",
+    "kubernetes-csi-addons": "kubernetes C S I addons",
+    "csi-powerstore": "C S I powerstore",
+    "ceph-csi": "ceph C S I",
+    "dell-csi": "dell C S I",
+    "CephFS": "Ceph F S",
     "S3": "S three",
     "Ramen": "Ramen",
     "Argo CD": "Argo C D",
@@ -107,9 +118,10 @@ SPOKEN = {
     "OpenShift 4.22": "OpenShift four twenty-two",
     "MinIO": "min I O",
 }
-NO_SPLIT = {"OpenShift", "PowerStore", "GitOps", "KubeVirt"}
+NO_SPLIT = {"OpenShift", "PowerStore", "GitOps", "KubeVirt", "NetApp"}
 ACRONYMS = {"DRPC", "VRG", "VRGs", "PVC", "PVCs", "PV", "PVs", "VMI", "VM", "VMs",
-             "UTC", "RPO", "ACM", "CSI", "TCP", "OS", "API", "DR", "YAML", "ID", "OCP", "CDI", "SSH"}
+             "UTC", "RPO", "ACM", "CSI", "TCP", "OS", "API", "DR", "YAML", "ID", "OCP", "CDI", "SSH",
+             "CNCF", "RBD", "CSM", "USB"}
 
 
 def split_camel(word: str) -> str:

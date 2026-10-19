@@ -1,0 +1,221 @@
+# yamllint disable rule:line-length
+ticket: csi-layers
+diagram: 'Miro board uXjVHt-1XPA=, widget 3458764681984200830, titled "3 layers of CSI"'
+beats:
+  - id: '0.1'
+    chapter: Cold open
+    visual: 'Cold-open title panel: Three layers of CSI. The five diagram boxes sit dimmed behind it.'
+    narration: 'How does a system that runs thousands of programs talk to the machines that store their data? And how can disaster recovery ride on top of that, without anyone rewriting the storage system? This video explains one small diagram that answers both questions. It is called three layers of CSI. No prior knowledge of Kubernetes, CSI, or Ramen is needed. We will build it one box and one arrow at a time.'
+    evidence: [miro-board]
+    pause_after: 2
+
+  - id: '1.1'
+    chapter: First the basics
+    visual: 'Primer intro beat before the first glossary card.'
+    narration: 'Before the diagram itself, a short primer on the ideas it is built on. Containers. Kubernetes. Disks and storage systems. Translators. And written contracts. Each idea gets one plain sentence, so every name later in the video already has a meaning. If this chapter feels slow, that is deliberate. Everything else builds on it.'
+    evidence: [general-knowledge]
+  - id: '1.2'
+    chapter: First the basics
+    visual: 'Glossary card: Container.'
+    card: {kind: 'concept', name: 'Container', role: 'a program packaged with everything it needs to run'}
+    def: {what: 'A program boxed together with everything it needs to run.', creator: 'A developer packages the program and its dependencies.', reader: 'Any machine that can run containers executes it.', where: 'On a server, in a data center or in the cloud.', analogy: 'A lunchbox: the food, the fork and the napkin in one box.'}
+    narration: 'A container is a program boxed together with everything it needs to run. Its code, its settings, and the tools it depends on. A developer packs the box. Any machine that can run containers can open it and run the program inside, without installing anything else. That portability is the whole point.'
+    evidence: [general-knowledge]
+  - id: '1.3'
+    chapter: First the basics
+    visual: 'Glossary card: Kubernetes.'
+    card: {kind: 'software', name: 'Kubernetes', role: 'runs and watches over containers on many machines'}
+    def: {what: 'A program that runs and watches over huge numbers of containers across many machines.', creator: 'An operations team installs it on a set of servers.', reader: 'The containers it keeps running, and the teams that deploy them.', where: 'On a cluster of servers.', analogy: 'A building manager who decides which apartment each tenant gets.'}
+    narration: 'Kubernetes is a program that runs other programs. You hand it containers, and it decides which machine runs each one, restarts them when they fail, and adds or removes copies as load changes. A group of machines managed this way is called a cluster. When we say something runs on Kubernetes, that is what it means.'
+    evidence: [general-knowledge]
+  - id: '1.4'
+    chapter: First the basics
+    visual: 'Glossary card: Volume.'
+    card: {kind: 'concept', name: 'Volume', role: 'a disk a program can read and write'}
+    def: {what: 'A disk that a running program can write to and read from.', creator: 'Kubernetes asks a storage system to provide it.', reader: 'The program that uses it.', where: 'On a storage system, attached to the machine running the program.', analogy: 'A notebook the program can write in, which survives a restart.'}
+    narration: 'Programs need to remember things. A volume is a disk a program can write to and read from, like a notebook. If the program restarts, the volume keeps what was written. Without volumes, every restart would begin from a blank page.'
+    evidence: [general-knowledge]
+  - id: '1.5'
+    chapter: First the basics
+    visual: 'Glossary card: Storage system.'
+    card: {kind: 'hardware or software', name: 'Storage system', role: 'provides the disks, in its own private language'}
+    def: {what: 'Specialized hardware or software that stores data and provides disks.', creator: 'A storage vendor, or a team running storage software.', reader: 'Kubernetes, through a driver.', where: 'In the rack next to your servers, or as software on them.', analogy: 'A library that hands out and takes back notebooks.'}
+    narration: 'The disks come from a storage system. Sometimes that is a dedicated machine full of disks, like a Dell PowerStore array. Sometimes it is storage software running on ordinary servers, like Ceph. Many vendors build storage systems, and here is the catch. Every one of them speaks its own private language.'
+    evidence: [general-knowledge]
+  - id: '1.6'
+    chapter: First the basics
+    visual: 'Glossary card: Driver.'
+    card: {kind: 'translator program', name: 'Driver', role: 'translates between one system and one storage system'}
+    def: {what: 'A program that translates between one system and one specific other system.', creator: 'The vendor or community that supports that pair.', reader: 'The system that needs the translation.', where: 'Running next to the software that uses it.', analogy: 'A printer driver: your laptop never learns every printer language.'}
+    narration: 'When two systems speak different languages, you need a translator. A driver is that translator. Your laptop does not learn every printer language. It ships one driver per printer instead. Storage works the same way. Kubernetes does not learn every storage language. It uses drivers, one per vendor.'
+    evidence: [general-knowledge]
+  - id: '1.7'
+    chapter: First the basics
+    visual: 'Glossary card: Specification.'
+    card: {kind: 'document', name: 'Specification', role: 'a written contract both sides agree to follow'}
+    def: {what: 'A written contract of the exact requests one side may make and the replies the other must give.', creator: 'A community of engineers writes and maintains it.', reader: 'Every engineer building either side of the contract.', where: 'A public document, usually versioned on GitHub.', analogy: 'The USB standard: any plug fits any socket because everyone follows it.'}
+    narration: 'A specification, or spec, is a written contract. It lists the exact requests one side may make, and the replies the other side must give. The USB plug is the classic example. Any plug fits any socket, because every manufacturer follows the same public spec. A good standard removes the need for endless one-off translators.'
+    evidence: [general-knowledge]
+  - id: '1.8'
+    chapter: First the basics
+    visual: 'Glossary card: CNCF.'
+    card: {kind: 'community', name: 'CNCF', role: 'the foundation that hosts Kubernetes and related projects'}
+    def: {what: 'The Cloud Native Computing Foundation, a neutral foundation that hosts open source projects.', creator: 'The Linux Foundation created it.', reader: 'Projects like Kubernetes live under its umbrella.', where: 'An open community with public governance.', analogy: 'A neutral landlord for open source projects.'}
+    narration: 'One more name. CNCF, the Cloud Native Computing Foundation. It is a neutral foundation that hosts open source projects, including Kubernetes itself. When the diagram labels something a CNCF standard, it means a public community maintains it, not one company. That is all you need to know about it here.'
+    evidence: [general-knowledge]
+
+  - id: '2.1'
+    chapter: The cast of the diagram
+    visual: 'Cast intro beat. The five boxes of the diagram listed.'
+    narration: 'Now the diagram itself. It has five boxes and six arrows. Every box is a real project you can find on GitHub, and every arrow is one relationship between two of them. Four boxes are contracts or software made by communities. One box is a group of vendor programs. Meet the cast.'
+    evidence: [miro-board]
+  - id: '2.2'
+    chapter: The cast of the diagram
+    visual: 'Glossary card: the CSI specification.'
+    card: {kind: 'CSI Specification', name: 'container-storage-interface/spec', role: 'the standard contract for storage plug-ins'}
+    def: {what: 'The written standard that defines how any storage system can plug into container systems.', creator: 'A community of container and storage engineers.', reader: 'Every storage vendor that writes a driver.', where: 'A public repository of documents and API definitions.', analogy: 'The USB socket of the container world.'}
+    narration: 'The top box is the container storage interface specification, in the repository container-storage-interface, slash, spec. It is the written contract for storage. Any vendor that follows it can plug its storage into Kubernetes, and several other cluster systems accept the same contract. The diagram labels it a CNCF standard. Think of it as the USB socket of this world.'
+    evidence: [miro-board, github-repos]
+  - id: '2.3'
+    chapter: The cast of the diagram
+    visual: 'Glossary card: the csi-addons specification.'
+    card: {kind: 'CSI-Addons Specification', name: 'csi-addons/spec', role: 'extends CSI with replication and other requests'}
+    def: {what: 'An extension of the CSI contract that adds requests CSI does not define.', creator: 'A community extending the original contract.', reader: 'Vendors that implement the extra requests.', where: 'A public repository, separate from CSI.', analogy: 'An appendix to a contract, not yet part of the law.'}
+    narration: 'The second box, csi-addons, slash, spec, extends that contract. It adds requests the original CSI never defined, such as asking a storage system to copy a disk to another system, or to switch which copy is the live one. The diagram notes it is not yet a CNCF standard. It is an appendix to the contract, one that vendors may choose to honor.'
+    evidence: [miro-board, github-repos]
+  - id: '2.4'
+    chapter: The cast of the diagram
+    visual: 'Glossary card: kubernetes-csi-addons.'
+    card: {kind: 'Kubernetes implementation', name: 'csi-addons/kubernetes-csi-addons', role: 'speaks the add-ons contract inside the cluster'}
+    def: {what: 'The software that runs inside a Kubernetes cluster and implements the add-ons contract.', creator: 'The csi-addons community project.', reader: 'Programs on the cluster that need the extended storage requests.', where: 'Running inside the Kubernetes cluster, as a controller plus sidecars.', analogy: 'The switchboard operator on the cluster side of the contract.'}
+    narration: 'The third box is running software, csi-addons, slash, kubernetes-csi-addons. It is the piece that actually runs inside a Kubernetes cluster and speaks the add-ons contract. The diagram splits it into two parts. A controller, which watches for requests, and sidecars, small helpers we will define properly in a few minutes.'
+    evidence: [miro-board, github-repos]
+  - id: '2.5'
+    chapter: The cast of the diagram
+    visual: 'Glossary card: the CSI drivers group.'
+    card: {kind: 'CSI Drivers', name: 'ceph-csi / dell-csi / trident', role: 'vendor translators for real storage systems'}
+    def: {what: 'The vendor programs that implement the contracts on the storage side.', creator: 'Storage vendors and communities, one per storage family.', reader: 'Kubernetes, through the contracts.', where: 'Running inside the cluster, each talking to its own storage system.', analogy: 'One printer driver per printer brand.'}
+    narration: 'The fourth box is the vendor side: ceph-csi, dell-csi, and trident. Each is a translator for one storage family. The Ceph driver talks to Ceph clusters. Dell drivers talk to Dell arrays. Trident talks to NetApp storage. Together they are the vendor half of the contracts, the programs that actually honor them.'
+    evidence: [miro-board, github-repos]
+  - id: '2.6'
+    chapter: The cast of the diagram
+    visual: 'Glossary card: Ramen.'
+    card: {kind: 'DR Orchestrator', name: 'RamenDR/ramen', role: 'decides when recovery operations run'}
+    def: {what: 'A disaster recovery coordinator for workloads and their data across a pair of clusters.', creator: 'The RamenDR community project.', reader: 'It asks kubernetes-csi-addons for recovery operations.', where: 'Running on the clusters it protects.', analogy: 'The conductor that tells the storage orchestra when to switch sheets.'}
+    narration: 'And the fifth box. RamenDR, slash, ramen, usually just called Ramen. Its own README calls it Kubernetes-native disaster recovery for workloads and their persistent data, across a pair of clusters. It does not touch storage itself. It decides when copies must be made or switched, and asks the box we just met to do the work.'
+    evidence: [miro-board, github-repos]
+  - id: '2.7'
+    chapter: The cast of the diagram
+    visual: 'Summary grid: five boxes, five jobs.'
+    narration: 'Five boxes. A contract. An appendix to the contract. The cluster-side speaker. The vendor-side speakers. And one coordinator that uses them all. The six arrows are the only connections between them. Each of the next chapters explains one small group of arrows, bottom of the stack first.'
+    evidence: [miro-board]
+    pause_after: 1.5
+
+  - id: '3.1'
+    chapter: Layer one the contract
+    visual: 'Chapter panel: why a shared contract exists.'
+    narration: 'Start with the problem the first layer solves. Kubernetes must hand every program its disks. But there are dozens of storage vendors, each with a private language. Kubernetes cannot rewrite itself for every vendor, and no vendor wants to rewrite Kubernetes. The industry needed one shared contract. So that is what was built.'
+    evidence: [general-knowledge, github-repos]
+  - id: '3.2'
+    chapter: Layer one the contract
+    visual: 'World: the CSI specification card in focus.'
+    narration: 'That contract is the container storage interface. It defines a fixed menu of storage requests. Create a disk. Delete it. Attach it to a running program. Make it bigger. A storage system that can answer those calls can serve Kubernetes. And a program on Kubernetes can use any such storage system, without changing its own code.'
+    evidence: [github-repos]
+  - id: '3.3'
+    chapter: Layer one the contract
+    visual: 'Arrow CSI to drivers, labeled implements. Moving dot along it.'
+    narration: 'The first arrow of the diagram runs from the specification down to the drivers, labeled implements. Read it as, the drivers implement the contract. Each of them, ceph-csi, dell-csi, and trident, translates the standard menu of requests into its own storage system language. Kubernetes only ever speaks the contract, so it never has to learn a vendor language.'
+    evidence: [miro-board]
+  - id: '3.4'
+    chapter: Layer one the contract
+    visual: 'Recap panel: layer one.'
+    narration: 'So far. One written contract, and one translator per vendor. This layer already lets any storage serve any cluster. But notice what the menu is missing. There is no request that says, copy this disk to another storage system. Disaster recovery lives on exactly that request. That gap is the next layer.'
+    evidence: [miro-board]
+    pause_after: 1.5
+
+  - id: '4.1'
+    chapter: Layer two the extension
+    visual: 'Chapter panel: the gap CSI left open.'
+    narration: 'Here is the gap in plain words. Plain CSI can create and attach disks, but it has no request for copying a disk to a second storage system, keeping the copy fresh, or making the copy the live one. Those are exactly the operations disaster recovery needs, and the original contract never defined them.'
+    evidence: [github-repos]
+  - id: '4.2'
+    chapter: Layer two the extension
+    visual: 'Arrow CSI to csi-addons spec, labeled extends.'
+    narration: 'The second layer answers with an extension. The arrow from CSI to csi-addons, slash, spec, is labeled extends. The add-ons specification builds on top of CSI, keeps its style, and adds the missing requests, replication first among them. It is a younger document, and as the diagram notes, not yet a CNCF standard.'
+    evidence: [miro-board, github-repos]
+  - id: '4.3'
+    chapter: Layer two the extension
+    visual: 'Definition panel for sidecar, then the arrow from the add-ons spec to the drivers, labeled implements via sidecar.'
+    define: {term: 'Sidecar', text: 'A small helper program that runs right next to a main program, packaged together with it.'}
+    narration: 'Now a new word. A sidecar is a small helper program that runs right next to a main program, packaged together, like an actual sidecar on a motorcycle. The arrow from the add-ons spec to the drivers is labeled implements, via sidecar. A driver that opts in gets an add-ons sidecar, so one package now speaks both the base contract and the extension.'
+    evidence: [miro-board, general-knowledge]
+  - id: '4.4'
+    chapter: Layer two the extension
+    visual: 'Recap panel: layer two.'
+    narration: 'So far. CSI is the base contract. The add-ons spec is its appendix. And drivers carry a sidecar that speaks the appendix. The vendor side can now receive extended requests. What is missing is a caller on the Kubernetes side that can send them.'
+    evidence: [miro-board]
+    pause_after: 1.5
+
+  - id: '5.1'
+    chapter: Layer three the cluster side
+    visual: 'Chapter panel: who places the extended calls.'
+    narration: 'The driver side can now receive the extended requests. But something inside the cluster must send them. When a program needs a disk copied or promoted, there must be a component that accepts that job, finds the right driver, and speaks to it in the add-ons language. That component is the third layer.'
+    evidence: [general-knowledge]
+  - id: '5.2'
+    chapter: Layer three the cluster side
+    visual: 'Arrow from the add-ons spec to kubernetes-csi-addons, labeled implements.'
+    narration: 'That component is csi-addons, slash, kubernetes-csi-addons. The arrow from the spec to this box is labeled implements, and again you read it as, this software implements the add-ons specification on the Kubernetes side. Its controller watches for requests on the cluster. Its sidecar half sits next to each driver, waiting for calls.'
+    evidence: [miro-board, github-repos]
+  - id: '5.3'
+    chapter: Layer three the cluster side
+    visual: 'Definition panel for gRPC, then the arrow between the two implementations, labeled calls gRPC to, with packets.'
+    define: {term: 'gRPC', text: 'A widely used way for two programs to call each other directly, like a phone line between pieces of software.'}
+    narration: 'One more new word. gRPC is a widely used way for programs to call each other, like a direct phone line between two pieces of software. The arrow between the two implementations is labeled calls gRPC to. The controller picks up the phone and calls each driver add-ons sidecar. The sidecar answers, and translates the request into its vendor language.'
+    evidence: [miro-board, general-knowledge]
+  - id: '5.4'
+    chapter: Layer three the cluster side
+    visual: 'Recap panel: layer three.'
+    narration: 'So far. A base contract. An extension. And speakers on both ends of it, connected by phone lines. The stack is complete. One thing remains. A decision maker. Someone who knows when a disaster recovery operation is actually needed, and which copy should become the live one.'
+    evidence: [miro-board]
+    pause_after: 1.5
+
+  - id: '6.1'
+    chapter: The consumer Ramen
+    visual: 'Definition panel for disaster recovery. Ramen card in focus, dimmed.'
+    define: {term: 'Disaster recovery', text: 'Keeping a second copy of data and workloads at another site, so a failed site can be brought back from that copy.'}
+    narration: 'Two plain words before the last box. Disaster recovery means keeping a second copy of your data and workloads at another site, so that when a site fails, you can bring them back from the copy. An orchestrator is the coordinator that drives those steps automatically, so humans do not run them by hand, one machine at a time, in the middle of an outage.'
+    evidence: [general-knowledge]
+  - id: '6.2'
+    chapter: The consumer Ramen
+    visual: 'Arrow from kubernetes-csi-addons to Ramen, labeled consumed by. Definition panel for orchestrator.'
+    define: {term: 'Orchestrator', text: 'The coordinator that drives multi-step jobs automatically, instead of humans running them by hand.'}
+    narration: 'Ramen is that orchestrator. The final arrow is labeled consumed by, and it points from kubernetes-csi-addons to Ramen. Ramen does not talk to drivers, arrays, or sidecars. It asks kubernetes-csi-addons for the operations it needs, and everything below that box follows. Its README describes exactly this job. Recovery across a pair of clusters.'
+    evidence: [miro-board, github-repos]
+  - id: '6.3'
+    chapter: The consumer Ramen
+    visual: 'Whole diagram visible, all six arrows, camera wide. One request travels down the chain.'
+    narration: 'Now read the whole diagram as one request traveling down. Ramen decides that a copy must become the live one. It asks kubernetes-csi-addons. The controller calls the driver add-ons sidecar over gRPC. The sidecar translates the request into its storage system language. The storage system performs it. And no layer knows more than its immediate neighbors. That is the design.'
+    evidence: [miro-board]
+  - id: '6.4'
+    chapter: The consumer Ramen
+    visual: 'Recap panel: the consumer.'
+    narration: 'And that is the three layers. A base contract, CSI. An extension, csi-addons. Implementations on both ends, the cluster-side software and the vendor sidecars. Plus one consumer, Ramen. The diagram calls it three layers because the add-ons contract, with its two implementations, is the layer the base contract alone could not provide.'
+    evidence: [miro-board]
+    pause_after: 1.5
+
+  - id: '7.1'
+    chapter: The whole picture
+    visual: 'Recap: all arrows visible, camera on the top half of the stack.'
+    narration: 'Replay, in order. The CSI specification is the standard storage contract. It extends into csi-addons, which adds replication requests. The drivers implement CSI. And the drivers also implement csi-addons, each one via a sidecar.'
+    evidence: [miro-board]
+  - id: '7.2'
+    chapter: The whole picture
+    visual: 'Recap: camera on the bottom half of the stack.'
+    narration: 'The kubernetes-csi-addons software implements the add-ons spec on the cluster side. It calls the driver sidecars over gRPC. And Ramen consumes kubernetes-csi-addons, asking for recovery operations without ever touching a storage system itself. Six arrows, and every single one is a handoff between two neighbors.'
+    evidence: [miro-board]
+  - id: '7.3'
+    chapter: The whole picture
+    visual: 'Final panel over the full diagram.'
+    narration: 'That is the whole diagram. A contract, an extension, two implementations, and a consumer. It is deliberately boring, in the best way. Every layer can be replaced without rewriting its neighbors, which is exactly what the companion diagram shows next, by plugging real Dell and Red Hat storage underneath the very same stack.'
+    evidence: [miro-board]
+    pause_after: 2.5
