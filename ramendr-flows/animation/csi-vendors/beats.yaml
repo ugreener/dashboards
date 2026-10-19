@@ -12,7 +12,7 @@ beats:
   - id: '1.1'
     chapter: The shared half
     visual: 'World: the left column of four boxes. Chapter panel: the shared half.'
-    narration: 'First, the left half, quickly, because it is the same cast as the first diagram. Four boxes. A contract, its extension, the cluster-side software, and the orchestrator that consumes them. Here is the one-minute version of each. If any sentence feels too fast, the companion video covers all four in full.'
+    narration: 'First, the left half, quickly, because it is the same cast as the first diagram. A quick word on Kubernetes. It is the program that runs and watches over other programs, on a group of machines managed as one cluster. Four boxes. A contract. Its extension. The software that runs inside that cluster. And the orchestrator that consumes them all. Here is the one-minute version of each. If any sentence feels too fast, the companion video covers all four in full.'
     evidence: [miro-board]
   - id: '1.2'
     chapter: The shared half
@@ -29,7 +29,7 @@ beats:
     chapter: The shared half
     visual: 'kubernetes-csi-addons box in focus. The implements arrow appears. Definition panel for gRPC.'
     define: {term: 'gRPC', text: 'A way for two programs to call each other directly, like a phone line between pieces of software.'}
-    narration: 'On the cluster side, kubernetes-csi-addons is the running software. It implements the extension. Its controller watches for requests, and it calls each driver sidecar over gRPC, which is simply a direct phone line between two programs.'
+    narration: 'On the cluster side, kubernetes-csi-addons is the running software. It implements the extension. Its controller watches for requests, and it calls each vendor driver over gRPC, a direct phone line between two programs. A driver is a translator program. It turns the standard requests into one storage system''s own language, and each vendor ships one.'
     evidence: [miro-board, github-repos]
   - id: '1.5'
     chapter: The shared half
