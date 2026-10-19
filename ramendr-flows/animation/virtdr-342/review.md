@@ -55,4 +55,8 @@ The shared stills tool also serves VIRTDR-291, VIRTDR-292 and VIRTDR-342. Its op
 
 ## Visual and render verification
 
-Pending stills review and final render checks. No claim of having watched the complete video is made.
+The early review found four YAML-truncated analogies, a missing glossary recap view and a delivery arrow crossing the spoke header. All were corrected. The complete review covered 195 stills at 0.2, 0.55 and 0.9 of every beat, split across four fresh image-review sessions. It found one clipped camera view, corrected in both object-restore shots and rechecked across six updated stills. Nine additional stills verified the baseline and reverse-copy arrows. Every latest review returned ALL CLEAR.
+
+The evidence-claim review separately verified the namespace layout, disk identities, original FAIL, data verdicts and Phase A/Phase B boundary. Its requested corrections to approximate/reference clock labels, the source's initial role and introductory definitions were applied and rechecked.
+
+TypeScript compilation and the name audit pass. Narration has exactly 65 timing entries matching the beat sheet. All speech files use the fixed voice and 24 kHz mono audio. Final rendering and final-file codec, volume and spot-frame checks remain pending. No claim of having watched the complete video is made.
