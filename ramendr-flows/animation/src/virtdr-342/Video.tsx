@@ -11,7 +11,7 @@ import BEATS from './beats.json';
 type Meta={t?:string;screenshot?:string;focus?:{x:number;y:number;w:number;h:number};caption?:string;define?:{term:string;text:string};card?:{kind:string;name:string;role:string};def?:Def};
 const META=BEATS as Record<string,Meta>;
 type Cam={x:number;y:number;z:number;sx:number;sy:number};
-const CAMS:Record<string,Partial<Cam>>={};
+const CAMS:Record<string,Partial<Cam>>={'2.4':{x:1240},'5.4':{x:1240}};
 const fit=(id:string):Cam=>{
   const side=!!META[id]?.screenshot||PANEL_BEATS.has(id);
   const keys=FOCUS[id]??Object.keys(RECT);let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
