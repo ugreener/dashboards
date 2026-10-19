@@ -51,6 +51,8 @@ The optional `Screenshot.sourceLabel` applies to consumers VIRTDR-291, VIRTDR-29
 
 The shared pronunciation normalizer is used by VIRTDR-291, VIRTDR-292 and VIRTDR-342. New exact-token pronunciations cover this ticket, the sync-display bug and the source heartbeat condition. Existing audio files are not regenerated.
 
+The shared stills tool also serves VIRTDR-291, VIRTDR-292 and VIRTDR-342. Its optional `--out-dir` separates review rounds without changing the default output paths, frame selection or rendering settings. Glossary metadata was validated against exact key sets after quoting comma-containing YAML strings.
+
 ## Visual and render verification
 
 Pending stills review and final render checks. No claim of having watched the complete video is made.
