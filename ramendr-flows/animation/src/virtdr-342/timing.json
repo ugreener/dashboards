@@ -1,0 +1,327 @@
+{
+  "0.1": {
+    "seconds": 18.837,
+    "voice": "af_heart",
+    "pause": 2.0
+  },
+  "1.1": {
+    "seconds": 17.045,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.2": {
+    "seconds": 22.763,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.3": {
+    "seconds": 21.312,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.4": {
+    "seconds": 20.651,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.5": {
+    "seconds": 24.384,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.6": {
+    "seconds": 22.699,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.7": {
+    "seconds": 22.549,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.8": {
+    "seconds": 23.104,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.9": {
+    "seconds": 22.763,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.10": {
+    "seconds": 20.608,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.11": {
+    "seconds": 23.019,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.12": {
+    "seconds": 21.781,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.13": {
+    "seconds": 20.907,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.14": {
+    "seconds": 22.549,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.15": {
+    "seconds": 22.912,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.16": {
+    "seconds": 20.715,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.17": {
+    "seconds": 22.72,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "2.1": {
+    "seconds": 23.381,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "2.2": {
+    "seconds": 23.936,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "2.3": {
+    "seconds": 23.403,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "2.4": {
+    "seconds": 23.957,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "2.5": {
+    "seconds": 20.608,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "3.1": {
+    "seconds": 19.605,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "3.2": {
+    "seconds": 24.597,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "3.3": {
+    "seconds": 22.379,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "3.4": {
+    "seconds": 21.568,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "3.5": {
+    "seconds": 20.8,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "4.1": {
+    "seconds": 22.613,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "4.2": {
+    "seconds": 22.571,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "4.3": {
+    "seconds": 22.421,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "4.4": {
+    "seconds": 24.341,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "4.5": {
+    "seconds": 20.8,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "4.6": {
+    "seconds": 19.563,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "5.1": {
+    "seconds": 24.128,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "5.2": {
+    "seconds": 24.0,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "5.3": {
+    "seconds": 23.36,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "5.4": {
+    "seconds": 24.256,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "5.5": {
+    "seconds": 22.613,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "5.6": {
+    "seconds": 22.293,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "6.1": {
+    "seconds": 21.12,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "6.2": {
+    "seconds": 20.373,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "6.3": {
+    "seconds": 19.968,
+    "voice": "af_heart",
+    "pause": 2.0
+  },
+  "6.4": {
+    "seconds": 22.059,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "6.5": {
+    "seconds": 21.291,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "6.6": {
+    "seconds": 22.912,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "6.7": {
+    "seconds": 21.013,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "6.8": {
+    "seconds": 21.013,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.1": {
+    "seconds": 24.64,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.2": {
+    "seconds": 24.043,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.3": {
+    "seconds": 22.869,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.4": {
+    "seconds": 24.277,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.5": {
+    "seconds": 23.168,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.6": {
+    "seconds": 23.125,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.7": {
+    "seconds": 20.309,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "8.1": {
+    "seconds": 23.317,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "8.2": {
+    "seconds": 24.597,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "8.3": {
+    "seconds": 22.507,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "8.4": {
+    "seconds": 26.667,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "8.5": {
+    "seconds": 22.336,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "8.6": {
+    "seconds": 23.637,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "8.7": {
+    "seconds": 24.469,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "9.1": {
+    "seconds": 22.08,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "9.2": {
+    "seconds": 25.067,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "9.3": {
+    "seconds": 23.723,
+    "voice": "af_heart",
+    "pause": 2.5
+  }
+}

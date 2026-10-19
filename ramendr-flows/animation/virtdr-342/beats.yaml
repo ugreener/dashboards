@@ -226,7 +226,7 @@ beats:
   - id: '5.1'
     chapter: Recover while the source is down
     visual: Replay target request delivered through ACM to target VRG.
-    narration: 'Recovery must work without asking the suspended source cluster for help. In the upstream mechanism, the hub checks the target and delivers a Primary VRG request through ACM work delivery. The target Ramen controller notices that request and starts restoring disk metadata. This is a mechanism replay anchored to Initiate, not an extra measured timestamp.'
+    narration: 'Recovery must work without asking the suspended source cluster for help. In the upstream mechanism, the hub checks the target and requests writable target disks, called the Primary role, through ACM work delivery. The target Ramen controller notices the VRG request and starts restoring disk metadata. This is a mechanism replay anchored to Initiate, not an extra measured timestamp.'
     evidence: [source-trace, run-log]
     unverified: Exact deployed controller commit and individual delivery requests were not captured.
   - id: '5.2'

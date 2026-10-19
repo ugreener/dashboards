@@ -45,6 +45,7 @@ const reached = (id: string, other: string) => {
 export const CH: [string, number, string, string][] = [
   ['4.2', 0.2, 'site', 'all six node VMs suspended'],
   ['4.4', 0.25, 'drpc', 'Failover requested'],
+  ['4.5', 0.25, 'site', 'Available=Unknown · heartbeat stopped'],
   ['5.2', 0.35, 'vrg0', 'Primary'],
   ['5.3', 0.4, 'array0', 'promoted copies writable'],
   ['5.5', 0.3, 'vm0', 'Running · guest services active'],
@@ -80,8 +81,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     <Region b={{x:70,y:45,w:2340,h:300}} title="HUB · edge36" sub="recovery coordinator and MinIO" color={C.blue}/>
     <Region b={{x:70,y:425,w:1170,h:565}} title="SPOKE-0 · edge95 · HOME" sub="recorded recovery target" color={C.spoke0}/>
     <Region b={{x:1235,y:425,w:1175,h:565}} title="SPOKE-1 · edge97" sub={frozen?'recorded source · suspended':'recorded source site'} color={frozen?C.red:C.spoke1}/>
-    <Region b={{x:70,y:1040,w:1170,h:310}} title="VSA-A · TARGET ARRAY" color={C.array}/>
-    <Region b={{x:1235,y:1040,w:1175,h:310}} title="VSA-B · SOURCE ARRAY" color={C.array}/>
+    <Region b={{x:70,y:1040,w:1170,h:310}} title="VSA-A · RECOVERY TARGET" color={C.array}/>
+    <Region b={{x:1235,y:1040,w:1175,h:310}} title="VSA-B · ORIGINAL SOURCE" color={C.array}/>
     {Object.entries(NODES).map(([key,n])=>{
       const s=status(key);const appear=chapter===2?prog(c.f,-15,35):1;
       return <Card key={key} x={n.box[0]} y={n.box[1]} w={n.box[2]} kind={n.kind} name={n.name} role={n.role} lines={[n.scope,s||'recorded configuration']} appear={appear} focus={focus(key)} hl={keys.includes(key)?0.25:0} color={n.color} detail={Math.max(0,Math.min(1,(c.zoom-.65)/.2))} />;
