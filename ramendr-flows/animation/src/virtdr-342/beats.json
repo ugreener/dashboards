@@ -1,0 +1,494 @@
+{
+ "0.1": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "Cast of characters"
+ },
+ "1.2": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VirtualMachine",
+   "name": "hammerdb-rhel9",
+   "role": "runs the database and the load generator"
+  },
+  "def": {
+   "what": "A saved description of a RHEL guest.",
+   "creator": "The workload administrator.",
+   "reader": "OpenShift Virtualization creates the running guest.",
+   "where": "The hammerdb namespace on a spoke.",
+   "analogy": "A machine blueprint",
+   "not the running machine itself.": null
+  }
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DataVolume",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "prepares a disk and owns its persistent volume claim"
+  },
+  "def": {
+   "what": "A request to prepare a VM disk.",
+   "creator": "The workload administrator.",
+   "reader": "The Containerized Data Importer prepares its disk claim.",
+   "where": "The hammerdb namespace on a spoke.",
+   "analogy": "A disk preparation order with a claim receipt."
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "StorageClass",
+   "name": "powerstore-sc",
+   "role": "tells Kubernetes how to provision a PowerStore disk"
+  },
+  "def": {
+   "what": "The disk provisioning recipe.",
+   "creator": "The storage administrator.",
+   "reader": "The CSI provisioner and Dell driver.",
+   "where": "Cluster scope on each spoke.",
+   "analogy": "A catalog entry for ordering a disk."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationClass",
+   "name": "powerstore-vrc-15m",
+   "role": "selects the driver and replication settings"
+  },
+  "def": {
+   "what": "Settings for replicating disks.",
+   "creator": "The storage administrator.",
+   "reader": "The csi-addons replication controller.",
+   "where": "Cluster scope on each spoke.",
+   "analogy": "The delivery contract for the recovery copy."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplication",
+   "name": "hammerdb-rhel9-datadisk",
+   "role": "asks the driver to replicate or change one disk role"
+  },
+  "def": {
+   "what": "A replication request for one protected disk.",
+   "creator": "Ramen's spoke controller.",
+   "reader": "csi-addons translates it into Dell CSI driver requests.",
+   "where": "The hammerdb namespace on a spoke.",
+   "analogy": "A work order for one disk copy."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationGroup",
+   "name": "hammerdb-drpc",
+   "role": "coordinates both protected VM disks on one spoke"
+  },
+  "def": {
+   "what": "The local coordinator for a group of protected disks.",
+   "creator": "Ramen delivers it from the hub.",
+   "reader": "Ramen's spoke controller.",
+   "where": "openshift-dr-ops on both spokes for this discovered app.",
+   "analogy": "The foreman coordinating the disk work orders."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPolicy",
+   "name": "dr-policy-15m",
+   "role": "pairs the sites and sets the permitted data-loss window"
+  },
+  "def": {
+   "what": "The disaster recovery agreement between two sites.",
+   "creator": "The DR administrator.",
+   "reader": "Ramen's hub controller.",
+   "where": "Cluster scope on the hub.",
+   "analogy": "A recovery contract with a fifteen-minute objective."
+  }
+ },
+ "1.9": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Placement",
+   "name": "hammerdb-placement",
+   "role": "lets Ramen decide which cluster should run the app"
+  },
+  "def": {
+   "what": "The request for a workload's selected cluster.",
+   "creator": "The DR administrator.",
+   "reader": "Ramen controls the selection during recovery.",
+   "where": "openshift-dr-ops on the hub.",
+   "analogy": "A destination request whose choice is delegated to Ramen."
+  }
+ },
+ "1.10": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PlacementDecision",
+   "name": "PlacementDecision",
+   "role": "kind only, generated instance name not asserted"
+  },
+  "def": {
+   "what": "The answer to the Placement request.",
+   "creator": "The placement and recovery controllers.",
+   "reader": "Ramen and cluster-management status readers.",
+   "where": "The Placement namespace on the hub.",
+   "analogy": "The destination written on the dispatch board."
+  }
+ },
+ "1.11": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPlacementControl",
+   "name": "hammerdb-drpc",
+   "role": "connects the workload to its recovery policy and placement"
+  },
+  "def": {
+   "what": "The hub's recovery control record.",
+   "creator": "The DR administrator through enrollment.",
+   "reader": "Ramen's hub controller and the DR console.",
+   "where": "openshift-dr-ops on the hub.",
+   "analogy": "A control sheet joining the policy",
+   "workload and destination.": null
+  }
+ },
+ "1.12": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ManifestWork",
+   "name": "ManifestWork",
+   "role": "kind only, carries hub instructions to the spoke"
+  },
+  "def": {
+   "what": "A package of Kubernetes resources to apply on a spoke.",
+   "creator": "Ramen on the hub.",
+   "reader": "ACM's work agent on the destination spoke.",
+   "where": "The managed cluster's namespace on the hub.",
+   "analogy": "A delivery envelope containing instructions."
+  },
+  "unverified": "Exact generated ManifestWork instance name and deployed controller commit are not asserted."
+ },
+ "1.13": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ManagedClusterView",
+   "name": "ManagedClusterView",
+   "role": "kind only, returns resource observations to the hub"
+  },
+  "def": {
+   "what": "A request to observe a spoke resource.",
+   "creator": "Ramen on the hub.",
+   "reader": "ACM's view agent and Ramen's hub controller.",
+   "where": "The managed cluster's namespace on the hub.",
+   "analogy": "A return receipt showing what happened at the destination."
+  },
+  "unverified": "Exact generated ManagedClusterView instance name and deployed controller commit are not asserted."
+ },
+ "1.14": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "S3 bucket",
+   "name": "ramen-metadata",
+   "role": "stores disk metadata and saved workload objects"
+  },
+  "def": {
+   "what": "Object storage containing recovery paperwork.",
+   "creator": "The infrastructure administrator provisions MinIO and its bucket.",
+   "reader": "Ramen and the backup and restore components.",
+   "where": "MinIO on the hub.",
+   "analogy": "An off-site filing cabinet",
+   "not the database disk itself.": null
+  }
+ },
+ "1.15": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Velero (OADP)",
+   "name": "velero",
+   "role": "saves and restores the Kubernetes objects needed by the VM"
+  },
+  "def": {
+   "what": "The Kubernetes-object backup and restore engine.",
+   "creator": "OADP installs the components and Ramen requests recovery.",
+   "reader": "Velero processes the backup and restore requests.",
+   "where": "openshift-adp on the spokes.",
+   "analogy": "Rebuilding the machine blueprint from the filing cabinet."
+  }
+ },
+ "1.16": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ManagedCluster",
+   "name": "spoke-1",
+   "role": "reports whether the hub can hear from the source cluster"
+  },
+  "def": {
+   "what": "The hub's registration and availability record for a spoke.",
+   "creator": "The cluster administrator imports the spoke.",
+   "reader": "ACM hub controllers and management interfaces.",
+   "where": "Cluster scope on the hub.",
+   "analogy": "A site's check-in record",
+   "not a test of every workload.": null
+  }
+ },
+ "1.17": {
+  "chapter": "Cast of characters"
+ },
+ "2.1": {
+  "chapter": "Protect the workload"
+ },
+ "2.2": {
+  "chapter": "Protect the workload"
+ },
+ "2.3": {
+  "chapter": "Protect the workload"
+ },
+ "2.4": {
+  "chapter": "Protect the workload",
+  "unverified": "Pinned upstream mechanism is not proof of the exact deployed builds or specific Velero requests."
+ },
+ "2.5": {
+  "chapter": "Protect the workload"
+ },
+ "3.1": {
+  "chapter": "Prove the copy is recent",
+  "t": "08:03:40",
+  "screenshot": "03-baseline-hub-policies-dr-policy-15m.png",
+  "focus": {
+   "x": 310,
+   "y": 310,
+   "w": 1180,
+   "h": 360
+  },
+  "caption": "Before Initiate \u00b7 dr-policy-15m is Validated. Actual freshness comes from array jobs."
+ },
+ "3.2": {
+  "chapter": "Prove the copy is recent"
+ },
+ "3.3": {
+  "chapter": "Prove the copy is recent"
+ },
+ "3.4": {
+  "chapter": "Prove the copy is recent"
+ },
+ "3.5": {
+  "chapter": "Prove the copy is recent",
+  "screenshot": "05-baseline-vsa-b-replication-sessions.png",
+  "focus": {
+   "x": 20,
+   "y": 220,
+   "w": 1200,
+   "h": 480
+  },
+  "caption": "Baseline VSA-B \u00b7 source sessions. Array UI times are UTC+3, job evidence is evaluated in UTC."
+ },
+ "4.1": {
+  "chapter": "Freeze the source site"
+ },
+ "4.2": {
+  "chapter": "Freeze the source site",
+  "t": "08:07:38"
+ },
+ "4.3": {
+  "chapter": "Freeze the source site",
+  "screenshot": "06-initiate-hub-failover-action-menu.png",
+  "focus": {
+   "x": 850,
+   "y": 480,
+   "w": 1040,
+   "h": 400
+  },
+  "caption": "Initiate sequence \u00b7 hub DR console action menu for hammerdb-drpc."
+ },
+ "4.4": {
+  "chapter": "Freeze the source site",
+  "t": "08:10:02",
+  "screenshot": "07-initiate-hub-failover-dialog-spoke-0.png",
+  "focus": {
+   "x": 480,
+   "y": 190,
+   "w": 960,
+   "h": 680
+  },
+  "caption": "08:10:02 UTC Initiate milestone \u00b7 target spoke-0. Stale Last available: VIRTDR-308. Last-sync display: VIRTDR-333."
+ },
+ "4.5": {
+  "chapter": "Freeze the source site",
+  "define": {
+   "term": "ManagedClusterLeaseUpdateStopped",
+   "text": "The hub has stopped receiving the source cluster heartbeat. It is not a prerequisite for clicking Failover."
+  }
+ },
+ "4.6": {
+  "chapter": "Freeze the source site"
+ },
+ "5.1": {
+  "chapter": "Recover while the source is down",
+  "unverified": "Exact deployed controller commit and individual delivery requests were not captured."
+ },
+ "5.2": {
+  "chapter": "Recover while the source is down",
+  "unverified": "gRPC request attempts and deployed Dell driver source revision were not captured."
+ },
+ "5.3": {
+  "chapter": "Recover while the source is down"
+ },
+ "5.4": {
+  "chapter": "Recover while the source is down",
+  "unverified": "Exact Velero Restore instance and deployed controller provenance are not established."
+ },
+ "5.5": {
+  "chapter": "Recover while the source is down"
+ },
+ "5.6": {
+  "chapter": "Recover while the source is down",
+  "screenshot": "09-failoverstate-hub-drstatus-popover.png",
+  "focus": {
+   "x": 720,
+   "y": 350,
+   "w": 900,
+   "h": 360
+  },
+  "caption": "Phase A \u00b7 3 of 4 steps completed. Cleanup remains pending while the source site is suspended."
+ },
+ "6.1": {
+  "chapter": "Measure recovery before source return"
+ },
+ "6.2": {
+  "chapter": "Measure recovery before source return"
+ },
+ "6.3": {
+  "chapter": "Measure recovery before source return"
+ },
+ "6.4": {
+  "chapter": "Measure recovery before source return"
+ },
+ "6.5": {
+  "chapter": "Measure recovery before source return"
+ },
+ "6.6": {
+  "chapter": "Measure recovery before source return"
+ },
+ "6.7": {
+  "chapter": "Measure recovery before source return"
+ },
+ "6.8": {
+  "chapter": "Measure recovery before source return"
+ },
+ "7.1": {
+  "chapter": "Resume and clean the old source"
+ },
+ "7.2": {
+  "chapter": "Resume and clean the old source",
+  "t": "09:55:08"
+ },
+ "7.3": {
+  "chapter": "Resume and clean the old source"
+ },
+ "7.4": {
+  "chapter": "Resume and clean the old source",
+  "screenshot": "10-cleanupgate-spoke-0-vrg-primary.png",
+  "focus": {
+   "x": 270,
+   "y": 140,
+   "w": 1180,
+   "h": 760
+  },
+  "caption": "Phase B cleanup gate \u00b7 spoke-0 VRG in openshift-dr-ops. Conditions support target readiness, not a new RPO verdict."
+ },
+ "7.5": {
+  "chapter": "Resume and clean the old source",
+  "t": "10:09:25",
+  "screenshot": "15-after-delete-source-vm-fleet.png",
+  "focus": {
+   "x": 260,
+   "y": 220,
+   "w": 1180,
+   "h": 520
+  },
+  "caption": "After 10:09:25 UTC source VM deletion \u00b7 only the spoke-0 target VM remains in Fleet Search."
+ },
+ "7.6": {
+  "chapter": "Resume and clean the old source",
+  "t": "10:12:29",
+  "screenshot": "17-after-delete-source-datavolumes-fleet.png",
+  "focus": {
+   "x": 260,
+   "y": 220,
+   "w": 1180,
+   "h": 560
+  },
+  "caption": "After 10:12:29 UTC \u00b7 source DataVolumes removed. Remaining DataVolumes belong to the target on spoke-0."
+ },
+ "7.7": {
+  "chapter": "Resume and clean the old source"
+ },
+ "8.1": {
+  "chapter": "Complete and reverse protection",
+  "unverified": "Exact deployed RPC routing and array-action execution are not captured."
+ },
+ "8.2": {
+  "chapter": "Complete and reverse protection",
+  "screenshot": "19-completed-hub-drpc-failedover-completed-row.png",
+  "focus": {
+   "x": 260,
+   "y": 310,
+   "w": 1180,
+   "h": 480
+  },
+  "caption": "Phase B completion \u00b7 hub row healthy on spoke-0. CLI evidence records FailedOver/Completed at about 10:14 UTC."
+ },
+ "8.3": {
+  "chapter": "Complete and reverse protection",
+  "screenshot": "21-completed-spoke-1-vrg-secondary-fleet.png",
+  "focus": {
+   "x": 270,
+   "y": 140,
+   "w": 1180,
+   "h": 780
+  },
+  "caption": "Phase B \u00b7 spoke-1 VRG Secondary evidence. Condition timestamps on the resumed source can reflect its skewed clock."
+ },
+ "8.4": {
+  "chapter": "Complete and reverse protection",
+  "screenshot": "22-completed-vsa-a-replication-reversed.png",
+  "focus": {
+   "x": 10,
+   "y": 90,
+   "w": 1180,
+   "h": 520
+  },
+  "caption": "Phase B \u00b7 VSA-A Source/OK. Reverse syncs 10:14:27 and 10:15:47 UTC appear around 13:14 and 13:15 in UTC+3."
+ },
+ "8.5": {
+  "chapter": "Complete and reverse protection",
+  "screenshot": "23-completed-vsa-b-replication-reversed.png",
+  "focus": {
+   "x": 10,
+   "y": 90,
+   "w": 1180,
+   "h": 520
+  },
+  "caption": "Phase B \u00b7 VSA-B now Destination. Both array views corroborate the reversed direction."
+ },
+ "8.6": {
+  "chapter": "Complete and reverse protection"
+ },
+ "8.7": {
+  "chapter": "Complete and reverse protection"
+ },
+ "9.1": {
+  "chapter": "What the test established"
+ },
+ "9.2": {
+  "chapter": "What the test established"
+ },
+ "9.3": {
+  "chapter": "What the test established"
+ }
+}

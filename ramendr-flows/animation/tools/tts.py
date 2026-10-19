@@ -24,6 +24,10 @@ DEFAULT_PAUSE = 0.8  # seconds of silence after a beat unless beats.yaml sets pa
 
 # Exact-token replacements applied before generic rules (order matters: longest first).
 SPOKEN = {
+    "VIRTDR-342": "VIRT D R three forty-two",
+    "VIRTDR-333": "VIRT D R three thirty-three",
+    "ManagedClusterLeaseUpdateStopped": "Managed Cluster Lease Update Stopped",
+    "RetainedForFailover": "Retained For Failover",
     "hammerdb-drpc-openshift-dr-ops-vrg-mw": "hammer D B D R P C, openshift D R ops, V R G M W",
     "hammerdb-drpc-openshift-dr-ops-vrg-mcv": "hammer D B D R P C, openshift D R ops, V R G M C V",
     "hammerdb-drpc-hammerdb-ns-mw": "hammer D B D R P C, hammer D B, N S M W",

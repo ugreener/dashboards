@@ -1,0 +1,413 @@
+# yamllint disable rule:line-length
+ticket: VIRTDR-342
+run: '2026-10-19'
+direction: spoke-1 to spoke-0
+beats:
+  - id: '0.1'
+    chapter: Cold open
+    visual: A source site freezes while its storage and the hub stay lit. Reveal the two-phase recovery story.
+    narration: 'What happens when an entire source cluster freezes while a database is writing? This recorded test recovered the RHEL workload on the other site before bringing the source back. We will separate that recovery from the later cleanup, and keep the original test report failures visible instead of hiding them.'
+    evidence: [run-log, phase-b-observations]
+    pause_after: 2
+  - id: '1.1'
+    chapter: Cast of characters
+    visual: Introduce the job of the glossary before showing domain names.
+    narration: 'First, meet the pieces. Some describe the application, some control disk copies, and some carry instructions between clusters. Each has one job. These short definitions will make the later arrows meaningful, so recovery does not look like a collection of unexplained names.'
+    evidence: [setup-doc, source-trace]
+  - id: '1.2'
+    chapter: Cast of characters
+    visual: One VM card and its definition.
+    card: {kind: VirtualMachine, name: hammerdb-rhel9, role: runs the database and the load generator}
+    def: {what: A saved description of a RHEL guest., creator: The workload administrator., reader: OpenShift Virtualization creates the running guest., where: The hammerdb namespace on a spoke., analogy: A machine blueprint, not the running machine itself.}
+    narration: 'The VirtualMachine named hammerdb-rhel9 describes the RHEL guest. An administrator supplies it, and OpenShift Virtualization uses it to start the running instance. It belongs to the hammerdb namespace on a spoke. Think of it as a machine blueprint. PostgreSQL stores the data, while HammerDB generates database activity.'
+    evidence: [setup-doc, run-log]
+  - id: '1.3'
+    chapter: Cast of characters
+    visual: DataVolume card with disk claim relationship.
+    card: {kind: DataVolume, name: hammerdb-rhel9-rootdisk, role: prepares a disk and owns its persistent volume claim}
+    def: {what: A request to prepare a VM disk., creator: The workload administrator., reader: The Containerized Data Importer prepares its disk claim., where: The hammerdb namespace on a spoke., analogy: A disk preparation order with a claim receipt.}
+    narration: 'A DataVolume prepares a disk for the guest. The administrator supplies the request, and the Containerized Data Importer prepares its persistent volume claim, or PVC. Both are in hammerdb. The root disk is hammerdb-rhel9-rootdisk. Its ownership of the claim will matter when we delete the old source DataVolume.'
+    evidence: [setup-doc, phase-b-observations]
+  - id: '1.4'
+    chapter: Cast of characters
+    visual: StorageClass definition.
+    card: {kind: StorageClass, name: powerstore-sc, role: tells Kubernetes how to provision a PowerStore disk}
+    def: {what: The disk provisioning recipe., creator: The storage administrator., reader: The CSI provisioner and Dell driver., where: Cluster scope on each spoke., analogy: A catalog entry for ordering a disk.}
+    narration: 'The StorageClass powerstore-sc tells Kubernetes how to obtain a PowerStore disk for a claim. The storage administrator installs it at cluster scope. The Container Storage Interface, or CSI, provisioner and Dell driver read it. It is the disk ordering recipe, not the separate rule for copying that disk to another array.'
+    evidence: [setup-doc]
+  - id: '1.5'
+    chapter: Cast of characters
+    visual: VolumeReplicationClass definition.
+    card: {kind: VolumeReplicationClass, name: powerstore-vrc-15m, role: selects the driver and replication settings}
+    def: {what: Settings for replicating disks., creator: The storage administrator., reader: The csi-addons replication controller., where: Cluster scope on each spoke., analogy: The delivery contract for the recovery copy.}
+    narration: 'The VolumeReplicationClass powerstore-vrc-15m supplies the replication settings. The storage administrator creates it, and the csi-addons controller reads it on each spoke. Unlike a StorageClass, it describes copying rather than provisioning. Its fifteen-minute setting must agree with the recovery policy. Settings alone do not prove that copying actually happened on time.'
+    evidence: [setup-doc, source-trace]
+  - id: '1.6'
+    chapter: Cast of characters
+    visual: VolumeReplication definition and CSI handoff.
+    card: {kind: VolumeReplication, name: hammerdb-rhel9-datadisk, role: asks the driver to replicate or change one disk role}
+    def: {what: A replication request for one protected disk., creator: Ramen's spoke controller., reader: csi-addons translates it into Dell CSI driver requests., where: The hammerdb namespace on a spoke., analogy: A work order for one disk copy.}
+    narration: 'A VolumeReplication is the work order for one disk. Ramen creates it in hammerdb, and csi-addons turns its requested role into calls to the Dell CSI driver. The driver then asks PowerStore to act. One example is hammerdb-rhel9-datadisk. The root disk has its own separate request and separate replication evidence.'
+    evidence: [source-trace, preflight]
+  - id: '1.7'
+    chapter: Cast of characters
+    visual: VRG definition with correct discovered namespace.
+    card: {kind: VolumeReplicationGroup, name: hammerdb-drpc, role: coordinates both protected VM disks on one spoke}
+    def: {what: The local coordinator for a group of protected disks., creator: Ramen delivers it from the hub., reader: Ramen's spoke controller., where: openshift-dr-ops on both spokes for this discovered app., analogy: The foreman coordinating the disk work orders.}
+    narration: 'The VolumeReplicationGroup, or VRG, coordinates the protected disks on a spoke. Ramen delivers hammerdb-drpc from the hub, and its spoke controller reads it. For this discovered application, the VRG lives in openshift-dr-ops, not hammerdb. Think of it as the foreman coordinating the individual disk work orders.'
+    evidence: [source-trace, jira-follow-up]
+  - id: '1.8'
+    chapter: Cast of characters
+    visual: DRPolicy definition.
+    card: {kind: DRPolicy, name: dr-policy-15m, role: pairs the sites and sets the permitted data-loss window}
+    def: {what: The disaster recovery agreement between two sites., creator: The DR administrator., reader: Ramen's hub controller., where: Cluster scope on the hub., analogy: A recovery contract with a fifteen-minute objective.}
+    narration: 'The DRPolicy dr-policy-15m pairs the two sites. A disaster recovery administrator creates it on the hub, and Ramen reads it. Its recovery point objective, or RPO, is nine hundred seconds. That is the permitted data-loss window. We must compare actual copy times and recovered data with that objective, not just read the policy name.'
+    evidence: [setup-doc, run-log]
+  - id: '1.9'
+    chapter: Cast of characters
+    visual: Placement definition.
+    card: {kind: Placement, name: hammerdb-placement, role: lets Ramen decide which cluster should run the app}
+    def: {what: The request for a workload's selected cluster., creator: The DR administrator., reader: Ramen controls the selection during recovery., where: openshift-dr-ops on the hub., analogy: A destination request whose choice is delegated to Ramen.}
+    narration: 'Placement hammerdb-placement represents the cluster selection request. The administrator creates it in openshift-dr-ops on the hub. Automatic cluster selection is disabled for this recovery placement, so Ramen can decide. It is like a destination request handed to a recovery coordinator, rather than an ordinary scheduler choosing a site independently.'
+    evidence: [setup-doc, source-trace]
+  - id: '1.10'
+    chapter: Cast of characters
+    visual: PlacementDecision kind without unverified generated instance name.
+    card: {kind: PlacementDecision, name: PlacementDecision, role: 'kind only, generated instance name not asserted'}
+    def: {what: The answer to the Placement request., creator: The placement and recovery controllers., reader: Ramen and cluster-management status readers., where: The Placement namespace on the hub., analogy: The destination written on the dispatch board.}
+    narration: 'A PlacementDecision records the selection result. Controllers write it beside the Placement, and Ramen and status readers consult it. During this test, it temporarily contained both the recovery target and a retained source. That does not mean two healthy active application copies. It preserves the old site until cleanup can finish.'
+    evidence: [source-trace, jira-follow-up]
+  - id: '1.11'
+    chapter: Cast of characters
+    visual: DRPC definition.
+    card: {kind: DRPlacementControl, name: hammerdb-drpc, role: connects the workload to its recovery policy and placement}
+    def: {what: The hub's recovery control record., creator: The DR administrator through enrollment., reader: Ramen's hub controller and the DR console., where: openshift-dr-ops on the hub., analogy: A control sheet joining the policy, workload and destination.}
+    narration: 'DR Placement Control, shortened to DRPC, is the hub control record. The administrator enrolls the workload through hammerdb-drpc in openshift-dr-ops. Ramen and the console read it. It connects the policy, protected workload and placement, and records the requested action and its progress. It is the control sheet for this recovery.'
+    evidence: [setup-doc, source-trace]
+  - id: '1.12'
+    chapter: Cast of characters
+    visual: ManifestWork kind, not an unevidenced generated name.
+    card: {kind: ManifestWork, name: ManifestWork, role: 'kind only, carries hub instructions to the spoke'}
+    def: {what: A package of Kubernetes resources to apply on a spoke., creator: Ramen on the hub., reader: ACM's work agent on the destination spoke., where: The managed cluster's namespace on the hub., analogy: A delivery envelope containing instructions.}
+    narration: 'ManifestWork is the instruction envelope. Ramen creates it in the managed cluster namespace on the hub. Advanced Cluster Management, or ACM, has a work agent on the spoke that receives and applies its contents. Delivery lets the hub request a target VRG without directly logging into the spoke or rebuilding the VM by hand.'
+    evidence: [source-trace]
+    unverified: Exact generated ManifestWork instance name and deployed controller commit are not asserted.
+  - id: '1.13'
+    chapter: Cast of characters
+    visual: ManagedClusterView kind and observational relation.
+    card: {kind: ManagedClusterView, name: ManagedClusterView, role: 'kind only, returns resource observations to the hub'}
+    def: {what: A request to observe a spoke resource., creator: Ramen on the hub., reader: ACM's view agent and Ramen's hub controller., where: The managed cluster's namespace on the hub., analogy: A return receipt showing what happened at the destination.}
+    narration: 'ManagedClusterView is the return receipt. Ramen creates a request on the hub, the spoke view agent observes the resource, and the result comes back for the hub to read. It reports state rather than moving disks or owning the application. We describe the mechanism here without claiming a specific generated instance name from this run.'
+    evidence: [source-trace]
+    unverified: Exact generated ManagedClusterView instance name and deployed controller commit are not asserted.
+  - id: '1.14'
+    chapter: Cast of characters
+    visual: S3 bucket definition separate from replicated disk data.
+    card: {kind: S3 bucket, name: ramen-metadata, role: stores disk metadata and saved workload objects}
+    def: {what: Object storage containing recovery paperwork., creator: The infrastructure administrator provisions MinIO and its bucket., reader: Ramen and the backup and restore components., where: MinIO on the hub., analogy: An off-site filing cabinet, not the database disk itself.}
+    narration: 'The ramen-metadata bucket is object storage provided by MinIO on the hub. The administrator provisions it, and Ramen and the backup components use it. It holds recovery paperwork, including disk descriptions and saved workload objects. PowerStore copies the database disk contents separately. The bucket is a filing cabinet, not the disk replication path.'
+    evidence: [setup-doc, source-trace]
+  - id: '1.15'
+    chapter: Cast of characters
+    visual: OADP and Velero definition.
+    card: {kind: Velero (OADP), name: velero, role: saves and restores the Kubernetes objects needed by the VM}
+    def: {what: The Kubernetes-object backup and restore engine., creator: OADP installs the components and Ramen requests recovery., reader: Velero processes the backup and restore requests., where: openshift-adp on the spokes., analogy: Rebuilding the machine blueprint from the filing cabinet.}
+    narration: 'OADP, the OpenShift API for Data Protection, supplies Velero and its plugins. Ramen requests recovery, and Velero restores the saved Kubernetes objects on the spoke. These include the VM and related definitions. This is how a discovered application can return without GitOps. It is separate from making the replicated disks writable.'
+    evidence: [setup-doc, source-trace]
+  - id: '1.16'
+    chapter: Cast of characters
+    visual: ManagedCluster definition and heartbeat.
+    card: {kind: ManagedCluster, name: spoke-1, role: reports whether the hub can hear from the source cluster}
+    def: {what: The hub's registration and availability record for a spoke., creator: The cluster administrator imports the spoke., reader: ACM hub controllers and management interfaces., where: Cluster scope on the hub., analogy: A site's check-in record, not a test of every workload.}
+    narration: 'ManagedCluster spoke-1 is the hub record for the imported source cluster. ACM reads its check-ins to report availability. A missing heartbeat tells the hub that the site is not reporting, but it is not a complete workload-health test. Later, a clock problem will keep this record unavailable even after the nodes become Ready.'
+    evidence: [phase-b-observations, source-trace]
+  - id: '1.17'
+    chapter: Cast of characters
+    visual: Glossary recap.
+    narration: 'So far, the jobs are separate. Ramen coordinates recovery. ACM carries instructions and observations. The Dell storage path copies and changes disk roles. Object storage and Velero preserve the workload descriptions. OpenShift Virtualization starts the guest. Now we can follow the causes and effects across the actual lab topology.'
+    evidence: [source-trace]
+  - id: '2.1'
+    chapter: Protect the workload
+    visual: Full hub, home spoke-0, source spoke-1 and both arrays.
+    narration: 'Protection must preserve both disk contents and the descriptions needed to use them. The hub runs on edge36. In this recorded run, the source was spoke-1 on edge97 with VSA-B, and the recovery target was spoke-0 on edge95 with VSA-A. The workload home remains spoke-0. This is historical direction, not a live placement display.'
+    evidence: [setup-doc, run-log]
+  - id: '2.2'
+    chapter: Protect the workload
+    visual: Discovered namespace layout and cyan delivery handoff.
+    narration: 'This application was discovered, not managed by an ApplicationSet. Its hub DRPC and Placement, and its spoke VRGs, belong in openshift-dr-ops. The VM and disk claims belong in hammerdb. Ramen sends VRG instructions through ManifestWork. Argo CD is not responsible for deploying or deleting this application during the test.'
+    evidence: [setup-doc, source-trace]
+  - id: '2.3'
+    chapter: Protect the workload
+    visual: VRG, per-disk requests and running source array.
+    narration: 'The source VRG coordinates both disks. Its VolumeReplication requests are read by csi-addons, which calls the Dell driver. PowerStore then copies changed disk blocks between arrays. Each disk has its own replication session. A healthy-looking data disk cannot substitute for checking the root disk, and an initial copy is not a proven scheduled-sync history.'
+    evidence: [preflight, source-trace]
+  - id: '2.4'
+    chapter: Protect the workload
+    visual: S3 to Velero metadata route.
+    narration: 'At the same time, Ramen saves disk descriptions and workload objects to the S3-compatible bucket. After a disaster, the target can reconnect the correct replica disks and restore the VM definitions. These arrows show the upstream mechanism consistent with the run. Exact deployed controller commits and individual restore requests were not established by the attachments.'
+    evidence: [source-trace, setup-doc]
+    unverified: Pinned upstream mechanism is not proof of the exact deployed builds or specific Velero requests.
+  - id: '2.5'
+    chapter: Protect the workload
+    visual: Protection recap on topology.
+    narration: 'So far, there are two recovery paths. PowerStore preserves disk contents, while MinIO and Velero preserve the objects needed to rebuild the application. The hub coordinates both. We will freeze the source cluster, not its array, so the recovery test exercises an unreachable workload site while the storage copies remain available.'
+    evidence: [source-trace, run-log]
+  - id: '3.1'
+    chapter: Prove the copy is recent
+    t: '08:03:40'
+    visual: Baseline policy screenshot on the right.
+    screenshot: 03-baseline-hub-policies-dr-policy-15m.png
+    focus: {x: 310, y: 310, w: 1180, h: 360}
+    caption: 'Before Initiate · dr-policy-15m is Validated. Actual freshness comes from array jobs.'
+    narration: 'The gate exists because an old recovery copy can look healthy. The policy screenshot shows a validated fifteen-minute policy, but policy validation does not prove recent writes reached the copies. Baseline screenshots came first. The scripted preflight ran last with the source still reachable and HammerDB writing.'
+    evidence: [preflight, screenshot-03]
+  - id: '3.2'
+    chapter: Prove the copy is recent
+    visual: Both disks' exact scheduled sync times and gaps.
+    narration: 'The source array job history showed two completed scheduled syncs for each disk. The data disk finished at 07:48:46 and 08:00:46 UTC. The root disk finished at 07:46:06 and 07:58:06. Their gaps were about twelve minutes, below the nine-hundred-second policy. These checks were per disk, not a single group timestamp.'
+    evidence: [preflight, run-log]
+  - id: '3.3'
+    chapter: Prove the copy is recent
+    visual: History rows per sync interval and advancing sequence metric.
+    narration: 'Those sync intervals also carried source database writes. Each data-disk interval contained about thirty-one thousand history rows, and both root-disk intervals did too. The guest order-sequence sum advanced during the preflight. That sum proves activity, not an exact transaction count. Copying an idle disk would not establish the same under-load recovery baseline.'
+    evidence: [preflight, run-log]
+  - id: '3.4'
+    chapter: Prove the copy is recent
+    visual: Computed deadline and actual click compared explicitly.
+    narration: 'The preflight deadline was 08:12:06 UTC, based on the oldest disk sync, the policy and a safety margin. Initiate was clicked at 08:10:02, about two minutes before that deadline. The later postcheck independently checked both disks at the actual click time. A preflight pass alone would not excuse a late initiation.'
+    evidence: [preflight, run-log]
+  - id: '3.5'
+    chapter: Prove the copy is recent
+    screenshot: 05-baseline-vsa-b-replication-sessions.png
+    focus: {x: 20, y: 220, w: 1200, h: 480}
+    caption: 'Baseline VSA-B · source sessions. Array UI times are UTC+3, job evidence is evaluated in UTC.'
+    visual: Source array baseline and gate recap.
+    narration: 'So far, both disk histories passed the freshness and write-coverage checks before the outage. This historical PowerStore view shows the source-side sessions. Its interface uses UTC plus three hours, while our run timeline uses UTC. The session table is supporting evidence. The scripted job-history checks remain the gate.'
+    evidence: [screenshot-05, preflight]
+  - id: '4.1'
+    chapter: Freeze the source site
+    visual: Source cluster dimmed while both arrays and hub remain bright.
+    narration: 'Now create the disaster without turning it into a graceful shutdown. All three master node VMs and all three worker node VMs on source edge97 were selected for suspension. The hub, the target cluster and both arrays stayed running. That distinction matters: this tests source-site loss, not a storage-array outage or a broken replication link.'
+    evidence: [ticket-description, phase-b-observations]
+  - id: '4.2'
+    chapter: Freeze the source site
+    t: '08:07:38'
+    visual: Freeze six source node markers and keep the array lit.
+    narration: 'At 08:07:38 UTC, the six source node guests were suspended. Their execution froze, including the active database writer. There was no graceful database stop and no final workload sync. The source stayed suspended throughout recovery and the data checks. Its total frozen interval would be one hour, forty-seven minutes and thirty seconds.'
+    evidence: [phase-b-observations]
+  - id: '4.3'
+    chapter: Freeze the source site
+    screenshot: 06-initiate-hub-failover-action-menu.png
+    focus: {x: 850, y: 480, w: 1040, h: 400}
+    caption: 'Initiate sequence · hub DR console action menu for hammerdb-drpc.'
+    visual: Console action menu evidence.
+    narration: 'Next, the operator used the hub disaster recovery console. The historical action menu shows Failover for hammerdb-drpc. This is the console path, not a direct command-line change to the DRPC. Authorization to initiate recovery was separate from authorization to resume the source or delete its old application later.'
+    evidence: [screenshot-06, run-log]
+  - id: '4.4'
+    chapter: Freeze the source site
+    t: '08:10:02'
+    screenshot: 07-initiate-hub-failover-dialog-spoke-0.png
+    focus: {x: 480, y: 190, w: 960, h: 680}
+    caption: '08:10:02 UTC Initiate milestone · target spoke-0. Stale Last available: VIRTDR-308. Last-sync display: VIRTDR-333.'
+    visual: Selected target and known-bug labels, not trusted readiness display.
+    narration: 'The selected target was spoke-0. Initiate was clicked at 08:10:02 UTC, two minutes and twenty-four seconds after suspension. The dialog contains known stale availability and misleading last-sync displays, tracked by VIRTDR-308 and VIRTDR-333. They are not our freshness proof. The preflight deadline and the postcheck job history establish that evidence.'
+    evidence: [screenshot-07, run-log]
+  - id: '4.5'
+    chapter: Freeze the source site
+    visual: Source heartbeat expires after initiation, not as a prerequisite.
+    define: {term: ManagedClusterLeaseUpdateStopped, text: 'The hub has stopped receiving the source cluster heartbeat. It is not a prerequisite for clicking Failover.'}
+    narration: 'About four minutes and fifty-six seconds after suspension, the hub marked the source unavailable because its heartbeat stopped. This happened after Initiate, not before it. Do not turn the unavailable badge into a prerequisite that the test waited for. The operator had already requested recovery while the source was frozen and unreachable.'
+    evidence: [ticket-description, source-trace]
+  - id: '4.6'
+    chapter: Freeze the source site
+    visual: Source-down recap.
+    narration: 'So far, the entire source cluster is frozen, the arrays are still online, and Failover was initiated before the printed deadline. The hub later noticed the lost heartbeat. Next we replay the recovery handoffs that followed the click, separating the upstream controller explanation from what the run directly observed.'
+    evidence: [run-log, source-trace]
+  - id: '5.1'
+    chapter: Recover while the source is down
+    visual: Replay target request delivered through ACM to target VRG.
+    narration: 'Recovery must work without asking the suspended source cluster for help. In the upstream mechanism, the hub checks the target and delivers a Primary VRG request through ACM work delivery. The target Ramen controller notices that request and starts restoring disk metadata. This is a mechanism replay anchored to Initiate, not an extra measured timestamp.'
+    evidence: [source-trace, run-log]
+    unverified: Exact deployed controller commit and individual delivery requests were not captured.
+  - id: '5.2'
+    chapter: Recover while the source is down
+    visual: Primary and Secondary role definitions before promotion.
+    narration: 'Primary means the local copies can serve the active workload. Secondary means the site keeps recovery copies. The target VRG requests Primary through each VolumeReplication. csi-addons translates the request into a promotion call to Dell CSI, and the driver asks PowerStore to make the target replicas writable. That is a storage role change, not guest startup yet.'
+    evidence: [source-trace]
+    unverified: gRPC request attempts and deployed Dell driver source revision were not captured.
+  - id: '5.3'
+    chapter: Recover while the source is down
+    visual: Exact target volume identifiers, one line per complete identifier.
+    narration: 'The run did verify the important result: both target claims used the expected promoted replicas on VSA-A. The full data-disk and root-disk identifiers are shown here from the saved evidence. Matching the real volume handles matters. A Bound claim alone would not prove that recovery used the correct replicated disk rather than an unrelated new volume.'
+    evidence: [preflight, run-log]
+  - id: '5.4'
+    chapter: Recover while the source is down
+    visual: Separate saved-object restore route from array promotion.
+    narration: 'Once the disks are ready, the upstream recovery sequence uses the saved object backup. Velero reads the required workload definitions and restores them on the target. OpenShift Virtualization can then start the guest against the promoted disks. No GitOps deployment is inserted into this discovered-app story. The exact restore object names were not captured in the supplied evidence.'
+    evidence: [source-trace, setup-doc]
+    unverified: Exact Velero Restore instance and deployed controller provenance are not established.
+  - id: '5.5'
+    chapter: Recover while the source is down
+    visual: Target guest Running and both services active.
+    narration: 'The observed target VM reached Running, and both PostgreSQL and the HammerDB writer auto-started. The source cluster was still suspended. This proves guest recovery and resumed activity without source-cluster participation. It does not prove zero loss. New writes on the recovered guest can increase a total even when some recent source writes were lost.'
+    evidence: [run-log, writer-stop-verification]
+  - id: '5.6'
+    chapter: Recover while the source is down
+    screenshot: 09-failoverstate-hub-drstatus-popover.png
+    focus: {x: 720, y: 350, w: 900, h: 360}
+    caption: 'Phase A · 3 of 4 steps completed. Cleanup remains pending while the source site is suspended.'
+    visual: Source-down cleanup boundary, not false completion.
+    narration: 'So far, the guest has recovered, but the whole lifecycle is not finished. The screenshot shows three of four steps completed and cleanup pending. The DRPC remained FailedOver with Cleaning Up progression while the source was down. That is the expected boundary for this discovered app, because the old site cannot yet receive demotion and application cleanup.'
+    evidence: [screenshot-09, run-log]
+  - id: '6.1'
+    chapter: Measure recovery before source return
+    visual: Source-down postcheck evidence inputs.
+    narration: 'This phase measures recovery before bringing the source back. The postcheck used source-down mode, so it never contacted the suspended source cluster. It combined saved preflight data, array job history and queries on the recovered guest. Completion, source removal and source Secondary were explicitly deferred to the later convergence phase.'
+    evidence: [run-log]
+  - id: '6.2'
+    chapter: Measure recovery before source return
+    visual: Actual sync ages at Initiate, not at later validation time.
+    narration: 'At the actual Initiate time, the last completed data-disk sync was five hundred and fifty-five seconds old. The root-disk sync was seven hundred and fifteen seconds old. Both were below the nine-hundred-second policy. The postcheck also confirmed that the last two scheduled syncs of each disk carried source writes before Initiate.'
+    evidence: [run-log]
+  - id: '6.3'
+    chapter: Measure recovery before source return
+    visual: Exact measured loss-window and recovered-history verdicts.
+    narration: 'The reported data-loss window was five hundred and fifty-six seconds, within the nine-hundred-second objective. The check also found no missing rows across fifty-five complete source minutes before the last sync. These are the recorded script verdicts. They do not say zero loss, and they are not an exact number of lost transactions.'
+    evidence: [run-log]
+    pause_after: 2
+  - id: '6.4'
+    chapter: Measure recovery before source return
+    visual: Original FAIL retained with three checker defects.
+    narration: 'But the original automated report still says FAIL, eleven of fourteen checks passed. Three checks were defective for this layout. One rejected the expected temporary two-site decision. One looked for the target VRG in the workload namespace instead of openshift-dr-ops. The last mistook a stopped service exit code for an unreachable host.'
+    evidence: [run-log, jira-follow-up]
+  - id: '6.5'
+    chapter: Measure recovery before source return
+    visual: Follow-up evidence does not overwrite raw result.
+    narration: 'The follow-up checked the actual target VRG and explained the retained source decision. The checker was corrected for later use. Its validation dry run then saw the writer already stopped, so it was not a new clean end-to-end PASS report. We keep the original FAIL beside the follow-up evidence rather than rewriting the original result.'
+    evidence: [jira-follow-up, writer-stop-verification]
+  - id: '6.6'
+    chapter: Measure recovery before source return
+    visual: Two guest reads forty-one seconds apart.
+    narration: 'Writer shutdown had succeeded before the verification call failed. Follow-up guest checks found HammerDB inactive and disabled, PostgreSQL still active, and the order-sequence sum unchanged at eight million, six hundred and fifty thousand, nine hundred and thirty-two across forty-one seconds. That is evidence of a stopped writer, not a new transaction-loss calculation.'
+    evidence: [writer-stop-verification]
+  - id: '6.7'
+    chapter: Measure recovery before source return
+    visual: Writer stops, DB stays active, source remains frozen.
+    narration: 'The recovered VM and database were left available, but the load generator was stopped and disabled. The source was still frozen. That closes the source-down validation phase: recovery and the reported data verdicts were obtained without first restoring the failed site. Later cleanup cannot be counted as a hidden dependency of that recovery.'
+    evidence: [writer-stop-verification, phase-b-observations]
+  - id: '6.8'
+    chapter: Measure recovery before source return
+    visual: Phase A recap and boundary before resume.
+    narration: 'So far, the target recovered while the source stayed down, the recorded data checks stayed within the permitted window, and writer shutdown was verified separately. The original automated FAIL remains visible. Now the task changes. We will return the old site and make it a usable recovery peer again, with separate authorization for destructive cleanup.'
+    evidence: [run-log, jira-follow-up]
+  - id: '7.1'
+    chapter: Resume and clean the old source
+    visual: Clear Phase A and Phase B separation.
+    narration: 'Phase B restores the recovery lifecycle, not the already recovered database. The source had been frozen for one hour, forty-seven minutes and thirty seconds. Resuming it allows the hub to deliver pending instructions. Removing its old application is a separate authorized operation. Until convergence and reverse protection, the recovered workload does not yet have the fully restored standby arrangement.'
+    evidence: [phase-b-observations, ticket-description]
+  - id: '7.2'
+    chapter: Resume and clean the old source
+    t: '09:55:08'
+    visual: Resume six source nodes and distinguish nodes Ready from managed availability.
+    narration: 'The six source nodes resumed at 09:55:08 UTC and became Ready within about two minutes. The old application VM showed PausedIOError after the disks had been promoted elsewhere. Its write attempts encountered the former source copies as read-only. This is an observed input-output error pause, not proof that Ramen powered off or permanently fenced the guest.'
+    evidence: [phase-b-observations, source-trace]
+  - id: '7.3'
+    chapter: Resume and clean the old source
+    visual: WaitOnUserToCleanUp definition and no managed-app pruning.
+    narration: 'The DRPC moved to WaitOnUserToCleanUp, meaning the old discovered application still needed removal. Ramen does not own that application, so automatic Argo CD pruning is not part of this test. Before deletion, the operator rechecked the target copies and obtained separate cleanup authorization. The recovered target was not the object being deleted.'
+    evidence: [phase-b-observations, source-trace]
+  - id: '7.4'
+    chapter: Resume and clean the old source
+    screenshot: 10-cleanupgate-spoke-0-vrg-primary.png
+    focus: {x: 270, y: 140, w: 1180, h: 760}
+    caption: 'Phase B cleanup gate · spoke-0 VRG in openshift-dr-ops. Conditions support target readiness, not a new RPO verdict.'
+    visual: Later target-copy inspection explicitly not Phase A screenshot.
+    narration: 'This screenshot was captured during the later cleanup gate, not during the original source-down postcheck. It shows the target VRG in openshift-dr-ops with the restored-object and disk-readiness conditions. The operator also checked target VolumeReplications and Bound claims against the expected promoted handles. These checks protected the surviving copy before touching the old source.'
+    evidence: [screenshot-10, phase-b-observations]
+  - id: '7.5'
+    chapter: Resume and clean the old source
+    t: '10:09:25'
+    screenshot: 15-after-delete-source-vm-fleet.png
+    focus: {x: 260, y: 220, w: 1180, h: 520}
+    caption: 'After 10:09:25 UTC source VM deletion · only the spoke-0 target VM remains in Fleet Search.'
+    visual: Source VM deletion and VMI termination, target retained.
+    narration: 'Only the old source VM on spoke-1 was deleted, at 10:09:25 UTC. Its running instance terminated within five seconds. The screenshot afterward shows the target VM still present on spoke-0. Deleting the source VM first removes its use of the disks. The target VM and its promoted disk handles were left unchanged.'
+    evidence: [screenshot-15, phase-b-observations]
+  - id: '7.6'
+    chapter: Resume and clean the old source
+    t: '10:12:29'
+    screenshot: 17-after-delete-source-datavolumes-fleet.png
+    focus: {x: 260, y: 220, w: 1180, h: 560}
+    caption: 'After 10:12:29 UTC · source DataVolumes removed. Remaining DataVolumes belong to the target on spoke-0.'
+    visual: Owned claim cascade, no blanket finalizer removal.
+    narration: 'Next, the source root and data DataVolumes were deleted. Their owned claims disappeared through normal cascading deletion, so no separate claim deletion was needed. The source namespace became empty and its VolumeReplication objects disappeared. This is not a blanket command to strip finalizers or delete array volumes. It is the recorded, scoped source cleanup sequence.'
+    evidence: [screenshot-17, phase-b-observations]
+  - id: '7.7'
+    chapter: Resume and clean the old source
+    visual: Source Secondary and target copies unchanged recap.
+    narration: 'So far, the old source VM, its running instance, DataVolumes and owned claims are gone. The source VRG then became Secondary. The target claims stayed Bound to the same promoted VSA-A handles. With old disk use removed and the source reporting its new role, the hub could finish the recovery lifecycle.'
+    evidence: [phase-b-observations, source-trace]
+  - id: '8.1'
+    chapter: Complete and reverse protection
+    visual: Four separate handoffs, do not collapse promotion and reprotect.
+    narration: 'Completion must not blur four different handoffs. Target promotion made the replicas writable. Source demotion made the old site a peer. Storage reprotection arranged copying in the new direction. A fresh reverse sync then demonstrated that copying had resumed. Upstream code places the PowerStore reprotection action in resync handling, not simply in every demotion call.'
+    evidence: [source-trace, phase-b-observations]
+    unverified: Exact deployed RPC routing and array-action execution are not captured.
+  - id: '8.2'
+    chapter: Complete and reverse protection
+    screenshot: 19-completed-hub-drpc-failedover-completed-row.png
+    focus: {x: 260, y: 310, w: 1180, h: 480}
+    caption: 'Phase B completion · hub row healthy on spoke-0. CLI evidence records FailedOver/Completed at about 10:14 UTC.'
+    visual: Healthy UI row vs actual progression evidence.
+    narration: 'At about 10:14 UTC, the DRPC reached FailedOver with Completed progression and PeerReady true. PeerReady means the peer side had reached the state the controller required for this completion. Placement now selected spoke-0 only. The screenshot shows the healthy application row. The exact Completed progression comes from the recorded command evidence, not from guessing at the icon.'
+    evidence: [screenshot-19, phase-b-observations]
+  - id: '8.3'
+    chapter: Complete and reverse protection
+    screenshot: 21-completed-spoke-1-vrg-secondary-fleet.png
+    focus: {x: 270, y: 140, w: 1180, h: 780}
+    caption: 'Phase B · spoke-1 VRG Secondary evidence. Condition timestamps on the resumed source can reflect its skewed clock.'
+    visual: Source Secondary not misread local timestamps.
+    narration: 'The source VRG on spoke-1 had become Secondary. This historical resource view supports that later phase. Be careful with its condition timestamps: the resumed source clocks were behind, so those timestamps are not a reliable wall-clock sequence by themselves. We use the run observations for ordering and keep the clock problem separate from the resource role.'
+    evidence: [screenshot-21, phase-b-observations]
+  - id: '8.4'
+    chapter: Complete and reverse protection
+    screenshot: 22-completed-vsa-a-replication-reversed.png
+    focus: {x: 10, y: 90, w: 1180, h: 520}
+    caption: 'Phase B · VSA-A Source/OK. Reverse syncs 10:14:27 and 10:15:47 UTC appear around 13:14 and 13:15 in UTC+3.'
+    visual: New source array and actual fresh syncs.
+    narration: 'VSA-A now reported Source and normal replication for both workload sessions. Fresh reverse syncs were recorded at 10:14:27 and 10:15:47 UTC. The array interface displays those around thirteen fourteen and thirteen fifteen in UTC plus three. These are evidence of reverse copying, not a claim that two new scheduled syncs under load had already qualified the next failover.'
+    evidence: [screenshot-22, phase-b-observations]
+  - id: '8.5'
+    chapter: Complete and reverse protection
+    screenshot: 23-completed-vsa-b-replication-reversed.png
+    focus: {x: 10, y: 90, w: 1180, h: 520}
+    caption: 'Phase B · VSA-B now Destination. Both array views corroborate the reversed direction.'
+    visual: Peer array corroboration, not promotion snapshot reused.
+    narration: 'The peer array view corroborates the reversal. VSA-B is now Destination, receiving copies from VSA-A. Checking both sides avoids trusting a single array view. This new direction belongs to the historical test result. It is not a claim about which site hosts the workload now, and it does not move the dashboard home-cluster baseline.'
+    evidence: [screenshot-23, phase-b-observations]
+  - id: '8.6'
+    chapter: Complete and reverse protection
+    visual: Nodes Ready, work delivered, hub availability Unknown are separate signals.
+    narration: 'One separate problem remained in the Phase B attachment. The nodes were Ready, but the hub still showed source availability Unknown. A sampled node clock was about six thousand, three hundred and ninety-four seconds slow after suspension. The management agent refused status updates because of that clock difference, even though work delivery still functioned and the DRPC completed.'
+    evidence: [phase-b-observations, source-trace]
+  - id: '8.7'
+    chapter: Complete and reverse protection
+    visual: Honest unresolved aftermath and completion recap.
+    narration: 'So far, cleanup completed, source demotion was recorded, and fresh reverse replication was observed. The attachment recommended stepping the resumed node clocks, but did not record that repair or restored hub availability. We do not animate it as done. Node readiness, instruction delivery, DR completion and management availability are different signals, not interchangeable health badges.'
+    evidence: [phase-b-observations]
+  - id: '9.1'
+    chapter: What the test established
+    visual: Replay full chain with one plain handoff per row.
+    narration: 'The final recap matters because success has several boundaries. First prove the syncs carried writes. Then freeze the source and initiate in the hub console. Promote replicas and restore the guest. Measure the recovered data while the source stays down. Only afterward resume and clean the old application, demote the peer and verify reversed replication.'
+    evidence: [run-log, phase-b-observations, source-trace]
+  - id: '9.2'
+    chapter: What the test established
+    visual: Measured result and raw FAIL side by side.
+    narration: 'This test established discovered RHEL recovery with the source suspended, recorded data checks within the fifteen-minute objective, and later completion after separately authorized cleanup. The original eleven-of-fourteen automated FAIL remains part of the record, together with the documented checker defects and follow-up evidence. The long source-down hold is not a measurement of guest recovery time.'
+    evidence: [run-log, jira-follow-up, phase-b-observations]
+  - id: '9.3'
+    chapter: What the test established
+    visual: Limits and final reference to VIRTDR-342.
+    narration: 'So far, we have followed the whole recorded chain without claiming more than the evidence supports. This is not zero-loss proof, a Relocate test, Windows coverage or managed-application coverage. It is not a live health inventory. The pinned upstream source explains the mechanisms, but does not identify the deployed builds. The full evidence remains on VIRTDR-342.'
+    evidence: [source-trace, ticket]
+    pause_after: 2.5

@@ -5,13 +5,25 @@ import {VirtDr292} from './virtdr-292/Video';
 import {buildTimeline} from './virtdr-292/timeline';
 import {VirtDr291} from './virtdr-291/Video';
 import {buildTimeline as buildTimeline291} from './virtdr-291/timeline';
+import {VirtDr342} from './virtdr-342/Video';
+import {buildTimeline as buildTimeline342} from './virtdr-342/timeline';
 
 const ALL_291 = Array.from({length: 14}, (_, i) => i);
+const ALL_342 = Array.from({length: 10}, (_, i) => i);
 
 const ALL = Array.from({length: 16}, (_, i) => i);
 
 export const Root: React.FC = () => (
   <>
+    <Composition
+      id="virtdr-342"
+      component={VirtDr342}
+      durationInFrames={Math.max(1, buildTimeline342(ALL_342).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_342}}
+    />
     <Composition
       id="virtdr-292"
       component={VirtDr292}
