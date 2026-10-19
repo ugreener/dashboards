@@ -10,7 +10,6 @@ export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: 
   '0.1': {title: 'CSI with vendors', rows: ['The companion diagram on the same board', 'Same four boxes on the left', 'Two real vendor stacks on the right: Dell and Red Hat', 'Same contracts, different machines'], color: C.cyan},
   '1.1': {title: 'The shared half', rows: ['The same cast as the three-layers diagram', 'Contract, extension, cluster-side software, orchestrator', 'One minute each, then on to the new half']},
   '1.6': {title: 'Now the new half', rows: ['Two complete vendor stacks', 'Three boxes each: extras, driver, storage', 'Dell: modules, driver, appliances', 'Red Hat: operator, driver, software storage']},
-  '2.1': {title: 'Two stacks, same three jobs', rows: ['Extra vendor pieces around the driver', 'The driver itself, a contract translator', 'The storage itself']},
   '2.8': {title: 'So far: six new boxes', rows: ['Dell: CSM modules, csi-powerstore, PowerStore arrays', 'Red Hat: Rook, ceph-csi, a Ceph cluster', 'Every name is a real project on GitHub', 'Next: what connects the halves']},
   '3.1': {title: 'The Dell stack', rows: ['Modules connected to the driver', 'The driver pointing at the array', 'Accessories around a translator']},
   '3.4': {title: 'Board honesty notes', rows: ["Owen's builds: custom driver builds, not stock", 'Array identifiers are labels as drawn', 'Architecture, not a live inventory'], color: C.amber},
@@ -66,9 +65,9 @@ export const GlossaryScene: React.FC<{id: string; f: number; dur: number; card?:
           ['ceph-csi', 'the Ceph translator', C.red],
           ['Ceph Cluster', 'the software storage', C.red],
         ].map(([name, role, col], i) => (
-          <div key={name as string} style={{position: 'absolute', left: 110 + (i % 3) * 585, top: 290 + Math.floor(i / 3) * 280, width: 540, minHeight: 210, padding: 28, border: `2px solid ${col as string}`, borderRadius: 18, background: C.panel, opacity: prog(f, dur * (0.03 + i * 0.08), dur * (0.03 + i * 0.08) + 24)}}>
-            <div style={{fontSize: 29, color: col as string, fontWeight: 700}}>{name as string}</div>
-            <div style={{fontSize: 25, color: C.text, lineHeight: 1.4, marginTop: 20}}>{role as string}</div>
+          <div key={name as string} style={{position: 'absolute', left: 110 + (i % 2) * 380, top: 290 + Math.floor(i / 2) * 260, width: 350, minHeight: 220, padding: 24, border: `2px solid ${col as string}`, borderRadius: 18, background: C.panel, opacity: prog(f, dur * (0.03 + i * 0.08), dur * (0.03 + i * 0.08) + 24)}}>
+            <div style={{fontSize: 26, color: col as string, fontWeight: 700}}>{name as string}</div>
+            <div style={{fontSize: 22, color: C.text, lineHeight: 1.4, marginTop: 16}}>{role as string}</div>
           </div>
         ))}
       </div>
