@@ -75,6 +75,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     const down = b[1] > a[1]; const y1 = down ? a[1] + a[3] + 14 : a[1] - 12; const y2 = down ? b[1] - 18 : b[1] + b[3] + 10;
     const a0 = prog(c.f, c.dur * (0.12 + n * 0.13), c.dur * (0.12 + n * 0.13) + 25);
     const midY = (y1 + y2) / 2;
+    if(from==='drpc'&&to==='vrg0')return <g key={label} opacity={a0}><path d="M370,300 C370,335 40,335 40,365 L40,460 L370,460 L370,472" fill="none" stroke={color} strokeWidth={4} markerEnd="url(#tip342)"/><rect x={15} y={348} width={430} height={32} rx={10} fill={C.bg}/><text x={230} y={371} textAnchor="middle" fill={color} fontSize={20} fontFamily={sans}>{label}</text></g>;
     return <g key={label} opacity={a0}><path d={`M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`} fill="none" stroke={color} strokeWidth={4} markerEnd="url(#tip342)"/><circle cx={x1 + (x2 - x1) * ((c.f % 150) / 150)} cy={midY} r={6} fill={color}/><rect x={(x1 + x2) / 2 - 190} y={midY - 16} width={380} height={30} rx={10} fill={C.bg}/><text x={(x1 + x2) / 2} y={midY + 5} textAnchor="middle" fill={color} fontSize={20} fontFamily={sans}>{label}</text></g>;
   };
   return <div style={{position:'absolute',width:2480,height:1380}}>

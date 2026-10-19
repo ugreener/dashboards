@@ -18,7 +18,7 @@ beats:
     chapter: Cast of characters
     visual: One VM card and its definition.
     card: {kind: VirtualMachine, name: hammerdb-rhel9, role: runs the database and the load generator}
-    def: {what: A saved description of a RHEL guest., creator: The workload administrator., reader: OpenShift Virtualization creates the running guest., where: The hammerdb namespace on a spoke., analogy: A machine blueprint, not the running machine itself.}
+    def: {what: A saved description of a RHEL guest., creator: The workload administrator., reader: OpenShift Virtualization creates the running guest., where: The hammerdb namespace on a spoke., analogy: 'A machine blueprint, not the running machine itself.'}
     narration: 'The VirtualMachine named hammerdb-rhel9 describes the RHEL guest. An administrator supplies it, and OpenShift Virtualization uses it to start the running instance. It belongs to the hammerdb namespace on a spoke. Think of it as a machine blueprint. PostgreSQL stores the data, while HammerDB generates database activity.'
     evidence: [setup-doc, run-log]
   - id: '1.3'
@@ -81,7 +81,7 @@ beats:
     chapter: Cast of characters
     visual: DRPC definition.
     card: {kind: DRPlacementControl, name: hammerdb-drpc, role: connects the workload to its recovery policy and placement}
-    def: {what: The hub's recovery control record., creator: The DR administrator through enrollment., reader: Ramen's hub controller and the DR console., where: openshift-dr-ops on the hub., analogy: A control sheet joining the policy, workload and destination.}
+    def: {what: The hub's recovery control record., creator: The DR administrator through enrollment., reader: Ramen's hub controller and the DR console., where: openshift-dr-ops on the hub., analogy: 'A control sheet joining the policy, workload and destination.'}
     narration: 'DR Placement Control, shortened to DRPC, is the hub control record. The administrator enrolls the workload through hammerdb-drpc in openshift-dr-ops. Ramen and the console read it. It connects the policy, protected workload and placement, and records the requested action and its progress. It is the control sheet for this recovery.'
     evidence: [setup-doc, source-trace]
   - id: '1.12'
@@ -104,7 +104,7 @@ beats:
     chapter: Cast of characters
     visual: S3 bucket definition separate from replicated disk data.
     card: {kind: S3 bucket, name: ramen-metadata, role: stores disk metadata and saved workload objects}
-    def: {what: Object storage containing recovery paperwork., creator: The infrastructure administrator provisions MinIO and its bucket., reader: Ramen and the backup and restore components., where: MinIO on the hub., analogy: An off-site filing cabinet, not the database disk itself.}
+    def: {what: Object storage containing recovery paperwork., creator: The infrastructure administrator provisions MinIO and its bucket., reader: Ramen and the backup and restore components., where: MinIO on the hub., analogy: 'An off-site filing cabinet, not the database disk itself.'}
     narration: 'The ramen-metadata bucket is object storage provided by MinIO on the hub. The administrator provisions it, and Ramen and the backup components use it. It holds recovery paperwork, including disk descriptions and saved workload objects. PowerStore copies the database disk contents separately. The bucket is a filing cabinet, not the disk replication path.'
     evidence: [setup-doc, source-trace]
   - id: '1.15'
@@ -118,7 +118,7 @@ beats:
     chapter: Cast of characters
     visual: ManagedCluster definition and heartbeat.
     card: {kind: ManagedCluster, name: spoke-1, role: reports whether the hub can hear from the source cluster}
-    def: {what: The hub's registration and availability record for a spoke., creator: The cluster administrator imports the spoke., reader: ACM hub controllers and management interfaces., where: Cluster scope on the hub., analogy: A site's check-in record, not a test of every workload.}
+    def: {what: The hub's registration and availability record for a spoke., creator: The cluster administrator imports the spoke., reader: ACM hub controllers and management interfaces., where: Cluster scope on the hub., analogy: "A site's check-in record, not a test of every workload."}
     narration: 'ManagedCluster spoke-1 is the hub record for the imported source cluster. ACM reads its check-ins to report availability. A missing heartbeat tells the hub that the site is not reporting, but it is not a complete workload-health test. Later, a clock problem will keep this record unavailable even after the nodes become Ready.'
     evidence: [phase-b-observations, source-trace]
   - id: '1.17'

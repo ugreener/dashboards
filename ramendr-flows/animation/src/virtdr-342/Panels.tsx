@@ -47,6 +47,14 @@ export const BeatPanel: React.FC<{id: string; f: number; dur: number}> = ({id,f,
   </div>;
 };
 export const GlossaryScene: React.FC<{id:string;f:number;dur:number;card?:{kind:string;name:string;role:string};def?:Def}> = ({id,f,dur,card,def}) => {
+  if(id==='1.17')return <div style={{position:'absolute',inset:0,fontFamily:sans}}>
+    <div style={{position:'absolute',left:110,top:160,fontSize:40,color:C.text,fontWeight:700}}>Five jobs, one recovery chain</div>
+    {[
+      ['Ramen','Coordinates the recovery'],['ACM','Delivers instructions and returns observations'],
+      ['Dell CSI + PowerStore','Copies disks and changes their roles'],['MinIO + Velero','Preserves and restores workload definitions'],
+      ['OpenShift Virtualization','Starts the guest on the recovered disks'],
+    ].map(([name,role],i)=><div key={name} style={{position:'absolute',left:110+(i%3)*585,top:290+Math.floor(i/3)*280,width:540,minHeight:210,padding:28,border:`2px solid ${C.cyan}`,borderRadius:18,background:C.panel,opacity:prog(f,dur*(.03+i*.09),dur*(.03+i*.09)+24)}}><div style={{fontSize:31,color:C.cyan,fontWeight:700}}>{name}</div><div style={{fontSize:25,color:C.text,lineHeight:1.4,marginTop:20}}>{role}</div></div>)}
+  </div>;
   if(!card||!def)return <div style={{position:'absolute',left:180,top:350,right:180,color:C.text,fontFamily:sans,fontSize:44,textAlign:'center'}}>Every piece has one job. Follow the handoffs, not just the names.</div>;
   return <div style={{position:'absolute',inset:0,opacity:prog(f,-20,24)}}>
     <div style={{position:'absolute',left:100,top:170,color:C.purple,fontFamily:mono,fontSize:21}}>CAST OF CHARACTERS · {id.split('.')[1]}</div>

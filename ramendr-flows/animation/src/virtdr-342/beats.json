@@ -17,8 +17,7 @@
    "creator": "The workload administrator.",
    "reader": "OpenShift Virtualization creates the running guest.",
    "where": "The hammerdb namespace on a spoke.",
-   "analogy": "A machine blueprint",
-   "not the running machine itself.": null
+   "analogy": "A machine blueprint, not the running machine itself."
   }
  },
  "1.3": {
@@ -153,8 +152,7 @@
    "creator": "The DR administrator through enrollment.",
    "reader": "Ramen's hub controller and the DR console.",
    "where": "openshift-dr-ops on the hub.",
-   "analogy": "A control sheet joining the policy",
-   "workload and destination.": null
+   "analogy": "A control sheet joining the policy, workload and destination."
   }
  },
  "1.12": {
@@ -201,8 +199,7 @@
    "creator": "The infrastructure administrator provisions MinIO and its bucket.",
    "reader": "Ramen and the backup and restore components.",
    "where": "MinIO on the hub.",
-   "analogy": "An off-site filing cabinet",
-   "not the database disk itself.": null
+   "analogy": "An off-site filing cabinet, not the database disk itself."
   }
  },
  "1.15": {
@@ -232,8 +229,7 @@
    "creator": "The cluster administrator imports the spoke.",
    "reader": "ACM hub controllers and management interfaces.",
    "where": "Cluster scope on the hub.",
-   "analogy": "A site's check-in record",
-   "not a test of every workload.": null
+   "analogy": "A site's check-in record, not a test of every workload."
   }
  },
  "1.17": {
