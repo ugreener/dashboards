@@ -35,33 +35,33 @@ export const FOCUS: Record<string, string[]> = {
   '4.4': ['pstore_hw', 'ceph_hw'],
   '5.1': ['csi', 'pstore_drv', 'ceph_drv'],
   '5.2': ['csi', 'addons', 'k8saddons', 'pstore_drv', 'ceph_drv'],
-  '5.3': ['ramen', 'k8saddons', 'pstore_drv', 'ceph_drv', 'pstore_hw', 'ceph_hw'],
-  '5.4': ['csi', 'addons', 'k8saddons', 'ramen', 'pstore_drv', 'ceph_drv'],
+  '5.3': Object.keys(NODES),
+  '5.4': ['csi', 'addons', 'k8saddons', 'ramen'],
   '6.1': Object.keys(NODES), '6.2': Object.keys(NODES), '6.3': Object.keys(NODES),
 };
 
 type Edge = {
-  d: string; label?: string; lx?: number; ly?: number; color: string; intro: string; frac?: number;
+  d: string; label?: string; lx?: number; ly?: number; color: string; intro: string; src: string; dst: string; frac?: number;
   dashed?: boolean; end: [number, number]; ang: number; packets?: boolean; noArrow?: boolean; dot?: [number, number, number, number];
 };
 const EDGES: Record<string, Edge> = {
   // Shared half chain: CSI extends into csi-addons, implemented by kubernetes-csi-addons, consumed by Ramen.
-  extends: {d: 'M675,275 L895,275', label: 'extends', lx: 785, ly: 232, color: C.purple, intro: '1.3', dashed: true, end: [895, 275], ang: 0},
-  implK8s: {d: 'M1170,365 L1170,635', label: 'implements', lx: 1170, ly: 500, color: C.blue, intro: '1.4', end: [1170, 635], ang: 90},
-  consumed: {d: 'M895,725 L675,725', label: 'consumed by', lx: 785, ly: 725, color: C.green, intro: '1.5', end: [675, 725], ang: 180},
+  extends: {d: 'M675,275 L895,275', label: 'extends', lx: 785, ly: 232, color: C.purple, intro: '1.3', src: 'csi', dst: 'addons', dashed: true, end: [895, 275], ang: 0},
+  implK8s: {d: 'M1170,365 L1170,635', label: 'implements', lx: 1170, ly: 500, color: C.blue, intro: '1.4', src: 'addons', dst: 'k8saddons', end: [1170, 635], ang: 90},
+  consumed: {d: 'M895,725 L675,725', label: 'consumed by', lx: 785, ly: 725, color: C.green, intro: '1.5', src: 'k8saddons', dst: 'ramen', end: [675, 725], ang: 180},
   // Dell stack internals.
-  csmLink: {d: 'M1950,375 L1950,512', color: C.dim, intro: '3.1', dashed: true, end: [1950, 512], ang: 90, noArrow: true},
-  pstoreCmd: {d: 'M2185,610 L2235,610', color: C.orange, intro: '3.1', end: [2235, 610], ang: 0, packets: true, dot: [2185, 2235, 610, 0]},
+  csmLink: {d: 'M1950,375 L1950,512', color: C.dim, intro: '3.1', src: 'csm', dst: 'pstore_drv', dashed: true, end: [1950, 512], ang: 90, noArrow: true},
+  pstoreCmd: {d: 'M2185,610 L2235,610', color: C.orange, intro: '3.1', src: 'pstore_drv', dst: 'pstore_hw', end: [2235, 610], ang: 0, packets: true, dot: [2185, 2235, 610, 0]},
   // Red Hat stack internals.
-  rookLink: {d: 'M1950,1160 L1950,1322', color: C.dim, intro: '4.1', dashed: true, end: [1950, 1322], ang: 90, noArrow: true},
-  cephCmd: {d: 'M2185,1415 L2235,1415', color: C.orange, intro: '4.2', end: [2235, 1415], ang: 0, packets: true, dot: [2185, 2235, 1415, 0]},
+  rookLink: {d: 'M1950,1160 L1950,1322', color: C.dim, intro: '4.1', src: 'rook', dst: 'ceph_drv', dashed: true, end: [1950, 1322], ang: 90, noArrow: true},
+  cephCmd: {d: 'M2185,1415 L2235,1415', color: C.orange, intro: '4.2', src: 'ceph_drv', dst: 'ceph_hw', end: [2235, 1415], ang: 0, packets: true, dot: [2185, 2235, 1415, 0]},
   // Cross arrows: the same three relationships, into both vendor stacks.
-  xCsiPstore: {d: 'M400,182 C700,115 1500,115 1590,320 C1660,460 1780,500 1900,512', label: 'implements', lx: 1000, ly: 150, color: C.blue, intro: '5.1', frac: 0.18, end: [1900, 512], ang: 74},
-  xCsiCeph: {d: 'M400,178 C700,82 1500,82 1500,660 C1500,1250 1580,1305 1715,1335', label: 'implements', lx: 760, ly: 55, color: C.blue, intro: '5.1', frac: 0.3, end: [1715, 1335], ang: 8},
-  xAddonsPstore: {d: 'M1445,265 C1540,265 1640,400 1715,555', label: 'via sidecar', lx: 1540, ly: 360, color: C.blue, intro: '5.2', frac: 0.16, dashed: true, end: [1715, 555], ang: 55},
-  xAddonsCeph: {d: 'M1445,290 C1530,290 1530,950 1530,1250 C1530,1420 1620,1438 1715,1445', label: 'via sidecar', lx: 1580, ly: 1000, color: C.blue, intro: '5.2', frac: 0.32, dashed: true, end: [1715, 1445], ang: 6},
-  xK8sPstore: {d: 'M1445,715 C1560,715 1650,660 1715,625', label: 'gRPC', lx: 1570, ly: 762, color: C.cyan, intro: '5.2', frac: 0.52, end: [1715, 625], ang: -22},
-  xK8sCeph: {d: 'M1170,820 C1170,1050 1400,1200 1530,1300 C1610,1380 1660,1395 1715,1400', label: 'gRPC', lx: 1450, ly: 1250, color: C.cyan, intro: '5.2', frac: 0.66, end: [1715, 1400], ang: 8},
+  xCsiPstore: {d: 'M400,182 C700,115 1500,115 1590,320 C1660,460 1780,500 1900,512', label: 'implements', lx: 1000, ly: 150, color: C.blue, intro: '5.1', src: 'csi', dst: 'pstore_drv', frac: 0.18, end: [1900, 512], ang: 74},
+  xCsiCeph: {d: 'M400,178 C700,82 1500,82 1500,660 C1500,1250 1580,1305 1715,1335', label: 'implements', lx: 760, ly: 55, color: C.blue, intro: '5.1', src: 'csi', dst: 'ceph_drv', frac: 0.3, end: [1715, 1335], ang: 8},
+  xAddonsPstore: {d: 'M1445,265 C1540,265 1640,400 1715,555', label: 'via sidecar', lx: 1540, ly: 360, color: C.blue, intro: '5.2', src: 'addons', dst: 'pstore_drv', frac: 0.16, dashed: true, end: [1715, 555], ang: 55},
+  xAddonsCeph: {d: 'M1445,290 C1530,290 1530,950 1530,1250 C1530,1420 1620,1438 1715,1445', label: 'via sidecar', lx: 1580, ly: 1000, color: C.blue, intro: '5.2', src: 'addons', dst: 'ceph_drv', frac: 0.32, dashed: true, end: [1715, 1445], ang: 6},
+  xK8sPstore: {d: 'M1445,715 C1560,715 1650,660 1715,625', label: 'gRPC', lx: 1570, ly: 762, color: C.cyan, intro: '5.2', src: 'k8saddons', dst: 'pstore_drv', frac: 0.52, end: [1715, 625], ang: -22},
+  xK8sCeph: {d: 'M1170,820 C1170,1050 1400,1200 1530,1300 C1610,1380 1660,1395 1715,1400', label: 'gRPC', lx: 1450, ly: 1250, color: C.cyan, intro: '5.2', src: 'k8saddons', dst: 'ceph_drv', frac: 0.66, end: [1715, 1400], ang: 8},
 };
 
 export type Ctx = {id: string; f: number; dur: number; zoom: number};
@@ -82,7 +82,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     if (!reached(c.id, e.intro)) return null;
     const introCh = phase(e.intro);
     const recap = chapter === 6;
-    const op = recap || introCh === chapter ? 1 : 0.26;
+    const focusOp = keys.length === 0 ? 1 : keys.includes(e.src) && keys.includes(e.dst) ? 1 : keys.includes(e.src) || keys.includes(e.dst) ? 0.35 : 0.15;
+    const op = recap ? 0.9 : introCh === chapter ? focusOp : 0.24;
     const draw = c.id === e.intro ? prog(c.f, c.dur * (e.frac ?? 0.18), c.dur * (e.frac ?? 0.18) + 30) : 1;
     if (draw <= 0.01) return null;
     return (

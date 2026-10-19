@@ -35,22 +35,22 @@ export const FOCUS: Record<string, string[]> = {
 };
 
 type Edge = {
-  d: string; label?: string; lx?: number; ly?: number; color: string; intro: string;
+  d: string; label?: string; lx?: number; ly?: number; color: string; intro: string; src: string; dst: string;
   dashed?: boolean; end: [number, number]; ang: number; packets?: boolean; noArrow?: boolean;
 };
 const EDGES: Record<string, Edge> = {
   // CSI extends into the add-ons spec (horizontal, inside the contracts region).
-  extends: {d: 'M860,260 L1445,260', label: 'extends', lx: 1152, ly: 260, color: C.purple, intro: '4.2', dashed: true, end: [1445, 260], ang: 0},
+  extends: {d: 'M860,260 L1445,260', label: 'extends', lx: 1152, ly: 260, color: C.purple, intro: '4.2', src: 'csi', dst: 'addons', dashed: true, end: [1445, 260], ang: 0},
   // The drivers implement CSI (vertical, contracts region down to vendor region).
-  implDrivers: {d: 'M580,345 C580,525 580,545 580,705', label: 'implements', lx: 580, ly: 530, color: C.blue, intro: '3.3', end: [580, 705], ang: 90},
+  implDrivers: {d: 'M580,345 C580,525 580,545 580,705', label: 'implements', lx: 580, ly: 530, color: C.blue, intro: '3.3', src: 'csi', dst: 'drivers', end: [580, 705], ang: 90},
   // Drivers implement the add-ons spec via a sidecar (wraps left around the CSI card).
-  implSidecar: {d: 'M1445,222 C900,128 230,128 230,430 C230,640 300,668 362,703', label: 'implements (via sidecar)', lx: 880, ly: 150, color: C.blue, intro: '4.3', dashed: true, end: [362, 703], ang: 62},
+  implSidecar: {d: 'M1445,222 C900,128 230,128 230,430 C230,640 300,668 362,703', label: 'implements (via sidecar)', lx: 880, ly: 150, color: C.blue, intro: '4.3', src: 'addons', dst: 'drivers', dashed: true, end: [362, 703], ang: 62},
   // kubernetes-csi-addons implements the add-ons spec (vertical).
-  implK8s: {d: 'M1730,345 C1730,525 1730,545 1730,705', label: 'implements', lx: 1730, ly: 530, color: C.blue, intro: '5.2', end: [1730, 705], ang: 90},
+  implK8s: {d: 'M1730,345 C1730,525 1730,545 1730,705', label: 'implements', lx: 1730, ly: 530, color: C.blue, intro: '5.2', src: 'addons', dst: 'k8saddons', end: [1730, 705], ang: 90},
   // The controller calls the driver sidecars over gRPC (horizontal, with packets).
-  grpc: {d: 'M1445,795 L865,795', label: 'calls gRPC to', lx: 1155, ly: 795, color: C.cyan, intro: '5.3', end: [865, 795], ang: 180, packets: true},
+  grpc: {d: 'M1445,795 L865,795', label: 'calls gRPC to', lx: 1155, ly: 795, color: C.cyan, intro: '5.3', src: 'k8saddons', dst: 'drivers', end: [865, 795], ang: 180, packets: true},
   // Ramen consumes kubernetes-csi-addons (vertical).
-  consumed: {d: 'M1730,885 L1730,1205', label: 'consumed by', lx: 1730, ly: 1045, color: C.green, intro: '6.2', end: [1730, 1205], ang: 90},
+  consumed: {d: 'M1730,885 L1730,1205', label: 'consumed by', lx: 1730, ly: 1045, color: C.green, intro: '6.2', src: 'k8saddons', dst: 'ramen', end: [1730, 1205], ang: 90},
 };
 
 export type Ctx = {id: string; f: number; dur: number; zoom: number};
@@ -71,7 +71,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     if (!reached(c.id, e.intro)) return null;
     const introCh = phase(e.intro);
     const recap = chapter === 7;
-    const op = recap || introCh === chapter ? 1 : 0.26;
+    const focusOp = keys.length === 0 ? 1 : keys.includes(e.src) && keys.includes(e.dst) ? 1 : keys.includes(e.src) || keys.includes(e.dst) ? 0.35 : 0.15;
+    const op = recap ? 0.9 : introCh === chapter ? focusOp : 0.24;
     const draw = c.id === e.intro ? prog(c.f, c.dur * 0.16, c.dur * 0.16 + 30) : 1;
     if (draw <= 0.01) return null;
     const pulse = c.id === '6.3' ? 0.7 + 0.3 * Math.sin(c.f / 9) : 1;
