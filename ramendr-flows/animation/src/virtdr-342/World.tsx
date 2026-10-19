@@ -62,7 +62,7 @@ export const CH: [string, number, string, string][] = [
 export const World: React.FC<{c: Ctx}> = ({c}) => {
   const keys = FOCUS[c.id] ?? [];
   const status = (key: string) => {
-    let v = '';
+    let v = key === 'vrg1' ? 'Primary · original active-site role' : '';
     for (const [beat, frac, k, value] of CH) if (k === key && reached(c.id, beat) && (c.id !== beat || c.f > c.dur * frac)) v = value;
     return v;
   };

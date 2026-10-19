@@ -12,7 +12,7 @@ beats:
   - id: '1.1'
     chapter: Cast of characters
     visual: Introduce the job of the glossary before showing domain names.
-    narration: 'First, meet the pieces. Some describe the application, some control disk copies, and some carry instructions between clusters. Each has one job. These short definitions will make the later arrows meaningful, so recovery does not look like a collection of unexplained names.'
+    narration: 'The hub is the control cluster. The spokes run workloads. A namespace groups related Kubernetes objects. Ramen is the recovery coordinator. Some resources describe the application, some control disk copies, and some carry instructions between sites. Each has one job. These short definitions make the later arrows meaningful rather than a collection of unexplained names.'
     evidence: [setup-doc, source-trace]
   - id: '1.2'
     chapter: Cast of characters

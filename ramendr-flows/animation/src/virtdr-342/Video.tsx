@@ -28,9 +28,15 @@ export const CLOCK:Record<string,string>={
   '4.1':'08:07:38','4.2':'08:07:38','4.3':'08:10:02','4.4':'08:10:02','4.5':'08:12:34','4.6':'08:12:34',
   '5.1':'08:10:02','5.2':'08:10:02','5.3':'08:10:02','5.4':'08:10:02','5.5':'08:21:59','5.6':'08:21:59',
   '6.1':'08:21:59','6.2':'08:21:59','6.3':'08:21:59','6.4':'08:21:59','6.5':'08:26:29','6.6':'08:26:29','6.7':'08:26:29','6.8':'08:26:29',
-  '7.1':'09:55:08','7.2':'09:55:08','7.3':'09:57:00','7.4':'10:00:00','7.5':'10:09:25','7.6':'10:12:29','7.7':'10:13:00',
-  '8.1':'10:13:00','8.2':'10:14:00','8.3':'10:14:00','8.4':'10:15:47','8.5':'10:15:47','8.6':'10:18:54','8.7':'10:19:00',
-  '9.1':'10:19:00','9.2':'10:19:00','9.3':'10:19:00',
+  '7.1':'09:55:08','7.2':'09:55:08','7.3':'09:55:08','7.4':'09:55:08','7.5':'10:09:25','7.6':'10:12:29','7.7':'10:13:00',
+  '8.1':'10:13:00','8.2':'10:14:00','8.3':'10:14:00','8.4':'10:15:47','8.5':'10:15:47','8.6':'10:18:54','8.7':'10:18:54',
+  '9.1':'10:18:54','9.2':'10:18:54','9.3':'10:18:54',
+};
+const CLOCK_LABELS:Record<string,string>={
+  '4.5':'~08:12:34','4.6':'~08:12:34',
+  '5.1':'08:10:02 (Initiate reference)','5.2':'08:10:02 (Initiate reference)',
+  '5.3':'08:10:02 (Initiate reference)','5.4':'08:10:02 (Initiate reference)',
+  '7.7':'~10:13','8.1':'~10:13','8.2':'~10:14','8.3':'~10:14',
 };
 const EVENTS_342:TEvent[]=[['07:58:06','oldest sync',C.amber],['08:07:38','suspend',C.red],['08:10:02','Initiate',C.blue],['08:21:59','Phase A checks',C.green],['09:55:08','resume',C.amber],['10:12:29','source disks removed',C.orange],['10:14:00','~Completed',C.green]];
 const SFX:Record<string,[number,string,number][]>={'0.1':[[.05,'type',.2],[.45,'whoosh',.2]],'3.4':[[.3,'tick',.18]],'4.2':[[.2,'alert',.2]],'4.4':[[.25,'click',.3]],'6.3':[[.5,'chime',.2]],'7.6':[[.4,'flip',.2]],'8.2':[[.4,'chime',.2]]};
@@ -56,7 +62,7 @@ export const VirtDr342:React.FC<{chapters:number[]}>=({chapters})=>{
   return <AbsoluteFill style={{background:`radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`,overflow:'hidden'}}>
     {ch>=2?<div style={{position:'absolute',transformOrigin:'0 0',transform:`translate(${cam.sx-cam.x*cam.z}px,${cam.sy-cam.y*cam.z}px) scale(${cam.z})`}}><World c={{id:b.id,f,dur:b.audio,zoom:cam.z}}/></div>:null}
     {seg.type==='beat'&&ch===1?<GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def}/>:null}
-    {seg.type==='beat'?<Hud chapter={b.chapter.title} clock={CLOCK[b.id]??null} ticket="VIRTDR-342"/>:null}
+    {seg.type==='beat'?<Hud chapter={b.chapter.title} clock={CLOCK_LABELS[b.id]??CLOCK[b.id]??null} ticket="VIRTDR-342"/>:null}
     {seg.type==='beat'&&ch>=2?<PhaseTracker current={ch-2} phases={PHASES_342}/>:null}
     {seg.type==='beat'&&b.id==='2.3'?<Legend appear={win(.04,.96)}/>:null}
     {seg.type==='beat'&&ch>=3?<TimelineBar now={CLOCK[b.id]??null} events={EVENTS_342}/>:null}
