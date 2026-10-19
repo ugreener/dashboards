@@ -59,4 +59,8 @@ The early review found four YAML-truncated analogies, a missing glossary recap v
 
 The evidence-claim review separately verified the namespace layout, disk identities, original FAIL, data verdicts and Phase A/Phase B boundary. Its requested corrections to approximate/reference clock labels, the source's initial role and introductory definitions were applied and rechecked.
 
-TypeScript compilation and the name audit pass. Narration has exactly 65 timing entries matching the beat sheet. All speech files use the fixed voice and 24 kHz mono audio. Final rendering and final-file codec, volume and spot-frame checks remain pending. No claim of having watched the complete video is made.
+TypeScript compilation and the name audit pass. Narration has exactly 65 timing entries matching the beat sheet. All speech files use the fixed voice and 24 kHz mono audio.
+
+The final MP4 has 94,107 video frames and a container duration of 1568.469 seconds, within 0.019 seconds of the 1568.45-second timeline. It is 1920x1080 at 60/1 fps, H.264 CRF 16 with yuv420p pixels and 48 kHz stereo AAC audio. The file is 259,442,924 bytes. Audio peak is -5.8 dB with no clipping. Mean volume is -28.6 dB, near the quiet end of the approximate target and 0.6 dB below its nominal lower boundary. No post-render audio remix or quality-setting change was applied.
+
+Two frames extracted from the final MP4 at 17:16.803 and 23:23.059 were inspected by a fresh image-review session. Both returned ALL CLEAR for content, layout, captions, screenshot identity and credentials. Visual checks are limited to reviewed stills and these final-file spot checks. The complete video was not watched end to end.
