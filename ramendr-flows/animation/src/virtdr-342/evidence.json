@@ -1,0 +1,163 @@
+[
+ {
+  "file": "01-baseline-hub-protectedapps-hammerdb-drpc-row.png",
+  "id": "1252681",
+  "size": 142188,
+  "created": "2026-10-19T08:22:00.343+0000",
+  "step": "baseline-hub-protectedapps-hammerdb-drpc-row"
+ },
+ {
+  "file": "02-baseline-hub-drstatus-popover.png",
+  "id": "1252682",
+  "size": 155736,
+  "created": "2026-10-19T08:22:02.636+0000",
+  "step": "baseline-hub-drstatus-popover"
+ },
+ {
+  "file": "03-baseline-hub-policies-dr-policy-15m.png",
+  "id": "1252683",
+  "size": 114567,
+  "created": "2026-10-19T08:22:04.697+0000",
+  "step": "baseline-hub-policies-dr-policy-15m"
+ },
+ {
+  "file": "04-baseline-vsa-a-replication-sessions.png",
+  "id": "1252684",
+  "size": 193578,
+  "created": "2026-10-19T08:22:06.557+0000",
+  "step": "baseline-vsa-a-replication-sessions"
+ },
+ {
+  "file": "05-baseline-vsa-b-replication-sessions.png",
+  "id": "1252685",
+  "size": 180627,
+  "created": "2026-10-19T08:22:08.425+0000",
+  "step": "baseline-vsa-b-replication-sessions"
+ },
+ {
+  "file": "06-initiate-hub-failover-action-menu.png",
+  "id": "1252686",
+  "size": 142238,
+  "created": "2026-10-19T08:22:10.319+0000",
+  "step": "initiate-hub-failover-action-menu"
+ },
+ {
+  "file": "07-initiate-hub-failover-dialog-spoke-0.png",
+  "id": "1252687",
+  "size": 139243,
+  "created": "2026-10-19T08:22:12.053+0000",
+  "step": "initiate-hub-failover-dialog-spoke-0"
+ },
+ {
+  "file": "08-failoverstate-hub-drpc-failedover-cleaningup-row.png",
+  "id": "1252688",
+  "size": 147599,
+  "created": "2026-10-19T08:22:13.847+0000",
+  "step": "failoverstate-hub-drpc-failedover-cleaningup-row"
+ },
+ {
+  "file": "09-failoverstate-hub-drstatus-popover.png",
+  "id": "1252689",
+  "size": 169936,
+  "created": "2026-10-19T08:22:15.912+0000",
+  "step": "failoverstate-hub-drstatus-popover"
+ },
+ {
+  "file": "10-cleanupgate-spoke-0-vrg-primary.png",
+  "id": "1252796",
+  "size": 183566,
+  "created": "2026-10-19T10:26:47.925+0000",
+  "step": "cleanupgate-spoke-0-vrg-primary"
+ },
+ {
+  "file": "11-cleanupgate-fleet-vrs-both-spokes.png",
+  "id": "1252797",
+  "size": 169579,
+  "created": "2026-10-19T10:26:50.389+0000",
+  "step": "cleanupgate-fleet-vrs-both-spokes"
+ },
+ {
+  "file": "12-cleanupgate-spoke-0-vr-datadisk-primary.png",
+  "id": "1252798",
+  "size": 155015,
+  "created": "2026-10-19T10:26:52.582+0000",
+  "step": "cleanupgate-spoke-0-vr-datadisk-primary"
+ },
+ {
+  "file": "13-cleanupgate-spoke-0-pvc-datadisk-bound.png",
+  "id": "1252799",
+  "size": 116913,
+  "created": "2026-10-19T10:26:54.530+0000",
+  "step": "cleanupgate-spoke-0-pvc-datadisk-bound"
+ },
+ {
+  "file": "14-before-delete-source-vm-fleet.png",
+  "id": "1252800",
+  "size": 131859,
+  "created": "2026-10-19T10:26:56.239+0000",
+  "step": "before-delete-source-vm-fleet"
+ },
+ {
+  "file": "15-after-delete-source-vm-fleet.png",
+  "id": "1252801",
+  "size": 115015,
+  "created": "2026-10-19T10:26:57.890+0000",
+  "step": "after-delete-source-vm-fleet"
+ },
+ {
+  "file": "16-before-delete-source-datavolumes-fleet.png",
+  "id": "1252802",
+  "size": 165238,
+  "created": "2026-10-19T10:26:59.823+0000",
+  "step": "before-delete-source-datavolumes-fleet"
+ },
+ {
+  "file": "17-after-delete-source-datavolumes-fleet.png",
+  "id": "1252803",
+  "size": 133307,
+  "created": "2026-10-19T10:27:01.656+0000",
+  "step": "after-delete-source-datavolumes-fleet"
+ },
+ {
+  "file": "18-after-cleanup-source-pvcs-fleet.png",
+  "id": "1252804",
+  "size": 143633,
+  "created": "2026-10-19T10:27:03.342+0000",
+  "step": "after-cleanup-source-pvcs-fleet"
+ },
+ {
+  "file": "19-completed-hub-drpc-failedover-completed-row.png",
+  "id": "1252805",
+  "size": 139774,
+  "created": "2026-10-19T10:27:05.079+0000",
+  "step": "completed-hub-drpc-failedover-completed-row"
+ },
+ {
+  "file": "20-completed-hub-drstatus-popover.png",
+  "id": "1252806",
+  "size": 153169,
+  "created": "2026-10-19T10:27:06.830+0000",
+  "step": "completed-hub-drstatus-popover"
+ },
+ {
+  "file": "21-completed-spoke-1-vrg-secondary-fleet.png",
+  "id": "1252807",
+  "size": 176324,
+  "created": "2026-10-19T10:27:09.018+0000",
+  "step": "completed-spoke-1-vrg-secondary-fleet"
+ },
+ {
+  "file": "22-completed-vsa-a-replication-reversed.png",
+  "id": "1252808",
+  "size": 186199,
+  "created": "2026-10-19T10:27:11.028+0000",
+  "step": "completed-vsa-a-replication-reversed"
+ },
+ {
+  "file": "23-completed-vsa-b-replication-reversed.png",
+  "id": "1252809",
+  "size": 203412,
+  "created": "2026-10-19T10:27:13.052+0000",
+  "step": "completed-vsa-b-replication-reversed"
+ }
+]

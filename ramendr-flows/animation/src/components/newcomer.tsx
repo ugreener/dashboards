@@ -9,9 +9,10 @@ export type Rect = {x: number; y: number; w: number; h: number};
  * Historical run screenshot in a browser-style frame on the right half of the screen.
  * `a` 0..1 slide-in/out, `z` 0..1 slow zoom toward `focus` (image pixels, 1920x1080 source).
  */
-export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a: number; z: number; x?: number; y?: number; w?: number; date?: string}> = ({
+export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a: number; z: number; x?: number; y?: number; w?: number; date?: string; sourceLabel?: string}> = ({
   src,
   date = '2026-10-07',
+  sourceLabel = 'hub console · historical capture',
   focus,
   caption,
   a,
@@ -54,7 +55,7 @@ export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a
         <span style={{width: 11, height: 11, borderRadius: 6, background: C.red}} />
         <span style={{width: 11, height: 11, borderRadius: 6, background: C.amber}} />
         <span style={{width: 11, height: 11, borderRadius: 6, background: C.green}} />
-        <span style={{marginLeft: 14, fontFamily: mono, fontSize: 15, color: C.faint}}>hub console · historical capture</span>
+        <span style={{marginLeft: 14, fontFamily: mono, fontSize: 15, color: C.faint}}>{sourceLabel}</span>
       </div>
       <div style={{position: 'relative', width: w, height: h, overflow: 'hidden'}}>
         <div style={{position: 'absolute', left: 0, top: 0, width: IW, height: IH, transformOrigin: '0 0', transform: `scale(${k}) translate(${tx}px, ${ty}px) scale(${s})`}}>
