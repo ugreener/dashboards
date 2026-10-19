@@ -88,6 +88,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     })}
     <svg width={2480} height={1380} style={{position:'absolute',left:0,top:0,pointerEvents:'none'}}>
       <defs><marker id="tip342" markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill={C.cyan}/></marker></defs>
+      {chapter>=4&&chapter<=7?[1370,1510,1650,1870,2010,2150].map((x,i)=><g key={x} opacity={frozen?1:.55}><rect x={x-35} y={696} width={70} height={32} rx={7} fill={frozen?`${C.red}44`:`${C.green}33`} stroke={frozen?C.red:C.green} strokeWidth={2}/><text x={x} y={719} textAnchor="middle" fill={C.text} fontSize={16} fontFamily={sans}>{i<3?'master':'worker'}</text></g>):null}
       {c.id==='2.2'?arrow('drpc','vrg0','ManifestWork delivers instructions',C.cyan,0):null}
       {c.id==='2.3'?<g opacity={prog(c.f,c.dur*.15,c.dur*.15+25)}>
         <path d="M1530,682 L1530,710 L2110,710 L2110,682" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#tip342)"/>
