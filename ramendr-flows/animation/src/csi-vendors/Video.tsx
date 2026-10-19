@@ -29,6 +29,7 @@ const fit = (id: string): Cam => {
     if (rk && TOPMOST[rk] === key) {
       const reg = REGIONS.find((g) => g.key === rk)!;
       y0 = Math.min(y0, reg.b.y - 30);
+      x0 = Math.min(x0, reg.b.x + 20);
     }
   }
   x0 -= 60; x1 += 60; y1 += 70;

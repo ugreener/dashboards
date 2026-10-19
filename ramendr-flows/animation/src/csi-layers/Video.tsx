@@ -26,11 +26,12 @@ const fit = (id: string): Cam => {
     const r = RECT[key];
     if (!r) continue;
     x0 = Math.min(x0, r[0]); y0 = Math.min(y0, r[1]); x1 = Math.max(x1, r[0] + r[2]); y1 = Math.max(y1, r[1] + r[3]);
-    // Pull the enclosing region header into frame when the card is topmost in its region.
+    // Pull the enclosing region header pill into frame when the card is topmost in its region.
     const rk = REGION_OF[key];
     if (rk && TOPMOST[rk] === key) {
       const reg = REGIONS.find((g) => g.key === rk)!;
       y0 = Math.min(y0, reg.b.y - 30);
+      x0 = Math.min(x0, reg.b.x + 20);
     }
   }
   x0 -= 60; x1 += 60; y1 += 70;
