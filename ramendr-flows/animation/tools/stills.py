@@ -45,16 +45,18 @@ def main():
     ap.add_argument("--chapters", default="")
     ap.add_argument("--beats", default="")
     ap.add_argument("--fracs", default="0.2,0.55,0.9")
+    ap.add_argument("--out-dir", default="out", help="separate output directory for this review round")
     a = ap.parse_args()
     chapters = [int(x) for x in a.chapters.split(",") if x]
     beats = {x for x in a.beats.split(",") if x}
     fracs = [float(x) for x in a.fracs.split(",")]
-    sd, hd = os.path.join(ROOT, "out", "stills"), os.path.join(ROOT, "out", "sheets")
+    output = os.path.join(ROOT, a.out_dir)
+    sd, hd = os.path.join(output, "stills"), os.path.join(output, "sheets")
     os.makedirs(sd, exist_ok=True)
     os.makedirs(hd, exist_ok=True)
     # Frames are always counted over the full timeline: use the full composition.
     todo = [(bid, fr, n, os.path.join(sd, f"{bid}_{fr}.png")) for bid, fr, n in frames(a.ticket, chapters, beats, fracs)]
-    job = os.path.join(ROOT, "out", "still_job.json")
+    job = os.path.join(output, "still_job.json")
     json.dump({"comp": a.comp, "shots": [{"frame": n, "out": p} for _, _, n, p in todo]}, open(job, "w"))
     r = subprocess.run(["node", "tools/still_batch.mjs", job], cwd=ROOT, capture_output=True, text=True)
     if r.returncode != 0:
