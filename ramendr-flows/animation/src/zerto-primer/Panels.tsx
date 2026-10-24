@@ -21,13 +21,13 @@ const GLOSSARY: [string, string, string, string][] = [
   ['VolumeReplicationGroup', 'dell-vm-drpc', 'storage', 'all disks of one app'],
   ['DRPolicy', 'dr-policy-15m', 'DR control', 'clusters and interval'],
   ['DRPlacementControl', 'dell-vm-drpc', 'DR control', 'the per-app request'],
+  ['PlacementDecision', 'dell-vm-placement-decision-1', 'DR control', 'the chosen cluster'],
   ['Placement', 'dell-vm-placement', 'DR control', 'the selection rule'],
   ['ManifestWork', 'dell-vm-drpc-gitops-vms-vrg-mw', 'delivery', 'the hub-to-spoke envelope'],
   ['Bucket', 'ramen-metadata', 'delivery', 'the PV and PVC notebook'],
   ['ApplicationSet', 'dell-vm-workload', 'GitOps', 'the template per cluster'],
   ['Application', 'dell-vm-workload-spoke-0', 'GitOps', 'what Argo CD syncs'],
   ['Backup', 'OADP + Velero', 'GitOps', 'Kubernetes object backup'],
-  ['Pod', 'virt-launcher', 'workload', 'the VM process'],
 ];
 const GCOL: Record<string, string> = {workload: C.green, storage: C.amber, 'DR control': C.orange, delivery: C.cyan, GitOps: C.pink};
 
@@ -57,7 +57,7 @@ export const GlossaryScene: React.FC<PP & {card?: {kind: string; name: string; r
               appear={a}
               hl={hl}
               color={GCOL[g]}
-              nameSize={n.length > 30 ? 16 : 18}
+              nameSize={n.length > 26 ? 15 : 18}
             />
           );
         })}
@@ -69,7 +69,7 @@ export const GlossaryScene: React.FC<PP & {card?: {kind: string; name: string; r
       <div style={{position: 'absolute', inset: 0, opacity: enter}}>
         <div style={{position: 'absolute', left: 0, right: 0, top: 300, textAlign: 'center'}}>
           <div style={{fontFamily: sans, fontSize: 84, fontWeight: 800, color: C.text}}>Cast of characters</div>
-          <div style={{fontFamily: sans, fontSize: 30, color: C.dim, marginTop: 20}}>Seventeen objects, one small job each. Green is the VM, amber is storage, orange is DR control, cyan is delivery, pink is GitOps.</div>
+          <div style={{fontFamily: sans, fontSize: 30, color: C.dim, marginTop: 20}}>The objects in this story, one small job each. Green is the VM, amber is storage, orange is DR control, cyan is delivery, pink is GitOps.</div>
           <div style={{display: 'flex', justifyContent: 'center', gap: 26, marginTop: 60}}>
             {Object.entries(GCOL).map(([g, col]) => (
               <div key={g} style={{fontFamily: mono, fontSize: 22, color: col, border: `2px solid ${col}`, borderRadius: 999, padding: '10px 24px', background: `${col}14`}}>{g}</div>
@@ -83,9 +83,9 @@ export const GlossaryScene: React.FC<PP & {card?: {kind: string; name: string; r
   return (
     <div style={{position: 'absolute', inset: 0, opacity: enter}}>
       <div style={{position: 'absolute', left: 110, top: 125, fontFamily: mono, fontSize: 18, letterSpacing: 3, color: C.purple}}>
-        CAST OF CHARACTERS · {id.split('.')[1]} OF 17
+        CAST OF CHARACTERS · {id.split('.')[1]}
       </div>
-      <Card x={110} y={250} w={660} kind={card.kind} name={card.name} role={card.role} appear={prog(f, -10, 30)} hl={0.6} nameSize={34} />
+      <Card x={110} y={250} w={660} kind={card.kind} name={card.name} role={card.role} appear={prog(f, -10, 30)} hl={0.6} nameSize={card.name.length > 26 ? 28 : 34} />
       <GlossaryPanel d={def} p={prog(f, dur * 0.05, dur * 0.8)} x={860} y={240} w={980} />
     </div>
   );
@@ -116,16 +116,18 @@ const Box: React.FC<{a: number; x: number; y: number; w: number; h: number; titl
 export const CompareScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
   const n = Number(id.split('.')[1]);
   const reveal = (k: number) => prog(f, dur * (0.06 + k * 0.08), dur * (0.06 + k * 0.08) + 20);
-  const showTable = n >= 5 && n <= 7;
+  const showTable = n === 5 || n === 7;
   const showScale = n === 6;
   const showOptions = n === 8;
   const showRecap = n === 9;
   const rows: [string, string, string][] = [
     ['Unit of protection', 'VM on an ESXi host', 'VirtualMachine in a namespace'],
-    ['Where writes are seen', 'Hypervisor I/O, via the VRA', 'QEMU block device or CSI volume'],
+    ['Where writes are seen', 'Hypervisor I/O, via the VRA', 'QEMU block device or storage layer'],
     ['Replication', 'Per-VM journal on the target', 'Per-volume array session'],
-    ['RPO', 'Seconds, near-synchronous', 'Minutes, set by the policy'],
+    ['RPO', 'Seconds, as publicly described', 'Minutes, set by the policy'],
     ['Metadata', 'Inside the VPG and journal', 'PV/PVC in S3, objects in OADP'],
+    ['Control plane', 'vCenter and Zerto manager', 'Kubernetes API and ACM'],
+    ['Migration', 'vMotion and storage vMotion', 'Live migration and volume migration'],
     ['Orchestration', 'VPG, VRA, Zerto manager', 'DRPC, VRG, Placement, Argo CD'],
   ];
   return (
@@ -206,15 +208,15 @@ export const CompareScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
 
       {showOptions ? (
         <div style={{position: 'absolute', left: 100, top: 520, width: 1720}}>
-          <div style={{fontFamily: mono, fontSize: 22, color: C.text, marginBottom: 18}}>Two places a journal can live on OpenShift</div>
+          <div style={{fontFamily: mono, fontSize: 22, color: C.text, marginBottom: 18}}>Two candidate capture points, neither a supported Zerto integration today</div>
           <div style={{display: 'flex', gap: 40}}>
             <div style={{flex: 1, border: `2px solid ${C.cyan}`, borderRadius: 14, padding: 24, background: `${C.cyan}10`}}>
-              <div style={{fontFamily: mono, fontSize: 25, color: C.cyan}}>A. Between CSI and the array</div>
-              <div style={{fontSize: 21, color: C.dim, marginTop: 10, lineHeight: 1.4}}>Sees block writes. No guest agent. Must integrate with the CSI driver and the array, and it must handle RWO attach and NQN identity.</div>
+              <div style={{fontFamily: mono, fontSize: 25, color: C.cyan}}>A. At the storage layer</div>
+              <div style={{fontSize: 21, color: C.dim, marginTop: 10, lineHeight: 1.4}}>A driver or array integration could capture block changes. CSI alone does not expose every guest write. Requires separate engineering and support validation.</div>
             </div>
             <div style={{flex: 1, border: `2px solid ${C.purple}`, borderRadius: 14, padding: 24, background: `${C.purple}10`}}>
               <div style={{fontFamily: mono, fontSize: 25, color: C.purple}}>B. Inside the guest</div>
-              <div style={{fontSize: 21, color: C.dim, marginTop: 10, lineHeight: 1.4}}>Sees application writes and can quiesce the database. Needs an agent in every guest, and it must survive a guest that does not boot.</div>
+              <div style={{fontSize: 21, color: C.dim, marginTop: 10, lineHeight: 1.4}}>An agent can quiesce an application only if it integrates with that application. It must run in every guest and survive a guest that does not boot.</div>
             </div>
           </div>
         </div>
@@ -233,10 +235,10 @@ export const CompareScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
 const STEPS: [string, string][] = [
   ['Discover the workload', 'Watch VirtualMachine, VirtualMachineInstance, DataVolume, PVC, and the owning Application. Map every VM to its disks and namespace.'],
   ['Choose the data path', 'CSI snapshots for point-in-time copies, CSI replication for continuous copies, or a data-path component for a journal.'],
-  ['Store metadata outside the cluster', 'VM spec, PVC and PV definitions, Service, and references to Secrets. Never copy Secret values into Git.'],
+  ['Store metadata outside the cluster', 'VM spec, PVC and PV definitions, Service, and references to Secrets. Never copy Secret values into Git. Encrypt the store and restrict access.'],
   ['Orchestrate placement', 'Use ACM Placement with a DRPC-like object, or integrate with Ramen. Promote the disk before the VM starts.'],
   ['Fix the restore order', 'Ensure namespace and prerequisites, promote disks, recover PV/PVC bindings, restore or deploy VM definitions, then start and verify.'],
-  ['Handle guest and network', 'Freeze and unfreeze for consistency, re-IP or re-DNS on the target, and verify unattended startup.'],
+  ['Handle guest and network', 'Quiesce with application hooks or VSS before a snapshot, re-IP or re-DNS on the target, and verify unattended startup.'],
   ['Test the guarantees', 'Measure last sync, run a test failover, verify recovered rows, then test cleanup and the reverse path.'],
 ];
 
@@ -270,8 +272,8 @@ export const BlueprintScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
           <div style={{display: 'flex', gap: 30, marginTop: 20}}>
             {[
               ['Shared-storage migration is unavailable here', 'Other storage-migration paths require version and configuration validation.'],
-              ['Cleanup order matters', 'VM, then DataVolumes, then PVCs. Delete the DV first, not the PVC.'],
-              ['Finalizers can wedge', 'A stuck pvc-vr-protection finalizer blocks the source VRG.'],
+              ['Cleanup order matters', 'Delete the VM and DataVolumes only after the target is protected. Never delete a PVC to reset it: a new PVC is a new, empty disk.'],
+              ['Finalizers can wedge', 'A stuck pvc-vr-protection finalizer can block source cleanup.'],
               ['Green can hide a skip', 'One disk can skip a sync while the session still says OK.'],
             ].map(([h, d]) => (
               <div key={h} style={{flex: 1}}>
@@ -292,7 +294,7 @@ export const BlueprintScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
 };
 
 /** YAML excerpts and small side panels. */
-export const PANEL_BEATS = new Set(['7.4', '9.5']);
+export const PANEL_BEATS = new Set(['7.4', '8.10', '9.5', '12.3', '12.4']);
 
 export const BeatPanel: React.FC<PP & {id: string}> = ({id, f, dur}) => {
   const w = (a: number, b: number) => win(f, dur, a, b);
@@ -341,12 +343,67 @@ export const BeatPanel: React.FC<PP & {id: string}> = ({id, f, dur}) => {
             '    matchLabels:',
             '      drprotection: "true"',
             '  # no protectedNamespaces:',
-            '  # Ramen owns this app and cleans it up',
-            '  # on the source after promotion',
+            '  # Argo CD owns this app and removes it',
+            '  # from the source after the placement moves',
             '  drPolicyRef:',
             '    name: dr-policy-15m',
           ]}
         />
+      );
+    case '8.10':
+      return (
+        <div style={{position: 'absolute', left: 980, top: 190, width: 860, opacity: w(0.04, 0.97)}}>
+          <div style={{fontFamily: mono, fontSize: 20, letterSpacing: 2, color: C.purple}}>DATA VERDICT</div>
+          <div style={{fontFamily: sans, fontSize: 34, fontWeight: 800, color: C.text, marginTop: 12}}>The DRPC does not measure data loss</div>
+          <div style={{marginTop: 26, border: `2px solid ${C.border}`, borderRadius: 14, overflow: 'hidden'}}>
+            {[
+              ['Baseline', 'row counts or checksums captured at a known time'],
+              ['Last sync', 'the completed sync before Initiate'],
+              ['Recovered', 'the same counts on the target'],
+              ['Verdict', 'delta must fit inside the RPO, not the badge'],
+            ].map(([k, v], i) => (
+              <div key={k} style={{display: 'flex', gap: 20, padding: '18px 22px', borderTop: i ? `1px solid ${C.border}` : 'none', background: i % 2 ? `${C.panel}88` : 'transparent', opacity: prog(f, dur * (0.08 + i * 0.12), dur * (0.08 + i * 0.12) + 18)}}>
+                <div style={{flex: 'none', width: 160, fontFamily: mono, fontSize: 20, color: C.amber}}>{k}</div>
+                <div style={{fontSize: 20, color: C.dim, lineHeight: 1.35}}>{v}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    case '12.3':
+      return (
+        <div style={{position: 'absolute', left: 980, top: 190, width: 860, opacity: w(0.04, 0.97)}}>
+          <div style={{fontFamily: mono, fontSize: 20, letterSpacing: 2, color: C.green}}>READINESS GATE</div>
+          <div style={{fontFamily: sans, fontSize: 34, fontWeight: 800, color: C.text, marginTop: 12}}>Before you press Failover</div>
+          <div style={{marginTop: 24}}>
+            {['Versions pinned', 'Policy validated', 'Both clusters reachable', 'Every disk synced within RPO', 'Application writer active', 'Baseline captured', 'Target capacity reserved'].map((t, i) => (
+              <div key={t} style={{display: 'flex', alignItems: 'center', gap: 16, padding: '10px 0', opacity: prog(f, dur * (0.08 + i * 0.09), dur * (0.08 + i * 0.09) + 16)}}>
+                <div style={{width: 26, height: 26, borderRadius: 6, border: `2px solid ${C.green}`, background: `${C.green}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: mono, fontSize: 18, color: C.green}}>✓</div>
+                <div style={{fontFamily: mono, fontSize: 22, color: C.text}}>{t}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    case '12.4':
+      return (
+        <div style={{position: 'absolute', left: 980, top: 190, width: 860, opacity: w(0.04, 0.97)}}>
+          <div style={{fontFamily: mono, fontSize: 20, letterSpacing: 2, color: C.amber}}>MEASURE THREE THINGS</div>
+          <div style={{fontFamily: sans, fontSize: 34, fontWeight: 800, color: C.text, marginTop: 12}}>Not one of them is a green badge</div>
+          <div style={{marginTop: 28, display: 'flex', flexDirection: 'column', gap: 18}}>
+            {[
+              ['RPO', 'Last completed sync', 'The gap before the failure sets the exposure.', C.amber],
+              ['RTO', 'Click to first write', 'The first successful application write ends the clock.', C.green],
+              ['Data loss', 'Recovered rows', 'Compare against the baseline at the last known sync.', C.red],
+            ].map(([k, h, d, col], i) => (
+              <div key={k as string} style={{borderLeft: `6px solid ${col as string}`, padding: '14px 20px', background: `${col as string}10`, opacity: prog(f, dur * (0.08 + i * 0.16), dur * (0.08 + i * 0.16) + 18)}}>
+                <div style={{fontFamily: mono, fontSize: 19, color: col as string}}>{k}</div>
+                <div style={{fontFamily: mono, fontSize: 27, color: C.text, marginTop: 4}}>{h}</div>
+                <div style={{fontSize: 19, color: C.dim, marginTop: 6}}>{d}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       );
     default:
       return null;
@@ -375,7 +432,7 @@ export const ClosingCard: React.FC<PP> = ({f, dur}) => {
     >
       <div style={{fontSize: 20, letterSpacing: 3, color: C.green, fontWeight: 700}}>THREE THINGS TO REMEMBER</div>
       {[
-        ['A VM is a pod with a disk.', 'KubeVirt puts QEMU in a pod and the disk on a CSI volume.'],
+        ['A VM runs in a pod, with a disk.', 'KVM and QEMU run in a pod, and the disk is a CSI volume.'],
         ['DR is a chain, not a copy.', 'Blocks, Kubernetes objects, placement, and guest recovery.'],
         ['Measure the sync, not the badge.', 'The last completed sync sets the RPO. The first new write sets the RTO.'],
       ].map(([h, d], i) => (

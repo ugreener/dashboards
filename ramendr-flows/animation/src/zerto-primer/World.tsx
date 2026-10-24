@@ -40,7 +40,7 @@ export const CARDS: Record<string, CardDef> = {
   sc: {x: 1360, y: 200, w: 320, kind: 'StorageClass', name: 'powerstore-sc', role: 'block volumes from the array', enter: ['3.1', 0.1]},
   csi: {x: 1720, y: 200, w: 320, kind: 'CSIDriver', name: 'csi-powerstore.dellemc.com', role: 'talks to the PowerStore API', enter: ['3.1', 0.2]},
   pv: {x: 2080, y: 200, w: 400, kind: 'PersistentVolume', name: 'csivol-<id>', role: 'the array volume as a K8s object', enter: ['3.1', 0.3]},
-  vsaa: {x: 1360, y: 400, w: 320, kind: 'ReplicationSession', name: 'VSA-A', role: 'array serving the home cluster', enter: ['3.1', 0.4]},
+  vsaa: {x: 1360, y: 400, w: 320, kind: 'ReplicationSession', name: 'VSA-A', role: 'array for the first site', enter: ['3.1', 0.4]},
   vr: {x: 1720, y: 400, w: 320, kind: 'VolumeReplication', name: 'hammerdb-rhel9-rootdisk', role: 'replicate, promote, demote', enter: ['3.1', 0.55]},
   vrc: {x: 2080, y: 400, w: 400, kind: 'VolumeReplicationClass', name: 'powerstore-vrc-15m', role: 'async, every 15 minutes', enter: ['3.1', 0.65]},
   vsab: {x: 1360, y: 640, w: 320, kind: 'ReplicationSession', name: 'VSA-B', role: 'array serving the second site', enter: ['3.1', 0.75]},
@@ -220,7 +220,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
   return (
     <div style={{position: 'relative', width: WORLD[2], height: WORLD[3], fontFamily: sans}}>
-      <Region b={{x: SITE[0], y: SITE[1], w: SITE[2], h: SITE[3]}} title="OpenShift cluster" sub="home: spoke-0" color={C.spoke0} />
+      <Region b={{x: SITE[0], y: SITE[1], w: SITE[2], h: SITE[3]}} title="OpenShift cluster" sub="one spoke, drawn as an example" color={C.spoke0} />
       <Region b={{x: STORAGE[0], y: STORAGE[1], w: STORAGE[2], h: STORAGE[3]}} title="Storage and replication" sub="Dell PowerStore VSA" color={C.array} />
       <Region b={{x: HUB[0], y: HUB[1], w: HUB[2], h: HUB[3]}} title="Hub" sub="ACM + RamenDR" color={C.hub} />
       <Region b={{x: META[0], y: META[1], w: META[2], h: META[3]}} title="Metadata and backup" sub="S3 + OADP" color={C.s3} />

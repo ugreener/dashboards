@@ -173,16 +173,16 @@
  "1.13": {
   "chapter": "Cast of characters",
   "card": {
-   "kind": "Placement",
-   "name": "dell-vm-placement",
-   "role": "the rule for choosing a cluster"
+   "kind": "PlacementDecision",
+   "name": "dell-vm-placement-decision-1",
+   "role": "the cluster that was chosen"
   },
   "def": {
-   "what": "An ACM object that defines how a cluster is selected.",
-   "creator": "The application owner.",
-   "reader": "The placement controller and the ApplicationSet generator.",
-   "where": "The hub, in the Argo CD namespace for managed apps.",
-   "analogy": "A hiring rule, not the hired person."
+   "what": "The placement result: one entry naming the cluster that should run the application.",
+   "creator": "Ramen, when it updates placement for a protected application.",
+   "reader": "The ApplicationSet generator and the DR controllers.",
+   "where": "The hub, in the same namespace as its Placement.",
+   "analogy": "The assignment letter that follows the hiring rule."
   }
  },
  "1.14": {
@@ -272,7 +272,7 @@
    "w": 1180,
    "h": 320
   },
-  "caption": "VirtualMachine conditions. Ready and DataVolumesReady are true, and LiveMigratable is false because the disks are not shared."
+  "caption": "VirtualMachine conditions. Ready and DataVolumesReady are true. LiveMigratable is false in this lab because the disks are not shared."
  },
  "2.7": {
   "chapter": "A VM is a pod",
@@ -388,10 +388,26 @@
   "chapter": "The orchestration layer"
  },
  "7.2": {
-  "chapter": "The orchestration layer"
+  "chapter": "The orchestration layer",
+  "screenshot": "05-dr-overview.png",
+  "focus": {
+   "x": 250,
+   "y": 300,
+   "w": 1300,
+   "h": 600
+  },
+  "caption": "The hub disaster recovery overview: policy creation, application enrollment, and monitoring in one console."
  },
  "7.3": {
-  "chapter": "The orchestration layer"
+  "chapter": "The orchestration layer",
+  "screenshot": "09-dr-policies.png",
+  "focus": {
+   "x": 300,
+   "y": 380,
+   "w": 1250,
+   "h": 380
+  },
+  "caption": "The live policy list: dr-policy-15m is Validated for both clusters, async, interval 15m, with 4 connected applications."
  },
  "7.4": {
   "chapter": "The orchestration layer"

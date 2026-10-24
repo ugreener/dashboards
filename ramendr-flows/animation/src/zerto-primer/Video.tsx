@@ -120,10 +120,10 @@ const ColdOpen: React.FC<{f: number; dur: number}> = ({f, dur}) => {
         <text x={735} y={645} textAnchor="middle" fill={C.dim} fontFamily={mono} fontSize={16}>libvirt</text>
         <rect x={980} y={560} width={230} height={120} rx={14} fill={`${C.array}14`} stroke={C.array} strokeWidth={2.5} />
         <text x={1095} y={605} textAnchor="middle" fill={C.array} fontFamily={mono} fontSize={22} fontWeight={600}>VSA-A</text>
-        <text x={1095} y={638} textAnchor="middle" fill={C.dim} fontFamily={mono} fontSize={17}>source volume</text>
+        <text x={1095} y={638} textAnchor="middle" fill={C.dim} fontFamily={mono} fontSize={17}>array volume</text>
         <rect x={1330} y={560} width={230} height={120} rx={14} fill={`${C.array}14`} stroke={C.array} strokeWidth={2.5} />
         <text x={1445} y={605} textAnchor="middle" fill={C.array} fontFamily={mono} fontSize={22} fontWeight={600}>VSA-B</text>
-        <text x={1445} y={638} textAnchor="middle" fill={C.dim} fontFamily={mono} fontSize={17}>replica volume</text>
+        <text x={1445} y={638} textAnchor="middle" fill={C.dim} fontFamily={mono} fontSize={17}>replica copy</text>
         <line x1={1210} y1={620} x2={1330} y2={620} stroke={C.array} strokeWidth={4} />
         <circle cx={1210 + 120 * pulse} cy={620} r={8} fill={C.array} style={{filter: `drop-shadow(0 0 10px ${C.array})`}} />
         <text x={1270} y={705} textAnchor="middle" fill={C.amber} fontFamily={mono} fontSize={16}>15m async</text>

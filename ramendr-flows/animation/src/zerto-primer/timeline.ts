@@ -6,7 +6,7 @@ export type Chapter = {n: number; title: string; sub?: string};
 export const CHAPTERS: Chapter[] = [
   {n: 0, title: 'Cold open'},
   {n: 1, title: 'Cast of characters', sub: 'Every object in this story, in plain words'},
-  {n: 2, title: 'A VM is a pod', sub: 'There is no hypervisor to log into'},
+  {n: 2, title: 'A VM is a pod', sub: 'Kubernetes manages the VM, KVM runs the guest'},
   {n: 3, title: 'The storage path', sub: 'PVC, PV, CSI driver, array volume'},
   {n: 4, title: 'The network path', sub: 'The guest IP is cluster-local'},
   {n: 5, title: 'What DR must rebuild', sub: 'Disk, objects, guest'},
