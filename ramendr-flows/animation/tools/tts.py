@@ -25,6 +25,30 @@ DEFAULT_PAUSE = 0.8  # seconds of silence after a beat unless beats.yaml sets pa
 # Exact-token replacements applied before generic rules (order matters: longest first).
 SPOKEN = {
     "VIRTDR-342": "VIRT D R three forty-two",
+    "VirtualMachineInstance": "Virtual Machine Instance",
+    "VirtualMachine": "Virtual Machine",
+    "VolumeReplicationGroup": "Volume Replication Group",
+    "VolumeReplicationClass": "Volume Replication Class",
+    "VolumeReplication": "Volume Replication",
+    "DataVolumes": "Data Volumes",
+    "DataVolume": "Data Volume",
+    "PlacementDecision": "Placement Decision",
+    "ApplicationSet": "Application Set",
+    "virt-launcher": "virt launcher",
+    "virt-controller": "virt controller",
+    "virt-handler": "virt handler",
+    "VMware": "V M ware",
+    "vSphere": "v Sphere",
+    "ESXi": "E S X i",
+    "VRA": "V R A",
+    "VPG": "V P G",
+    "q66lw": "q sixty six L W",
+    "PowerStore": "Power Store",
+    "RPOs": "R P Os",
+    "RWO": "R W O",
+    "DRPolicy": "D R Policy",
+    "DRCluster": "D R Cluster",
+    "DRPlacementControl": "D R Placement Control",
     "VIRTDR-333": "VIRT D R three thirty-three",
     "ManagedClusterLeaseUpdateStopped": "Managed Cluster Lease Update Stopped",
     "RetainedForFailover": "Retained For Failover",
@@ -121,7 +145,7 @@ SPOKEN = {
 NO_SPLIT = {"OpenShift", "PowerStore", "GitOps", "KubeVirt", "NetApp"}
 ACRONYMS = {"DRPC", "VRG", "VRGs", "PVC", "PVCs", "PV", "PVs", "VMI", "VM", "VMs",
              "UTC", "RPO", "ACM", "CSI", "TCP", "OS", "API", "DR", "YAML", "ID", "OCP", "CDI", "SSH",
-             "CNCF", "RBD", "CSM", "USB"}
+             "CNCF", "RBD", "CSM", "USB", "RTO", "DNS", "LUN", "OADP", "RWO", "OS", "IP"}
 
 
 def split_camel(word: str) -> str:
@@ -156,7 +180,6 @@ def time_words(m: re.Match) -> str:
 
 def speakable(text: str) -> str:
     t = " ".join(text.split())
-    t = re.sub(r"\ba (RHEL|VRG|VM|PVC|S3)\b", r"an \1", t)
     t = re.sub(r"\b(\d{1,2}):(\d{2})(?::(\d{2}))?\b", time_words, t)
     for k in sorted(SPOKEN, key=len, reverse=True):
         t = re.sub(r"(?<![\w-])" + re.escape(k) + r"(?![\w-])", SPOKEN[k], t)

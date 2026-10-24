@@ -1,0 +1,560 @@
+{
+ "0.1": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "Cast of characters"
+ },
+ "1.2": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Pod",
+   "name": "virt-launcher-hammerdb-rhel9-q66lw",
+   "role": "the sandbox that runs the VM process on one node"
+  },
+  "def": {
+   "what": "The smallest unit Kubernetes schedules: one or more containers that share a network address.",
+   "creator": "The KubeVirt controller creates it for a running VM.",
+   "reader": "The kubelet and the scheduler.",
+   "where": "A worker node, in the workload namespace.",
+   "analogy": "A shipping container on a specific truck."
+  }
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VirtualMachine",
+   "name": "hammerdb-rhel9",
+   "role": "the desired state: this VM should exist"
+  },
+  "def": {
+   "what": "The management object that records the VM hardware, disks, and power intent.",
+   "creator": "A user, Git, or an Application.",
+   "reader": "The virt-controller.",
+   "where": "The workload namespace on a spoke.",
+   "analogy": "A saved recipe, not the meal."
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VirtualMachineInstance",
+   "name": "hammerdb-rhel9",
+   "role": "one running copy of the VM"
+  },
+  "def": {
+   "what": "The live instance created from a VirtualMachine template.",
+   "creator": "The virt-controller, when the VM should run.",
+   "reader": "The scheduler, virt-handler, and the console.",
+   "where": "The workload namespace, pinned to a node.",
+   "analogy": "The meal that is actually cooking."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Pod",
+   "name": "virt-launcher",
+   "role": "the pod that runs libvirt and QEMU"
+  },
+  "def": {
+   "what": "A per-VM pod whose compute container runs libvirt and QEMU.",
+   "creator": "The virt-controller, from the VMI.",
+   "reader": "virt-handler and the kubelet.",
+   "where": "The worker node selected for the VMI.",
+   "analogy": "The engine room of the VM."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DataVolume",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "a PVC plus a recipe to fill it"
+  },
+  "def": {
+   "what": "A CDI object that creates a PVC and fills it by import, clone, or a blank disk.",
+   "creator": "The VM template or a user.",
+   "reader": "CDI and the virt-controller.",
+   "where": "The workload namespace.",
+   "analogy": "A disk order that also includes the copying service."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PersistentVolumeClaim",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "the request, bound one to one with a PV"
+  },
+  "def": {
+   "what": "A workload's request for storage, bound to a PersistentVolume.",
+   "creator": "The DataVolume, or a user.",
+   "reader": "The pod, the scheduler, and the CSI driver.",
+   "where": "The workload namespace.",
+   "analogy": "A claim ticket for a specific locker."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "StorageClass",
+   "name": "powerstore-sc",
+   "role": "the recipe the CSI driver follows"
+  },
+  "def": {
+   "what": "A named provisioning recipe, backed by a CSI driver.",
+   "creator": "The storage administrator.",
+   "reader": "The PVC controller and the CSI driver.",
+   "where": "Cluster scope.",
+   "analogy": "A menu entry that tells the kitchen what to make."
+  }
+ },
+ "1.9": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplication",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "per-disk replicate, promote, demote"
+  },
+  "def": {
+   "what": "A csi-addons object that tells the driver to replicate one volume.",
+   "creator": "The VolumeReplicationGroup.",
+   "reader": "The csi-addons controller and the storage driver.",
+   "where": "The workload namespace.",
+   "analogy": "A standing order for one specific disk."
+  }
+ },
+ "1.10": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationGroup",
+   "name": "dell-vm-drpc",
+   "role": "all the protected disks of one application"
+  },
+  "def": {
+   "what": "A Ramen object that groups the protected PVCs and their replication state.",
+   "creator": "The DRPlacementControl, delivered by a ManifestWork.",
+   "reader": "Ramen on the spoke.",
+   "where": "The workload namespace, or the ops namespace for discovered apps.",
+   "analogy": "A binder that holds every disk order for one application."
+  }
+ },
+ "1.11": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPolicy",
+   "name": "dr-policy-15m",
+   "role": "which clusters pair up, and how often"
+  },
+  "def": {
+   "what": "The cluster-level DR contract: the two clusters and the replication interval.",
+   "creator": "The DR administrator.",
+   "reader": "The DRPC and DRCluster controllers.",
+   "where": "Cluster scope on the hub.",
+   "analogy": "A service level agreement between two sites."
+  }
+ },
+ "1.12": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPlacementControl",
+   "name": "dell-vm-drpc",
+   "role": "the per-application DR request"
+  },
+  "def": {
+   "what": "The per-application object that names the policy, placement, PVC selector, and action.",
+   "creator": "A user, Git, or the console enrollment flow.",
+   "reader": "Ramen on the hub.",
+   "where": "The hub, in the application or ops namespace.",
+   "analogy": "A work order that says what to protect and where to move it."
+  }
+ },
+ "1.13": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Placement",
+   "name": "dell-vm-placement",
+   "role": "the rule for choosing a cluster"
+  },
+  "def": {
+   "what": "An ACM object that defines how a cluster is selected.",
+   "creator": "The application owner.",
+   "reader": "The placement controller and the ApplicationSet generator.",
+   "where": "The hub, in the Argo CD namespace for managed apps.",
+   "analogy": "A hiring rule, not the hired person."
+  }
+ },
+ "1.14": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ManifestWork",
+   "name": "dell-vm-drpc-gitops-vms-vrg-mw",
+   "role": "the hub-to-spoke delivery envelope"
+  },
+  "def": {
+   "what": "An ACM object that carries resources to one managed cluster.",
+   "creator": "Ramen on the hub.",
+   "reader": "The klusterlet agent on the spoke.",
+   "where": "The managed cluster namespace on the hub.",
+   "analogy": "A sealed package delivered to a branch office."
+  }
+ },
+ "1.15": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Bucket",
+   "name": "ramen-metadata",
+   "role": "external notebook of PV and PVC definitions"
+  },
+  "def": {
+   "what": "An S3 bucket that holds Ramen's copies of PV and PVC objects.",
+   "creator": "The DR administrator, with the MinIO deployment.",
+   "reader": "Ramen on both clusters.",
+   "where": "The hub cluster, in this lab.",
+   "analogy": "A safe deposit box for the paperwork, separate from the vault."
+  }
+ },
+ "1.16": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ApplicationSet",
+   "name": "dell-vm-workload",
+   "role": "a template that generates one Application per cluster"
+  },
+  "def": {
+   "what": "An Argo CD template that generates Applications from a generator.",
+   "creator": "The platform team, in Git.",
+   "reader": "The Argo CD ApplicationSet controller.",
+   "where": "The hub, in openshift-gitops.",
+   "analogy": "A mail merge that produces one letter per recipient."
+  }
+ },
+ "1.17": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Backup",
+   "name": "OADP + Velero",
+   "role": "backs up Kubernetes objects"
+  },
+  "def": {
+   "what": "Red Hat's packaging of Velero, used to back up and restore Kubernetes objects.",
+   "creator": "The platform team.",
+   "reader": "Ramen, during kube object protection and recovery.",
+   "where": "Each spoke, in openshift-adp.",
+   "analogy": "A photocopy of the building plan, kept off site."
+  }
+ },
+ "1.18": {
+  "chapter": "Cast of characters"
+ },
+ "2.1": {
+  "chapter": "A VM is a pod"
+ },
+ "2.2": {
+  "chapter": "A VM is a pod"
+ },
+ "2.3": {
+  "chapter": "A VM is a pod"
+ },
+ "2.4": {
+  "chapter": "A VM is a pod"
+ },
+ "2.5": {
+  "chapter": "A VM is a pod"
+ },
+ "2.6": {
+  "chapter": "A VM is a pod",
+  "screenshot": "02-vm-details-conditions.png",
+  "focus": {
+   "x": 330,
+   "y": 740,
+   "w": 1180,
+   "h": 320
+  },
+  "caption": "VirtualMachine conditions. Ready and DataVolumesReady are true, and LiveMigratable is false because the disks are not shared."
+ },
+ "2.7": {
+  "chapter": "A VM is a pod",
+  "screenshot": "03-vm-related-resources.png",
+  "focus": {
+   "x": 330,
+   "y": 280,
+   "w": 1180,
+   "h": 430
+  },
+  "caption": "One VirtualMachine, viewed through the hub, owns or references two DataVolumes, two PVCs, two PVs, a pod, a Secret, a Service, and a VMI."
+ },
+ "2.8": {
+  "chapter": "A VM is a pod"
+ },
+ "3.1": {
+  "chapter": "The storage path"
+ },
+ "3.2": {
+  "chapter": "The storage path"
+ },
+ "3.3": {
+  "chapter": "The storage path"
+ },
+ "3.4": {
+  "chapter": "The storage path"
+ },
+ "3.5": {
+  "chapter": "The storage path"
+ },
+ "3.6": {
+  "chapter": "The storage path"
+ },
+ "3.7": {
+  "chapter": "The storage path"
+ },
+ "4.1": {
+  "chapter": "The network path"
+ },
+ "4.2": {
+  "chapter": "The network path"
+ },
+ "4.3": {
+  "chapter": "The network path"
+ },
+ "4.4": {
+  "chapter": "The network path"
+ },
+ "4.5": {
+  "chapter": "The network path"
+ },
+ "5.1": {
+  "chapter": "What DR must reconstruct"
+ },
+ "5.2": {
+  "chapter": "What DR must reconstruct",
+  "define": {
+   "term": "RPO and RTO",
+   "text": "RPO is the maximum acceptable data loss in time. RTO is the maximum acceptable recovery time."
+  }
+ },
+ "5.3": {
+  "chapter": "What DR must reconstruct"
+ },
+ "5.4": {
+  "chapter": "What DR must reconstruct"
+ },
+ "5.5": {
+  "chapter": "What DR must reconstruct"
+ },
+ "5.6": {
+  "chapter": "What DR must reconstruct"
+ },
+ "5.7": {
+  "chapter": "What DR must reconstruct"
+ },
+ "5.8": {
+  "chapter": "What DR must reconstruct"
+ },
+ "6.1": {
+  "chapter": "The replication layer"
+ },
+ "6.2": {
+  "chapter": "The replication layer"
+ },
+ "6.3": {
+  "chapter": "The replication layer"
+ },
+ "6.4": {
+  "chapter": "The replication layer"
+ },
+ "6.5": {
+  "chapter": "The replication layer",
+  "screenshot": "08-dr-status-popover.png",
+  "focus": {
+   "x": 850,
+   "y": 260,
+   "w": 460,
+   "h": 260
+  },
+  "caption": "Volumes last synced at 10:48 UTC and Kubernetes resources at 10:44 UTC, under dr-policy-15m."
+ },
+ "6.6": {
+  "chapter": "The replication layer"
+ },
+ "6.7": {
+  "chapter": "The replication layer"
+ },
+ "6.8": {
+  "chapter": "The replication layer"
+ },
+ "7.1": {
+  "chapter": "The orchestration layer"
+ },
+ "7.2": {
+  "chapter": "The orchestration layer"
+ },
+ "7.3": {
+  "chapter": "The orchestration layer"
+ },
+ "7.4": {
+  "chapter": "The orchestration layer"
+ },
+ "7.5": {
+  "chapter": "The orchestration layer"
+ },
+ "7.6": {
+  "chapter": "The orchestration layer"
+ },
+ "7.7": {
+  "chapter": "The orchestration layer"
+ },
+ "7.8": {
+  "chapter": "The orchestration layer"
+ },
+ "7.9": {
+  "chapter": "The orchestration layer"
+ },
+ "8.1": {
+  "chapter": "Failover walkthrough"
+ },
+ "8.2": {
+  "chapter": "Failover walkthrough"
+ },
+ "8.3": {
+  "chapter": "Failover walkthrough"
+ },
+ "8.4": {
+  "chapter": "Failover walkthrough"
+ },
+ "8.5": {
+  "chapter": "Failover walkthrough"
+ },
+ "8.6": {
+  "chapter": "Failover walkthrough"
+ },
+ "8.7": {
+  "chapter": "Failover walkthrough"
+ },
+ "8.8": {
+  "chapter": "Failover walkthrough",
+  "define": {
+   "term": "WaitOnUserToCleanUp",
+   "text": "Ramen has recovered the target but will not delete a discovered source application. An administrator must remove it."
+  }
+ },
+ "8.9": {
+  "chapter": "Failover walkthrough",
+  "screenshot": "12-drpc-details.png",
+  "focus": {
+   "x": 330,
+   "y": 300,
+   "w": 900,
+   "h": 420
+  },
+  "caption": "A recorded managed-app DRPC: FailedOver, progression Completed, peer ready true, recorded duration 5m 41s."
+ },
+ "8.10": {
+  "chapter": "Failover walkthrough"
+ },
+ "8.11": {
+  "chapter": "Failover walkthrough"
+ },
+ "9.1": {
+  "chapter": "Managed GitOps apps"
+ },
+ "9.2": {
+  "chapter": "Managed GitOps apps"
+ },
+ "9.3": {
+  "chapter": "Managed GitOps apps",
+  "screenshot": "11-appset-topology.png",
+  "focus": {
+   "x": 640,
+   "y": 690,
+   "w": 880,
+   "h": 320
+  },
+  "caption": "Generated Application topology: ApplicationSet, Placement, decision, then the VM, DataVolumes, PVCs, PVs, Service, and Secret."
+ },
+ "9.4": {
+  "chapter": "Managed GitOps apps"
+ },
+ "9.5": {
+  "chapter": "Managed GitOps apps"
+ },
+ "9.6": {
+  "chapter": "Managed GitOps apps"
+ },
+ "9.7": {
+  "chapter": "Managed GitOps apps"
+ },
+ "10.1": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.2": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.3": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.4": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.5": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.6": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.7": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.8": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.9": {
+  "chapter": "Zerto versus this model"
+ },
+ "11.1": {
+  "chapter": "A blueprint for Zerto"
+ },
+ "11.2": {
+  "chapter": "A blueprint for Zerto"
+ },
+ "11.3": {
+  "chapter": "A blueprint for Zerto"
+ },
+ "11.4": {
+  "chapter": "A blueprint for Zerto"
+ },
+ "11.5": {
+  "chapter": "A blueprint for Zerto"
+ },
+ "11.6": {
+  "chapter": "A blueprint for Zerto"
+ },
+ "11.7": {
+  "chapter": "A blueprint for Zerto"
+ },
+ "11.8": {
+  "chapter": "A blueprint for Zerto"
+ },
+ "11.9": {
+  "chapter": "A blueprint for Zerto"
+ },
+ "11.10": {
+  "chapter": "A blueprint for Zerto"
+ },
+ "12.1": {
+  "chapter": "Recap and readiness"
+ },
+ "12.2": {
+  "chapter": "Recap and readiness"
+ },
+ "12.3": {
+  "chapter": "Recap and readiness"
+ },
+ "12.4": {
+  "chapter": "Recap and readiness"
+ },
+ "12.5": {
+  "chapter": "Recap and readiness"
+ }
+}

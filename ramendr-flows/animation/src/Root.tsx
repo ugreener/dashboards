@@ -11,6 +11,8 @@ import {CsiLayers} from './csi-layers/Video';
 import {buildTimeline as buildTimelineCL} from './csi-layers/timeline';
 import {CsiVendors} from './csi-vendors/Video';
 import {buildTimeline as buildTimelineCV} from './csi-vendors/timeline';
+import {ZertoPrimer} from './zerto-primer/Video';
+import {buildTimeline as buildTimelineZP} from './zerto-primer/timeline';
 
 const ALL_291 = Array.from({length: 14}, (_, i) => i);
 const ALL_342 = Array.from({length: 10}, (_, i) => i);
@@ -18,9 +20,19 @@ const ALL_342 = Array.from({length: 10}, (_, i) => i);
 const ALL = Array.from({length: 16}, (_, i) => i);
 const ALL_CL = Array.from({length: 8}, (_, i) => i);
 const ALL_CV = Array.from({length: 7}, (_, i) => i);
+const ALL_ZP = Array.from({length: 13}, (_, i) => i);
 
 export const Root: React.FC = () => (
   <>
+    <Composition
+      id="zerto-primer"
+      component={ZertoPrimer}
+      durationInFrames={Math.max(1, buildTimelineZP(ALL_ZP).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_ZP}}
+    />
     <Composition
       id="csi-layers"
       component={CsiLayers}
