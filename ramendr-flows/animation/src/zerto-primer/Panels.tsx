@@ -235,7 +235,7 @@ const STEPS: [string, string][] = [
   ['Choose the data path', 'CSI snapshots for point-in-time copies, CSI replication for continuous copies, or a data-path component for a journal.'],
   ['Store metadata outside the cluster', 'VM spec, PVC and PV definitions, Service, and references to Secrets. Never copy Secret values into Git.'],
   ['Orchestrate placement', 'Use ACM Placement with a DRPC-like object, or integrate with Ramen. Promote the disk before the VM starts.'],
-  ['Fix the restore order', 'Promote disk, recreate PV and PVC, restore objects, create namespace, start VM. Starting early gives a blank disk or a pending pod.'],
+  ['Fix the restore order', 'Ensure namespace and prerequisites, promote disks, recover PV/PVC bindings, restore or deploy VM definitions, then start and verify.'],
   ['Handle guest and network', 'Freeze and unfreeze for consistency, re-IP or re-DNS on the target, and verify unattended startup.'],
   ['Test the guarantees', 'Measure last sync, run a test failover, verify recovered rows, then test cleanup and the reverse path.'],
 ];
@@ -269,7 +269,7 @@ export const BlueprintScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
           <div style={{fontFamily: mono, fontSize: 30, color: C.red}}>Hard lessons from this lab</div>
           <div style={{display: 'flex', gap: 30, marginTop: 20}}>
             {[
-              ['RWO cannot live migrate', 'A block PVC with ReadWriteOnce is not shared storage.'],
+              ['Shared-storage migration is unavailable here', 'Other storage-migration paths require version and configuration validation.'],
               ['Cleanup order matters', 'VM, then DataVolumes, then PVCs. Delete the DV first, not the PVC.'],
               ['Finalizers can wedge', 'A stuck pvc-vr-protection finalizer blocks the source VRG.'],
               ['Green can hide a skip', 'One disk can skip a sync while the session still says OK.'],
