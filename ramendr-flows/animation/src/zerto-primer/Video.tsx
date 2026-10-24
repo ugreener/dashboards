@@ -189,12 +189,16 @@ export const ZertoPrimer: React.FC<{chapters: number[]}> = ({chapters}) => {
   }
   for (const s of segs) if (s.type === 'chapter') sfx.push({at: s.from + 4, s: 'chime', v: 0.18});
 
-  const showWorld = (ch >= 2 && ch <= 9) || ch === 12;
+  const shot = seg.type === 'beat' && !!meta.screenshot;
+  const panel = seg.type === 'beat' && PANEL_BEATS.has(beat.id);
+  const showWorld = !shot && ((ch >= 2 && ch <= 9) || ch === 12);
   return (
     <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%, #0b1320, ${C.bg} 70%)`, overflow: 'hidden'}}>
       {showWorld ? (
-        <div style={{position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px, ${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}>
-          <World c={ctx} />
+        <div style={{position: 'absolute', left: 0, top: 0, width: panel ? 960 : undefined, overflow: panel ? 'hidden' : undefined}}>
+          <div style={{transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px, ${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}>
+            <World c={ctx} />
+          </div>
         </div>
       ) : null}
       {seg.type === 'beat' && ch === 1 ? <GlossaryScene id={beat.id} f={f} dur={beat.audio} card={meta.card} def={meta.def} /> : null}
@@ -212,7 +216,9 @@ export const ZertoPrimer: React.FC<{chapters: number[]}> = ({chapters}) => {
           caption={meta.caption ?? ''}
           a={winA(SHOT_WIN[0], SHOT_WIN[1])}
           z={progIO(f, beat.audio * 0.25, beat.audio * 0.6)}
-          y={168}
+          x={250}
+          y={162}
+          w={1400}
           date="2026-10-24"
           sourceLabel="hub console · live capture"
         />

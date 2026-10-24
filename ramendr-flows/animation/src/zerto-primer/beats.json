@@ -140,111 +140,6 @@
    "analogy": "A binder that holds every disk order for one application."
   }
  },
- "1.11": {
-  "chapter": "Cast of characters",
-  "card": {
-   "kind": "DRPolicy",
-   "name": "dr-policy-15m",
-   "role": "which clusters pair up, and how often"
-  },
-  "def": {
-   "what": "The cluster-level DR contract: the two clusters and the replication interval.",
-   "creator": "The DR administrator.",
-   "reader": "The DRPC and DRCluster controllers.",
-   "where": "Cluster scope on the hub.",
-   "analogy": "A service level agreement between two sites."
-  }
- },
- "1.12": {
-  "chapter": "Cast of characters",
-  "card": {
-   "kind": "DRPlacementControl",
-   "name": "dell-vm-drpc",
-   "role": "the per-application DR request"
-  },
-  "def": {
-   "what": "The per-application object that names the policy, placement, PVC selector, and action.",
-   "creator": "A user, Git, or the console enrollment flow.",
-   "reader": "Ramen on the hub.",
-   "where": "The hub, in the application or ops namespace.",
-   "analogy": "A work order that says what to protect and where to move it."
-  }
- },
- "1.13": {
-  "chapter": "Cast of characters",
-  "card": {
-   "kind": "PlacementDecision",
-   "name": "dell-vm-placement-decision-1",
-   "role": "the cluster that was chosen"
-  },
-  "def": {
-   "what": "The placement result: one entry naming the cluster that should run the application.",
-   "creator": "Ramen, when it updates placement for a protected application.",
-   "reader": "The ApplicationSet generator and the DR controllers.",
-   "where": "The hub, in the same namespace as its Placement.",
-   "analogy": "The assignment letter that follows the hiring rule."
-  }
- },
- "1.14": {
-  "chapter": "Cast of characters",
-  "card": {
-   "kind": "ManifestWork",
-   "name": "dell-vm-drpc-gitops-vms-vrg-mw",
-   "role": "the hub-to-spoke delivery envelope"
-  },
-  "def": {
-   "what": "An ACM object that carries resources to one managed cluster.",
-   "creator": "Ramen on the hub.",
-   "reader": "The klusterlet agent on the spoke.",
-   "where": "The managed cluster namespace on the hub.",
-   "analogy": "A sealed package delivered to a branch office."
-  }
- },
- "1.15": {
-  "chapter": "Cast of characters",
-  "card": {
-   "kind": "Bucket",
-   "name": "ramen-metadata",
-   "role": "external notebook of PV and PVC definitions"
-  },
-  "def": {
-   "what": "An S3 bucket that holds Ramen's copies of PV and PVC objects.",
-   "creator": "The DR administrator, with the MinIO deployment.",
-   "reader": "Ramen on both clusters.",
-   "where": "The hub cluster, in this lab.",
-   "analogy": "A safe deposit box for the paperwork, separate from the vault."
-  }
- },
- "1.16": {
-  "chapter": "Cast of characters",
-  "card": {
-   "kind": "ApplicationSet",
-   "name": "dell-vm-workload",
-   "role": "a template that generates one Application per cluster"
-  },
-  "def": {
-   "what": "An Argo CD template that generates Applications from a generator.",
-   "creator": "The platform team, in Git.",
-   "reader": "The Argo CD ApplicationSet controller.",
-   "where": "The hub, in openshift-gitops.",
-   "analogy": "A mail merge that produces one letter per recipient."
-  }
- },
- "1.17": {
-  "chapter": "Cast of characters",
-  "card": {
-   "kind": "Backup",
-   "name": "OADP + Velero",
-   "role": "backs up Kubernetes objects"
-  },
-  "def": {
-   "what": "Red Hat's packaging of Velero, used to back up and restore Kubernetes objects.",
-   "creator": "The platform team.",
-   "reader": "Ramen, during kube object protection and recovery.",
-   "where": "Each spoke, in openshift-adp.",
-   "analogy": "A photocopy of the building plan, kept off site."
-  }
- },
  "1.18": {
   "chapter": "Cast of characters"
  },
@@ -286,6 +181,9 @@
   "caption": "One VirtualMachine, viewed through the hub, owns or references two DataVolumes, two PVCs, two PVs, a pod, a Secret, a Service, and a VMI."
  },
  "2.8": {
+  "chapter": "A VM is a pod"
+ },
+ "2.9": {
   "chapter": "A VM is a pod"
  },
  "3.1": {
@@ -422,7 +320,15 @@
   "chapter": "The orchestration layer"
  },
  "7.8": {
-  "chapter": "The orchestration layer"
+  "chapter": "The orchestration layer",
+  "screenshot": "06-protected-applications-list-redacted.png",
+  "focus": {
+   "x": 300,
+   "y": 450,
+   "w": 1350,
+   "h": 330
+  },
+  "caption": "Protected applications list, Cluster column masked. Four enrollments share dr-policy-15m and all report healthy."
  },
  "7.9": {
   "chapter": "The orchestration layer"
@@ -473,7 +379,15 @@
   "chapter": "Failover walkthrough"
  },
  "9.1": {
-  "chapter": "Managed GitOps apps"
+  "chapter": "Managed GitOps apps",
+  "screenshot": "10-applications-dell-vm-redacted.png",
+  "focus": {
+   "x": 300,
+   "y": 300,
+   "w": 1050,
+   "h": 210
+  },
+  "caption": "Applications page for the managed VM, Clusters column masked. The row shows health, sync, and DR status."
  },
  "9.2": {
   "chapter": "Managed GitOps apps"
@@ -526,6 +440,21 @@
   "chapter": "Zerto versus this model"
  },
  "10.9": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.10": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.11": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.12": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.13": {
+  "chapter": "Zerto versus this model"
+ },
+ "10.14": {
   "chapter": "Zerto versus this model"
  },
  "11.1": {

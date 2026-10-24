@@ -112,6 +112,93 @@ const Box: React.FC<{a: number; x: number; y: number; w: number; h: number; titl
   </div>
 );
 
+/** Chapter 10 translation tables: the VMware term on the left, the OpenShift term on the right. */
+type TranslateRow = [string, string, string];
+const TRANSLATE: Record<string, {title: string; note: string; takeaway: string; rows: TranslateRow[]}> = {
+  '10.9': {
+    title: 'The closest analogy is SRM, not Zerto',
+    note: 'Same recovery shape, different copy engine.',
+    takeaway: 'Ramen supplies the plan and the placement. The CSI driver supplies the copy. Neither supplies a per-write journal.',
+    rows: [
+      ['Recovery plan', 'SRM recovery plan', 'Ramen DRPC and VRG'],
+      ['Copy engine', 'Array replication with a storage adapter', 'CSI driver and VolumeReplication'],
+      ['Test run', 'SRM test recovery', 'Ramen dry run'],
+      ['Missing piece', 'Zerto journal in the write path', 'Not part of this stack'],
+    ],
+  },
+  '10.10': {
+    title: 'Storage, translated',
+    note: 'The datastore is a policy. The disk is a claim.',
+    takeaway: 'A VM disk here is a PVC. Its lifetime is a Kubernetes lifetime, so deleting the PVC can destroy the disk.',
+    rows: [
+      ['Datastore and policy', 'VMFS datastore, storage policy', 'StorageClass and CSI driver'],
+      ['Virtual disk', 'VMDK file', 'PVC bound to a PV'],
+      ['Raw device', 'RDM', 'Block-mode PVC, RWO'],
+      ['Point in time', 'Array snapshot', 'CSI VolumeSnapshot'],
+    ],
+  },
+  '10.11': {
+    title: 'Network, translated',
+    note: 'There is no port group object. The overlay, policy, and Multus do that job.',
+    takeaway: 'The guest address lives inside the pod network. Recovery usually changes it, so plan DNS and re-IP as part of the runbook.',
+    rows: [
+      ['Segmentation', 'Port group and VLAN', 'OVN network and NetworkPolicy'],
+      ['Uplink', 'vDS uplink', 'Node network, Multus for a VLAN'],
+      ['Address', 'VM IP on the subnet', 'Guest IP inside the pod network'],
+      ['Service name', 'DNS A record', 'Service and external DNS'],
+    ],
+  },
+  '10.12': {
+    title: 'Mobility, translated',
+    note: 'vMotion is not disaster recovery. It moves within one cluster.',
+    takeaway: 'Live migration keeps a VM running on another node in the same cluster. Only a DR plan moves it to another site.',
+    rows: [
+      ['Live move', 'vMotion', 'Live migration, same cluster'],
+      ['Disk move', 'Storage vMotion', 'Volume migration or storage clone'],
+      ['Placement', 'DRS', 'Scheduler and descheduler'],
+      ['Host failure', 'HA restart', 'Pod restart and VM restart policy'],
+      ['Across sites', 'SRM or Zerto', 'A DR plan, not live migration'],
+    ],
+  },
+  '10.13': {
+    title: 'Management, translated',
+    note: 'Different console, same questions.',
+    takeaway: 'The API is the single control point. If it goes down with the site, the plan has to run from the surviving side.',
+    rows: [
+      ['Control plane', 'vCenter', 'ACM hub and the Kubernetes API'],
+      ['Identity', 'SSO and roles', 'OIDC and RBAC'],
+      ['Grouping', 'Folders and resource pools', 'Namespaces and projects'],
+      ['Activity', 'Tasks and events', 'Conditions, events, Argo CD sync'],
+    ],
+  },
+};
+
+const TranslationTable: React.FC<PP & {id: string}> = ({id, f, dur}) => {
+  const data = TRANSLATE[id];
+  if (!data) return null;
+  return (
+    <div style={{position: 'absolute', left: 80, top: 285, width: 1760}}>
+      <div style={{fontFamily: sans, fontSize: 44, fontWeight: 800, color: C.text}}>{data.title}</div>
+      <div style={{fontSize: 24, color: C.dim, marginTop: 8}}>{data.note}</div>
+      <div style={{display: 'flex', fontFamily: mono, fontSize: 17, color: C.faint, borderBottom: `1px solid ${C.border}`, paddingBottom: 10, marginTop: 26}}>
+        <div style={{width: 360}}>DIMENSION</div>
+        <div style={{width: 700}}>VMWARE</div>
+        <div style={{width: 700}}>OPENSHIFT VIRTUALIZATION</div>
+      </div>
+      {data.rows.map(([k, a, b], i) => (
+        <div key={k} style={{display: 'flex', fontSize: 24, padding: '14px 0', borderBottom: `1px solid ${C.border}`, opacity: prog(f, dur * (0.08 + i * 0.12), dur * (0.08 + i * 0.12) + 16)}}>
+          <div style={{width: 360, color: C.dim}}>{k}</div>
+          <div style={{width: 700, color: C.purple}}>{a}</div>
+          <div style={{width: 700, color: C.spoke0}}>{b}</div>
+        </div>
+      ))}
+      <div style={{marginTop: 34, paddingTop: 20, borderTop: `1px solid ${C.border}`, fontSize: 25, color: C.text, lineHeight: 1.4}}>
+        {data.takeaway}
+      </div>
+    </div>
+  );
+};
+
 /** Chapter 10: VMware/Zerto versus OpenShift Virtualization/Ramen. */
 export const CompareScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
   const n = Number(id.split('.')[1]);
@@ -119,7 +206,8 @@ export const CompareScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
   const showTable = n === 5 || n === 7;
   const showScale = n === 6;
   const showOptions = n === 8;
-  const showRecap = n === 9;
+  const showRecap = n === 14;
+  const translate = n >= 9 && n <= 13;
   const rows: [string, string, string][] = [
     ['Unit of protection', 'VM on an ESXi host', 'VirtualMachine in a namespace'],
     ['Where writes are seen', 'Hypervisor I/O, via the VRA', 'QEMU block device or storage layer'],
@@ -133,12 +221,14 @@ export const CompareScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
   return (
     <div style={{position: 'absolute', inset: 0}}>
       <div style={{position: 'absolute', left: 80, top: 70, fontFamily: sans, fontSize: 44, fontWeight: 800, color: C.text}}>
-        Two architectures, one question: where do you see the write?
+        {translate ? 'The vocabulary changes. The job does not.' : 'Two architectures, one question: where do you see the write?'}
       </div>
       <div style={{position: 'absolute', left: 80, top: 128, fontFamily: sans, fontSize: 21, color: C.dim}}>
-        The concepts survive. The integration points do not.
+        {translate ? 'Translate each VMware term, then check what the native stack does not cover.' : 'The concepts survive. The integration points do not.'}
       </div>
 
+      {!translate ? (
+        <>
       <div style={{position: 'absolute', left: 80, top: 185, width: 800, height: 310}}>
         <div style={{fontFamily: mono, fontSize: 20, letterSpacing: 2, color: C.purple}}>VMWARE + ZERTO (CLASSIC)</div>
         <Box a={reveal(0)} x={0} y={40} w={800} h={70} title="ESXi host" sub="hypervisor owns the virtual disk and device state" col={C.purple} />
@@ -160,6 +250,8 @@ export const CompareScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
         <Box a={reveal(3)} x={0} y={210} w={380} h={70} title="S3 metadata" sub="PV and PVC definitions" col={C.s3} />
         <Box a={reveal(3)} x={420} y={210} w={380} h={70} title="DRPC + Placement" sub="who runs it and where" col={C.blue} />
       </div>
+        </>
+      ) : null}
 
       {showTable ? (
         <div style={{position: 'absolute', left: 80, top: 500, width: 1760}}>
@@ -222,6 +314,8 @@ export const CompareScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
         </div>
       ) : null}
 
+      {n >= 9 && n <= 13 ? <TranslationTable id={id} f={f} dur={dur} /> : null}
+
       {showRecap ? (
         <div style={{position: 'absolute', left: 160, top: 470, width: 1600, textAlign: 'center'}}>
           <div style={{fontFamily: sans, fontSize: 54, fontWeight: 800, color: C.text, lineHeight: 1.2}}>Port the guarantees. Rebuild the architecture.</div>
@@ -252,41 +346,54 @@ export const BlueprintScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
     <div style={{position: 'absolute', inset: 0}}>
       <div style={{position: 'absolute', left: 90, top: 65, fontFamily: sans, fontSize: 44, fontWeight: 800, color: C.text}}>A blueprint for Zerto on OpenShift Virtualization</div>
       <div style={{position: 'absolute', left: 92, top: 122, fontFamily: sans, fontSize: 21, color: C.dim}}>A design checklist, not a statement of current product support.</div>
-      <div style={{position: 'absolute', left: 90, top: 180, width: 1740}}>
-        {STEPS.map(([t, d], i) => {
-          const a = i < shown ? prog(f, dur * 0.02, dur * 0.02 + 20) : recap ? 1 : 0;
-          return (
-            <div key={t} style={{display: 'flex', gap: 22, alignItems: 'flex-start', opacity: a, marginBottom: 15}}>
-              <div style={{flex: 'none', width: 54, height: 54, borderRadius: 27, background: i < shown ? C.blue : C.panel, border: `2px solid ${i < shown ? C.blue : C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: mono, fontSize: 24, fontWeight: 700, color: i < shown ? C.bg : C.dim}}>{i + 1}</div>
-              <div>
-                <div style={{fontFamily: mono, fontSize: 26, color: i < shown ? C.text : C.faint}}>{t}</div>
-                <div style={{fontSize: 21, color: C.dim, marginTop: 4, lineHeight: 1.35}}>{d}</div>
+      {!pitfalls && !recap ? (
+        <div style={{position: 'absolute', left: 90, top: 180, width: 1740}}>
+          {STEPS.map(([t, d], i) => {
+            const a = i < shown ? prog(f, dur * 0.02, dur * 0.02 + 20) : 0;
+            return (
+              <div key={t} style={{display: 'flex', gap: 22, alignItems: 'flex-start', opacity: a, marginBottom: 15}}>
+                <div style={{flex: 'none', width: 54, height: 54, borderRadius: 27, background: i < shown ? C.blue : C.panel, border: `2px solid ${i < shown ? C.blue : C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: mono, fontSize: 24, fontWeight: 700, color: i < shown ? C.bg : C.dim}}>{i + 1}</div>
+                <div>
+                  <div style={{fontFamily: mono, fontSize: 26, color: i < shown ? C.text : C.faint}}>{t}</div>
+                  <div style={{fontSize: 21, color: C.dim, marginTop: 4, lineHeight: 1.35}}>{d}</div>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ) : null}
       {pitfalls ? (
-        <div style={{position: 'absolute', left: 90, top: 200, width: 1740, padding: 30, border: `2px solid ${C.red}`, borderRadius: 16, background: `${C.red}10`}}>
-          <div style={{fontFamily: mono, fontSize: 30, color: C.red}}>Hard lessons from this lab</div>
-          <div style={{display: 'flex', gap: 30, marginTop: 20}}>
+        <div style={{position: 'absolute', left: 90, top: 215, width: 1740, padding: 34, border: `2px solid ${C.red}`, borderRadius: 16, background: `${C.red}10`, opacity: prog(f, 0, 24)}}>
+          <div style={{fontFamily: mono, fontSize: 32, color: C.red}}>Hard lessons from this lab</div>
+          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '22px 44px', marginTop: 26}}>
             {[
-              ['Shared-storage migration is unavailable here', 'Other storage-migration paths require version and configuration validation.'],
-              ['Cleanup order matters', 'Delete the VM and DataVolumes only after the target is protected. Never delete a PVC to reset it: a new PVC is a new, empty disk.'],
-              ['Finalizers can wedge', 'A stuck pvc-vr-protection finalizer can block source cleanup.'],
-              ['Green can hide a skip', 'One disk can skip a sync while the session still says OK.'],
+              ['Shared-storage migration is unavailable here', 'These lab disks cannot live-migrate. Any other storage-migration path needs its own version and configuration validation.'],
+              ['Cleanup order matters', 'Delete the VM and the DataVolumes only after the target is protected. Never delete a PVC to reset it: a new PVC is a new, empty disk.'],
+              ['Finalizers can wedge', 'A stuck pvc-vr-protection finalizer can block source cleanup. Diagnose it, do not force remove it.'],
+              ['Green can hide a skip', 'One disk can skip a sync while the replication session still reports OK. Compare per-disk status, not just the summary.'],
             ].map(([h, d]) => (
-              <div key={h} style={{flex: 1}}>
-                <div style={{fontFamily: mono, fontSize: 22, color: C.text}}>{h}</div>
-                <div style={{fontSize: 19, color: C.dim, marginTop: 8, lineHeight: 1.35}}>{d}</div>
+              <div key={h} style={{borderLeft: `4px solid ${C.red}`, paddingLeft: 18}}>
+                <div style={{fontFamily: mono, fontSize: 24, color: C.text}}>{h}</div>
+                <div style={{fontSize: 21, color: C.dim, marginTop: 8, lineHeight: 1.35}}>{d}</div>
               </div>
             ))}
           </div>
         </div>
       ) : null}
       {recap ? (
-        <div style={{position: 'absolute', left: 90, top: 200, width: 1740}}>
-          <div style={{fontFamily: mono, fontSize: 32, color: C.green}}>Discover, copy, store metadata, place, restore in order, validate the guest, test the reverse path.</div>
+        <div style={{position: 'absolute', left: 90, top: 215, width: 1740}}>
+          <div style={{fontFamily: mono, fontSize: 28, color: C.green}}>The chain, in order</div>
+          <div style={{display: 'flex', gap: 10, marginTop: 26}}>
+            {STEPS.map(([t], i) => (
+              <div key={t} style={{flex: 1, textAlign: 'center', padding: '20px 10px', border: `2px solid ${C.green}66`, borderRadius: 12, background: `${C.green}12`, opacity: prog(f, dur * (0.04 + i * 0.06), dur * (0.04 + i * 0.06) + 18)}}>
+                <div style={{fontFamily: mono, fontSize: 18, color: C.green}}>{i + 1}</div>
+                <div style={{fontSize: 20, color: C.text, marginTop: 8, lineHeight: 1.25}}>{t}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{fontSize: 26, color: C.dim, marginTop: 34, lineHeight: 1.4}}>
+            Agree the support matrix and the acceptance tests before you build. A completed plan is not a data verdict: verify the guest, then test the reverse path.
+          </div>
         </div>
       ) : null}
     </div>
@@ -294,11 +401,32 @@ export const BlueprintScene: React.FC<PP & {id: string}> = ({f, dur, id}) => {
 };
 
 /** YAML excerpts and small side panels. */
-export const PANEL_BEATS = new Set(['7.4', '8.10', '9.5', '12.3', '12.4']);
+export const PANEL_BEATS = new Set(['2.8', '7.4', '8.10', '9.5', '12.3', '12.4']);
 
 export const BeatPanel: React.FC<PP & {id: string}> = ({id, f, dur}) => {
   const w = (a: number, b: number) => win(f, dur, a, b);
   switch (id) {
+    case '2.8':
+      return (
+        <div style={{position: 'absolute', left: 960, top: 185, width: 880, boxSizing: 'border-box', padding: '24px 28px 26px', background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 16, boxShadow: '0 24px 70px #000d', opacity: w(0.04, 0.97)}}>
+          <div style={{fontFamily: mono, fontSize: 20, letterSpacing: 2, color: C.purple}}>VM LIFECYCLE</div>
+          <div style={{fontFamily: sans, fontSize: 32, fontWeight: 800, color: C.text, marginTop: 10, lineHeight: 1.2}}>The operations you know, and what they need</div>
+          <div style={{marginTop: 22, border: `1.5px solid ${C.border}`, borderRadius: 12, overflow: 'hidden'}}>
+            {[
+              ['Start and stop', 'The VirtualMachine object stays defined while the VM is off.'],
+              ['Templates', 'A catalog entry that stamps out VMs with the same hardware and disks.'],
+              ['Live migration', 'Moves a running VM to another node. Needs shared or migratable storage.'],
+              ['Eviction', 'A node drain restarts the VM elsewhere unless it can migrate first.'],
+              ['This lab', 'Block disks on one array, so the console reports live migration as false.'],
+            ].map(([k, v], i) => (
+              <div key={k} style={{display: 'flex', gap: 16, padding: '13px 18px', borderTop: i ? `1px solid ${C.border}` : 'none', background: i % 2 ? `${C.panel}88` : 'transparent', opacity: prog(f, dur * (0.08 + i * 0.1), dur * (0.08 + i * 0.1) + 18)}}>
+                <div style={{flex: 'none', width: 160, fontFamily: mono, fontSize: 18, color: C.amber}}>{k}</div>
+                <div style={{fontSize: 18, color: C.dim, lineHeight: 1.35}}>{v}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     case '7.4':
       return (
         <YamlPanel

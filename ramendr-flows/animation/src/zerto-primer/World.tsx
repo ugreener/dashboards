@@ -97,7 +97,8 @@ export const FOCUS: Record<string, string[]> = {
   '2.5': ['qemu', 'disk'],
   '2.6': ['vm', 'vmi'],
   '2.7': ['vm', 'dv', 'disk'],
-  '2.8': ['vm', 'vmi', 'launcher', 'disk'],
+  '2.8': ['vm', 'vmi', 'launcher', 'guest'],
+  '2.9': ['vm', 'vmi', 'launcher', 'disk'],
   '3.1': ['disk', 'vsaa', 'vsab'],
   '3.2': ['disk', 'pv'],
   '3.3': ['sc', 'csi', 'vsaa'],
@@ -221,7 +222,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   return (
     <div style={{position: 'relative', width: WORLD[2], height: WORLD[3], fontFamily: sans}}>
       <Region b={{x: SITE[0], y: SITE[1], w: SITE[2], h: SITE[3]}} title="OpenShift cluster" sub="one spoke, drawn as an example" color={C.spoke0} />
-      <Region b={{x: STORAGE[0], y: STORAGE[1], w: STORAGE[2], h: STORAGE[3]}} title="Storage and replication" sub="Dell PowerStore VSA" color={C.array} />
+      <Region b={{x: STORAGE[0], y: STORAGE[1], w: STORAGE[2], h: STORAGE[3]}} title="Storage and replication" sub="example array (PowerStore)" color={C.array} />
       <Region b={{x: HUB[0], y: HUB[1], w: HUB[2], h: HUB[3]}} title="Hub" sub="ACM + RamenDR" color={C.hub} />
       <Region b={{x: META[0], y: META[1], w: META[2], h: META[3]}} title="Metadata and backup" sub="S3 + OADP" color={C.s3} />
 
@@ -272,7 +273,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       </svg>
 
       <div style={{position: 'absolute', left: 90, top: 1660, fontFamily: sans, fontSize: 18, color: C.faint}}>
-        Recorded configuration and live object names from the Dell PowerStore lab. Placement is read from the live PlacementDecision, not from this drawing.
+        Object names from one worked example. The drawing shows the model, not live placement.
       </div>
     </div>
   );
