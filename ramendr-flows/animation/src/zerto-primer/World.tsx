@@ -76,6 +76,7 @@ const STORAGE: [number, number, number, number] = [1320, 120, 1200, 900];
 const HUB: [number, number, number, number] = [60, 1080, 1200, 570];
 const META: [number, number, number, number] = [1320, 1080, 1200, 570];
 
+RECT.pod = [80, 480, 1140, 400];
 RECT.site = SITE;
 RECT.storage = STORAGE;
 RECT.hub = HUB;
@@ -85,11 +86,11 @@ const SITE_KEYS = ['vm', 'vmi', 'vctl', 'vhandler', 'launcher', 'qemu', 'guest',
 const STORAGE_KEYS = ['sc', 'csi', 'pv', 'vsaa', 'vr', 'vrc', 'vsab', 'session', 'rpo'];
 const HUB_KEYS = ['acm', 'drpolicy', 'drcluster0', 'drcluster1', 'drpc', 'placement', 'decision', 'vrg', 'appset', 'app', 'mw'];
 const META_KEYS = ['s3', 'oadp', 'archive'];
-const GROUP: Record<string, string[]> = {site: SITE_KEYS, storage: STORAGE_KEYS, hub: HUB_KEYS, meta: META_KEYS};
+const GROUP: Record<string, string[]> = {site: SITE_KEYS, storage: STORAGE_KEYS, hub: HUB_KEYS, meta: META_KEYS, pod: ['launcher', 'qemu', 'guest', 'dv', 'disk', 'secret']};
 
 /** Per-beat focus sets. A region key includes every card in that region. */
 export const FOCUS: Record<string, string[]> = {
-  '2.1': ['vm', 'pod'],
+  '2.1': ['vm', 'vmi', 'vctl', 'vhandler', 'launcher', 'qemu', 'guest'],
   '2.2': ['vm', 'vmi', 'vctl'],
   '2.3': ['vmi', 'launcher', 'vhandler'],
   '2.4': ['launcher', 'qemu', 'guest'],

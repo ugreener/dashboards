@@ -64,6 +64,21 @@ export const GlossaryScene: React.FC<PP & {card?: {kind: string; name: string; r
       </div>
     );
   }
+  if (id === '1.1') {
+    return (
+      <div style={{position: 'absolute', inset: 0, opacity: enter}}>
+        <div style={{position: 'absolute', left: 0, right: 0, top: 300, textAlign: 'center'}}>
+          <div style={{fontFamily: sans, fontSize: 84, fontWeight: 800, color: C.text}}>Cast of characters</div>
+          <div style={{fontFamily: sans, fontSize: 30, color: C.dim, marginTop: 20}}>Seventeen objects, one small job each. Green is the VM, amber is storage, orange is DR control, cyan is delivery, pink is GitOps.</div>
+          <div style={{display: 'flex', justifyContent: 'center', gap: 26, marginTop: 60}}>
+            {Object.entries(GCOL).map(([g, col]) => (
+              <div key={g} style={{fontFamily: mono, fontSize: 22, color: col, border: `2px solid ${col}`, borderRadius: 999, padding: '10px 24px', background: `${col}14`}}>{g}</div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (!card || !def) return null;
   return (
     <div style={{position: 'absolute', inset: 0, opacity: enter}}>

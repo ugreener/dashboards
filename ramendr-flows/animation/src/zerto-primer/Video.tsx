@@ -49,7 +49,7 @@ const fit = (id: string): Cam => {
     }
     const pad = 70;
     x0 -= pad;
-    y0 -= pad;
+    y0 -= pad + 55;
     x1 += pad;
     yb += pad;
   }
@@ -126,7 +126,7 @@ const ColdOpen: React.FC<{f: number; dur: number}> = ({f, dur}) => {
         <text x={1445} y={638} textAnchor="middle" fill={C.dim} fontFamily={mono} fontSize={17}>replica volume</text>
         <line x1={1210} y1={620} x2={1330} y2={620} stroke={C.array} strokeWidth={4} />
         <circle cx={1210 + 120 * pulse} cy={620} r={8} fill={C.array} style={{filter: `drop-shadow(0 0 10px ${C.array})`}} />
-        <text x={1270} y={665} textAnchor="middle" fill={C.amber} fontFamily={mono} fontSize={16}>15m async</text>
+        <text x={1270} y={705} textAnchor="middle" fill={C.amber} fontFamily={mono} fontSize={16}>15m async</text>
         <line x1={610} y1={630} x2={650} y2={630} stroke={C.green} strokeWidth={3} />
         <line x1={820} y1={630} x2={980} y2={620} stroke={C.amber} strokeWidth={3} strokeDasharray="8 6" />
         <text x={900} y={600} textAnchor="middle" fill={C.amber} fontFamily={mono} fontSize={16}>PVC</text>
