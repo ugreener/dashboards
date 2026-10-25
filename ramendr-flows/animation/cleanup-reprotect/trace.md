@@ -22,7 +22,7 @@ This is one recorded occurrence. The control run, VIRTDR-342, used the same proc
 - [Target resources](https://redhat.atlassian.net/rest/api/2/attachment/content/1264714)
 - [Array sessions and job history](https://redhat.atlassian.net/rest/api/2/attachment/content/1264715)
 
-The phase A postcheck numbers come from VIRTDR-344: measured loss window 576 s of the 900 s objective, 56 complete source minutes recovered with no missing rows, and both disks' last two syncs carried writes.
+The phase A postcheck numbers are as recorded in the VIRTDR-360 timeline, which cites VIRTDR-344: measured loss window 576 s of the 900 s objective, 56 complete source minutes recovered with no missing rows, and both disks' last two syncs carried writes. The VIRTDR-344 attachments currently on the ticket are a later retest in the opposite direction, so the 576 s figure is not independently re-derived here.
 
 ## Observed timeline
 

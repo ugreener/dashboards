@@ -27,7 +27,7 @@ const fit = (id: string): Cam => {
     y1 = Math.max(y1, r[1] + r[3]);
   }
   if (y0 >= 1100) y0 = 1060;
-  else if (y0 >= 490) y0 = 385;
+  else if (y0 >= 450) y0 = 385;
   else y0 = 0;
   x0 -= 40;
   x1 += 40;
@@ -38,27 +38,27 @@ const fit = (id: string): Cam => {
 };
 
 export const CLOCK: Record<string, string> = {
-  '2.1': '10:19:37', '2.2': '10:20:17', '2.3': '10:22', '2.4': '10:40', '2.5': '10:40',
-  '3.1': '11:05', '3.2': '11:07', '3.3': '11:08', '3.4': '11:08', '3.5': '11:08',
+  '2.1': '10:19:37', '2.2': '10:20:17', '2.3': '10:22:00', '2.4': '10:40:00', '2.5': '10:40:00',
+  '3.1': '11:05:00', '3.2': '11:07:00', '3.3': '11:08:00', '3.4': '11:08:00', '3.5': '11:08:00',
   '4.1': '11:33:01', '4.2': '11:34:00', '4.3': '11:34:00', '4.4': '11:35:15', '4.5': '11:35:15', '4.6': '11:35:15', '4.7': '11:35:15',
   '5.1': '11:35:15', '5.2': '11:35:15', '5.3': '11:35:15', '5.4': '11:35:15', '5.5': '11:35:15', '5.6': '11:35:15', '5.7': '11:35:15', '5.8': '11:35:15',
-  '7.1': '11:35:15', '7.2': '11:35:15', '7.3': '11:35:15', '7.4': '11:35:15',
+  '7.1': '11:35:15', '7.2': '11:35:15', '7.3': '11:35:15', '7.4': '11:35:15', '7.5': '11:35:15',
 };
 const CLOCK_LABELS: Record<string, string> = {
-  '2.3': '~10:22', '3.1': '~11:05', '4.4': '11:35:15', '4.5': '11:35:15',
+  '2.3': '~10:22', '3.1': '~11:05', '3.2': '11:07', '3.3': '~11:08', '3.4': '~11:08', '3.5': '~11:08', '4.4': '11:35:15', '4.5': '11:35:15',
   '5.1': '11:35:15 (held)', '5.2': '11:35:15 (held)', '5.3': '11:35:15 (held)', '5.4': '11:35:15 (held)',
   '5.5': '11:35:15 (held)', '5.6': '11:35:15 (held)', '5.7': '11:35:15 (held)', '5.8': '11:35:15 (held)',
-  '7.1': '11:35:15 (held)', '7.2': '11:35:15 (held)', '7.3': '11:35:15 (held)', '7.4': '11:35:15 (held)',
+  '7.1': '11:35:15 (held)', '7.2': '11:35:15 (held)', '7.3': '11:35:15 (held)', '7.4': '11:35:15 (held)', '7.5': '11:35:15 (held)',
 };
 const EVENTS: TEvent[] = [
   ['10:19:37', 'source suspended', C.red],
   ['10:20:17', 'Initiate', C.blue],
   ['10:20:24', 'array failover', C.orange],
-  ['10:22', 'target running', C.green],
-  ['10:40', 'phase A pass', C.green],
-  ['11:07', 'cleanup asked', C.amber],
+  ['10:22:00', 'target running', C.green],
+  ['10:40:00', 'phase A pass', C.green],
+  ['11:07:00', 'cleanup asked', C.amber],
   ['11:33:01', 'source VM deleted', C.amber],
-  ['11:34', 'PVCs deleting', C.red],
+  ['11:34:00', 'PVCs deleting', C.red],
   ['11:35:15', 'last driver action', C.red],
 ];
 const SFX: Record<string, [number, string, number][]> = {
@@ -102,10 +102,10 @@ export const CleanupReprotect: React.FC<{chapters: number[]}> = ({chapters}) => 
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
     {showWorld ? <div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} /></div> : null}
     {seg.type === 'beat' && ch === 1 ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
+    {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={ch === 6 ? null : CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null} ticket="VIRTDR-360" /> : null}
     {seg.type === 'beat' && ch >= 2 ? <CleanupPhases current={ch <= 2 ? 0 : ch === 3 ? 1 : ch === 4 ? 2 : 3} stuck={ch >= 5} /> : null}
-    {seg.type === 'beat' && ch >= 2 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS} /> : null}
-    {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
+    {seg.type === 'beat' && ch >= 2 && ch !== 6 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS} /> : null}
     {seg.type === 'beat' && m.screenshot ? <Screenshot src={`evidence/cleanup-reprotect/${m.screenshot}`} date="2026-10-22" caption={m.caption ?? ''} focus={m.focus} a={win(.14, .98)} z={progIO(f, b.audio * .2, b.audio * .65)} y={215} x={865} w={1010} sourceLabel="hub console · historical capture" /> : null}
     {seg.type === 'beat' && m.define ? <DefinitionPanel term={m.define.term} text={m.define.text} a={win(.05, .97)} bottom={150} /> : null}
     {seg.type === 'chapter' ? <ChapterCard n={seg.chapter.n} title={seg.chapter.title} sub={seg.chapter.sub} p={prog(frame - seg.from, 0, 30)} out={prog(frame - seg.from, seg.dur - 30, seg.dur)} /> : null}

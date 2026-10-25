@@ -62,16 +62,17 @@ type Meta = {f: number; dur: number};
 
 export const BeatPanel: React.FC<{id: string; f: number; dur: number}> = ({id, f, dur}) => {
   if (id === '0.1') return <ColdCard f={f} dur={dur} />;
-  if (id === '0.2' || id === '7.4') return <FourSteps f={f} dur={dur} closing={id === '7.4'} />;
+  if (id === '0.2' || id === '7.5') return <FourSteps f={f} dur={dur} closing={id === '7.5'} />;
   if (id === '0.3') return <RunCompare f={f} dur={dur} mode="teaser" />;
   if (id === '5.8') return <WedgeChain f={f} dur={dur} />;
   if (id === '6.3') return <RunCompare f={f} dur={dur} mode="outcome" />;
   if (id === '6.4') return <InferenceCard f={f} dur={dur} />;
   if (id === '7.1') return <QuoteCard f={f} dur={dur} />;
   if (id === '7.2') return <Checklist f={f} dur={dur} />;
-  if (id === '7.3') return <RecapList f={f} dur={dur} />;
+  if (id === '7.3') return <AfterGate f={f} dur={dur} />;
+  if (id === '7.4') return <RecapList f={f} dur={dur} />;
   const y = YAML_DATA[id];
-  if (y) return <YamlPanel title={y.title} lines={y.lines} hl={y.hl} appear={prog(f, 0, 20)} reveal={prog(f, dur * 0.03, dur * 0.55)} x={1140} y={200} w={700} />;
+  if (y) return <YamlPanel title={y.title} lines={y.lines} hl={y.hl} appear={prog(f, 0, 20)} reveal={prog(f, dur * 0.03, dur * 0.55)} x={1020} y={200} w={840} />;
   const d = PANEL_DATA[id];
   if (!d) return null;
   const a = prog(f, 0, 24);
@@ -94,14 +95,14 @@ const FourSteps: React.FC<{f: number; dur: number; closing: boolean}> = ({f, dur
   const steps = ['Preparing', 'Failover', 'Restoring', 'Clean up'];
   return <div style={{position: 'absolute', inset: 0, fontFamily: sans, background: C.bg}}>
     <div style={{position: 'absolute', left: 110, top: 190, fontSize: 30, letterSpacing: 2, color: C.blue, fontWeight: 700}}>{closing ? 'THE QUESTION THE CONSOLE DOES NOT COUNT' : 'THE CONSOLE COUNTS FOUR STEPS'}</div>
-    <div style={{position: 'absolute', left: 110, top: 275, display: 'flex', gap: 18}}>
-      {steps.map((s, i) => <div key={s} style={{width: 360, padding: '28px 26px', border: `2px solid ${C.green}`, borderRadius: 16, background: `${C.green}12`, opacity: prog(f, dur * (.05 + i * .09), dur * (.05 + i * .09) + 22)}}>
+    <div style={{position: 'absolute', left: 90, top: 275, display: 'flex', gap: 14}}>
+      {steps.map((s, i) => <div key={s} style={{width: 330, padding: '26px 24px', border: `2px solid ${C.green}`, borderRadius: 16, background: `${C.green}12`, opacity: prog(f, dur * (.05 + i * .09), dur * (.05 + i * .09) + 22)}}>
         <div style={{fontFamily: mono, fontSize: 18, color: C.green}}>STEP {i + 1}</div>
         <div style={{fontSize: 34, fontWeight: 700, color: C.text, marginTop: 8}}>{s}</div>
         <div style={{fontSize: 21, color: C.green, marginTop: 10}}>completed</div>
       </div>)}
     </div>
-    <div style={{position: 'absolute', left: 110 + 4 * 378, top: 275, width: 360, padding: '28px 26px', border: `2px dashed ${closing ? C.red : C.purple}`, borderRadius: 16, background: `${C.purple}0f`, opacity: prog(f, dur * .48, dur * .48 + 26)}}>
+    <div style={{position: 'absolute', left: 90 + 4 * 344, top: 275, width: 330, padding: '28px 26px', border: `2px dashed ${closing ? C.red : C.purple}`, borderRadius: 16, background: `${C.purple}0f`, opacity: prog(f, dur * .48, dur * .48 + 26)}}>
       <div style={{fontFamily: mono, fontSize: 18, color: closing ? C.red : C.purple}}>NOT COUNTED</div>
       <div style={{fontSize: 34, fontWeight: 700, color: C.text, marginTop: 8}}>Reprotect</div>
       <div style={{fontSize: 21, color: closing ? C.red : C.purple, marginTop: 10}}>{closing ? 'the old site is not a standby' : 'the old site must become a standby'}</div>
@@ -153,7 +154,7 @@ const WedgeChain: React.FC<{f: number; dur: number}> = ({f, dur}) => {
         </div>;
       })}
     </div>
-    <div style={{position: 'absolute', left: 120, top: 790, width: 1680, padding: '20px 26px', border: `2px solid ${C.red}`, borderRadius: 14, background: `${C.red}12`, fontSize: 30, color: C.text, opacity: prog(f, dur * .62, dur * .62 + 24)}}>
+    <div style={{position: 'absolute', left: 120, top: 820, width: 1680, padding: '20px 26px', border: `2px solid ${C.red}`, borderRadius: 14, background: `${C.red}12`, fontSize: 30, color: C.text, opacity: prog(f, dur * .62, dur * .62 + 24)}}>
       Application running on spoke-1 · <span style={{color: C.red, fontWeight: 700}}>no standby copy</span> · silence since 11:35:15
     </div>
   </div>;
@@ -164,7 +165,7 @@ const InferenceCard: React.FC<{f: number; dur: number}> = ({f, dur}) => (
     <div style={{position: 'absolute', left: 180, top: 230, width: 1560, padding: '34px 40px', border: `3px solid ${C.purple}`, borderRadius: 20, background: `${C.purple}0e`, opacity: prog(f, dur * .05, dur * .05 + 26)}}>
       <div style={{fontFamily: mono, fontSize: 20, color: C.purple, letterSpacing: 2}}>OPEN QUESTION · NOT CONFIRMED</div>
       <div style={{fontSize: 44, fontWeight: 700, color: C.text, marginTop: 18, lineHeight: 1.3}}>Why did the follow-up reconcile never run?</div>
-      <div style={{fontSize: 26, color: C.dim, marginTop: 22, lineHeight: 1.45}}>The pinned controller source calls ResyncVolume in its steady Secondary path. The deletion based skip people expected is not there. The exact stop point is unconfirmed. The bug is open, linked to DFBUGS-6934 and DFBUGS-9565.</div>
+      <div style={{fontSize: 26, color: C.dim, marginTop: 22, lineHeight: 1.45}}>The controller code calls ResyncVolume in its steady Secondary path. The deletion based skip people expected is not there. The exact stop point is unconfirmed. The bug is open, linked to DFBUGS-6934 and DFBUGS-9565.</div>
     </div>
     <div style={{position: 'absolute', left: 180, top: 620, width: 1560, fontSize: 28, color: C.text, lineHeight: 1.45, opacity: prog(f, dur * .5, dur * .5 + 24)}}>A controller restart produced eleven minutes of zero activity, not even status polling. That argues against a lost queue, but it does not identify the stop point.</div>
   </div>
@@ -185,16 +186,26 @@ const QuoteCard: React.FC<{f: number; dur: number}> = ({f, dur}) => (
 );
 
 const Checklist: React.FC<{f: number; dur: number}> = ({f, dur}) => {
-  const rows = ['Array session: Source / OK, with a sync after the failover', 'Source VRG: Secondary', 'If not: Relocate, or the manual reprotect workaround on the bug'];
+  const rows = ['Delete the source VM. Wait for its VMI to terminate.', 'Wait for sessions OK in reverse: Source on VSA-B, Destination on VSA-A.', 'Source VolumeReplications demoted. Allow about 40 minutes.'];
   return <div style={{position: 'absolute', inset: 0, fontFamily: sans, background: C.bg}}>
-    <div style={{position: 'absolute', left: 120, top: 175, fontSize: 29, letterSpacing: 2, color: C.green, fontWeight: 700}}>BEFORE DELETING THE SOURCE APPLICATION</div>
-    {rows.map((r, i) => <div key={r} style={{position: 'absolute', left: 120, top: 255 + i * 105, width: 1660, display: 'flex', gap: 22, opacity: prog(f, dur * (.08 + i * .12), dur * (.08 + i * .12) + 22)}}>
+    <div style={{position: 'absolute', left: 120, top: 175, fontSize: 29, letterSpacing: 2, color: C.green, fontWeight: 700}}>STAGE ONE · STOP THE SOURCE VM ONLY</div>
+    {rows.map((r, i) => <div key={r} style={{position: 'absolute', left: 120, top: 260 + i * 115, width: 1660, display: 'flex', gap: 22, opacity: prog(f, dur * (.08 + i * .12), dur * (.08 + i * .12) + 22)}}>
       <div style={{fontFamily: mono, fontSize: 34, color: C.green}}>{i + 1}</div>
-      <div style={{fontSize: 32, color: C.text, lineHeight: 1.35}}>{r}</div>
+      <div style={{fontSize: 31, color: C.text, lineHeight: 1.35}}>{r}</div>
     </div>)}
-    <div style={{position: 'absolute', left: 120, top: 620, width: 1660, padding: '24px 28px', border: `2px solid ${C.amber}`, borderRadius: 16, background: `${C.amber}10`, fontSize: 29, color: C.text, lineHeight: 1.4, opacity: prog(f, dur * .5, dur * .5 + 24)}}>The cost is easy to miss because nothing is down. The application serves traffic on spoke-1, but there is no standby copy.</div>
+    <div style={{position: 'absolute', left: 120, top: 650, width: 1660, padding: '24px 28px', border: `2px solid ${C.red}`, borderRadius: 16, background: `${C.red}10`, fontSize: 29, color: C.text, lineHeight: 1.4, opacity: prog(f, dur * .5, dur * .5 + 24)}}>If the sessions stay Failed_Over, stop. Do not delete the DataVolumes.</div>
   </div>;
 };
+
+const AfterGate: React.FC<{f: number; dur: number}> = ({f, dur}) => (
+  <div style={{position: 'absolute', inset: 0, fontFamily: sans, background: C.bg}}>
+    <div style={{position: 'absolute', left: 120, top: 170, fontSize: 29, letterSpacing: 2, color: C.green, fontWeight: 700}}>STAGE TWO · ONLY AFTER THE REVERSE COPY IS HEALTHY</div>
+    <div style={{position: 'absolute', left: 120, top: 230, fontSize: 54, fontWeight: 800, color: C.text, opacity: prog(f, dur * .05, dur * .05 + 24)}}>Delete the DataVolumes.</div>
+    {['Their owned PVCs cascade normally.', 'Verify the source VRG reaches Secondary.', 'Verify the DRPC reaches FailedOver / Completed.'].map((r, i) => <div key={r} style={{position: 'absolute', left: 120, top: 330 + i * 62, fontSize: 30, color: C.text, opacity: prog(f, dur * (.12 + i * .08), dur * (.12 + i * .08) + 20)}}>{r}</div>)}
+    <div style={{position: 'absolute', left: 120, top: 560, width: 1680, padding: '22px 28px', border: `2px solid ${C.amber}`, borderRadius: 16, background: `${C.amber}10`, fontSize: 28, color: C.text, lineHeight: 1.4, opacity: prog(f, dur * .38, dur * .38 + 24)}}>If the sessions do not recover: Relocate, or the manual reprotect workaround on VIRTDR-360.</div>
+    <div style={{position: 'absolute', left: 120, top: 700, width: 1680, fontSize: 29, color: C.dim, lineHeight: 1.4, opacity: prog(f, dur * .55, dur * .55 + 24)}}>The cost is easy to miss because nothing is down. The application serves traffic on spoke-1, but there is no standby copy.</div>
+  </div>
+);
 
 const RecapList: React.FC<{f: number; dur: number}> = ({f, dur}) => {
   const rows = ['Failover worked.', 'The postcheck passed: 576 s of 900 s.', 'The console asked for cleanup at 11:07.', 'Cleanup cascaded to the claims at 11:34.', 'Reprotection never ran.', 'One control run shows timing, not procedure.', 'Still open: why the follow-up reconcile never ran.'];

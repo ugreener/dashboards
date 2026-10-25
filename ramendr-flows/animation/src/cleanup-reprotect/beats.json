@@ -24,8 +24,7 @@
   "card": {
    "kind": "DRPlacementControl",
    "name": "hammerdb-win-drpc",
-   "role": "coordinates recovery",
-   "then source cleanup": null
+   "role": "coordinates recovery, then source cleanup"
   },
   "def": {
    "what": "The hub control record for one protected application.",
@@ -47,8 +46,7 @@
    "creator": "The DR administrator creates it on the hub.",
    "reader": "Ramen and the console read it.",
    "where": "Cluster scope on the hub.",
-   "analogy": "A promise about how much data may be lost",
-   "not a timer.": null
+   "analogy": "A promise about how much data may be lost, not a timer."
   }
  },
  "1.4": {
@@ -104,13 +102,10 @@
    "role": "the source claim whose deletion is blocked"
   },
   "def": {
-   "what": "A request for storage",
-   "here one VM disk.": null,
+   "what": "A request for storage, here one VM disk.",
    "creator": "The DataVolume creates it.",
-   "reader": "The VM uses it",
-   "and controllers add finalizers.": null,
-   "where": "hammerdb-win on the old source",
-   "spoke-0.": null,
+   "reader": "The VM uses it, and controllers add finalizers.",
+   "where": "hammerdb-win on the old source, spoke-0.",
    "analogy": "A claim ticket that cannot be thrown away while someone still holds a lock on it."
   }
  },
@@ -188,9 +183,9 @@
   "screenshot": "bug-hub-protectedapps-drpc-waitonusercleanup.png",
   "focus": {
    "x": 300,
-   "y": 470,
+   "y": 630,
    "w": 1150,
-   "h": 110
+   "h": 50
   },
   "caption": "The DRPC row still at WaitOnUserToCleanUp after the target was verified."
  },
@@ -274,6 +269,9 @@
   "chapter": "What the test established"
  },
  "7.4": {
+  "chapter": "What the test established"
+ },
+ "7.5": {
   "chapter": "What the test established"
  }
 }

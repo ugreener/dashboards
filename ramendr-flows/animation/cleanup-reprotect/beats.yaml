@@ -50,7 +50,7 @@ beats:
   - id: '1.2'
     chapter: Cast of characters
     visual: One DRPC card and its definition.
-    card: {kind: DRPlacementControl, name: hammerdb-win-drpc, role: coordinates recovery, then source cleanup}
+    card: {kind: DRPlacementControl, name: hammerdb-win-drpc, role: 'coordinates recovery, then source cleanup'}
     def: {what: The hub control record for one protected application., creator: The DR administrator enrolls the application., reader: Ramen on the hub and the ACM console., where: openshift-dr-ops on the hub., analogy: A job ticket that records the requested move and how far it got.}
     narration: >-
       The DRPlacementControl, or DRPC, is the hub control record for one
@@ -63,7 +63,7 @@ beats:
     chapter: Cast of characters
     visual: One DRPolicy card and its definition.
     card: {kind: DRPolicy, name: dr-policy-15m, role: pairs the sites and sets the 900-second objective}
-    def: {what: The rule that pairs two clusters and sets the recovery point objective., creator: The DR administrator creates it on the hub., reader: Ramen and the console read it., where: Cluster scope on the hub., analogy: A promise about how much data may be lost, not a timer.}
+    def: {what: The rule that pairs two clusters and sets the recovery point objective., creator: The DR administrator creates it on the hub., reader: Ramen and the console read it., where: Cluster scope on the hub., analogy: 'A promise about how much data may be lost, not a timer.'}
     narration: >-
       The policy named dr-policy-15m pairs spoke-0 and spoke-1 and sets a fifteen
       minute recovery point objective, nine hundred seconds. It is a promise
@@ -111,7 +111,7 @@ beats:
     chapter: Cast of characters
     visual: One PVC card with two finalizer locks.
     card: {kind: PersistentVolumeClaim, name: hammerdb-win-datadisk, role: the source claim whose deletion is blocked}
-    def: {what: A request for storage, here one VM disk., creator: The DataVolume creates it., reader: The VM uses it, and controllers add finalizers., where: hammerdb-win on the old source, spoke-0., analogy: A claim ticket that cannot be thrown away while someone still holds a lock on it.}
+    def: {what: 'A request for storage, here one VM disk.', creator: The DataVolume creates it., reader: 'The VM uses it, and controllers add finalizers.', where: 'hammerdb-win on the old source, spoke-0.', analogy: A claim ticket that cannot be thrown away while someone still holds a lock on it.}
     narration: >-
       A PersistentVolumeClaim, or PVC, is the request for one disk. This one is
       hammerdb-win-datadisk in hammerdb-win. Its deletion is blocked by two
@@ -250,7 +250,7 @@ beats:
       view, so the console can look finished while the storage side has not even
       started.
     screenshot: bug-hub-protectedapps-drpc-waitonusercleanup.png
-    focus: {x: 300, y: 470, w: 1150, h: 110}
+    focus: {x: 300, y: 630, w: 1150, h: 50}
     caption: The DRPC row still at WaitOnUserToCleanUp after the target was verified.
     evidence: [screenshot]
 
@@ -444,10 +444,10 @@ beats:
     visual: The open hypothesis, clearly labelled inference.
     narration: >-
       The earlier hypothesis was that autoResync skips a claim that is already
-      deleting. The pinned controller source does not contain that skip. The
-      only deletion check is narrower. It skips a deleting claim that has
-      already lost its csi-addons finalizer, and these claims still had it. So
-      the simple explanation is wrong.
+      deleting. The controller code does not contain that skip. The only
+      deletion check is narrower. It applies only after a claim has already
+      lost its csi-addons lock, and these claims still had theirs. So the simple
+      explanation is wrong.
     evidence: [virtdr-360, inference]
 
   - id: '6.5'
@@ -484,18 +484,29 @@ beats:
 
   - id: '7.2'
     chapter: What the test established
-    visual: A checklist for the next run, and the cost of the wedge.
+    visual: The two-stage cleanup gate, step by step.
     narration: >-
-      For the next run, do not treat cleanup as the last step. Before deleting
-      the source application, verify the reverse copy. The array session should
-      be Source and OK with a sync after the failover, and the source VRG should
-      be Secondary. If it is not, the documented fallback is a relocate, or the
-      manual reprotect workaround recorded on the bug. The cost of the wedge is
-      easy to miss because nothing is down. The application serves traffic, but
-      there is no standby copy.
-    evidence: [doc, virtdr-360]
+      For the next run, split the cleanup into two stages. Delete the source VM
+      first, and wait for its VMI to terminate. Then, before deleting any
+      DataVolumes or claims, wait for the reverse copy. On both arrays the
+      sessions must leave Failed_Over and show OK with the roles reversed, and
+      the source VolumeReplications must be demoted. Allow up to about forty
+      minutes, one or more twelve minute sync cycles.
+    evidence: [virtdr-344, virtdr-360, doc]
+    pause_after: 1.5
 
   - id: '7.3'
+    chapter: What the test established
+    visual: The second deletion, the fallback, and the cost of the wedge.
+    narration: >-
+      Only then delete the DataVolumes, and verify the source VRG reaches
+      Secondary and the DRPC reaches Completed. If the sessions do not recover,
+      the documented fallback is a relocate, or the manual reprotect workaround
+      recorded on the bug. The cost of the wedge is easy to miss because nothing
+      is down. The application serves traffic, but there is no standby copy.
+    evidence: [virtdr-344, doc, virtdr-360]
+
+  - id: '7.4'
     chapter: What the test established
     visual: One sentence per phase in a vertical list.
     narration: >-
@@ -506,7 +517,7 @@ beats:
     evidence: [virtdr-360, control-342]
     pause_after: 1.5
 
-  - id: '7.4'
+  - id: '7.5'
     chapter: What the test established
     visual: The four steps, with the fifth question on screen.
     narration: >-

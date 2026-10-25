@@ -27,26 +27,26 @@ export const FOCUS: Record<string, string[]> = {
   '2.1': ['site', 'vrg1', 'array1'],
   '2.2': ['vrg1', 'vr1r', 'vr1d', 'array0', 'array1'],
   '2.3': ['vrg0', 'vr0r', 'vr0d', 'vm0'],
-  '2.4': ['drpc', 'array0'],
-  '2.5': ['vrg1', 'array0', 'array1'],
+  '2.4': ['array0'],
+  '2.5': ['vrg1'],
   '3.1': ['site', 'vrg1'],
-  '3.2': ['drpc', 'vrg1'],
+  '3.2': ['drpc'],
   '3.3': ['vrg0', 'vr0r', 'vr0d', 'vm0'],
-  '3.4': ['drpc', 'vrg1'],
-  '3.5': ['drpc', 'vrg1', 'array1'],
+  '3.4': ['vrg1'],
+  '3.5': ['drpc'],
   '4.1': ['pvc1r', 'pvc1d', 'vrg1'],
   '4.2': ['pvc1r', 'pvc1d'],
   '4.3': ['pvc1r', 'pvc1d'],
   '4.4': ['vr1r', 'vr1d', 'array1'],
-  '4.5': ['array0', 'array1', 'vr1r', 'vr1d'],
-  '4.6': ['drpc', 'vrg1'],
+  '4.5': ['array1'],
+  '4.6': ['drpc'],
   '4.7': ['pvc1r', 'pvc1d', 'vrg1'],
   '5.1': ['vrg1', 'vr1r', 'vr1d', 'array1'],
   '5.2': ['pvc1r', 'pvc1d'],
   '5.3': ['vr1r', 'vr1d'],
   '5.4': ['vrg1'],
-  '5.5': ['drpc', 'vrg1'],
-  '5.6': ['array0', 'array1'],
+  '5.5': ['drpc'],
+  '5.6': ['array1'],
   '5.7': ['vr0r', 'vr0d', 'array0'],
   '6.1': ['vrg1', 'vrg0', 'array0', 'array1', 'drpc'],
   '7.1': ['drpc'],
@@ -118,13 +118,13 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   const chapter = phase(c.id);
   const lockLines = (key: string) => {
     const st = status(key);
-    if (st.startsWith('Terminating')) return ['deletionTimestamp: 2026-10-22T11:34:00Z', ...FINALIZERS];
+    if (st.startsWith('Terminating')) return ['deletionTimestamp: 2026-10-22T11:34:00Z', 'finalizers: 2 · held'];
     return [status(key), key === 'pvc1r' || key === 'pvc1d' ? 'owner: the VRG protection chain' : 'recorded configuration'];
   };
   return <div style={{position: 'absolute', width: 2480, height: 1470}}>
     <Region b={{x: 70, y: 45, w: 2340, h: 300}} title="HUB · edge36" sub="recovery coordinator" color={C.blue} />
-    <Region b={{x: 70, y: 400, w: 1170, h: 680}} title="SPOKE-1 · edge95 · TARGET" sub="runs the recovered workload" color={C.spoke1} />
-    <Region b={{x: 1235, y: 400, w: 1175, h: 680}} title="SPOKE-0 · edge97 · OLD SOURCE" sub={frozen ? 'site suspended' : 'cleanup site'} color={wedged ? C.red : frozen ? C.red : C.spoke0} dashed={frozen} glow={wedged ? 0.6 : 0} />
+    <Region b={{x: 70, y: 400, w: 1170, h: 680}} title="SPOKE-1 · edge97 · TARGET" sub="runs the recovered workload" color={C.spoke1} />
+    <Region b={{x: 1235, y: 400, w: 1175, h: 680}} title="SPOKE-0 · edge95 · OLD SOURCE" sub={frozen ? 'site suspended' : 'cleanup site'} color={wedged ? C.red : frozen ? C.red : C.spoke0} dashed={frozen} glow={wedged ? 0.6 : 0} />
     <Region b={{x: 70, y: 1110, w: 1170, h: 330}} title="VSA-A · DESTINATION" color={C.array} />
     <Region b={{x: 1235, y: 1110, w: 1175, h: 330}} title="VSA-B · SOURCE" color={C.array} />
 
@@ -143,8 +143,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       </defs>
       {chapter >= 2 ? <g opacity={prog(c.f, c.dur * .05, c.dur * .05 + 25)}>
         <path d="M470,300 C470,345 1555,345 1555,450" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#tipCR)" />
-        <rect x={720} y={330} width={650} height={34} rx={10} fill={C.bg} />
-        <text x={1045} y={354} textAnchor="middle" fill={C.cyan} fontSize={20} fontFamily={sans}>ManifestWork sets the source VRG to Secondary</text>
+        <rect x={720} y={352} width={650} height={34} rx={10} fill={C.bg} />
+        <text x={1045} y={376} textAnchor="middle" fill={C.cyan} fontSize={20} fontFamily={sans}>ManifestWork sets the source VRG to Secondary</text>
       </g> : null}
       {chapter >= 4 ? <g opacity={prog(c.f, c.dur * .1, c.dur * .1 + 22)}>
         <path d="M1825,560 L1870,560" fill="none" stroke={C.orange} strokeWidth={4} markerEnd="url(#tipCRO)" />
@@ -154,19 +154,14 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       </g> : null}
       {chapter >= 2 ? <g opacity={prog(c.f, c.dur * .12, c.dur * .12 + 24)}>
         <path d={wedged ? 'M2368,585 L2440,585 L2440,1080 L1820,1080 L1820,1160' : 'M2368,585 L2440,585 L2440,1080 L1820,1080 L1820,1160'} fill="none" stroke={wedged ? C.red : C.orange} strokeWidth={4} strokeDasharray={wedged ? '10 9' : undefined} markerEnd={`url(#${wedged ? 'tipCRR' : 'tipCRO'})`} />
-        <rect x={1910} y={1050} width={480} height={34} rx={10} fill={C.bg} />
-        <text x={2150} y={1074} textAnchor="middle" fill={wedged ? C.red : C.orange} fontSize={20} fontFamily={sans}>{wedged ? 'no ResyncVolume issued' : 'csi-addons calls Dell CSI'}</text>
+        <rect x={1910} y={976} width={480} height={34} rx={10} fill={C.bg} />
+        <text x={2150} y={1000} textAnchor="middle" fill={wedged ? C.red : C.orange} fontSize={20} fontFamily={sans}>{wedged ? 'no ResyncVolume issued' : 'csi-addons calls Dell CSI'}</text>
       </g> : null}
       {chapter >= 2 ? <g opacity={prog(c.f, c.dur * .15, c.dur * .15 + 24)}>
-        <path d={wedged ? 'M660,1290 L1285,1290' : 'M1285,1290 L660,1290'} fill="none" stroke={wedged ? C.red : C.orange} strokeWidth={5} strokeDasharray={wedged ? '12 10' : undefined} markerEnd={`url(#${wedged ? 'tipCRR' : 'tipCRO'})`} />
+        <path d={reached(c.id, '2.2') ? 'M1285,1290 L660,1290' : 'M660,1290 L1285,1290'} fill="none" stroke={wedged ? C.red : C.orange} strokeWidth={5} strokeDasharray={wedged ? '12 10' : undefined} markerEnd={`url(#${wedged ? 'tipCRR' : 'tipCRO'})`} />
         <rect x={790} y={1258} width={470} height={38} rx={12} fill={C.bg} />
-        <text x={1025} y={1284} textAnchor="middle" fill={wedged ? C.red : C.orange} fontSize={22} fontFamily={sans}>{wedged ? 'intended reverse copy · not running' : 'recorded reverse direction'}</text>
-      </g> : null}
-      {wedged ? <g opacity={prog(c.f, c.dur * .2, c.dur * .2 + 24)}>
-        <text x={1555} y={1100} textAnchor="middle" fill={C.red} fontSize={22} fontFamily={mono}>waiting on the next layer</text>
+        <text x={1025} y={1284} textAnchor="middle" fill={wedged ? C.red : C.orange} fontSize={22} fontFamily={sans}>{wedged ? 'intended reverse copy · not running' : reached(c.id, '2.2') ? 'recorded reverse direction' : 'baseline copy · VSA-A to VSA-B'}</text>
       </g> : null}
     </svg>
-    {frozen ? <div style={{position: 'absolute', left: 1300, top: 1000, fontFamily: mono, fontSize: 20, color: C.red}}>source site suspended · arrays stay online</div> : null}
-    {wedged ? <div style={{position: 'absolute', left: 1300, top: 1030, fontFamily: mono, fontSize: 20, color: C.red}}>application still running on spoke-1</div> : null}
   </div>;
 };
