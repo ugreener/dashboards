@@ -86,7 +86,7 @@ const ColdCard: React.FC<{f: number; dur: number}> = ({f, dur}) => (
   <div style={{position: 'absolute', left: 70, top: 235, width: 760, fontFamily: sans}}>
     <div style={{fontFamily: mono, fontSize: 21, color: C.amber, letterSpacing: 1}}>22 OCTOBER 2026 · 11:07 UTC</div>
     <div style={{fontSize: 58, fontWeight: 800, color: C.text, marginTop: 18, lineHeight: 1.1}}>Action needed.<br />3 of 4 steps.</div>
-    <div style={{fontSize: 27, color: C.dim, marginTop: 22, lineHeight: 1.45, opacity: prog(f, dur * .12, dur * .12 + 24)}}>Clean up hammerdb-win-drpc on the failed cluster spoke-0 to complete the failover.</div>
+    <div style={{fontSize: 27, color: C.dim, marginTop: 22, lineHeight: 1.45, opacity: prog(f, dur * .12, dur * .12 + 24)}}>Clean up <span style={{whiteSpace: 'nowrap'}}>hammerdb-win-drpc</span> on the failed cluster <span style={{whiteSpace: 'nowrap'}}>spoke-0</span> to complete the failover.</div>
     <div style={{marginTop: 30, padding: '18px 22px', borderLeft: `5px solid ${C.red}`, background: `${C.panel}cc`, fontSize: 23, color: C.text, lineHeight: 1.4, opacity: prog(f, dur * .3, dur * .3 + 24)}}>By 11:35 the application ran on spoke-1 with <span style={{color: C.red, fontWeight: 700}}>no standby copy</span>, and no error said why.</div>
   </div>
 );
@@ -96,11 +96,11 @@ const FourSteps: React.FC<{f: number; dur: number; closing: boolean}> = ({f, dur
   return <div style={{position: 'absolute', inset: 0, fontFamily: sans, background: C.bg}}>
     <div style={{position: 'absolute', left: 110, top: 190, fontSize: 30, letterSpacing: 2, color: C.blue, fontWeight: 700}}>{closing ? 'THE QUESTION THE CONSOLE DOES NOT COUNT' : 'THE CONSOLE COUNTS FOUR STEPS'}</div>
     <div style={{position: 'absolute', left: 90, top: 275, display: 'flex', gap: 14}}>
-      {steps.map((s, i) => <div key={s} style={{width: 330, padding: '26px 24px', border: `2px solid ${C.green}`, borderRadius: 16, background: `${C.green}12`, opacity: prog(f, dur * (.05 + i * .09), dur * (.05 + i * .09) + 22)}}>
-        <div style={{fontFamily: mono, fontSize: 18, color: C.green}}>STEP {i + 1}</div>
+      {steps.map((s, i) => { const pending = i === 3; const col = pending ? C.amber : C.green; return <div key={s} style={{width: 330, padding: '26px 24px', border: `2px solid ${col}`, borderRadius: 16, background: `${col}12`, opacity: prog(f, dur * (.05 + i * .09), dur * (.05 + i * .09) + 22)}}>
+        <div style={{fontFamily: mono, fontSize: 18, color: col}}>STEP {i + 1}</div>
         <div style={{fontSize: 34, fontWeight: 700, color: C.text, marginTop: 8}}>{s}</div>
-        <div style={{fontSize: 21, color: C.green, marginTop: 10}}>completed</div>
-      </div>)}
+        <div style={{fontSize: 21, color: col, marginTop: 10}}>{pending ? 'action needed' : 'completed'}</div>
+      </div>; })}
     </div>
     <div style={{position: 'absolute', left: 90 + 4 * 344, top: 275, width: 330, padding: '28px 26px', border: `2px dashed ${closing ? C.red : C.purple}`, borderRadius: 16, background: `${C.purple}0f`, opacity: prog(f, dur * .48, dur * .48 + 26)}}>
       <div style={{fontFamily: mono, fontSize: 18, color: closing ? C.red : C.purple}}>NOT COUNTED</div>
@@ -233,7 +233,7 @@ export const GlossaryScene: React.FC<{id: string; f: number; dur: number; card?:
   if (!card || !def) return <div style={{position: 'absolute', left: 180, top: 350, right: 180, color: C.text, fontFamily: sans, fontSize: 44, textAlign: 'center'}}>Every piece has one job. Follow the handoffs, not just the names.</div>;
   return <div style={{position: 'absolute', inset: 0, opacity: prog(f, -20, 24)}}>
     <div style={{position: 'absolute', left: 100, top: 170, color: C.purple, fontFamily: mono, fontSize: 21}}>CAST OF CHARACTERS · {id.split('.')[1]}</div>
-    <Card x={100} y={300} w={660} kind={card.kind} name={card.name} role={card.role} nameSize={29} appear={prog(f, -10, 24)} color={C.cyan} />
+    <Card x={100} y={300} w={660} kind={card.kind} name={card.name} role={card.role} nameSize={card.name.length > 28 ? 20 : 29} appear={prog(f, -10, 24)} color={C.cyan} />
     <GlossaryPanel d={def} p={prog(f, dur * .03, dur * .75)} x={850} y={230} w={990} />
   </div>;
 };

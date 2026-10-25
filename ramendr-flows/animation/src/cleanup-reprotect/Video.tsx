@@ -100,7 +100,7 @@ export const CleanupReprotect: React.FC<{chapters: number[]}> = ({chapters}) => 
   });
   const showWorld = ch >= 2 && ch <= 5;
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
-    {showWorld ? <div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} /></div> : null}
+    {showWorld ? <div style={{position: 'absolute', inset: 0, clipPath: 'inset(210px 0 0 0)'}}><div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} /></div></div> : null}
     {seg.type === 'beat' && ch === 1 ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
     {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={ch === 6 ? null : CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null} ticket="VIRTDR-360" /> : null}
