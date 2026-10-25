@@ -1,0 +1,514 @@
+# yamllint disable rule:line-length
+ticket: VIRTDR-360
+run: '2026-10-22'
+direction: spoke-1 target, spoke-0 source cleanup
+beats:
+  - id: '0.1'
+    chapter: Cold open
+    visual: The recorded console popover fills the frame, then the wedge state.
+    narration: >-
+      At eleven oh seven UTC, the disaster recovery console said Action needed.
+      Three of four steps complete. Clean up the application on the failed cluster,
+      and failover will finish. The operator did exactly that. By 11:35 the application ran on spoke-1 with no standby copy, and no error explained why.
+    screenshot: bug-hub-drstatus-popover-waitonusercleanup.png
+    focus: {x: 920, y: 120, w: 360, h: 520}
+    caption: The instruction that started the cleanup, captured at 11:07 UTC.
+    evidence: [virtdr-360, timeline, screenshot]
+    pause_after: 2.2
+
+  - id: '0.2'
+    chapter: Cold open
+    visual: Four step chips fill in, then a fifth ghost chip appears after them.
+    narration: >-
+      The console counts four steps. Prepare, fail over, restore, clean up.
+      It does not count the fifth job that has to happen after cleanup. The old
+      site must become a standby again. That job is called reverse reprotection,
+      and it is where this story lives.
+    evidence: [screenshot, source-trace]
+    pause_after: 1.5
+
+  - id: '0.3'
+    chapter: Cold open
+    visual: Two runs side by side, one closes its loop, one stops at the same point.
+    narration: >-
+      Three days earlier, the same procedure on the same build converged. The
+      difference was not a command or a version. It was the moment the automatic
+      reverse resync finished relative to the cleanup. This video separates what
+      was recorded from what is still inferred.
+    evidence: [control-342, virtdr-360]
+    pause_after: 2
+
+  - id: '1.1'
+    chapter: Cast of characters
+    visual: Introduce the job of the glossary before showing domain names.
+    narration: >-
+      Before the failure, meet the objects that matter. Each has one job. The
+      point is not to memorize names. It is to see which object is waiting for
+      which other object when the chain stops.
+    evidence: [source-trace]
+
+  - id: '1.2'
+    chapter: Cast of characters
+    visual: One DRPC card and its definition.
+    card: {kind: DRPlacementControl, name: hammerdb-win-drpc, role: coordinates recovery, then source cleanup}
+    def: {what: The hub control record for one protected application., creator: The DR administrator enrolls the application., reader: Ramen on the hub and the ACM console., where: openshift-dr-ops on the hub., analogy: A job ticket that records the requested move and how far it got.}
+    narration: >-
+      The DRPlacementControl, or DRPC, is the hub control record for one
+      application. Ours is hammerdb-win-drpc in openshift-dr-ops. It records the
+      requested action and the progression. When the console shows a step, it is
+      reading this object.
+    evidence: [source-trace, resources-source]
+
+  - id: '1.3'
+    chapter: Cast of characters
+    visual: One DRPolicy card and its definition.
+    card: {kind: DRPolicy, name: dr-policy-15m, role: pairs the sites and sets the 900-second objective}
+    def: {what: The rule that pairs two clusters and sets the recovery point objective., creator: The DR administrator creates it on the hub., reader: Ramen and the console read it., where: Cluster scope on the hub., analogy: A promise about how much data may be lost, not a timer.}
+    narration: >-
+      The DRPolicy dr-policy-15m pairs spoke-0 and spoke-1 and sets a fifteen
+      minute recovery point objective, nine hundred seconds. It is a promise
+      about how much data may be lost. It is not a timer and it does not prove
+      that any copy is fresh.
+    evidence: [resources-source]
+
+  - id: '1.4'
+    chapter: Cast of characters
+    visual: One VRG card and its definition.
+    card: {kind: VolumeReplicationGroup, name: hammerdb-win-drpc, role: coordinates all protected disks on one cluster}
+    def: {what: The per-cluster coordinator for a group of protected disks., creator: Ramen delivers it from the hub., reader: Ramen's spoke controller reads it., where: openshift-dr-ops on both spokes., analogy: A foreman who tracks every disk job on one site.}
+    narration: >-
+      On each cluster, a VolumeReplicationGroup, or VRG, coordinates the
+      protected disks. Both VRGs are named hammerdb-win-drpc and live in
+      openshift-dr-ops. The VRG on the target became Primary. The VRG on the old
+      source must become Secondary. That transition is what the hub is waiting for.
+    evidence: [resources-source, resources-target]
+
+  - id: '1.5'
+    chapter: Cast of characters
+    visual: One VolumeReplication card and its definition.
+    card: {kind: VolumeReplication, name: hammerdb-win-datadisk, role: asks the driver to replicate or change one disk role}
+    def: {what: The work order for one protected disk., creator: The VRG creates one per protected claim., reader: csi-addons translates it into Dell driver calls., where: hammerdb-win on each spoke., analogy: A separate work order for each disk.}
+    narration: >-
+      A VolumeReplication is the work order for one disk. There are two here,
+      hammerdb-win-rootdisk and hammerdb-win-datadisk, in namespace hammerdb-win.
+      Each has a desired state, primary or secondary. csi-addons translates that
+      request into calls to the Dell driver, and the driver asks PowerStore to act.
+    evidence: [resources-source, source-trace]
+
+  - id: '1.6'
+    chapter: Cast of characters
+    visual: One VolumeReplicationClass card and its definition.
+    card: {kind: VolumeReplicationClass, name: powerstore-vrc-15m, role: selects the driver and the fifteen-minute schedule}
+    def: {what: The settings for replicating a disk., creator: The storage administrator creates it., reader: The csi-addons controller reads it., where: Cluster scope on each spoke., analogy: The delivery contract for the recovery copy.}
+    narration: >-
+      The VolumeReplicationClass powerstore-vrc-15m supplies the driver name and
+      the fifteen minute schedule. The storage administrator creates it, and the
+      csi-addons controller reads it. It is the contract for copying, separate
+      from the StorageClass that provisions the disk.
+    evidence: [resources-source]
+
+  - id: '1.7'
+    chapter: Cast of characters
+    visual: One PVC card with two finalizer locks.
+    card: {kind: PersistentVolumeClaim, name: hammerdb-win-datadisk, role: the source claim whose deletion is blocked}
+    def: {what: A request for storage, here one VM disk., creator: The DataVolume creates it., reader: The VM uses it, and controllers add finalizers., where: hammerdb-win on the old source, spoke-0., analogy: A claim ticket that cannot be thrown away while someone still holds a lock on it.}
+    narration: >-
+      A PersistentVolumeClaim, or PVC, is the request for one disk. This one is
+      hammerdb-win-datadisk in hammerdb-win. Its deletion is blocked by two
+      finalizers. A finalizer is a lock. The object can be marked for deletion,
+      but it disappears only when the controller that owns the lock removes it.
+    evidence: [resources-source]
+
+  - id: '1.8'
+    chapter: Cast of characters
+    visual: One controller card and its definition.
+    card: {kind: Controller, name: csi-addons + Dell CSM, role: turns replication requests into PowerStore calls}
+    def: {what: The two controllers that execute storage replication., creator: The platform installs them on each spoke., reader: They read VolumeReplication objects., where: csi-addons and csi-powerstore pods on each spoke., analogy: The translator between Kubernetes and the storage array.}
+    narration: >-
+      Two controllers do the storage work. csi-addons runs the replication
+      protocol. The Dell CSM driver, csi-powerstore, translates each request into
+      PowerStore API calls. This is the layer that must issue a resync when a
+      disk is supposed to become a standby again.
+    evidence: [source-trace]
+
+  - id: '1.9'
+    chapter: Cast of characters
+    visual: One replication session card and its definition.
+    card: {kind: ReplicationSession, name: 12aa0804-be9a-47a7-b1a8-2cf36bb240b1, role: one PowerStore copy relationship between the arrays}
+    def: {what: One replication relationship inside the storage array., creator: The Dell driver creates it when replication is enabled., reader: The driver and the array act on it., where: PowerStore VSA-A and VSA-B., analogy: A two-way pipe that can carry data in one direction at a time.}
+    narration: >-
+      Inside the array, each disk has a replication session. This is the data
+      disk session, 12aa0804. A session has a role, Source or Destination, and a
+      state. After a failover it enters Failed_Over, which literally means
+      reprotect required. Until a resync runs, the arrays move no data.
+    evidence: [array-sessions]
+
+  - id: '1.10'
+    chapter: Cast of characters
+    visual: The whole chain stacked in one column.
+    narration: >-
+      So the chain is: the hub DRPC asks, the VRG on each cluster coordinates, a
+      VolumeReplication per disk requests, csi-addons and the Dell driver execute,
+      and a PowerStore session does the copy. The console shows only the top of
+      that chain.
+    evidence: [source-trace]
+    pause_after: 1.5
+
+  - id: '2.1'
+    chapter: A failover that worked
+    visual: The source site freezes while arrays and hub stay lit.
+    narration: >-
+      On 22 October, the test froze the whole source site at 10:19:37. All six
+      node VMs on spoke-0 were suspended with virsh. This is a real site loss for
+      the hub, because the heartbeat stops, and for the workload, because writes
+      stop mid flight.
+    evidence: [timeline]
+
+  - id: '2.2'
+    chapter: A failover that worked
+    visual: The console initiates, the array completes the failover job.
+    narration: >-
+      At 10:20:17 the operator initiated failover to spoke-1 in the console.
+      Seven seconds later the array completed the Failover job. Both sessions
+      flipped roles. VSA-B became the Source, VSA-A became the Destination, and
+      both entered Failed_Over. That state is expected. The array is saying, I
+      have a new direction, now reprotect me.
+    define: {term: Failed_Over, text: The session has a new direction but no reverse copy yet. Reprotect and resync must run before the old site is a standby again.}
+    evidence: [array-sessions, timeline]
+
+  - id: '2.3'
+    chapter: A failover that worked
+    visual: Target VM, VRG and VolumeReplications all Primary.
+    narration: >-
+      By 10:22 the target was running. The VM hammerdb-win was up on spoke-1,
+      the target VRG was Primary, both target VolumeReplications were Primary,
+      and the PVCs were bound to the promoted replica handles. The failover
+      itself worked.
+    evidence: [timeline, resources-target]
+
+  - id: '2.4'
+    chapter: A failover that worked
+    visual: Postcheck verdicts with the source still down.
+    narration: >-
+      The data checks passed with the source still down. The measured loss window
+      was five hundred and seventy six seconds, inside the nine hundred second
+      objective. Fifty six complete source minutes were recovered with no missing
+      rows, and both disks' last two syncs carried real writes. This was not zero
+      loss. It was within the promise.
+    evidence: [postcheck-344, timeline]
+    pause_after: 1.5
+
+  - id: '2.5'
+    chapter: A failover that worked
+    visual: One sentence recap over the two sites.
+    narration: >-
+      So far, failover moved the application and the data. What remains is the
+      old site. It still holds the original disks, and it must be turned into a
+      standby again. That is the job the four step console does not count.
+    evidence: [source-trace]
+
+  - id: '3.1'
+    chapter: The instruction
+    visual: Source nodes resume, the hub heartbeat returns.
+    narration: >-
+      The source site came back at 10:54. All six node VMs resumed, the clocks
+      were stepped, and by about 11:05 the hub could hear from spoke-0 again. The
+      ManagedCluster object went back to Available=True. Available means the hub
+      has a recent heartbeat. It does not mean the application on that cluster is
+      safe to delete.
+    evidence: [timeline]
+
+  - id: '3.2'
+    chapter: The instruction
+    visual: The recorded popover with the console instruction.
+    narration: >-
+      At 11:07 the DRPC reached the progression WaitOnUserToCleanUp. The console
+      showed Action needed and told the operator to clean up hammerdb-win-drpc on
+      the failed cluster, spoke-0. This is a discovered application. Ramen did
+      not create it, so it will not delete it. It waits for a person.
+    screenshot: bug-hub-drstatus-popover-waitonusercleanup.png
+    focus: {x: 940, y: 330, w: 320, h: 190}
+    caption: The DRPC row at WaitOnUserToCleanUp and the console instruction.
+    evidence: [virtdr-360, screenshot, timeline]
+
+  - id: '3.3'
+    chapter: The instruction
+    visual: Target checks pass before any deletion.
+    narration: >-
+      Before deleting, the operator verified the target at 11:08. The target VRG
+      was Primary, both VolumeReplications were Primary, the PVCs were bound, and
+      the VM was running. This was not a blind cleanup. The documented check came
+      first.
+    evidence: [timeline]
+
+  - id: '3.4'
+    chapter: The instruction
+    visual: The recorded row and the four step tracker.
+    narration: >-
+      The popover says three of four steps completed. Prepare, fail over, restore,
+      clean up. Clean up is the fourth. Reverse reprotection is not a step in this
+      view, so the console can look finished while the storage side has not even
+      started.
+    screenshot: bug-hub-protectedapps-drpc-waitonusercleanup.png
+    focus: {x: 300, y: 470, w: 1150, h: 110}
+    caption: The DRPC row still at WaitOnUserToCleanUp after the target was verified.
+    evidence: [screenshot]
+
+  - id: '3.5'
+    chapter: The instruction
+    visual: Recap line with the missing fifth job highlighted.
+    narration: >-
+      So far, the console asked for cleanup only after the failed site was back
+      and the target was verified. The instruction was timely and correct by
+      every visible signal. The missing signal was the state of the reverse copy.
+    evidence: [virtdr-360]
+
+  - id: '4.1'
+    chapter: Cleanup and the silence after
+    visual: The source VM and its VMI leave; the claim remains.
+    narration: >-
+      At 11:33:01 the operator deleted the source VM, as the procedure says. The
+      VMI terminated within a minute. This is the first half of the cleanup, and
+      it is the half that stops the old copy from writing.
+    evidence: [timeline]
+
+  - id: '4.2'
+    chapter: Cleanup and the silence after
+    visual: DataVolumes delete, both PVCs receive a deletion timestamp.
+    narration: >-
+      At 11:34 the DataVolumes were deleted. A DataVolume is the object that
+      prepares a disk and owns its claim. Deleting it cascaded to the two PVCs.
+      Both claims received a deletion timestamp at 11:34, but neither disappeared.
+    define: {term: DataVolume, text: A request that prepares a VM disk and owns the PVC behind it. Deleting it deletes the claim it created.}
+    evidence: [resources-source, timeline]
+
+  - id: '4.3'
+    chapter: Cleanup and the silence after
+    visual: Both finalizers on the recorded claim.
+    narration: >-
+      Each claim carried two finalizers. Ramen's pvc-vr-protection and
+      csi-addons' pvc-protection. These are not garbage collection accidents.
+      They are the locks that prevent a disk from being destroyed while a
+      replication controller still believes it owns the copy.
+    evidence: [resources-source]
+
+  - id: '4.4'
+    chapter: Cleanup and the silence after
+    visual: The last driver line on a timeline.
+    narration: >-
+      At 11:35:15, the first DemoteVolume call for these sessions since the
+      failover ran on spoke-0. The driver answered, already secondary, role
+      Destination, state Failed_Over. That is the last useful line in the logs
+      for these volumes.
+    evidence: [timeline, spoke0-driver]
+    pause_after: 2
+
+  - id: '4.5'
+    chapter: Cleanup and the silence after
+    visual: A log search that finds no resync, and an array job list with one entry.
+    narration: >-
+      After 11:35:15 there is no ResyncVolume call on either cluster. The array
+      job history contains only the 10:20:24 failover job. The sessions stay in
+      Failed_Over, and the last sync never advances past 10:10 and 10:12.
+    evidence: [spoke0-driver, spoke1-driver, array-sessions]
+
+  - id: '4.6'
+    chapter: Cleanup and the silence after
+    visual: The documented steps tick by, with no remaining action.
+    narration: >-
+      The documented order was followed. The console gave the instruction at
+      11:07, after the site was back, and the operator verified the target first.
+      No step in the procedure said to wait for reprotection. That is the trap.
+      The visible sequence had no remaining action.
+    evidence: [virtdr-360, doc]
+
+  - id: '4.7'
+    chapter: Cleanup and the silence after
+    visual: Recap over the stuck claims.
+    narration: >-
+      So far, deletion began at 11:34, one driver action ran at 11:35:15, and
+      then every controller stopped. The next chapter shows what each layer was
+      waiting for, and why the waiting never ended.
+    evidence: [resources-source]
+
+  - id: '5.1'
+    chapter: Anatomy of the wedge
+    visual: Three jobs of reprotection, then the chain that should run them.
+    narration: >-
+      Reverse reprotection has to do three things. Demote the old source, resync
+      the data back to it, and mark the source VRG Secondary. Only then is the
+      old site a standby again, and only then can the hub finish the failover.
+    evidence: [source-trace]
+
+  - id: '5.2'
+    chapter: Anatomy of the wedge
+    visual: The recorded PVC with both finalizers.
+    narration: >-
+      Start at the bottom. The two source PVCs are Terminating. Their deletion
+      timestamp is 11:34, and both finalizers are still present. A PVC in this
+      state is not gone and not usable. It is held.
+    evidence: [resources-source]
+
+  - id: '5.3'
+    chapter: Anatomy of the wedge
+    visual: The source VolumeReplication status.
+    narration: >-
+      The source VolumeReplications say secondary, and autoResync is true. That
+      flag means the controller is allowed to start the reverse copy by itself.
+      Their conditions say Demoted is true and Degraded is true, with reason
+      VolumeDegraded.
+    evidence: [resources-source]
+
+  - id: '5.4'
+    chapter: Anatomy of the wedge
+    visual: The source VRG status and the Ramen log line.
+    narration: >-
+      The source VRG reports state Unknown. DataReady is false with reason Error
+      and the message, All PVCs of the VolumeReplicationGroup are not ready. Per
+      claim, the message is volume is degraded. The Ramen log shows the secondary
+      reconcile ending with Requeue false, so it never runs again.
+    evidence: [resources-source, spoke0-ramen]
+
+  - id: '5.5'
+    chapter: Anatomy of the wedge
+    visual: The hub requeue loop.
+    narration: >-
+      The hub DRPC keeps requeueing. Its message is still waiting for peer to be
+      ready, and the progression oscillates between Cleaning Up and
+      WaitOnUserToCleanUp. The hub is doing its job. It is waiting for the source
+      VRG to say Secondary.
+    evidence: [resources-source, hub-ramen]
+
+  - id: '5.6'
+    chapter: Anatomy of the wedge
+    visual: The two array sessions, roles flipped but state unchanged.
+    narration: >-
+      The arrays are not copying. The two Windows sessions on VSA-B are Source
+      and Failed_Over, with the last sync at 10:10 and 10:12. Failed_Over means
+      reprotect required. No resync job exists, so the arrays are healthy and
+      idle at the same time.
+    evidence: [array-sessions]
+
+  - id: '5.7'
+    chapter: Anatomy of the wedge
+    visual: The target side polling and doing nothing.
+    narration: >-
+      The target side is not the problem either. Its VolumeReplications are
+      Primary with autoResync false, which is deliberate. Its driver polls about
+      every seven and a half minutes, sees Failed_Over and reprotect required,
+      and correctly does nothing. The target must not write over the only copy.
+    evidence: [resources-target, spoke1-driver]
+
+  - id: '5.8'
+    chapter: Anatomy of the wedge
+    visual: A waiting chain that ends in an empty bay.
+    narration: >-
+      So every layer is waiting on the next. The hub waits for the VRG, the VRG
+      waits for the claims, the claims wait for their finalizers, the finalizers
+      wait for csi-addons, and csi-addons never issues the resync. The
+      application keeps running, with no standby copy.
+    evidence: [resources-source, timeline]
+    pause_after: 2.2
+
+  - id: '6.1'
+    chapter: The control run and the line between fact and inference
+    visual: The earlier run, same topology, converging.
+    narration: >-
+      Three days earlier, VIRTDR-342 ran the same procedure on the same build.
+      Source spoke-1, target spoke-0, a RHEL workload instead of Windows. It
+      converged.
+    evidence: [control-342]
+
+  - id: '6.2'
+    chapter: The control run and the line between fact and inference
+    visual: The resync finishing before the cleanup reaches the claims.
+    narration: >-
+      The difference was order in time, not a command. In that run, the automatic
+      reverse resync finished before the cleanup reached the claims. The sessions
+      ended Source and OK, the PVC cascade completed, and the VolumeReplications
+      were removed.
+    evidence: [control-342, trace-342]
+
+  - id: '6.3'
+    chapter: The control run and the line between fact and inference
+    visual: Both runs compared, one completes, one stops.
+    narration: >-
+      The source VRG then reached Secondary, and the hub DRPC reached FailedOver,
+      progression Completed, with PeerReady true. Same steps, same versions,
+      opposite outcome. The only variable was when the resync happened. This is
+      why the run is called a race.
+    evidence: [control-342]
+
+  - id: '6.4'
+    chapter: The control run and the line between fact and inference
+    visual: The open hypothesis, clearly labelled inference.
+    narration: >-
+      Here is where the evidence stops. The leading explanation is that
+      autoResync skips a claim that is already deleting. That is an inference,
+      not a confirmed code path. The bug is open, linked to DFBUGS-6934 and
+      DFBUGS-9565.
+    evidence: [virtdr-360, inference]
+
+  - id: '6.5'
+    chapter: The control run and the line between fact and inference
+    visual: 'The restart diagnostic: eleven minutes of nothing.'
+    narration: >-
+      One diagnostic supports the inference. The csi-addons PowerStore controller
+      on the source was restarted. For eleven minutes there was no activity at
+      all, not even status polling, and the conditions did not change. A lost
+      queue would have recovered on restart. This did not.
+    evidence: [virtdr-360, inference]
+
+  - id: '6.6'
+    chapter: The control run and the line between fact and inference
+    visual: 'Recap: proven versus inferred.'
+    narration: >-
+      What is proven is narrower and still serious. The documented cleanup can
+      wedge the reverse copy. The console gives no warning, no error, and no
+      timeout. One run converged because the resync finished first. One run
+      wedged because cleanup reached the claims first. The code level cause is
+      still being confirmed.
+    evidence: [virtdr-360, control-342]
+
+  - id: '7.1'
+    chapter: What the test established
+    visual: The published promise next to the recorded outcome.
+    narration: >-
+      The published procedure for this discovered application flow says that
+      after cleanup, replication resumes automatically. In this run it did not.
+      The promise and the recording disagree, and the recording is the evidence.
+    evidence: [doc, virtdr-360]
+
+  - id: '7.2'
+    chapter: What the test established
+    visual: A checklist for the next run, and the cost of the wedge.
+    narration: >-
+      For the next run, do not treat cleanup as the last step. Before deleting
+      the source application, verify the reverse copy. The array session should
+      be Source and OK with a sync after the failover, and the source VRG should
+      be Secondary. If it is not, the documented fallback is a relocate, or the
+      manual reprotect workaround recorded on the bug. The cost of the wedge is
+      easy to miss because nothing is down. The application serves traffic, but
+      there is no standby copy.
+    evidence: [doc, virtdr-360]
+
+  - id: '7.3'
+    chapter: What the test established
+    visual: One sentence per phase in a vertical list.
+    narration: >-
+      Recap. Failover worked. The postcheck passed. The console asked for
+      cleanup. Cleanup cascaded to the claims. Reprotection never ran. One
+      control run shows it is timing, and the open question is why the reverse
+      resync skips a deleting claim.
+    evidence: [virtdr-360, control-342]
+    pause_after: 1.5
+
+  - id: '7.4'
+    chapter: What the test established
+    visual: The four steps, with the fifth question on screen.
+    narration: >-
+      The next time you see three of four steps completed, ask the fifth
+      question. Is the old site a standby again? The console will not ask it for
+      you.
+    evidence: [screenshot]
+    pause_after: 2.5
