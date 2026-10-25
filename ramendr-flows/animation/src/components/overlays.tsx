@@ -164,7 +164,7 @@ export const TimelineBar: React.FC<{now: string | null; events?: TEvent[]}> = ({
   return (
     <svg width={1920} height={130} style={{position: 'absolute', left: 0, bottom: 0}}>
       <rect x={0} y={0} width={1920} height={130} fill={`${C.bg}e6`} />
-      <text x={960} y={15} textAnchor="middle" fill={C.faint} fontFamily={sans} fontSize={13}>Recorded milestones, spacing simplified for readability</text>
+      <text x={1900} y={122} textAnchor="end" fill={C.faint} fontFamily={sans} fontSize={12}>Recorded milestones, spacing simplified</text>
       <line x1={X0} y1={60} x2={X1} y2={60} stroke={C.border} strokeWidth={4} strokeLinecap="round" />
       {now ? <line x1={X0} y1={60} x2={x(now)} y2={60} stroke={C.blue} strokeWidth={4} strokeLinecap="round" /> : null}
       {EV.map(([t, label, col], i) => {
