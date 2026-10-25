@@ -107,7 +107,7 @@ export const CleanupReprotect: React.FC<{chapters: number[]}> = ({chapters}) => 
     {seg.type === 'beat' && ch >= 2 ? <CleanupPhases current={ch <= 2 ? 0 : ch === 3 ? 1 : ch === 4 ? 2 : 3} stuck={ch >= 5} /> : null}
     {seg.type === 'beat' && ch >= 2 && ch !== 6 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS} /> : null}
     {seg.type === 'beat' && m.screenshot ? <Screenshot src={`evidence/cleanup-reprotect/${m.screenshot}`} date="2026-10-22" caption={m.caption ?? ''} focus={m.focus} a={win(.14, .98)} z={progIO(f, b.audio * .2, b.audio * .65)} y={215} x={865} w={1010} sourceLabel="hub console · historical capture" /> : null}
-    {seg.type === 'beat' && m.define ? <DefinitionPanel term={m.define.term} text={m.define.text} a={win(.05, .97)} bottom={150} /> : null}
+    {seg.type === 'beat' && m.define ? <DefinitionPanel term={m.define.term} text={m.define.text} a={win(.05, .97)} x={1050} bottom={300} /> : null}
     {seg.type === 'chapter' ? <ChapterCard n={seg.chapter.n} title={seg.chapter.title} sub={seg.chapter.sub} p={prog(frame - seg.from, 0, 30)} out={prog(frame - seg.from, seg.dur - 30, seg.dur)} /> : null}
     {beats.map((beat) => <Sequence key={beat.id} from={beat.from + PAD_BEFORE} durationInFrames={beat.audio + 10}><Audio src={staticFile(`audio/cleanup-reprotect/${beat.id}.wav`)} volume={.72} /></Sequence>)}
     {cues.map((cue, k) => <Sequence key={k} from={cue.at} durationInFrames={sec(1.6)}><Audio src={staticFile(`sfx/${cue.name}.wav`)} volume={cue.v} /></Sequence>)}
