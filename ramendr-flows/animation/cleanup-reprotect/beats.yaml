@@ -65,7 +65,7 @@ beats:
     card: {kind: DRPolicy, name: dr-policy-15m, role: pairs the sites and sets the 900-second objective}
     def: {what: The rule that pairs two clusters and sets the recovery point objective., creator: The DR administrator creates it on the hub., reader: Ramen and the console read it., where: Cluster scope on the hub., analogy: A promise about how much data may be lost, not a timer.}
     narration: >-
-      The DRPolicy dr-policy-15m pairs spoke-0 and spoke-1 and sets a fifteen
+      The policy named dr-policy-15m pairs spoke-0 and spoke-1 and sets a fifteen
       minute recovery point objective, nine hundred seconds. It is a promise
       about how much data may be lost. It is not a timer and it does not prove
       that any copy is fresh.
@@ -213,8 +213,8 @@ beats:
     narration: >-
       The source site came back at 10:54. All six node VMs resumed, the clocks
       were stepped, and by about 11:05 the hub could hear from spoke-0 again. The
-      ManagedCluster object went back to Available=True. Available means the hub
-      has a recent heartbeat. It does not mean the application on that cluster is
+      ManagedCluster object went back to Available equals true. Available means
+      the hub has a recent heartbeat. It does not mean the application on that cluster is
       safe to delete.
     evidence: [timeline]
 
@@ -298,8 +298,8 @@ beats:
     narration: >-
       At 11:35:15, the first DemoteVolume call for these sessions since the
       failover ran on spoke-0. The driver answered, already secondary, role
-      Destination, state Failed_Over. That is the last useful line in the logs
-      for these volumes.
+      Destination, state Failed_Over. It was a no op, and it is the last useful
+      line in the logs for these volumes.
     evidence: [timeline, spoke0-driver]
     pause_after: 2
 
@@ -443,31 +443,34 @@ beats:
     chapter: The control run and the line between fact and inference
     visual: The open hypothesis, clearly labelled inference.
     narration: >-
-      Here is where the evidence stops. The leading explanation is that
-      autoResync skips a claim that is already deleting. That is an inference,
-      not a confirmed code path. The bug is open, linked to DFBUGS-6934 and
-      DFBUGS-9565.
+      The earlier hypothesis was that autoResync skips a claim that is already
+      deleting. The pinned controller source does not contain that skip. The
+      only deletion check is narrower. It skips a deleting claim that has
+      already lost its csi-addons finalizer, and these claims still had it. So
+      the simple explanation is wrong.
     evidence: [virtdr-360, inference]
 
   - id: '6.5'
     chapter: The control run and the line between fact and inference
     visual: 'The restart diagnostic: eleven minutes of nothing.'
     narration: >-
-      One diagnostic supports the inference. The csi-addons PowerStore controller
-      on the source was restarted. For eleven minutes there was no activity at
-      all, not even status polling, and the conditions did not change. A lost
-      queue would have recovered on restart. This did not.
+      What the source does show is where the chain stops. The demote at 11:35:15
+      was the last write. The steady state path would call ResyncVolume, but on
+      spoke-0 the session is Destination and Failed_Over, and a resync there can
+      only answer, waiting for source side resync. The side that is Source is
+      the new primary, which is deliberately not resyncing. Why the follow-up
+      reconcile never ran is still unverified.
     evidence: [virtdr-360, inference]
 
   - id: '6.6'
     chapter: The control run and the line between fact and inference
     visual: 'Recap: proven versus inferred.'
     narration: >-
-      What is proven is narrower and still serious. The documented cleanup can
-      wedge the reverse copy. The console gives no warning, no error, and no
-      timeout. One run converged because the resync finished first. One run
-      wedged because cleanup reached the claims first. The code level cause is
-      still being confirmed.
+      So separate the layers. Proven: the documented cleanup can wedge the
+      reverse copy, and the console gives no warning. Proven: one run converged
+      because the resync finished first, and one wedged because cleanup reached
+      the claims first. Still open: the exact reason the follow-up reconcile
+      never ran. The code path is not confirmed.
     evidence: [virtdr-360, control-342]
 
   - id: '7.1'
@@ -498,8 +501,8 @@ beats:
     narration: >-
       Recap. Failover worked. The postcheck passed. The console asked for
       cleanup. Cleanup cascaded to the claims. Reprotection never ran. One
-      control run shows it is timing, and the open question is why the reverse
-      resync skips a deleting claim.
+      control run shows it is timing, and the open question is why the
+      follow-up reconcile never ran.
     evidence: [virtdr-360, control-342]
     pause_after: 1.5
 

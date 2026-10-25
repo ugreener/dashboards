@@ -1,0 +1,279 @@
+{
+ "0.1": {
+  "chapter": "Cold open",
+  "screenshot": "bug-hub-drstatus-popover-waitonusercleanup.png",
+  "focus": {
+   "x": 920,
+   "y": 120,
+   "w": 360,
+   "h": 520
+  },
+  "caption": "The instruction that started the cleanup, captured at 11:07 UTC."
+ },
+ "0.2": {
+  "chapter": "Cold open"
+ },
+ "0.3": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "Cast of characters"
+ },
+ "1.2": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPlacementControl",
+   "name": "hammerdb-win-drpc",
+   "role": "coordinates recovery",
+   "then source cleanup": null
+  },
+  "def": {
+   "what": "The hub control record for one protected application.",
+   "creator": "The DR administrator enrolls the application.",
+   "reader": "Ramen on the hub and the ACM console.",
+   "where": "openshift-dr-ops on the hub.",
+   "analogy": "A job ticket that records the requested move and how far it got."
+  }
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPolicy",
+   "name": "dr-policy-15m",
+   "role": "pairs the sites and sets the 900-second objective"
+  },
+  "def": {
+   "what": "The rule that pairs two clusters and sets the recovery point objective.",
+   "creator": "The DR administrator creates it on the hub.",
+   "reader": "Ramen and the console read it.",
+   "where": "Cluster scope on the hub.",
+   "analogy": "A promise about how much data may be lost",
+   "not a timer.": null
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationGroup",
+   "name": "hammerdb-win-drpc",
+   "role": "coordinates all protected disks on one cluster"
+  },
+  "def": {
+   "what": "The per-cluster coordinator for a group of protected disks.",
+   "creator": "Ramen delivers it from the hub.",
+   "reader": "Ramen's spoke controller reads it.",
+   "where": "openshift-dr-ops on both spokes.",
+   "analogy": "A foreman who tracks every disk job on one site."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplication",
+   "name": "hammerdb-win-datadisk",
+   "role": "asks the driver to replicate or change one disk role"
+  },
+  "def": {
+   "what": "The work order for one protected disk.",
+   "creator": "The VRG creates one per protected claim.",
+   "reader": "csi-addons translates it into Dell driver calls.",
+   "where": "hammerdb-win on each spoke.",
+   "analogy": "A separate work order for each disk."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationClass",
+   "name": "powerstore-vrc-15m",
+   "role": "selects the driver and the fifteen-minute schedule"
+  },
+  "def": {
+   "what": "The settings for replicating a disk.",
+   "creator": "The storage administrator creates it.",
+   "reader": "The csi-addons controller reads it.",
+   "where": "Cluster scope on each spoke.",
+   "analogy": "The delivery contract for the recovery copy."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PersistentVolumeClaim",
+   "name": "hammerdb-win-datadisk",
+   "role": "the source claim whose deletion is blocked"
+  },
+  "def": {
+   "what": "A request for storage",
+   "here one VM disk.": null,
+   "creator": "The DataVolume creates it.",
+   "reader": "The VM uses it",
+   "and controllers add finalizers.": null,
+   "where": "hammerdb-win on the old source",
+   "spoke-0.": null,
+   "analogy": "A claim ticket that cannot be thrown away while someone still holds a lock on it."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Controller",
+   "name": "csi-addons + Dell CSM",
+   "role": "turns replication requests into PowerStore calls"
+  },
+  "def": {
+   "what": "The two controllers that execute storage replication.",
+   "creator": "The platform installs them on each spoke.",
+   "reader": "They read VolumeReplication objects.",
+   "where": "csi-addons and csi-powerstore pods on each spoke.",
+   "analogy": "The translator between Kubernetes and the storage array."
+  }
+ },
+ "1.9": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ReplicationSession",
+   "name": "12aa0804-be9a-47a7-b1a8-2cf36bb240b1",
+   "role": "one PowerStore copy relationship between the arrays"
+  },
+  "def": {
+   "what": "One replication relationship inside the storage array.",
+   "creator": "The Dell driver creates it when replication is enabled.",
+   "reader": "The driver and the array act on it.",
+   "where": "PowerStore VSA-A and VSA-B.",
+   "analogy": "A two-way pipe that can carry data in one direction at a time."
+  }
+ },
+ "1.10": {
+  "chapter": "Cast of characters"
+ },
+ "2.1": {
+  "chapter": "A failover that worked"
+ },
+ "2.2": {
+  "chapter": "A failover that worked",
+  "define": {
+   "term": "Failed_Over",
+   "text": "The session has a new direction but no reverse copy yet. Reprotect and resync must run before the old site is a standby again."
+  }
+ },
+ "2.3": {
+  "chapter": "A failover that worked"
+ },
+ "2.4": {
+  "chapter": "A failover that worked"
+ },
+ "2.5": {
+  "chapter": "A failover that worked"
+ },
+ "3.1": {
+  "chapter": "The instruction"
+ },
+ "3.2": {
+  "chapter": "The instruction",
+  "screenshot": "bug-hub-drstatus-popover-waitonusercleanup.png",
+  "focus": {
+   "x": 940,
+   "y": 330,
+   "w": 320,
+   "h": 190
+  },
+  "caption": "The DRPC row at WaitOnUserToCleanUp and the console instruction."
+ },
+ "3.3": {
+  "chapter": "The instruction"
+ },
+ "3.4": {
+  "chapter": "The instruction",
+  "screenshot": "bug-hub-protectedapps-drpc-waitonusercleanup.png",
+  "focus": {
+   "x": 300,
+   "y": 470,
+   "w": 1150,
+   "h": 110
+  },
+  "caption": "The DRPC row still at WaitOnUserToCleanUp after the target was verified."
+ },
+ "3.5": {
+  "chapter": "The instruction"
+ },
+ "4.1": {
+  "chapter": "Cleanup and the silence after"
+ },
+ "4.2": {
+  "chapter": "Cleanup and the silence after",
+  "define": {
+   "term": "DataVolume",
+   "text": "A request that prepares a VM disk and owns the PVC behind it. Deleting it deletes the claim it created."
+  }
+ },
+ "4.3": {
+  "chapter": "Cleanup and the silence after"
+ },
+ "4.4": {
+  "chapter": "Cleanup and the silence after"
+ },
+ "4.5": {
+  "chapter": "Cleanup and the silence after"
+ },
+ "4.6": {
+  "chapter": "Cleanup and the silence after"
+ },
+ "4.7": {
+  "chapter": "Cleanup and the silence after"
+ },
+ "5.1": {
+  "chapter": "Anatomy of the wedge"
+ },
+ "5.2": {
+  "chapter": "Anatomy of the wedge"
+ },
+ "5.3": {
+  "chapter": "Anatomy of the wedge"
+ },
+ "5.4": {
+  "chapter": "Anatomy of the wedge"
+ },
+ "5.5": {
+  "chapter": "Anatomy of the wedge"
+ },
+ "5.6": {
+  "chapter": "Anatomy of the wedge"
+ },
+ "5.7": {
+  "chapter": "Anatomy of the wedge"
+ },
+ "5.8": {
+  "chapter": "Anatomy of the wedge"
+ },
+ "6.1": {
+  "chapter": "The control run and the line between fact and inference"
+ },
+ "6.2": {
+  "chapter": "The control run and the line between fact and inference"
+ },
+ "6.3": {
+  "chapter": "The control run and the line between fact and inference"
+ },
+ "6.4": {
+  "chapter": "The control run and the line between fact and inference"
+ },
+ "6.5": {
+  "chapter": "The control run and the line between fact and inference"
+ },
+ "6.6": {
+  "chapter": "The control run and the line between fact and inference"
+ },
+ "7.1": {
+  "chapter": "What the test established"
+ },
+ "7.2": {
+  "chapter": "What the test established"
+ },
+ "7.3": {
+  "chapter": "What the test established"
+ },
+ "7.4": {
+  "chapter": "What the test established"
+ }
+}
