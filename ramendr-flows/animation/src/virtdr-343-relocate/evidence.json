@@ -1,0 +1,51 @@
+[
+ {
+  "file": "01-baseline-hub-dell-vm-workload.png",
+  "id": "1270021",
+  "size": 152212,
+  "created": "2026-10-26T14:02:34.000+0000",
+  "step": "baseline-hub-dell-vm-workload"
+ },
+ {
+  "file": "02-actionmenu-hub-dell-vm-workload.png",
+  "id": "1270022",
+  "size": 153840,
+  "created": "2026-10-26T14:02:36.000+0000",
+  "step": "actionmenu-relocate"
+ },
+ {
+  "file": "03-initiate-dialog-hub-dell-vm-workload.png",
+  "id": "1270023",
+  "size": 140391,
+  "created": "2026-10-26T14:02:38.000+0000",
+  "step": "relocate-dialog"
+ },
+ {
+  "file": "04-completed-hub-dell-vm-workload.png",
+  "id": "1270024",
+  "size": 148583,
+  "created": "2026-10-26T14:02:40.000+0000",
+  "step": "relocated-row"
+ },
+ {
+  "file": "05-application-hub-target-spoke-1.png",
+  "id": "1270025",
+  "size": 205994,
+  "created": "2026-10-26T14:02:42.000+0000",
+  "step": "argocd-target-application"
+ },
+ {
+  "file": "06-replication-vsa-b-source.png",
+  "id": "1270026",
+  "size": 204469,
+  "created": "2026-10-26T14:02:45.000+0000",
+  "step": "vsa-b-source"
+ },
+ {
+  "file": "07-replication-vsa-a-destination.png",
+  "id": "1270027",
+  "size": 181920,
+  "created": "2026-10-26T14:02:47.000+0000",
+  "step": "vsa-a-destination"
+ }
+]

@@ -1,0 +1,373 @@
+{
+ "0.1": {
+  "chapter": "Cold open"
+ },
+ "0.2": {
+  "chapter": "Cold open"
+ },
+ "0.3": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "Cast of characters"
+ },
+ "1.2": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ApplicationSet",
+   "name": "dell-vm-workload",
+   "role": "creates one Argo CD Application per selected cluster"
+  },
+  "def": {
+   "what": "A template that creates one Argo CD Application for each cluster in the placement decision.",
+   "creator": "The platform team, in Git.",
+   "reader": "Argo CD on the hub and the propagation controller.",
+   "where": "Namespace openshift-gitops on the hub.",
+   "analogy": "A mail merge that prints one copy per selected address."
+  }
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Application",
+   "name": "dell-vm-workload-spoke-1",
+   "role": "the Argo CD delivery order for one cluster"
+  },
+  "def": {
+   "what": "The Argo CD delivery order for one cluster. It names the Git repository, the folder, and the destination cluster.",
+   "creator": "The ApplicationSet dell-vm-workload.",
+   "reader": "Argo CD on the selected spoke.",
+   "where": "Namespace openshift-gitops on the hub, delivered to the spoke as a ManifestWork.",
+   "analogy": "One printed copy of the mail merge, addressed to one office."
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPlacementControl",
+   "name": "dell-vm-drpc",
+   "role": "records the requested move and its progress"
+  },
+  "def": {
+   "what": "The hub control record for one protected application.",
+   "creator": "The DR administrator, when the application is enrolled.",
+   "reader": "The Ramen hub operator and the disaster recovery console.",
+   "where": "Namespace openshift-gitops on the hub.",
+   "analogy": "The control sheet for one recovery, with the requested action and a progress column."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPolicy",
+   "name": "dr-policy-15m",
+   "role": "pairs the sites and sets the 900-second objective"
+  },
+  "def": {
+   "what": "A promise about how much data may be lost, and which two clusters may back each other up.",
+   "creator": "The DR administrator.",
+   "reader": "Ramen and the console.",
+   "where": "Cluster scope on the hub.",
+   "analogy": "A service agreement between two offices about how often copies are sent."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Placement",
+   "name": "dell-vm-placement",
+   "role": "asks which cluster should run the application"
+  },
+  "def": {
+   "what": "The question, which cluster should run this application.",
+   "creator": "The DR administrator.",
+   "reader": "Ramen writes the answer. The ACM scheduler is disabled for this placement.",
+   "where": "Namespace openshift-gitops on the hub.",
+   "analogy": "A destination request handed to the recovery coordinator, not to the ordinary scheduler."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PlacementDecision",
+   "name": "dell-vm-placement-decision-1",
+   "role": "the list of clusters that should run the application"
+  },
+  "def": {
+   "what": "The answer to the Placement, as a list of cluster names.",
+   "creator": "Ramen.",
+   "reader": "The ApplicationSet and the DRPC status.",
+   "where": "Namespace openshift-gitops on the hub.",
+   "analogy": "The short list of addresses the mail merge will use."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationGroup",
+   "name": "dell-vm-drpc",
+   "role": "coordinates the protected disks on one site"
+  },
+  "def": {
+   "what": "The site manager for the application's protected disks.",
+   "creator": "The Ramen hub operator, delivered as a ManifestWork.",
+   "reader": "The Ramen cluster operator and csi-addons.",
+   "where": "Namespace gitops-vms on each spoke.",
+   "analogy": "A foreman who turns one protection order into one work order per disk."
+  }
+ },
+ "1.9": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplication",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "the work order for one disk"
+  },
+  "def": {
+   "what": "The desired role for one disk: primary, the writable copy, or secondary, the standby copy.",
+   "creator": "The VRG.",
+   "reader": "csi-addons and the Dell CSI driver.",
+   "where": "Namespace gitops-vms on each spoke.",
+   "analogy": "A work order that says which copy is allowed to accept writes."
+  }
+ },
+ "1.10": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationClass",
+   "name": "powerstore-vrc-15m",
+   "role": "the copying settings for the Dell driver"
+  },
+  "def": {
+   "what": "The driver name, the partner array, and the replication schedule.",
+   "creator": "The storage administrator.",
+   "reader": "csi-addons and the Dell CSI driver.",
+   "where": "Cluster scope on each spoke.",
+   "analogy": "The timetable and route that every work order for a disk points at."
+  }
+ },
+ "1.11": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PersistentVolumeClaim",
+   "name": "hammerdb-rhel9-datadisk",
+   "role": "the claim that points at one array volume"
+  },
+  "def": {
+   "what": "The application's request for one disk, bound to a PV that records the real array volume handle.",
+   "creator": "The workload administrator or a DataVolume.",
+   "reader": "The VM, the VRG, and the CSI driver.",
+   "where": "Namespace gitops-vms on the spoke that runs the workload.",
+   "analogy": "The label on a box, tied to the box's real storage address."
+  }
+ },
+ "1.12": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VirtualMachine",
+   "name": "hammerdb-rhel9",
+   "role": "the RHEL guest and its two disks"
+  },
+  "def": {
+   "what": "The saved definition of the RHEL guest: CPU, memory, two DataVolumes, and a cloud-init Secret.",
+   "creator": "The workload administrator, in Git for this managed application.",
+   "reader": "OpenShift Virtualization creates the running VMI from it.",
+   "where": "Namespace gitops-vms on the selected spoke.",
+   "analogy": "A machine blueprint, not the running machine."
+  }
+ },
+ "1.13": {
+  "chapter": "Cast of characters"
+ },
+ "1.14": {
+  "chapter": "Cast of characters"
+ },
+ "2.1": {
+  "chapter": "The starting state"
+ },
+ "2.2": {
+  "chapter": "The starting state"
+ },
+ "2.3": {
+  "chapter": "The starting state"
+ },
+ "2.4": {
+  "chapter": "The starting state",
+  "screenshot": "01-baseline-hub-dell-vm-workload.png",
+  "focus": {
+   "x": 430,
+   "y": 400,
+   "w": 1050,
+   "h": 280
+  },
+  "caption": "13:45:36 UTC \u00b7 row on spoke-0, volumes synced 13:39"
+ },
+ "2.5": {
+  "chapter": "The starting state"
+ },
+ "2.6": {
+  "chapter": "The starting state"
+ },
+ "3.1": {
+  "chapter": "The planned move"
+ },
+ "3.2": {
+  "chapter": "The planned move",
+  "screenshot": "02-actionmenu-hub-dell-vm-workload.png",
+  "focus": {
+   "x": 1550,
+   "y": 670,
+   "w": 320,
+   "h": 310
+  },
+  "caption": "13:46:22 UTC \u00b7 Relocate, described as failback"
+ },
+ "3.3": {
+  "chapter": "The planned move",
+  "screenshot": "03-initiate-dialog-hub-dell-vm-workload.png",
+  "focus": {
+   "x": 540,
+   "y": 330,
+   "w": 850,
+   "h": 410
+  },
+  "caption": "13:46:22 UTC \u00b7 target spoke-1, readiness Ready"
+ },
+ "3.4": {
+  "chapter": "The planned move"
+ },
+ "3.5": {
+  "chapter": "The planned move"
+ },
+ "3.6": {
+  "chapter": "The planned move"
+ },
+ "3.7": {
+  "chapter": "The planned move"
+ },
+ "3.8": {
+  "chapter": "The planned move"
+ },
+ "4.1": {
+  "chapter": "Home again"
+ },
+ "4.2": {
+  "chapter": "Home again"
+ },
+ "4.3": {
+  "chapter": "Home again"
+ },
+ "4.4": {
+  "chapter": "Home again"
+ },
+ "4.5": {
+  "chapter": "Home again",
+  "screenshot": "05-application-hub-target-spoke-1.png",
+  "focus": {
+   "x": 250,
+   "y": 165,
+   "w": 400,
+   "h": 380
+  },
+  "caption": "13:54 UTC \u00b7 dell-vm-workload-spoke-1 Synced and Healthy"
+ },
+ "4.6": {
+  "chapter": "Home again"
+ },
+ "4.7": {
+  "chapter": "Home again"
+ },
+ "4.8": {
+  "chapter": "Home again"
+ },
+ "5.1": {
+  "chapter": "The old site"
+ },
+ "5.2": {
+  "chapter": "The old site"
+ },
+ "5.3": {
+  "chapter": "The old site"
+ },
+ "5.4": {
+  "chapter": "The old site",
+  "screenshot": "06-replication-vsa-b-source.png",
+  "focus": {
+   "x": 25,
+   "y": 530,
+   "w": 1000,
+   "h": 150
+  },
+  "caption": "13:55 UTC \u00b7 VSA-B Source for both workload sessions"
+ },
+ "5.5": {
+  "chapter": "The old site",
+  "screenshot": "07-replication-vsa-a-destination.png",
+  "focus": {
+   "x": 25,
+   "y": 530,
+   "w": 1000,
+   "h": 150
+  },
+  "caption": "13:55 UTC \u00b7 VSA-A Destination, next sync 14:11 and 14:13"
+ },
+ "5.6": {
+  "chapter": "The old site",
+  "screenshot": "04-completed-hub-dell-vm-workload.png",
+  "focus": {
+   "x": 430,
+   "y": 400,
+   "w": 1050,
+   "h": 280
+  },
+  "caption": "13:56:53 UTC \u00b7 row now on spoke-1"
+ },
+ "5.7": {
+  "chapter": "The old site"
+ },
+ "6.1": {
+  "chapter": "Relocated is not protected"
+ },
+ "6.2": {
+  "chapter": "Relocated is not protected"
+ },
+ "6.3": {
+  "chapter": "Relocated is not protected"
+ },
+ "6.4": {
+  "chapter": "Relocated is not protected"
+ },
+ "6.5": {
+  "chapter": "Relocated is not protected"
+ },
+ "6.6": {
+  "chapter": "Relocated is not protected"
+ },
+ "6.7": {
+  "chapter": "Relocated is not protected"
+ },
+ "6.8": {
+  "chapter": "Relocated is not protected"
+ },
+ "7.1": {
+  "chapter": "Verify and recap"
+ },
+ "7.2": {
+  "chapter": "Verify and recap"
+ },
+ "7.3": {
+  "chapter": "Verify and recap"
+ },
+ "7.4": {
+  "chapter": "Verify and recap"
+ },
+ "7.5": {
+  "chapter": "Verify and recap"
+ },
+ "7.6": {
+  "chapter": "Verify and recap"
+ },
+ "7.7": {
+  "chapter": "Verify and recap"
+ }
+}

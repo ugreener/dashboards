@@ -1,0 +1,318 @@
+# yamllint disable rule:line-length
+ticket: VIRTDR-343
+run: 2026-10-26
+direction: "failed over spoke-1 to spoke-0, relocated spoke-0 to spoke-1"
+beats:
+  - id: "0.1"
+    chapter: Cold open
+    visual: "Title card, then the console completion row"
+    narration: "On the twenty-sixth of October, a database virtual machine was running on spoke-0, the cluster it had failed over to that morning. At 13:46:32 an operator asked it to come home. Three minutes and thirty-eight seconds later the DRPlacementControl reported Relocated. The console said all volumes were synced. But the storage array had not scheduled the next copy, and two manual syncs were needed before the protection was real."
+    evidence: "VIRTDR-343 relocate timeline, 13:46:32 and 13:50:10; array note on next_sync_timestamp"
+    pause_after: 1.6
+  - id: "0.2"
+    chapter: Cold open
+    visual: "Two cards: Failover and Relocate"
+    narration: "This is the return leg of a disaster recovery story. A failover moves an application when its site is in trouble. A relocate moves it back when the old site is ready. The difference is not the distance. It is what the system must prove before it switches."
+  - id: "0.3"
+    chapter: Cold open
+    visual: "Recorded-run stamp: VIRTDR-343, 2026-10-26"
+    narration: "The video follows one recorded run on the Dell PowerStore lab: the managed application dell-vm-workload, its VM hammerdb-rhel9, the hub object dell-vm-drpc, and the two arrays VSA-A and VSA-B. Every name and time comes from the ticket VIRTDR-343."
+
+  - id: "1.1"
+    chapter: Cast of characters
+    visual: "Hub, two spokes, two arrays"
+    narration: "Three clusters and two arrays. The hub is edge36, where the disaster recovery objects live. spoke-0 is edge95, with array VSA-A. spoke-1 is edge97, with array VSA-B. Each spoke runs workloads, and the arrays copy disk blocks between the two sites."
+  - id: "1.2"
+    chapter: Cast of characters
+    card: {kind: "ApplicationSet", name: "dell-vm-workload", role: "creates one Argo CD Application per selected cluster"}
+    def: {what: "A template that creates one Argo CD Application for each cluster in the placement decision.", creator: "The platform team, in Git.", reader: "Argo CD on the hub and the propagation controller.", where: "Namespace openshift-gitops on the hub.", analogy: "A mail merge that prints one copy per selected address."}
+    narration: "First, the ApplicationSet dell-vm-workload. It is a mail merge: a template plus a list of target clusters. It reads the placement decision every 180 seconds and creates one Application for each cluster on the list."
+  - id: "1.3"
+    chapter: Cast of characters
+    card: {kind: "Application", name: "dell-vm-workload-spoke-1", role: "the Argo CD delivery order for one cluster"}
+    def: {what: "The Argo CD delivery order for one cluster. It names the Git repository, the folder, and the destination cluster.", creator: "The ApplicationSet dell-vm-workload.", reader: "Argo CD on the selected spoke.", where: "Namespace openshift-gitops on the hub, delivered to the spoke as a ManifestWork.", analogy: "One printed copy of the mail merge, addressed to one office."}
+    narration: "The Application is one printed copy. dell-vm-workload-spoke-1 names the repository elsapassaro/ramendr-starter-kit, the revision ocp-4.22-rhdr-dell, the folder clusters/dell-s4/workloads, and the destination spoke-1."
+  - id: "1.4"
+    chapter: Cast of characters
+    card: {kind: "DRPlacementControl", name: "dell-vm-drpc", role: "records the requested move and its progress"}
+    def: {what: "The hub control record for one protected application.", creator: "The DR administrator, when the application is enrolled.", reader: "The Ramen hub operator and the disaster recovery console.", where: "Namespace openshift-gitops on the hub.", analogy: "The control sheet for one recovery, with the requested action and a progress column."}
+    narration: "The DRPlacementControl, or DRPC, is that control sheet. dell-vm-drpc holds the policy, the protected claims, the requested action, and the preferred cluster. The console writes the action here. Everything after that is controllers reacting to the edit."
+  - id: "1.5"
+    chapter: Cast of characters
+    card: {kind: "DRPolicy", name: "dr-policy-15m", role: "pairs the sites and sets the 900-second objective"}
+    def: {what: "A promise about how much data may be lost, and which two clusters may back each other up.", creator: "The DR administrator.", reader: "Ramen and the console.", where: "Cluster scope on the hub.", analogy: "A service agreement between two offices about how often copies are sent."}
+    narration: "The DRPolicy dr-policy-15m pairs spoke-0 and spoke-1 and sets the replication interval to fifteen minutes, which is 900 seconds. That interval is the recovery point objective, the most recent writes we can afford to lose. It is a promise, not a timer."
+  - id: "1.6"
+    chapter: Cast of characters
+    card: {kind: "Placement", name: "dell-vm-placement", role: "asks which cluster should run the application"}
+    def: {what: "The question, which cluster should run this application.", creator: "The DR administrator.", reader: "Ramen writes the answer. The ACM scheduler is disabled for this placement.", where: "Namespace openshift-gitops on the hub.", analogy: "A destination request handed to the recovery coordinator, not to the ordinary scheduler."}
+    narration: "The Placement dell-vm-placement is the question: which cluster should run this application? Automatic scheduling is switched off for it, so the Ramen hub operator is the only writer of the answer."
+  - id: "1.7"
+    chapter: Cast of characters
+    card: {kind: "PlacementDecision", name: "dell-vm-placement-decision-1", role: "the list of clusters that should run the application"}
+    def: {what: "The answer to the Placement, as a list of cluster names.", creator: "Ramen.", reader: "The ApplicationSet and the DRPC status.", where: "Namespace openshift-gitops on the hub.", analogy: "The short list of addresses the mail merge will use."}
+    narration: "The PlacementDecision is the answer. dell-vm-placement-decision-1 lists the clusters that should run the application. Before the move it lists spoke-0. After the move it lists spoke-1 only. Watching this list is how you know where the application is supposed to run."
+  - id: "1.8"
+    chapter: Cast of characters
+    card: {kind: "VolumeReplicationGroup", name: "dell-vm-drpc", role: "coordinates the protected disks on one site"}
+    def: {what: "The site manager for the application's protected disks.", creator: "The Ramen hub operator, delivered as a ManifestWork.", reader: "The Ramen cluster operator and csi-addons.", where: "Namespace gitops-vms on each spoke.", analogy: "A foreman who turns one protection order into one work order per disk."}
+    narration: "On each spoke, the VolumeReplicationGroup, or VRG, is the site manager. Here it is also named dell-vm-drpc, in namespace gitops-vms. It finds the protected claims and creates one VolumeReplication for each one."
+  - id: "1.9"
+    chapter: Cast of characters
+    card: {kind: "VolumeReplication", name: "hammerdb-rhel9-rootdisk", role: "the work order for one disk"}
+    def: {what: "The desired role for one disk: primary, the writable copy, or secondary, the standby copy.", creator: "The VRG.", reader: "csi-addons and the Dell CSI driver.", where: "Namespace gitops-vms on each spoke.", analogy: "A work order that says which copy is allowed to accept writes."}
+    narration: "A VolumeReplication is the work order for one disk. hammerdb-rhel9-rootdisk says whether that disk should be primary or secondary. csi-addons reads it and calls the Dell driver, which asks PowerStore to change the session."
+  - id: "1.10"
+    chapter: Cast of characters
+    card: {kind: "VolumeReplicationClass", name: "powerstore-vrc-15m", role: "the copying settings for the Dell driver"}
+    def: {what: "The driver name, the partner array, and the replication schedule.", creator: "The storage administrator.", reader: "csi-addons and the Dell CSI driver.", where: "Cluster scope on each spoke.", analogy: "The timetable and route that every work order for a disk points at."}
+    narration: "The VolumeReplicationClass powerstore-vrc-15m holds the settings: the Dell driver and the fifteen-minute schedule. It is cluster-wide and created once per spoke. It does not copy anything by itself. It is the timetable the work orders point at."
+  - id: "1.11"
+    chapter: Cast of characters
+    card: {kind: "PersistentVolumeClaim", name: "hammerdb-rhel9-datadisk", role: "the claim that points at one array volume"}
+    def: {what: "The application's request for one disk, bound to a PV that records the real array volume handle.", creator: "The workload administrator or a DataVolume.", reader: "The VM, the VRG, and the CSI driver.", where: "Namespace gitops-vms on the spoke that runs the workload.", analogy: "The label on a box, tied to the box's real storage address."}
+    narration: "The claim hammerdb-rhel9-datadisk is the label on the box. The PV behind it records the array volume handle, the address of the real disk. On a return, the target must bind to the original handle, not create a new blank disk."
+  - id: "1.12"
+    chapter: Cast of characters
+    card: {kind: "VirtualMachine", name: "hammerdb-rhel9", role: "the RHEL guest and its two disks"}
+    def: {what: "The saved definition of the RHEL guest: CPU, memory, two DataVolumes, and a cloud-init Secret.", creator: "The workload administrator, in Git for this managed application.", reader: "OpenShift Virtualization creates the running VMI from it.", where: "Namespace gitops-vms on the selected spoke.", analogy: "A machine blueprint, not the running machine."}
+    narration: "The VirtualMachine hammerdb-rhel9 is the blueprint: two cores, eight gigabytes of memory, the root and data DataVolumes, and the cloud-init Secret cloudinit-hammerdb. OpenShift Virtualization turns it into a running VirtualMachineInstance."
+  - id: "1.13"
+    chapter: Cast of characters
+    visual: "Definition panel"
+    narration: "One more term. A final sync is a copy taken while the application is stopped. Relocate uses it so the target starts from a known point, not from the last scheduled copy. That is what makes a planned move lossless in principle."
+  - id: "1.14"
+    chapter: Cast of characters
+    visual: "Recap of the five groups"
+    narration: "That is the cast: the hub control objects, the GitOps delivery objects, the per-site storage objects, the workload, and the final sync. Now we can follow the return without stopping to decode a name."
+
+  - id: "2.1"
+    chapter: The starting state
+    visual: "Hub and spokes, DRPC and placement"
+    narration: "Why start before the click? Because a relocate is safe only if the old site is healthy and the target is already a working standby. At 13:41:46 the DRPC was FailedOver and Completed, the preferred cluster was spoke-1, and the placement selected spoke-0."
+    evidence: "VIRTDR-343 relocate timeline, 13:41:46; DRPC status"
+  - id: "2.2"
+    chapter: The starting state
+    visual: "spoke-0 active, spoke-1 standby"
+    narration: "The application was serving from spoke-0. Its VRG was Primary, both VolumeReplications were Primary, and the VM was running. The standby copy was on spoke-1, where the VRG was Secondary. That is the shape of a healthy protected application after a failover."
+  - id: "2.3"
+    chapter: The starting state
+    visual: "Arrays, reverse replication"
+    narration: "Reverse replication was already running. The array precheck at 13:42:16 shows the promoted sessions as Source on VSA-A and Destination on VSA-B, both OK. The root disk last synced at 13:34:18, and the data disk at 13:41:38."
+    evidence: "VIRTDR-343 relocate timeline, 13:42:16"
+  - id: "2.4"
+    chapter: The starting state
+    visual: "Console row and popover"
+    screenshot: "01-baseline-hub-dell-vm-workload.png"
+    focus: {x: 430, y: 400, w: 1050, h: 280}
+    caption: "13:45:36 UTC · row on spoke-0, volumes synced 13:39"
+    narration: "The console baseline at 13:45:36 shows the row named dell-vm-workload on cluster spoke-0. The popover says all volumes are synced, with the last application volume sync at 13:39 UTC. That is the state the operator saw before the move."
+    evidence: "Screenshot 01-baseline-hub-dell-vm-workload.png"
+  - id: "2.5"
+    chapter: The starting state
+    visual: "Console row identity"
+    narration: "For a managed application the console names the row after the ApplicationSet, dell-vm-workload, not after the DRPC. The application type is ApplicationSet, the destination namespace is gitops-vms, and the policy is dr-policy-15m."
+  - id: "2.6"
+    chapter: The starting state
+    visual: "So far"
+    narration: "So far: the application runs on spoke-0, the preferred site is spoke-1, and the reverse copy is fresh. Nothing is broken. The next step is a planned move, not a rescue."
+
+  - id: "3.1"
+    chapter: The planned move
+    visual: "Failover versus Relocate"
+    narration: "Why is a planned move different from a failover? A failover assumes the source may be gone, so it promotes the target from whatever copy exists. A relocate requires both sites up, stops the application, takes a final sync, and only then switches."
+  - id: "3.2"
+    chapter: The planned move
+    visual: "Action menu"
+    screenshot: "02-actionmenu-hub-dell-vm-workload.png"
+    focus: {x: 1550, y: 670, w: 320, h: 310}
+    caption: "13:46:22 UTC · Relocate, described as failback"
+    narration: "In the hub console, under Data Services, Disaster recovery, Protected applications, the operator opens the row for dell-vm-workload. The action menu offers Relocate, described as failback workloads to primary cluster. The console itself uses both words for the same operation."
+    evidence: "Screenshot 02-actionmenu-hub-dell-vm-workload.png"
+  - id: "3.3"
+    chapter: The planned move
+    visual: "Relocate dialog"
+    screenshot: "03-initiate-dialog-hub-dell-vm-workload.png"
+    focus: {x: 540, y: 330, w: 850, h: 410}
+    caption: "13:46:22 UTC · target spoke-1, readiness Ready"
+    narration: "The dialog is titled Relocate application. The target cluster is spoke-1, Relocate readiness is Ready, and the volume last synced time is 13:39 UTC. The text warns that relocating terminates the application on its current cluster, syncs its most recent snapshot, and then brings it up."
+    evidence: "Screenshot 03-initiate-dialog-hub-dell-vm-workload.png"
+  - id: "3.4"
+    chapter: The planned move
+    visual: "DRPC spec excerpt"
+    narration: "At 13:46:32 the operator clicks Initiate. The DRPC now carries action Relocate and preferredCluster spoke-1. The previous failoverCluster spoke-0 stays in the spec. For a relocate, the target is the preferred cluster, not the failover cluster."
+    evidence: "DRPC dell-vm-drpc spec: action Relocate, preferredCluster spoke-1, failoverCluster spoke-0"
+    pause_after: 1.2
+  - id: "3.5"
+    chapter: The planned move
+    visual: "Progression RunningFinalSync"
+    narration: "At 13:47:02 the DRPC enters Relocating with progression RunningFinalSync. The application is already stopped. Ramen is taking the final copy that the target will start from."
+    evidence: "VIRTDR-343 relocate timeline, 13:47:02; DRPC status progression"
+  - id: "3.6"
+    chapter: The planned move
+    visual: "Progression EnsuringVolumesAreSecondary"
+    narration: "At 13:48:42 the progression is EnsuringVolumesAreSecondary. Both sites must report their volumes as secondary before either side can become primary. This is the guard against two writers."
+    evidence: "VIRTDR-343 relocate timeline, 13:48:42"
+  - id: "3.7"
+    chapter: The planned move
+    visual: "Argo CD prunes the source Application"
+    narration: "On the hub, the DRPC status confirms the same order: RunningFinalSync, then EnsuringVolumesAreSecondary, then the restore. During this window, Argo CD prunes the source Application dell-vm-workload-spoke-0."
+    evidence: "VIRTDR-343 relocate timeline; source Application pruned"
+  - id: "3.8"
+    chapter: The planned move
+    visual: "So far"
+    narration: "So far: the application stopped, the final sync ran, both volume sides went secondary, and GitOps removed the source copy. Only now can the target be promoted."
+
+  - id: "4.1"
+    chapter: Home again
+    visual: "S3 definitions to target claims"
+    narration: "Why restore definitions before the VM? The target array has the data, but the cluster has no claims pointing at it. The target VRG downloads the PV and PVC definitions from the S3 profile minio-on-hub and recreates them against the target volumes."
+  - id: "4.2"
+    chapter: Home again
+    visual: "DRPC Relocated"
+    narration: "At 13:50:10 the DRPC reports phase Relocated, progression Completed, Available True with reason Relocated, and PeerReady True. The recorded action duration is three minutes and thirty-eight seconds."
+    evidence: "DRPC status: phase Relocated, progression Completed, actionDuration 3m38s"
+    pause_after: 1.4
+  - id: "4.3"
+    chapter: Home again
+    visual: "PlacementDecision and target VRG"
+    narration: "The PlacementDecision now lists spoke-1 only. The target VRG dell-vm-drpc in namespace gitops-vms is Primary, and both VolumeReplications are Primary and replicating."
+  - id: "4.4"
+    chapter: Home again
+    visual: "PVC handles"
+    narration: "The target claims bind to the PVs csivol-ec5862ac71 for the root disk and csivol-f756724d1d for the data disk. The array sessions use the same volume handles these disks had before the morning failover. A bound claim alone is not proof, so the run compared the array handles with the pre-failover values."
+    evidence: "VIRTDR-343 relocate timeline, target PVCs and session handles; failover preflight table"
+  - id: "4.5"
+    chapter: Home again
+    visual: "Argo CD application"
+    screenshot: "05-application-hub-target-spoke-1.png"
+    focus: {x: 250, y: 165, w: 400, h: 380}
+    caption: "13:54 UTC · dell-vm-workload-spoke-1 Synced and Healthy"
+    narration: "The ApplicationSet creates dell-vm-workload-spoke-1. In Argo CD it is Synced and Healthy, from repository elsapassaro/ramendr-starter-kit, revision ocp-4.22-rhdr-dell, path clusters/dell-s4/workloads."
+    evidence: "Screenshot 05-application-hub-target-spoke-1.png; Application status"
+  - id: "4.6"
+    chapter: Home again
+    visual: "VM running on worker-0"
+    narration: "At 13:54:29 the VM and its VMI hammerdb-rhel9 are Running on spoke-1 worker-0. The guest booted from the promoted disks, not from a fresh blank disk."
+    evidence: "VIRTDR-343 relocate timeline, 13:54:29"
+  - id: "4.7"
+    chapter: Home again
+    visual: "Guest check"
+    narration: "At 13:54:49 the guest check shows PostgreSQL active, the HammerDB writer inactive and disabled, and the order count unchanged at 2,252,463. The newest history row is 09:11:05 UTC, from before the morning failover."
+    evidence: "VIRTDR-343 relocate timeline, 13:54:49; guest check"
+  - id: "4.8"
+    chapter: Home again
+    visual: "So far"
+    narration: "So far: the data is on spoke-1, the claims point at the original volumes, the VM is running, and the order count matches. The application is home."
+
+  - id: "5.1"
+    chapter: The old site
+    visual: "Source site role"
+    narration: "Why look at the old site again? A relocated application is protected only if the old site becomes a usable standby. If it keeps a running copy, the next failover could start a second writer."
+  - id: "5.2"
+    chapter: The old site
+    visual: "Argo CD prune"
+    narration: "For a managed application, GitOps does the cleanup. The ApplicationSet no longer lists spoke-0, so Argo CD prunes dell-vm-workload-spoke-0 and the objects it owns: the VM, the DataVolumes, and the claims."
+  - id: "5.3"
+    chapter: The old site
+    visual: "Source remnants"
+    narration: "The state dump from spoke-0 shows what is left: the VRG dell-vm-drpc is Secondary, and there is no VirtualMachine, no VMI, no PVC, and no VolumeReplication. Only the VRG and the namespace remain."
+    evidence: "relocate-spoke0-remnants-20261026T1559Z.yaml"
+  - id: "5.4"
+    chapter: The old site
+    visual: "Arrays reversed"
+    screenshot: "06-replication-vsa-b-source.png"
+    focus: {x: 25, y: 530, w: 1000, h: 150}
+    caption: "13:55 UTC · VSA-B Source for both workload sessions"
+    narration: "The arrays have reversed. VSA-B is now Source for our two sessions, csivol-ec5862ac71 and csivol-f756724d1d. VSA-A is Destination for the same sessions. Both arrays report all eight sessions Operating Normally."
+    evidence: "Screenshots 06-replication-vsa-b-source.png and 07-replication-vsa-a-destination.png"
+  - id: "5.5"
+    chapter: The old site
+    visual: "Last and next sync"
+    screenshot: "07-replication-vsa-a-destination.png"
+    focus: {x: 25, y: 530, w: 1000, h: 150}
+    caption: "13:55 UTC · VSA-A Destination, next sync 14:11 and 14:13"
+    narration: "The last synchronization time on both arrays is 13:55 UTC, and the next synchronization time is 14:13 for the root disk and 14:11 for the data disk. Those next times are the part to watch."
+    evidence: "Screenshot 07-replication-vsa-a-destination.png"
+  - id: "5.6"
+    chapter: The old site
+    visual: "Console row after the move"
+    screenshot: "04-completed-hub-dell-vm-workload.png"
+    focus: {x: 430, y: 400, w: 1050, h: 280}
+    caption: "13:56:53 UTC · row now on spoke-1"
+    narration: "Back in the hub console, the row for dell-vm-workload now shows spoke-1 and healthy. The popover says all volumes are synced, with application volumes at 13:50 UTC."
+    evidence: "Screenshot 04-completed-hub-dell-vm-workload.png"
+  - id: "5.7"
+    chapter: The old site
+    visual: "So far"
+    narration: "So far: the old site is clean, the arrays are reversed, and the console looks finished. One question remains: will the next copy actually run?"
+
+  - id: "6.1"
+    chapter: Relocated is not protected
+    visual: "Two different promises"
+    narration: "Why is Relocated not the same as protected? Relocated means the workload moved and the target is primary. Protected means a future copy will be taken on schedule. Those are different promises, and only the array can keep the second one."
+  - id: "6.2"
+    chapter: Relocated is not protected
+    visual: "Session state: next sync null"
+    narration: "The relocate log records the gap. After the move, both reversed source sessions reported next_sync_timestamp as null. The sessions were OK, the rule was valid, and the schedule was not armed."
+    evidence: "VIRTDR-343 relocate timeline, note on the sync schedule"
+  - id: "6.3"
+    chapter: Relocated is not protected
+    visual: "Null next sync means no job"
+    narration: "A null next sync means no scheduled job will start. The last sync stays at the final sync taken during the relocate, and the standby copy ages silently. The console cannot see this, because it reads the last sync, not the next one."
+  - id: "6.4"
+    chapter: Relocated is not protected
+    visual: "Manual array sync"
+    narration: "At 13:55:32 the operator triggers a manual sync on the root session, and at 13:55:37 on the data session, with a POST to the array replication session. This is an array operation, not a Ramen action."
+    evidence: "VIRTDR-343 relocate timeline, 13:55:32 and 13:55:37"
+  - id: "6.5"
+    chapter: Relocated is not protected
+    visual: "Jobs complete, next times set"
+    narration: "Both jobs complete: the root at 13:55:36 and the data at 13:55:40. The array sets the next automatic times, 14:13:25 for the root and 14:11:02 for the data. The fifteen-minute schedule is armed again."
+    evidence: "VIRTDR-343 relocate timeline, 13:55:36 and 13:55:40"
+    pause_after: 1.2
+  - id: "6.6"
+    chapter: Relocated is not protected
+    visual: "Job history 14:03 to 15:51"
+    narration: "The later state dump proves it. From 14:03 to 15:51, both sessions ran a completed sync about every twelve minutes. At 15:59 the next times were 16:01 and 15:59, and the last sync was 15:51:55."
+    evidence: "relocate-array-sessions-jobs-20261026T1559Z.json"
+  - id: "6.7"
+    chapter: Relocated is not protected
+    visual: "Console badge versus array"
+    narration: "So the console's all volumes are synced at 13:50 was true about the past. It was not evidence that a future copy was scheduled. The run needed the array job history and the next sync timestamp, not the badge."
+  - id: "6.8"
+    chapter: Relocated is not protected
+    visual: "So far"
+    narration: "So far: the move completed at 13:50, the schedule was repaired at 13:55, and the first scheduled copy after that ran at 14:03. Relocated is the end of the move. Protection is a separate state."
+
+  - id: "7.1"
+    chapter: Verify and recap
+    visual: "Five checks"
+    narration: "What does done mean for a return? Five checks: the DRPC is Relocated and Completed, PeerReady is true, the placement names only the preferred site, the old site is secondary, and both arrays have a scheduled next sync."
+  - id: "7.2"
+    chapter: Verify and recap
+    visual: "Guest recheck at 15:58"
+    narration: "At 15:58:51 the guest check is unchanged: PostgreSQL active, the writer still disabled, and the order count still 2,252,463. The return did not change the data."
+    evidence: "relocate-guest-check-20261026T1559Z.txt"
+  - id: "7.3"
+    chapter: Verify and recap
+    visual: "GA acceptance criterion"
+    narration: "The GA acceptance criterion in VIRTDR-361 adds one more: returning workloads to the original site must not leave stuck replication resources or unexpectedly disable replication. This run had to repair the schedule by hand."
+    evidence: "VIRTDR-361 acceptance criteria; VIRTDR-343 relocate timeline"
+  - id: "7.4"
+    chapter: Verify and recap
+    visual: "What this run proves"
+    narration: "What this run proves: a managed application can be relocated back to its preferred site, with the original volume handles, automatic GitOps cleanup, and a verified guest. It also proves that Relocated can be reported while the next copy is not scheduled."
+  - id: "7.5"
+    chapter: Verify and recap
+    visual: "What it does not prove"
+    narration: "What it does not prove: zero data loss, because the writer was stopped before the move. It is not a VolumeGroupReplication run, not a Windows run, and not a test with the source site disconnected."
+  - id: "7.6"
+    chapter: Verify and recap
+    visual: "Recap chain"
+    narration: "Recap. Baseline: application on spoke-0, standby on spoke-1. Click: Relocate to spoke-1. Final sync, both sides secondary, Argo CD prunes the source. Promote, bind the original handles, boot the VM. Reverse the arrays, then check the next sync."
+  - id: "7.7"
+    chapter: Verify and recap
+    visual: "Final line"
+    narration: "The last line belongs to the array. The console can tell you the move finished. Only the next scheduled copy can tell you the application is protected again."
+    pause_after: 2.2

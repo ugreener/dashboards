@@ -15,6 +15,8 @@ import {CleanupReprotect} from './cleanup-reprotect/Video';
 import {buildTimeline as buildTimelineCR} from './cleanup-reprotect/timeline';
 import {ZertoPrimer} from './zerto-primer/Video';
 import {buildTimeline as buildTimelineZP} from './zerto-primer/timeline';
+import {RelocateHome} from './virtdr-343-relocate/Video';
+import {buildTimeline as buildTimeline343R} from './virtdr-343-relocate/timeline';
 
 const ALL_291 = Array.from({length: 14}, (_, i) => i);
 const ALL_342 = Array.from({length: 10}, (_, i) => i);
@@ -24,9 +26,19 @@ const ALL_CL = Array.from({length: 8}, (_, i) => i);
 const ALL_CV = Array.from({length: 7}, (_, i) => i);
 const ALL_ZP = Array.from({length: 13}, (_, i) => i);
 const ALL_CR = Array.from({length: 8}, (_, i) => i);
+const ALL_343R = Array.from({length: 8}, (_, i) => i);
 
 export const Root: React.FC = () => (
   <>
+    <Composition
+      id="virtdr-343-relocate"
+      component={RelocateHome}
+      durationInFrames={Math.max(1, buildTimeline343R(ALL_343R).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_343R}}
+    />
     <Composition
       id="cleanup-reprotect"
       component={CleanupReprotect}
