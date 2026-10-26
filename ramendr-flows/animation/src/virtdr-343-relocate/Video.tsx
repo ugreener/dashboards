@@ -27,7 +27,7 @@ const fit = (id: string): Cam => {
   const keys = FOCUS[id] ?? Object.keys(RECT);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const key of keys) {const r = RECT[key]; if (!r) continue; x0 = Math.min(x0, r[0]); y0 = Math.min(y0, r[1]); x1 = Math.max(x1, r[0] + r[2]); y1 = Math.max(y1, r[1] + r[3]);}
-  if (y0 >= 1100) y0 = 1000; else if (y0 >= 490) y0 = 385; else y0 = 0;
+  if (y0 >= 1100) y0 = 1000; else if (y0 >= 465) y0 = 385; else y0 = 0;
   x0 -= 40; x1 += 40; y1 += 65;
   const left = 35, right = side ? 825 : 1880, top = 210, bottom = META[id]?.define ? 740 : 895;
   const z = Math.min(1.2, (right - left) / (x1 - x0), (bottom - top) / (y1 - y0));
@@ -79,7 +79,9 @@ export const RelocateHome: React.FC<{chapters: number[]}> = ({chapters}) => {
     return list.map(([frac, name, v]) => ({at: base + Math.round(frac * beat.audio), name, v}));
   });
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
-    {ch >= 2 ? <div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}}/></div> : null}
+    {ch >= 2 ? <div style={{position: 'absolute', left: 20, top: 205, width: m.screenshot || PANEL_BEATS.has(b.id) ? 820 : 1880, height: 690, overflow: 'hidden'}}>
+      <div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z - 20}px,${cam.sy - cam.y * cam.z - 205}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}}/></div>
+    </div> : null}
     {seg.type === 'beat' && ch === 1 ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def}/> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null} ticket="VIRTDR-343"/> : null}
     {seg.type === 'beat' && ch >= 2 ? <PhaseTracker current={ch - 2} phases={PHASES_343}/> : null}
