@@ -6,13 +6,13 @@ beats:
   - id: "0.1"
     chapter: Cold open
     visual: "Title card, then the console completion row"
-    narration: "On the twenty-sixth of October, a database virtual machine was running on spoke-0, the cluster it had failed over to that morning. At 13:46:32 an operator asked it to come home. Three minutes and thirty-eight seconds later the DRPlacementControl reported Relocated. The console said all volumes were synced. But the storage array had not scheduled the next copy, and two manual syncs were needed before the protection was real."
+    narration: "At 13:46:32 an operator asked a database virtual machine to return to its preferred site. Three minutes and thirty-eight seconds later the recovery controller reported Relocated. The VM recovered, but both storage sessions showed no next-copy timestamp. The operator manually synced both sessions and checked that later scheduled copies actually ran. This video follows the move and that separate storage check."
     evidence: "VIRTDR-343 relocate timeline, 13:46:32 and 13:50:10; array note on next_sync_timestamp"
     pause_after: 1.6
   - id: "0.2"
     chapter: Cold open
     visual: "Two cards: Failover and Relocate"
-    narration: "This is the return leg of a disaster recovery story. A failover moves an application when its site is in trouble. A relocate moves it back when the old site is ready. The difference is not the distance. It is what the system must prove before it switches."
+    narration: "This is the return leg of a disaster recovery story. A failover recovers an application when its site may be unavailable. A relocate is a planned move while both sites are reachable. Here it returns the application to its preferred site. The difference is the safe handoff the system checks before switching."
   - id: "0.3"
     chapter: Cold open
     visual: "Recorded-run stamp: VIRTDR-343, 2026-10-26"
@@ -61,7 +61,7 @@ beats:
     chapter: Cast of characters
     card: {kind: "VolumeReplication", name: "hammerdb-rhel9-rootdisk", role: "the work order for one disk"}
     def: {what: "The desired role for one disk: primary, the writable copy, or secondary, the standby copy.", creator: "The VRG.", reader: "csi-addons and the Dell CSI driver.", where: "Namespace gitops-vms on each spoke.", analogy: "A work order that says which copy is allowed to accept writes."}
-    narration: "A VolumeReplication is the work order for one disk. hammerdb-rhel9-rootdisk says whether that disk should be primary or secondary. csi-addons reads it and calls the Dell driver, which asks PowerStore to change the session."
+    narration: "A VolumeReplication is the work order for one disk. hammerdb-rhel9-rootdisk says whether that disk should be primary or secondary. Primary means writable. Secondary means standby. The csi-addons controller reads the order and calls the Dell storage driver, the translator that asks PowerStore to act."
   - id: "1.10"
     chapter: Cast of characters
     card: {kind: "VolumeReplicationClass", name: "powerstore-vrc-15m", role: "the copying settings for the Dell driver"}
@@ -76,15 +76,15 @@ beats:
     chapter: Cast of characters
     card: {kind: "VirtualMachine", name: "hammerdb-rhel9", role: "the RHEL guest and its two disks"}
     def: {what: "The saved definition of the RHEL guest: CPU, memory, two DataVolumes, and a cloud-init Secret.", creator: "The workload administrator, in Git for this managed application.", reader: "OpenShift Virtualization creates the running VMI from it.", where: "Namespace gitops-vms on the selected spoke.", analogy: "A machine blueprint, not the running machine."}
-    narration: "The VirtualMachine hammerdb-rhel9 is the blueprint: two cores, eight gigabytes of memory, the root and data DataVolumes, and the cloud-init Secret cloudinit-hammerdb. OpenShift Virtualization turns it into a running VirtualMachineInstance."
+    narration: "The VirtualMachine hammerdb-rhel9 is the blueprint. Its root and data DataVolumes are disk-preparation requests that own their claims. OpenShift Virtualization creates a running VirtualMachineInstance, or VMI, from this blueprint. The saved configuration is not the same thing as the running guest."
   - id: "1.13"
     chapter: Cast of characters
     visual: "Definition panel"
-    narration: "One more term. A final sync is a copy taken while the application is stopped. Relocate uses it so the target starts from a known point, not from the last scheduled copy. That is what makes a planned move lossless in principle."
+    narration: "One more distinction. RunningFinalSync is a controller progress label. For VolSync, another copying method, it coordinates a final transfer. This Dell application uses VolumeReplication instead. Here the important safety checks are source workload removal, disk detachment, source demotion, and the source data-protection condition. The label alone proves none of those events."
   - id: "1.14"
     chapter: Cast of characters
     visual: "Recap of the five groups"
-    narration: "That is the cast: the hub control objects, the GitOps delivery objects, the per-site storage objects, the workload, and the final sync. Now we can follow the return without stopping to decode a name."
+    narration: "That is the cast: the hub control objects, the GitOps delivery objects, the per-site storage objects, and the workload. We also know that a progress label is not a captured storage operation. Now we can follow the return and keep those two kinds of evidence separate."
 
   - id: "2.1"
     chapter: The starting state
@@ -120,7 +120,8 @@ beats:
   - id: "3.1"
     chapter: The planned move
     visual: "Failover versus Relocate"
-    narration: "Why is a planned move different from a failover? A failover assumes the source may be gone, so it promotes the target from whatever copy exists. A relocate requires both sites up, stops the application, takes a final sync, and only then switches."
+    narration: "Why is a planned move different from a failover? A failover may have to work without the old site. A relocate can coordinate with it. For the VolumeReplication path, source cleanup and disk detachment must allow demotion, and the source must report data protected before Ramen requests target promotion. That is the upstream safety sequence, not a captured driver-call timeline."
+    unverified: "Pinned upstream source explains the sequence. Exact deployed controller and driver builds were not established."
   - id: "3.2"
     chapter: The planned move
     visual: "Action menu"
@@ -146,27 +147,30 @@ beats:
   - id: "3.5"
     chapter: The planned move
     visual: "Progression RunningFinalSync"
-    narration: "At 13:47:02 the DRPC enters Relocating with progression RunningFinalSync. The application is already stopped. Ramen is taking the final copy that the target will start from."
-    evidence: "VIRTDR-343 relocate timeline, 13:47:02; DRPC status progression"
+    narration: "At 13:47:02 the DRPC reports Relocating with progression RunningFinalSync. Upstream Ramen clears placement to begin removing the source workload before waiting at this label. For these Dell-replicated disks, the label does not prove the VM has stopped or that an array copy is running."
+    evidence: "VIRTDR-343 timeline at 13:47:02. Upstream quiesceAndRunFinalSync and no-VolSync fast path."
+    unverified: "Exact source VM stop time and any corresponding Dell copy operation were not captured."
   - id: "3.6"
     chapter: The planned move
     visual: "Progression EnsuringVolumesAreSecondary"
-    narration: "At 13:48:42 the progression is EnsuringVolumesAreSecondary. Both sites must report their volumes as secondary before either side can become primary. This is the guard against two writers."
+    narration: "At 13:48:42 the progression is EnsuringVolumesAreSecondary. This is the controller checking the role handoff, not a snapshot of two completed demotions. Upstream Ramen waits for the old source VRG to report Secondary and its data protected before promoting the target. A retry deliberately skips demoting the target again."
     evidence: "VIRTDR-343 relocate timeline, 13:48:42"
   - id: "3.7"
     chapter: The planned move
     visual: "Argo CD prunes the source Application"
-    narration: "On the hub, the DRPC status confirms the same order: RunningFinalSync, then EnsuringVolumesAreSecondary, then the restore. During this window, Argo CD prunes the source Application dell-vm-workload-spoke-0."
+    narration: "The run records Argo CD pruning dell-vm-workload-spoke-0 during this window. That removal follows the cleared placement. It is not a cleanup action that waits until both sides have finished becoming secondary. For the source disks, the upstream demotion checks require claim deletion, no pod still using the claims, and no remaining disk attachment."
+    unverified: "The source-removal outcome is recorded. Individual detach and demote call times are not."
     evidence: "VIRTDR-343 relocate timeline; source Application pruned"
   - id: "3.8"
     chapter: The planned move
     visual: "So far"
-    narration: "So far: the application stopped, the final sync ran, both volume sides went secondary, and GitOps removed the source copy. Only now can the target be promoted."
+    narration: "So far: the recorded labels are RunningFinalSync and EnsuringVolumesAreSecondary, and the source Application was pruned. The upstream safety sequence explains why source removal and data protection gate the next step. We do not turn those labels into invented VM-stop or array-copy timestamps."
 
   - id: "4.1"
     chapter: Home again
     visual: "S3 definitions to target claims"
-    narration: "Why restore definitions before the VM? The target array has the data, but the cluster has no claims pointing at it. The target VRG downloads the PV and PVC definitions from the S3 profile minio-on-hub and recreates them against the target volumes."
+    narration: "Why restore definitions before starting the VM? The array copy needs claim records that point at the correct disks. After the hub requests a Primary target VRG, the upstream spoke controller reads the saved PV and PVC definitions from object storage, configured as minio-on-hub, and restores them before reconciling disk promotion. The request and the actual writable disk are separate steps."
+    unverified: "Restored target records are captured. Exact restore and promotion calls were not captured for the deployed build."
   - id: "4.2"
     chapter: Home again
     visual: "DRPC Relocated"
@@ -224,15 +228,15 @@ beats:
     screenshot: "06-replication-vsa-b-source.png"
     focus: {x: 25, y: 530, w: 1000, h: 150}
     caption: "13:55 UTC · VSA-B Source for both workload sessions"
-    narration: "The arrays have reversed. VSA-B is now Source for our two sessions, csivol-ec5862ac71 and csivol-f756724d1d. VSA-A is Destination for the same sessions. Both arrays report all eight sessions Operating Normally."
+    narration: "In this later array capture, VSA-B is Source for the volumes csivol-ec5862ac71 and csivol-f756724d1d. VSA-A is Destination. These are volume names, not replication-session identifiers. Both arrays show Operating Normally. The screenshot was captured after the manual syncs that we will examine next."
     evidence: "Screenshots 06-replication-vsa-b-source.png and 07-replication-vsa-a-destination.png"
   - id: "5.5"
     chapter: The old site
     visual: "Last and next sync"
     screenshot: "07-replication-vsa-a-destination.png"
-    focus: {x: 25, y: 530, w: 1000, h: 150}
+    focus: {x: 1100, y: 530, w: 780, h: 150}
     caption: "13:55 UTC · VSA-A Destination, next sync 14:11 and 14:13"
-    narration: "The last synchronization time on both arrays is 13:55 UTC, and the next synchronization time is 14:13 for the root disk and 14:11 for the data disk. Those next times are the part to watch."
+    narration: "This repaired-state capture shows the workload disks last synchronized around 13:55 UTC. The root disk has a next time around 14:13 and the data disk around 14:11. The array interface displays UTC plus two hours. These future timestamps were captured after the manual syncs, not immediately when Relocate completed."
     evidence: "Screenshot 07-replication-vsa-a-destination.png"
   - id: "5.6"
     chapter: The old site
@@ -250,16 +254,17 @@ beats:
   - id: "6.1"
     chapter: Relocated is not protected
     visual: "Two different promises"
-    narration: "Why is Relocated not the same as protected? Relocated means the workload moved and the target is primary. Protected means a future copy will be taken on schedule. Those are different promises, and only the array can keep the second one."
+    narration: "Why check storage after a successful move? The DRPC reported Relocated and its Protected condition was true, but those controller conditions are not independent evidence of continuing array copies. For this run, we checked the future timestamps and later completed jobs separately. That distinction is the point of this chapter."
   - id: "6.2"
     chapter: Relocated is not protected
     visual: "Session state: next sync null"
-    narration: "The relocate log records the gap. After the move, both reversed source sessions reported next_sync_timestamp as null. The sessions were OK, the rule was valid, and the schedule was not armed."
+    narration: "The relocate timeline records the concern. After the move, both reversed source sessions reported next_sync_timestamp as null. The operator interpreted that as a missing schedule and chose to intervene. This null value is described in the timeline. The later raw array dump captures the repaired state, not the earlier null state."
     evidence: "VIRTDR-343 relocate timeline, note on the sync schedule"
   - id: "6.3"
     chapter: Relocated is not protected
     visual: "Null next sync means no job"
-    narration: "A null next sync means no scheduled job will start. The last sync stays at the final sync taken during the relocate, and the standby copy ages silently. The console cannot see this, because it reads the last sync, not the next one."
+    narration: "A missing next timestamp did not establish that the next scheduled job would run. The operator recorded the missing schedule and intervened, rather than waiting for a policy breach. We do not know why the timestamp was missing, or whether it would have recovered without that intervention."
+    unverified: "The cause of the missing next timestamp and recovery without intervention were not established."
   - id: "6.4"
     chapter: Relocated is not protected
     visual: "Manual array sync"
@@ -279,20 +284,21 @@ beats:
   - id: "6.7"
     chapter: Relocated is not protected
     visual: "Console badge versus array"
-    narration: "So the console's all volumes are synced at 13:50 was true about the past. It was not evidence that a future copy was scheduled. The run needed the array job history and the next sync timestamp, not the badge."
+    narration: "The console displayed all volumes synced at 13:50, but that timestamp is not independent proof. The driver timestamp problem is tracked in VIRTDR-333. This run checked the array's job history and future schedule separately. The badge alone did not establish either one."
+    evidence: "Relocate completion screenshot and timeline. VIRTDR-333 driver last-sync timestamp defect."
   - id: "6.8"
     chapter: Relocated is not protected
     visual: "So far"
-    narration: "So far: the move completed at 13:50, the schedule was repaired at 13:55, and the first scheduled copy after that ran at 14:03. Relocated is the end of the move. Protection is a separate state."
+    narration: "So far: the DRPC completed the move at 13:50, manual syncs completed around 13:55, and the saved array history then shows scheduled copies from 14:03 onward. That proves copying continued after the intervention. The cause of the missing timestamps, and what would have happened without intervention, remain unverified."
 
   - id: "7.1"
     chapter: Verify and recap
     visual: "Five checks"
-    narration: "What does done mean for a return? Five checks: the DRPC is Relocated and Completed, PeerReady is true, the placement names only the preferred site, the old site is secondary, and both arrays have a scheduled next sync."
+    narration: "What does done mean for this return? Check the DRPC is Relocated and Completed. PeerReady means the controller considers the peer ready for another action. Check placement selects only the preferred site and the old site is Secondary. Then check the recovered guest, original disk identities, future copy timestamps, and subsequent completed array jobs."
   - id: "7.2"
     chapter: Verify and recap
     visual: "Guest recheck at 15:58"
-    narration: "At 15:58:51 the guest check is unchanged: PostgreSQL active, the writer still disabled, and the order count still 2,252,463. The return did not change the data."
+    narration: "At 15:58:51 the guest check is unchanged: PostgreSQL active, the writer still disabled, and the order-sequence sum still 2,252,463. This confirms the same recorded total before and after the return. It is not a full comparison of the database contents."
     evidence: "relocate-guest-check-20261026T1559Z.txt"
   - id: "7.3"
     chapter: Verify and recap
@@ -302,7 +308,7 @@ beats:
   - id: "7.4"
     chapter: Verify and recap
     visual: "What this run proves"
-    narration: "What this run proves: a managed application can be relocated back to its preferred site, with the original volume handles, automatic GitOps cleanup, and a verified guest. It also proves that Relocated can be reported while the next copy is not scheduled."
+    narration: "This run records a managed application's return to its preferred site, the original volume identities, automatic GitOps source cleanup, and a running database with an unchanged recorded total. It also records missing next-copy timestamps after completion, manual syncs, and later scheduled jobs. It does not establish the storage defect's cause."
   - id: "7.5"
     chapter: Verify and recap
     visual: "What it does not prove"
@@ -310,9 +316,9 @@ beats:
   - id: "7.6"
     chapter: Verify and recap
     visual: "Recap chain"
-    narration: "Recap. Baseline: application on spoke-0, standby on spoke-1. Click: Relocate to spoke-1. Final sync, both sides secondary, Argo CD prunes the source. Promote, bind the original handles, boot the VM. Reverse the arrays, then check the next sync."
+    narration: "Recap the recorded return. Baseline on spoke-0, standby on spoke-1. Initiate Relocate. The controller reports RunningFinalSync and then EnsuringVolumesAreSecondary while GitOps removes the source. The target records return, placement selects spoke-1, and the guest runs. Missing future-copy timestamps prompt manual syncs, followed by completed scheduled jobs."
   - id: "7.7"
     chapter: Verify and recap
     visual: "Final line"
-    narration: "The last line belongs to the array. The console can tell you the move finished. Only the next scheduled copy can tell you the application is protected again."
+    narration: "The lesson is to verify the whole return, not just its completion label. Check the guest, the disk identities, the old site's cleanup, and the continuing copies. In this run, the return worked. The separate array checks revealed a concern that the completion badge did not resolve."
     pause_after: 2.2

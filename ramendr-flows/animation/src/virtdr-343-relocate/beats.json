@@ -209,7 +209,8 @@
   "chapter": "The starting state"
  },
  "3.1": {
-  "chapter": "The planned move"
+  "chapter": "The planned move",
+  "unverified": "Pinned upstream source explains the sequence. Exact deployed controller and driver builds were not established."
  },
  "3.2": {
   "chapter": "The planned move",
@@ -237,19 +238,22 @@
   "chapter": "The planned move"
  },
  "3.5": {
-  "chapter": "The planned move"
+  "chapter": "The planned move",
+  "unverified": "Exact source VM stop time and any corresponding Dell copy operation were not captured."
  },
  "3.6": {
   "chapter": "The planned move"
  },
  "3.7": {
-  "chapter": "The planned move"
+  "chapter": "The planned move",
+  "unverified": "The source-removal outcome is recorded. Individual detach and demote call times are not."
  },
  "3.8": {
   "chapter": "The planned move"
  },
  "4.1": {
-  "chapter": "Home again"
+  "chapter": "Home again",
+  "unverified": "Restored target records are captured. Exact restore and promotion calls were not captured for the deployed build."
  },
  "4.2": {
   "chapter": "Home again"
@@ -304,9 +308,9 @@
   "chapter": "The old site",
   "screenshot": "07-replication-vsa-a-destination.png",
   "focus": {
-   "x": 25,
+   "x": 1100,
    "y": 530,
-   "w": 1000,
+   "w": 780,
    "h": 150
   },
   "caption": "13:55 UTC \u00b7 VSA-A Destination, next sync 14:11 and 14:13"
@@ -332,7 +336,8 @@
   "chapter": "Relocated is not protected"
  },
  "6.3": {
-  "chapter": "Relocated is not protected"
+  "chapter": "Relocated is not protected",
+  "unverified": "The cause of the missing next timestamp and recovery without intervention were not established."
  },
  "6.4": {
   "chapter": "Relocated is not protected"

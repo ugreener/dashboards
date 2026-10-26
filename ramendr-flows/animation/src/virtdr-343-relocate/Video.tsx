@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame} from 'remotion';
-import {C} from '../theme';
+import {C, sans} from '../theme';
 import {lerp, prog, progIO, sec} from '../lib/anim';
 import {ChapterCard, Hud, Legend, TimelineBar, TEvent} from '../components/overlays';
 import {DefinitionPanel, Def, PhaseTracker, Screenshot} from '../components/newcomer';
@@ -8,7 +8,7 @@ import {buildTimeline, PAD_BEFORE, Segment} from './timeline';
 import {World, FOCUS, RECT, CH} from './World';
 import {BeatPanel, GlossaryScene, PANEL_BEATS, PHASES_343} from './Panels';
 import BEATS from './beats.json';
-type Meta = {t?: string; screenshot?: string; focus?: {x: number; y: number; w: number; h: number}; caption?: string; define?: {term: string; text: string}; card?: {kind: string; name: string; role: string}; def?: Def};
+type Meta = {t?: string; screenshot?: string; focus?: {x: number; y: number; w: number; h: number}; caption?: string; define?: {term: string; text: string}; card?: {kind: string; name: string; role: string}; def?: Def; unverified?: string};
 const META = BEATS as Record<string, Meta>;
 type Cam = {x: number; y: number; z: number; sx: number; sy: number};
 const CAMS: Record<string, Partial<Cam>> = {
@@ -45,8 +45,8 @@ const CLOCK_LABELS: Record<string, string> = {
   '5.4': '~13:55 (array capture)', '5.5': '~13:55 (array capture)', '6.6': '~15:59 (state capture)', '7.2': '15:58:51',
 };
 const EVENTS_343: TEvent[] = [
-  ['13:41:46', 'precheck', C.amber], ['13:46:32', 'Initiate', C.blue], ['13:47:02', 'final sync', C.orange],
-  ['13:48:42', 'both secondary', C.amber], ['13:50:10', 'Relocated', C.green], ['13:55:32', 'manual sync', C.red],
+  ['13:41:46', 'precheck', C.amber], ['13:46:32', 'Initiate', C.blue], ['13:47:02', 'RunningFinalSync', C.orange],
+  ['13:48:42', 'secondary gate', C.amber], ['13:50:10', 'Relocated', C.green], ['13:55:32', 'manual sync', C.red],
   ['15:59:00', 'state capture', C.dim],
 ];
 const SFX: Record<string, [number, string, number][]> = {
@@ -85,6 +85,7 @@ export const RelocateHome: React.FC<{chapters: number[]}> = ({chapters}) => {
     {seg.type === 'beat' && ch === 1 ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def}/> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null} ticket="VIRTDR-343"/> : null}
     {seg.type === 'beat' && ch >= 2 ? <PhaseTracker current={ch - 2} phases={PHASES_343}/> : null}
+    {seg.type === 'beat' && m.unverified ? <div style={{position: 'absolute', left: 40, right: 40, top: 165, padding: '6px 12px', fontFamily: sans, fontSize: 17, lineHeight: 1.25, color: C.amber, background: `${C.bg}f5`, borderLeft: `3px solid ${C.amber}`}}>UNVERIFIED: {m.unverified}</div> : null}
     {seg.type === 'beat' && b.id === '2.6' ? <Legend appear={win(.04, .96)}/> : null}
     {seg.type === 'beat' && ch >= 3 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS_343}/> : null}
     {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio}/> : null}

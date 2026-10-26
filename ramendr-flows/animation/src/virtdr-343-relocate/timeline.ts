@@ -2,13 +2,13 @@ import timing from './timing.json';
 import {FPS, sec} from '../lib/anim';
 export type Chapter={n:number;title:string;sub?:string};
 export const CHAPTERS:Chapter[]=[
-  {n:0,title:'Relocated, not protected',sub:'A planned return that finished before the copy schedule did'},
+  {n:0,title:'Relocate: the return and the next copy',sub:'A recorded handoff and its independent storage checks'},
   {n:1,title:'Cast of characters',sub:'One job for every object in the return'},
   {n:2,title:'The starting state',sub:'Application on spoke-0, preferred site spoke-1'},
-  {n:3,title:'The planned move',sub:'Stop, final sync, both sides secondary'},
+  {n:3,title:'The planned move',sub:'Progress labels, source removal, and the safety gates'},
   {n:4,title:'Home again',sub:'Promote, bind the original handles, boot the guest'},
   {n:5,title:'The old site',sub:'Automatic cleanup and the reversed arrays'},
-  {n:6,title:'Relocated is not protected',sub:'The next sync that was never scheduled'},
+  {n:6,title:'Verify continuing protection',sub:'Missing future timestamps, manual syncs, and later jobs'},
   {n:7,title:'Verify and recap',sub:'What the run proves, and what it does not'},
 ];
 export type Segment={type:'chapter';chapter:Chapter;from:number;dur:number}|{type:'beat';id:string;chapter:Chapter;from:number;dur:number;audio:number;afterChapter:boolean};

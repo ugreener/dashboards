@@ -56,27 +56,31 @@ After the move, both reversed source sessions on VSA-B reported `next_sync_times
 
 ### 1. Initiate
 
-**Observed:** the console wrote `spec.action: Relocate` and `spec.preferredCluster: spoke-1`. `spec.failoverCluster: spoke-0` remained from the previous failover. `status.actionStartTime` is 13:46:32.
+**Observed:** the operator initiated Relocate in the console. The resulting spec contains `spec.action: Relocate`, `spec.preferredCluster: spoke-1`, and the retained `spec.failoverCluster: spoke-0`. The precheck already recorded preferred cluster spoke-1, so do not claim that the click changed that field. `status.actionStartTime` is 13:46:32.
 
 ### 2. Quiesce and final sync
 
-**Observed:** at 13:47:02 the DRPC reported `Relocating/RunningFinalSync`. The source Application was stopped and the final copy was taken.
+**Observed:** at 13:47:02 the DRPC reported `Relocating/RunningFinalSync`. That label does not establish the VM stop time or a final Dell copy. Neither event has a corresponding driver or array job captured at that moment.
 
-**Mechanism:** upstream `internal/controller/drplacementcontrol.go` calls `quiesceAndRunFinalSync`, which runs `prepareForFinalSync`, sets phase `Relocating`, clears the placement (managed applications) or sets a wait-on-user cleanup progression (discovered applications), runs the final sync, and sets `FinalSyncComplete`.
+**Mechanism:** upstream `quiesceAndRunFinalSync` prepares the VRG flags, clears placement to begin asynchronous workload removal, then requests `RunFinalSync` and waits for the status flag. The no-VolSync path sets the completion flags immediately. This application uses Dell VolumeReplication with VolSync disabled. Do not present the VolSync final-transfer flow as a measured Dell array-copy sequence.
 
 ### 3. Both sides secondary
 
 **Observed:** at 13:48:42 the progression was `EnsuringVolumesAreSecondary`. Argo CD pruned `dell-vm-workload-spoke-0`.
 
-**Mechanism:** `setupRelocation` requires both clusters up and both VRGs secondary before it proceeds, then calls `ensureDataProtected`.
+**Mechanism:** VolumeReplication source readiness requires the claim marked for deletion, no pod using it, and no disk attachment before demotion. `setupRelocation` waits for the non-target VRG to report Secondary and `DataProtected=True` at the current generation. It deliberately skips re-demoting the target during retries. Placement clearing starts pruning before this gate, not afterward.
 
 ### 4. Promote and restore
 
-**Observed:** at 13:50:10 the DRPC was `Relocated/Completed`. Target PVCs bound to the PVs `csivol-ec5862ac71` (root) and `csivol-f756724d1d` (data). The array sessions used `1282bca9-29aa-416f-b890-2a29a44e3fac` (root) and `e5ecb946-25b6-4f1a-afe0-8173392f2b7d` (data), the same handles the disks had before the failover. Target VRG Primary, both VolumeReplications Primary. Application `dell-vm-workload-spoke-1` Synced/Healthy. VM Running on worker-0.
+**Observed:** the saved DRPC condition timestamp is 13:50:10, with `Relocated/Completed` and action duration 3m38.455s. The timeline observes completion by 13:51:00. Application `dell-vm-workload-spoke-1` was created at 13:51:05. Its Synced/Healthy state and the VM Running on worker-0 were observed at 13:54:29. These are separate events, not one timestamp.
+
+The later state shows target claims bound to PVs `csivol-ec5862ac71` (root) and `csivol-f756724d1d` (data), target VRG Primary, and both VolumeReplications Primary. The array local resource ids are `1282bca9-29aa-416f-b890-2a29a44e3fac` and `e5ecb946-25b6-4f1a-afe0-8173392f2b7d`, matching the pre-failover source handles. PV names are not array volume handles.
+
+**Mechanism:** the hub requests target VRG Primary. The spoke controller restores PV/PVC definitions from S3 before reconciling actual disk promotion. Hub disk-readiness checks and placement do not wait for the guest VM to boot.
 
 ### 5. Reverse replication
 
-**Observed:** VSA-B became Source and VSA-A Destination for both workload sessions. All eight sessions reported Operating Normally. The two workload sessions had `next_sync_timestamp: null` until the manual sync at 13:55.
+**Observed:** VSA-B became Source and VSA-A Destination for both workload sessions. The timeline reports missing `next_sync_timestamp` values and manual syncs at 13:55. The raw dump is from 15:59, after repair, and contains populated future timestamps and completed job history. The seven screenshots likewise show repaired-state array timestamps. Do not label them as captures of the earlier null values.
 
 **Mechanism (UNVERIFIED for the null value):** the relocate log records the null value and the manual repair. The upstream code and the attachments do not establish why the schedule was not armed. This is not a documented Dell defect.
 
@@ -87,3 +91,15 @@ After the move, both reversed source sessions on VSA-B reported `next_sync_times
 - The exact cause of `next_sync_timestamp: null` after the relocate is unverified. The video states the observed value and the repair, not a cause.
 - The deployed controller and driver commits are not established by the attachments.
 - The guest order count is an order-sequence total, not an exact transaction count.
+
+## Independently verified upstream references
+
+Source trace pinned to Ramen `b2baa4069f7769be3e5627b74dec11c1fdf9099e`, not a claim about the deployed build:
+
+- [Placement clearing and final-sync progress flags](https://github.com/RamenDR/ramen/blob/b2baa4069f7769be3e5627b74dec11c1fdf9099e/internal/controller/drplacementcontrol.go#L1144-L1266)
+- [No-VolSync completion fast path](https://github.com/RamenDR/ramen/blob/b2baa4069f7769be3e5627b74dec11c1fdf9099e/internal/controller/vrg_volsync.go#L135-L145)
+- [Claim deletion, pod-use, and attachment gates](https://github.com/RamenDR/ramen/blob/b2baa4069f7769be3e5627b74dec11c1fdf9099e/internal/controller/vrg_volrep.go#L291-L361)
+- [Source Secondary and data-protection checks](https://github.com/RamenDR/ramen/blob/b2baa4069f7769be3e5627b74dec11c1fdf9099e/internal/controller/drplacementcontrol.go#L1431-L1491)
+- [Target metadata restore before disk reconciliation](https://github.com/RamenDR/ramen/blob/b2baa4069f7769be3e5627b74dec11c1fdf9099e/internal/controller/volumereplicationgroup_controller.go#L1513-L1540)
+- [Target readiness is storage readiness, not VM readiness](https://github.com/RamenDR/ramen/blob/b2baa4069f7769be3e5627b74dec11c1fdf9099e/internal/controller/drplacementcontrol.go#L1355-L1363)
+- [ApplicationSet placement generator and pull-model configuration](https://github.com/elsapassaro/ramendr-starter-kit/blob/ocp-4.22-rhdr-dell/clusters/dell-s4/hub-dr/applicationset.yaml), mutable branch reference corroborated by the recorded Application state, not immutable deployment provenance.

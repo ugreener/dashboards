@@ -1,5 +1,5 @@
 import React from 'react';
-import {C, mono, sans} from '../theme';
+import {C, sans} from '../theme';
 import {Card, Region} from '../components/primitives';
 import {prog} from '../lib/anim';
 
@@ -90,16 +90,16 @@ const reached = (id: string, other: string) => {
 export const CH: [string, number, string, string][] = [
   ['3.4', 0.2, 'drpc', 'Action: Relocate · preferred spoke-1'],
   ['3.5', 0.2, 'drpc', 'Relocating · RunningFinalSync'],
-  ['3.5', 0.2, 'vrg0', 'Primary · final sync'],
+  ['3.5', 0.2, 'decision', 'cleared for source removal (upstream sequence)'],
   ['3.6', 0.2, 'drpc', 'Relocating · EnsuringVolumesAreSecondary'],
-  ['3.6', 0.2, 'vrg0', 'Secondary'],
-  ['3.6', 0.2, 'vr0r', 'Secondary'],
-  ['3.6', 0.2, 'vr0d', 'Secondary'],
+  ['3.6', 0.2, 'vrg0', 'waiting for Secondary and data protected'],
+  ['3.6', 0.2, 'vr0r', 'demotion gate (upstream sequence)'],
+  ['3.6', 0.2, 'vr0d', 'demotion gate (upstream sequence)'],
   ['3.6', 0.2, 'vrg1', 'Secondary'],
   ['3.6', 0.2, 'vr1r', 'Secondary'],
   ['3.6', 0.2, 'vr1d', 'Secondary'],
   ['3.7', 0.2, 'app0', 'pruned by Argo CD'],
-  ['3.7', 0.2, 'decision', 'spoke-1'],
+  ['3.7', 0.2, 'vm0', 'source removal observed by this phase'],
   ['4.1', 0.2, 'pvc1r', 'restoring from S3'],
   ['4.1', 0.2, 'pvc1d', 'restoring from S3'],
   ['4.2', 0.2, 'drpc', 'Relocated · Completed'],
@@ -164,6 +164,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   const focus = (key: string) => (keys.length === 0 || keys.includes(key) ? 1 : 0.08);
   const ch = phase(c.id);
   const afterMove = reached(c.id, '4.2');
+  const scheduleUncertain = reached(c.id, '6.2') && !reached(c.id, '6.5');
   const appear = (key: string) => {
     if (key === 'app1') return reached(c.id, '4.5') ? prog(c.f, -15, 35) : 0;
     return ch === 2 ? prog(c.f, -15, 35) : 1;
@@ -186,14 +187,9 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       <defs><marker id="tip343" markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill={C.orange}/></marker></defs>
       {ch >= 2 ? <g>
         <path d={afterMove ? 'M1820,1305 L1820,1330 L660,1330 L660,1305' : 'M660,1305 L660,1330 L1820,1330 L1820,1305'} fill="none" stroke={C.orange} strokeWidth={5} markerEnd="url(#tip343)"/>
-        <circle cx={afterMove ? 1820 - 1160 * ((c.f % 180) / 180) : 660 + 1160 * ((c.f % 180) / 180)} cy={1330} r={9} fill={C.orange}/>
+        {!scheduleUncertain ? <circle cx={afterMove ? 1820 - 1160 * ((c.f % 180) / 180) : 660 + 1160 * ((c.f % 180) / 180)} cy={1330} r={9} fill={C.orange}/> : null}
         <rect x={790} y={1304} width={900} height={38} rx={12} fill={C.bg}/>
-        <text x={1240} y={1331} textAnchor="middle" fill={C.orange} fontSize={26} fontFamily={sans}>{afterMove ? 'Recorded copy after the move: VSA-B to VSA-A' : 'Recorded copy before the move: VSA-A to VSA-B'}</text>
-      </g> : null}
-      {c.id === '3.5' ? <g opacity={prog(c.f, c.dur * .15, c.dur * .15 + 25)}>
-        <path d="M660,635 L660,665 L1820,665 L1820,635" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#tip343)"/>
-        <rect x={955} y={648} width={570} height={34} rx={10} fill={C.bg}/>
-        <text x={1240} y={672} textAnchor="middle" fill={C.green} fontSize={21} fontFamily={sans}>final sync before the switch</text>
+        <text x={1240} y={1331} textAnchor="middle" fill={C.orange} fontSize={26} fontFamily={sans}>{scheduleUncertain ? 'VSA-B to VSA-A: next sync timestamp missing' : afterMove ? 'Recorded copy after the move: VSA-B to VSA-A' : 'Recorded copy before the move: VSA-A to VSA-B'}</text>
       </g> : null}
     </svg>
   </div>;
