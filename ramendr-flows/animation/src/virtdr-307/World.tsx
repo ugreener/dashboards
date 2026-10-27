@@ -161,22 +161,21 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         <rect x={830} y={292} width={620} height={34} rx={10} fill={C.bg}/><text x={1140} y={316} textAnchor="middle" fill={C.cyan} fontSize={21} fontFamily={sans}>set the target VRG to Primary</text>
       </g> : null}
       {on('4.1') ? <g opacity={prog(c.f, 20, 45)}>
-        <path d="M1510,480 L1510,380 L1850,380 L1850,280" fill="none" stroke={C.purple} strokeWidth={4} strokeDasharray="9 9" markerEnd="url(#tip307)"/>
-        <rect x={1520} y={352} width={640} height={34} rx={10} fill={C.bg}/><text x={1840} y={376} textAnchor="middle" fill={C.purple} fontSize={21} fontFamily={sans}>reads PV, PVC, VGR and VGRC records</text>
+        <path d="M1760,560 L1850,560 L1850,280" fill="none" stroke={C.purple} strokeWidth={4} strokeDasharray="9 9" markerEnd="url(#tip307)"/>
+        <rect x={1500} y={330} width={640} height={34} rx={10} fill={C.bg}/><text x={1820} y={354} textAnchor="middle" fill={C.purple} fontSize={21} fontFamily={sans}>reads PV, PVC, VGR and VGRC records</text>
       </g> : null}
       {on('5.2') ? <g opacity={prog(c.f, 20, 45)}>
         <path d="M1510,650 L1510,680 L2050,680 L2050,692" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#tip307)"/>
         <rect x={1610} y={652} width={600} height={34} rx={10} fill={C.bg}/><text x={1910} y={676} textAnchor="middle" fill={C.cyan} fontSize={21} fontFamily={sans}>restore claims, then wait for binding</text>
       </g> : null}
       {on('6.5') ? <g opacity={prog(c.f, 20, 45)}>
-        <path d="M1510,1010 L1510,1040 L2050,1040 L2050,868" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#tip307)"/>
-        <rect x={1610} y={1012} width={520} height={34} rx={10} fill={C.bg}/><text x={1870} y={1036} textAnchor="middle" fill={C.green} fontSize={21} fontFamily={sans}>bind decision by UID</text>
+        <path d="M1510,930 L1510,900 L2050,900 L2050,868" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#tip307)"/>
+        <rect x={1610} y={872} width={520} height={30} rx={10} fill={C.bg}/><text x={1870} y={894} textAnchor="middle" fill={C.green} fontSize={20} fontFamily={sans}>bind decision by UID</text>
       </g> : null}
       {on('7.4') ? <g opacity={prog(c.f, 20, 45)}>
         <path d="M1510,480 L1510,380 L740,380 L740,278" fill="none" stroke={C.red} strokeWidth={4} strokeDasharray="9 9" markerEnd="url(#tip307)"/>
         <rect x={880} y={352} width={520} height={34} rx={10} fill={C.bg}/><text x={1140} y={376} textAnchor="middle" fill={C.red} fontSize={21} fontFamily={sans}>ClusterDataReady=False</text>
       </g> : null}
     </svg>
-    {chapter >= 7 ? <div style={{position: 'absolute', left: 1300, top: 1110, fontFamily: mono, fontSize: 21, color: C.red}}>The target VRG loops on the same restore. No error event, no timeout.</div> : null}
   </div>;
 };
