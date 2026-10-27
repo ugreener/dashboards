@@ -12,7 +12,11 @@ import BEATS from './beats.json';
 type Meta = {t?: string; screenshot?: string; focus?: {x: number; y: number; w: number; h: number}; caption?: string; define?: {term: string; text: string}; card?: {kind: string; name: string; role: string}; def?: Def};
 const META = BEATS as Record<string, Meta>;
 type Cam = {x: number; y: number; z: number; sx: number; sy: number};
-const CAMS: Record<string, Partial<Cam>> = {};
+const CAMS: Record<string, Partial<Cam>> = {
+  // Both Node A cards at readable size, with the window edge landing between VSA-B-A and VSA-B-B
+  // so no card is sliced at the right of the frame.
+  '4.3': {x: 820, y: 470, z: 1.0, sx: 960, sy: 552},
+};
 
 const fit = (id: string): Cam => {
   const side = !!META[id]?.screenshot || PANEL_BEATS.has(id) || !!META[id]?.define;
@@ -97,8 +101,9 @@ export const VsaCascade: React.FC<{chapters: number[]}> = ({chapters}) => {
   });
   const NO_WORLD = new Set(['4.2', '6.1', '6.3', '6.4', '7.1', '7.2', '7.3', '7.5', '7.6']);
   const showWorld = ch >= 2 && !NO_WORLD.has(b.id);
+  const sidePanel = !!m.screenshot || PANEL_BEATS.has(b.id) || !!m.define;
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
-    {showWorld ? <div style={{position: 'absolute', inset: 0, WebkitMaskImage: 'linear-gradient(to bottom, transparent 196px, #000 258px, #000 906px, transparent 1010px)', maskImage: 'linear-gradient(to bottom, transparent 196px, #000 258px, #000 906px, transparent 1010px)'}}><div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} /></div></div> : null}
+    {showWorld ? <div style={{position: 'absolute', inset: 0, WebkitMaskImage: 'linear-gradient(to bottom, transparent 196px, #000 258px, #000 906px, transparent 1010px)', maskImage: 'linear-gradient(to bottom, transparent 196px, #000 258px, #000 906px, transparent 1010px)'}}><div style={{position: 'absolute', inset: 0, WebkitMaskImage: sidePanel ? 'linear-gradient(to right, #000 0px, #000 700px, transparent 878px)' : undefined, maskImage: sidePanel ? 'linear-gradient(to right, #000 0px, #000 700px, transparent 878px)' : undefined}}><div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} /></div></div></div> : null}
     {seg.type === 'beat' && ch === 1 ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
     {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null} ticket="VIRTDR-337" /> : null}
