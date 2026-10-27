@@ -126,6 +126,9 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   };
   const focus = (key: string) => keys.length === 0 || keys.includes(key) ? 1 : 0.08;
   const chapter = phase(c.id);
+  const hubOn = keys.some(k => HUB.includes(k));
+  const primOn = keys.some(k => PRIMARY.includes(k));
+  const targetOn = keys.some(k => TARGET.includes(k));
   const arrow = (from: string, to: string, label: string, color: string, n: number, dashed = false) => {
     const a = RECT[from]; const b = RECT[to];
     const x1 = a[0] + a[2] / 2, x2 = b[0] + b[2] / 2;
@@ -141,11 +144,11 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   };
   const on = (id: string) => c.id === id;
   return <div style={{position: 'absolute', width: 2400, height: 1460}}>
-    <Region b={{x: 70, y: 45, w: 2260, h: 285}} title="HUB · ACM" sub="decision and records" color={C.blue}/>
-    <Region b={{x: 70, y: 420, w: 1120, h: 700}} title="OCP-PRIMARY" sub="recorded source" color={C.spoke0}/>
-    <Region b={{x: 1210, y: 420, w: 1120, h: 700}} title="OCP-SECONDARY" sub={reached(c.id, '7.2') ? 'recorded target · stuck' : 'recorded target'} color={reached(c.id, '7.2') ? C.red : C.spoke1}/>
-    <Region b={{x: 70, y: 1210, w: 1120, h: 210}} title="OCP-PRIMARY STORAGE" sub="ODF Ceph RBD" color={C.array} small/>
-    <Region b={{x: 1210, y: 1210, w: 1120, h: 210}} title="OCP-SECONDARY STORAGE" sub="ODF Ceph RBD" color={C.array} small/>
+    <Region b={{x: 70, y: 45, w: 2260, h: 285}} title="HUB · ACM" sub="decision and records" color={C.blue} opacity={hubOn || primOn || targetOn ? 1 : 0.35}/>
+    <Region b={{x: 70, y: 420, w: 1120, h: 700}} title="OCP-PRIMARY" sub="recorded source" color={C.spoke0} opacity={primOn ? 1 : 0.35}/>
+    <Region b={{x: 1210, y: 420, w: 1120, h: 700}} title="OCP-SECONDARY" sub={reached(c.id, '7.2') ? 'recorded target · stuck' : 'recorded target'} color={reached(c.id, '7.2') ? C.red : C.spoke1} opacity={targetOn ? 1 : 0.35}/>
+    <Region b={{x: 70, y: 1210, w: 1120, h: 210}} title="OCP-PRIMARY STORAGE" sub="ODF Ceph RBD" color={C.array} small opacity={0.3}/>
+    <Region b={{x: 1210, y: 1210, w: 1120, h: 210}} title="OCP-SECONDARY STORAGE" sub="ODF Ceph RBD" color={C.array} small opacity={0.3}/>
     {Object.entries(NODES).map(([key, n]) => {
       const s = status(key);
       const appear = chapter === 2 ? prog(c.f, -15, 35) : 1;

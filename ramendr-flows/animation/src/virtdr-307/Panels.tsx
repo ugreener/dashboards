@@ -6,8 +6,12 @@ import {prog} from '../lib/anim';
 
 export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: string; mono?: boolean}> = {
   '0.1': {title: '21:51 UTC · the console and the target disagree', rows: ['Console title: Failover complete', 'Console steps: 2 of 4', 'DRPC progression: WaitForReadiness', 'Target virtual machines: 0', 'Target claims: 6 Lost, 2 Pending'], color: C.red},
+  '0.3': {title: 'What this recording is', rows: ['Environment: ODF 4.22.4-rhodf, AWS, ocp-primary to ocp-secondary', 'Result: FailedOver / WaitForReadiness, 0 virtual machines on the target', 'Storage copy: healthy', 'Failure: restored records and claim binding', 'Inference is labelled. The deployed build is unverified.'], color: C.amber},
   '0.2': {title: "The hub object's own record", rows: ['phase: FailedOver', 'progression: WaitForReadiness', 'Available: False · waiting for App resources to be restored', 'PeerReady: False · NotStarted', 'actionStartTime: 2026-09-26T20:10:43Z'], color: C.amber, mono: true},
+  '2.3': {title: 'Four virtual machines on the primary', rows: ['rhel9-node-001 · Running', 'rhel9-node-pvc-001 · Running', 'windows2k22-server-001 · Running', 'windows2k25-server-001 · Running', 'ocp-secondary: no virtual machines'], color: C.green, mono: true},
   '2.4': {title: 'Eight claims, one consistency group', rows: ['rhel9-node-001', 'rhel9-node-001-data', 'rhel9-node-pvc-001', 'rhel9-node-pvc-001-data', 'windows2k22-server-001', 'windows2k22-server-001-data', 'windows2k25-server-001', 'windows2k25-server-001-data', 'label: ramendr.openshift.io/consistency-group'], color: C.cyan, mono: true},
+  '2.7': {title: 'Protection before the click', rows: ['DRPC Protected: True', 'VRG ClusterDataProtected: True · Uploaded', 'lastGroupSyncTime: 2026-09-26T20:08:00Z', 'lastGroupSyncBytes: 161038336', 'lastKubeObjectProtectionTime: 2026-09-26T20:11:00Z'], color: C.green, mono: true},
+  '2.8': {title: 'So far', rows: ['4 virtual machines on ocp-primary', '8 claims in one consistency group', 'VGR + VGRC + one group VolumeReplication', 'Protected=True, last group sync 20:08', 'next: one field on the hub']},
   '2.5': {title: 'Peer class is a result, not an input', rows: ['DRPolicy: 2m-vm · schedulingInterval 2m', 'selector: replication.storage.openshift.io/flatten-mode=force', 'storageClassName: ocs-storagecluster-ceph-rbd-virtualization', 'grouping: true', 'groupreplicationID: b7e3115af7a9714fe9c0857d760dc769', 'replicationID: f5bdeb1430a1b303139c53a7fc4429d8'], color: C.orange, mono: true},
   '2.6': {title: 'The three group objects', rows: ['VolumeGroupReplication', 'vgr-b7e3115af7a9714fe9c0857d760dc769-gitops-vm-protection', 'VolumeGroupReplicationContent', 'vgrcontent-93d5f65a-e0ed-4b6b-8509-070f0e5f2802', 'VolumeReplication', 'vr-93d5f65a-e0ed-4b6b-8509-070f0e5f2802'], color: C.amber, mono: true},
   '3.2': {title: 'DRPC after the click', rows: ['spec.action: Failover', 'spec.preferredCluster: ocp-primary', 'spec.failoverCluster: ocp-secondary', 'metadata.namespace: openshift-dr-ops', 'status.actionStartTime: 2026-09-26T20:10:43Z'], color: C.blue, mono: true},
@@ -40,7 +44,7 @@ export const PANEL_BEATS = new Set(Object.keys(PANEL_DATA));
 
 export const BeatPanel: React.FC<{id: string; f: number; dur: number}> = ({id, f, dur}) => {
   const d = PANEL_DATA[id]; if (!d) return null;
-  const a = prog(f, 0, 24); const cold = id === '0.1';
+  const a = prog(f, 0, 24); const cold = id === '0.1' || id === '0.3';
   return <div style={{position: 'absolute', left: cold ? 170 : 900, top: cold ? 290 : 220, width: cold ? 1580 : 950, padding: 32, border: `2px solid ${d.color ?? C.blue}`, borderRadius: 20, background: `${C.bg}f5`, opacity: a, fontFamily: sans, boxShadow: '0 20px 70px #000c'}}>
     <div style={{fontSize: cold ? 48 : 29, fontWeight: 700, color: d.color ?? C.blue, marginBottom: 24}}>{d.title}</div>
     {d.rows.map((r, i) => <div key={r} style={{marginTop: 18, fontSize: cold ? 34 : d.mono ? 22 : 25, lineHeight: 1.35, color: C.text, opacity: prog(f, dur * (.03 + i * .055), dur * (.03 + i * .055) + 22), transform: `translateX(${(1 - prog(f, dur * (.03 + i * .055), dur * (.03 + i * .055) + 22)) * 22}px)`, fontFamily: d.mono || /^[a-f0-9]{8}-/.test(r) ? mono : sans, overflowWrap: 'break-word'}}>{r}</div>)}
