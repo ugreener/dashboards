@@ -1,0 +1,231 @@
+{
+ "0.1": {
+  "chapter": "Cold open",
+  "t": "2026-10-11T15:20:48Z"
+ },
+ "0.2": {
+  "chapter": "Cold open"
+ },
+ "0.3": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PowerStore VSA",
+   "name": "VSA-A and VSA-B",
+   "role": "the two arrays that hold both copies of every protected disk"
+  },
+  "def": {
+   "what": "A virtual storage appliance, PowerStore software running inside two virtual machines instead of dedicated hardware.",
+   "creator": "Installed by the storage administrator when the lab was built.",
+   "reader": "The Dell CSI driver over iSCSI, and the lab operator over HTTPS and SSH.",
+   "where": "VSA-A beside spoke-0, VSA-B beside spoke-1, one per site.",
+   "analogy": "Two branch warehouses that each keep a copy of every parcel."
+  }
+ },
+ "1.2": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Appliance node",
+   "name": "VSA-A-A, VSA-A-B, VSA-B-A, VSA-B-B",
+   "role": "the two halves of each array, either of which can serve input and output"
+  },
+  "def": {
+   "what": "One of the two controller virtual machines inside an appliance, called Node A and Node B.",
+   "creator": "Created with the appliance, as two virtual machines on an ESXi host.",
+   "reader": "The other node through the cluster service, and the operator through management.",
+   "where": "Each array has one Node A and one Node B, for example VSA-A-A and VSA-A-B.",
+   "analogy": "Two engines on one aircraft. Either can fly it, and you want both."
+  }
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Cluster service",
+   "name": "appliance cluster service",
+   "role": "the software that keeps the two nodes acting as one array"
+  },
+  "def": {
+   "what": "The layer that coordinates the two nodes, decides which one owns a volume, and keeps their view of the data identical.",
+   "creator": "Started by the appliance itself at boot.",
+   "reader": "Both nodes, and the array event log, which reports every state change.",
+   "where": "Inside each appliance, shared by its Node A and Node B.",
+   "analogy": "A referee between two players who must never both grab the ball."
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "multipathd",
+   "name": "multipathd and multipath",
+   "role": "the path manager that chooses which physical path to a disk to use"
+  },
+  "def": {
+   "what": "A service that presents one disk over several physical paths and retries a failed path instead of failing the disk.",
+   "creator": "Started by the node operating system.",
+   "reader": "The kernel device-mapper multipath layer, and anything that issues disk input and output.",
+   "where": "On every array node, for example VSA-A-A.",
+   "analogy": "A courier who knows three routes to the same address."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Watchdog",
+   "name": "khungtaskd and kdump",
+   "role": "the kernel check that panics a node whose task is stuck, and the crash dump after it"
+  },
+  "def": {
+   "what": "khungtaskd is a kernel thread that reports any task blocked for more than 120 seconds. kdump writes memory to disk after the panic.",
+   "creator": "Part of the Linux kernel and the SUSE configuration on the node.",
+   "reader": "The kernel itself, and the operator reading the serial console.",
+   "where": "On every array node, for example VSA-B-A.",
+   "analogy": "A smoke alarm that also photographs the room."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Replication session",
+   "name": "PowerStore replication session",
+   "role": "one copy job per volume, between the two arrays"
+  },
+  "def": {
+   "what": "The array-side object that copies changed blocks for one volume from one array to the other on a schedule.",
+   "creator": "Created when replication is configured, here through the Dell CSI driver and csi-addons.",
+   "reader": "Both arrays, and the Dell CSI driver when it reports status.",
+   "where": "On the source array, named for its volume, for example csivol-ec5862ac71.",
+   "analogy": "A scheduled courier run with a manifest."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Initiator",
+   "name": "worker initiator sessions",
+   "role": "the login a cluster worker holds to each array node"
+  },
+  "def": {
+   "what": "A registered iSCSI or NVMe initiator, one per worker node, holding a session to each array node.",
+   "creator": "The worker storage configuration, when it logs in to the array.",
+   "reader": "The array, which counts active sessions per initiator.",
+   "where": "On both arrays, listed per worker.",
+   "analogy": "Two phone lines to the same office, one per receptionist."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Array event",
+   "name": "stop reason 351",
+   "role": "the array label for the second node stop"
+  },
+  "def": {
+   "what": "A numeric stop reason the appliance writes when it changes a node stop type. The log line reads, node stop type was changed from stopped to none, stop reason is 351.",
+   "creator": "The appliance cluster service.",
+   "reader": "The array event log, and Dell support.",
+   "where": "In the event log of each array.",
+   "analogy": "A code on a maintenance ticket that only the manufacturer can decode."
+  },
+  "unverified": true
+ },
+ "1.9": {
+  "chapter": "Cast of characters"
+ },
+ "2.1": {
+  "chapter": "Why the array is half the promise",
+  "t": "2026-10-11T15:00:00Z"
+ },
+ "2.2": {
+  "chapter": "Why the array is half the promise"
+ },
+ "2.3": {
+  "chapter": "Why the array is half the promise"
+ },
+ "3.1": {
+  "chapter": "The trigger",
+  "t": "2026-10-11T15:20:48Z"
+ },
+ "3.2": {
+  "chapter": "The trigger",
+  "t": "2026-10-11T15:21:22Z"
+ },
+ "3.3": {
+  "chapter": "The trigger",
+  "t": "2026-10-11T15:22:42Z"
+ },
+ "3.4": {
+  "chapter": "The trigger",
+  "t": "2026-10-11T15:27:32Z"
+ },
+ "4.1": {
+  "chapter": "The cascade",
+  "t": "2026-10-11T15:27:33Z",
+  "define": {
+   "term": "device-mapper suspend",
+   "text": "A pause request on a mapped disk. The kernel waits for every reader to leave before the pause completes."
+  }
+ },
+ "4.2": {
+  "chapter": "The cascade"
+ },
+ "4.3": {
+  "chapter": "The cascade",
+  "t": "2026-10-11T15:27:35Z"
+ },
+ "4.4": {
+  "chapter": "The cascade",
+  "t": "2026-10-11T15:30:36Z"
+ },
+ "4.5": {
+  "chapter": "The cascade"
+ },
+ "5.1": {
+  "chapter": "The degraded steady state"
+ },
+ "5.2": {
+  "chapter": "The degraded steady state"
+ },
+ "5.3": {
+  "chapter": "The degraded steady state"
+ },
+ "6.1": {
+  "chapter": "The 72-hour pattern"
+ },
+ "6.2": {
+  "chapter": "The 72-hour pattern"
+ },
+ "6.3": {
+  "chapter": "The 72-hour pattern",
+  "unverified": true
+ },
+ "6.4": {
+  "chapter": "The 72-hour pattern",
+  "unverified": true
+ },
+ "7.1": {
+  "chapter": "The recovery and what stays open"
+ },
+ "7.2": {
+  "chapter": "The recovery and what stays open",
+  "t": "2026-10-25T07:43:05Z"
+ },
+ "7.3": {
+  "chapter": "The recovery and what stays open",
+  "define": {
+   "term": "NVMe/TCP path",
+   "text": "An NVMe connection over the network to one array node. Two paths mean one session to each node."
+  }
+ },
+ "7.4": {
+  "chapter": "The recovery and what stays open"
+ },
+ "7.5": {
+  "chapter": "The recovery and what stays open"
+ },
+ "7.6": {
+  "chapter": "The recovery and what stays open",
+  "unverified": true
+ }
+}

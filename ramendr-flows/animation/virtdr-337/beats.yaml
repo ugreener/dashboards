@@ -7,7 +7,7 @@ beats:
   # ---------------------------------------------------------------- chapter 0
   - id: "0.1"
     chapter: Cold open
-    t: 2026-10-11T15:20:48Z
+    t: "2026-10-11T15:20:48Z"
     visual: Two appliance boxes. VSA-B Node B greys out. A clock runs 15:20 to 15:27.
     narration: >
       At 15:20 UTC on the eleventh of October, storage array VSA-B stopped one of
@@ -70,10 +70,10 @@ beats:
       where: Each array has one Node A and one Node B, for example VSA-A-A and VSA-A-B.
       analogy: Two engines on one aircraft. Either can fly it, and you want both.
     narration: >
-      Inside each appliance are two controllers, called Node A and Node B. VSA-A
-      runs VSA-A-A and VSA-A-B. VSA-B runs VSA-B-A and VSA-B-B. Either node can
-      serve input and output on its own. Losing one costs redundancy. Losing both
-      stops the array.
+      Inside each appliance are two controllers, called Node A and Node B. The four
+      nodes are VSA-A-A, VSA-A-B, VSA-B-A and VSA-B-B. Either node can serve input
+      and output on its own. Losing one costs redundancy. Losing both stops the
+      array.
     evidence: attachment filenames and serial consoles; docs/ramendr/unplanned-failover-simulation.md node inventory
   - id: "1.3"
     chapter: Cast of characters
@@ -125,8 +125,8 @@ beats:
       where: On every array node, for example VSA-B-A.
       analogy: A smoke alarm that also photographs the room.
     narration: >
-      Linux runs a watchdog called khungtaskd. When a task stays blocked for more
-      than a hundred and twenty seconds, it prints the stack, and then it panics
+      Linux runs a watchdog called the hung task daemon. When a task stays blocked
+      for more than a hundred and twenty seconds, it prints the stack, and then it panics
       the machine. That is deliberate. A node that cannot serve input and output
       should not pretend that it can. kdump then writes memory to disk and reboots,
       which is the hard reset the hypervisor records.
@@ -199,7 +199,7 @@ beats:
   # ---------------------------------------------------------------- chapter 2
   - id: "2.1"
     chapter: Why the array is half the promise
-    t: 2026-10-11T15:00:00Z
+    t: "2026-10-11T15:00:00Z"
     visual: Topology. Hub edge36, spoke-0 on edge95 with VSA-A, spoke-1 on edge97 with VSA-B.
     narration: >
       The arrays are not abstract. VSA-A sits under spoke-0 on edge95. VSA-B sits
@@ -231,7 +231,7 @@ beats:
   # ---------------------------------------------------------------- chapter 3
   - id: "3.1"
     chapter: The trigger
-    t: 2026-10-11T15:20:48Z
+    t: "2026-10-11T15:20:48Z"
     visual: VSA-B region. Node B card turns amber then grey.
     narration: >
       On the eleventh of October at 15:20 and 48 seconds, VSA-B reported its Node B
@@ -241,17 +241,17 @@ beats:
     evidence: VSA-B-events-2026-10-11.txt 15:20:48 and 15:20:53; VSA-B-B-vmware.log, no reset
   - id: "3.2"
     chapter: The trigger
-    t: 2026-10-11T15:21:22Z
+    t: "2026-10-11T15:21:22Z"
     visual: Session arrows between arrays turn amber with System_Paused.
     narration: >
-      At 15:21 and 22 seconds, VSA-A replication sessions for csivol-ec5862ac71 and
-      for a volume group moved to System Paused. The reason it gave was precise. The
+      At 15:21 and 22 seconds, VSA-A replication sessions for the data disk and for a
+      volume group moved to System Paused. The reason it gave was precise. The
       remote system service at the VSA-B management address was not available. The
       arrays had noticed before any operator did.
     evidence: VSA-A-events-2026-10-11.txt 15:21:22 and 15:21:24
   - id: "3.3"
     chapter: The trigger
-    t: 2026-10-11T15:22:42Z
+    t: "2026-10-11T15:22:42Z"
     visual: VSA-A region. Node B card greys out. Then management chips light again.
     narration: >
       At 15:22 and 42 seconds, VSA-A's own Node B also stopped, and at 15:22 and 49
@@ -261,7 +261,7 @@ beats:
     evidence: VSA-A-events-2026-10-11.txt 15:22:42, 15:22:49, 15:25:52; VSA-B-events-2026-10-11.txt 15:24:07
   - id: "3.4"
     chapter: The trigger
-    t: 2026-10-11T15:27:32Z
+    t: "2026-10-11T15:27:32Z"
     visual: Lifecycle chip flips to Healthy, then to stopped, with a three-second counter.
     narration: >
       Then the detail that matters most. At 15:27 and 32 on VSA-A, the node
@@ -274,7 +274,7 @@ beats:
   # ---------------------------------------------------------------- chapter 4
   - id: "4.1"
     chapter: The cascade
-    t: 2026-10-11T15:27:33Z
+    t: "2026-10-11T15:27:33Z"
     visual: Inside VSA-A-A. multipathd tasks stack up; a 122-second timer runs.
     define:
       term: device-mapper suspend
@@ -298,10 +298,10 @@ beats:
     evidence: VSA-A-A-panic-excerpt.txt call trace
   - id: "4.3"
     chapter: The cascade
-    t: 2026-10-11T15:27:35Z
+    t: "2026-10-11T15:27:35Z"
     visual: Panic banner. Uptime counters 259642 and 260378 on the two arrays.
     narration: >
-      At uptime 259,642 seconds, khungtaskd fired. The line is, kernel panic, not
+      At uptime 259,642 seconds, the hung task watchdog fired. The line is, kernel panic, not
       syncing, hung task, blocked tasks. VSA-B-A hit the identical signature at
       uptime 260,378 seconds. Ten blocked tasks there too, eight multipathd and two
       multipath. Two arrays, the same failure, minutes apart.
@@ -309,7 +309,7 @@ beats:
     pause_after: 2.0
   - id: "4.4"
     chapter: The cascade
-    t: 2026-10-11T15:30:36Z
+    t: "2026-10-11T15:30:36Z"
     visual: Array event strip fills with the critical lines.
     narration: >
       Three minutes later the hypervisor records a hard CPU reset, which is kdump
@@ -412,7 +412,7 @@ beats:
     evidence: ticket recovery sections 2026-10-14 and 2026-10-25
   - id: "7.2"
     chapter: The recovery and what stays open
-    t: 2026-10-25T07:43:05Z
+    t: "2026-10-25T07:43:05Z"
     visual: Exact UTC steps fill a timeline.
     narration: >
       On the twenty-fifth of October the sequence ran on VSA-A with exact times.
@@ -429,8 +429,8 @@ beats:
       text: An NVMe connection over the network to one array node. Two paths mean one session to each node.
     narration: >
       Node A rejoined on the first attempt. The checks that follow are the ones to
-      copy. Management addresses answer. Storage addresses answer on NVMe TCP port
-      4420. The remote system shows OK in both directions. Every worker initiator
+      copy. Management addresses answer. Storage addresses answer again on NVMe/TCP, port
+      four four two zero. The remote system shows OK in both directions. Every worker initiator
       holds two sessions again, and all four DRPCs report Protected true.
     evidence: ticket 2026-10-25 post-recovery checks, 08:03 UTC
   - id: "7.4"
