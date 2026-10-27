@@ -15,6 +15,7 @@ const CAMS: Record<string, Partial<Cam>> = {
   '0.1': {x: 1200, z: 0.72},
   '3.2': {x: 430, y: 60, z: 1.2},
   '3.4': {x: 430, y: 60, z: 1.2},
+  '8.3': {x: 2000, z: 1.15},
 };
 const fit = (id: string): Cam => {
   const side = !!META[id]?.screenshot || PANEL_BEATS.has(id);
