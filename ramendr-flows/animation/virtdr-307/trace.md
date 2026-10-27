@@ -606,3 +606,13 @@ csi-addons cite map (CSIADDONS `main` at `0beac93`):
 | VR info fetch and Unknown condition                 | volumereplication_controller.go 447-481            |
 | `setUnknownReplicationCondition`                    | status.go 255-266                                  |
 | `GetCurrentReplicationState`                        | utils.go 49-55                                     |
+
+## 7. Screenshot provenance
+
+The single image attachment, `image-20260926-215128.png` (693x775), was captured by the lab
+and uploaded to the ticket at 2026-09-26T21:59:47Z. The filename encodes 21:51:28, which the
+video uses as the capture time. The popover itself does not print a capture timestamp. Its
+visible values are: title `Failover complete`, subtitle `2 of 4 steps completed`, stepper
+`Preparin g / Failover / Restorin g / Clean up`, started `Sep 26, 2026, 8:10 PM UTC`, application
+volumes `Sep 26, 2026, 8:08 PM UTC`, Kubernetes resources `Sep 26, 2026, 8:11 PM UTC`, policy
+`2m-vm, sync every 2m`. The top banner shows a temporary-admin session notice and no credential.
