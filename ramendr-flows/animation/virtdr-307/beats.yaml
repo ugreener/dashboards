@@ -1,0 +1,468 @@
+# yamllint disable rule:line-length
+ticket: VIRTDR-307
+run: 2026-09-26
+direction: planned failover ocp-primary to ocp-secondary, stopped at WaitForReadiness
+beats:
+  - id: "0.1"
+    chapter: Cold open
+    t: "21:51:28"
+    visual: Split screen. The hub console popover on one side, the empty target namespace on the other.
+    narration: "On the twenty-sixth of September, a planned failover stopped halfway. The console said Failover complete. The application did not start. Eight disk claims were protected, six volumes came back, and no virtual machine ran on the target."
+    evidence: [screenshot, drpc-status, vm-inventory]
+    pause_after: 1.6
+
+  - id: "0.2"
+    chapter: Cold open
+    t: "21:35:32"
+    visual: DRPC conditions table, one row per condition.
+    narration: "The hub object that drives recovery told a different story. Its phase was FailedOver, but its progression was WaitForReadiness. Its Available condition was false, and its PeerReady condition was false. It had been waiting for more than an hour."
+    evidence: [drpc-status, drpc-list]
+
+  - id: "0.3"
+    chapter: Cold open
+    visual: Scope card naming the environment and the limit of the recording.
+    narration: "This is a recorded failure from a lab that used OpenShift Data Foundation, not the Dell PowerStore lab. The storage copy was healthy. What failed was the restore of the objects that describe the disks, and the binding that follows. We will keep inference labelled as inference."
+    evidence: [versions, vm-inventory]
+    pause_after: 1.4
+
+  - id: "1.1"
+    chapter: Cast of characters
+    visual: Card and definition for the DRPC.
+    narration: "The dispatcher's clipboard. The DRPlacementControl records the recovery decision: which cluster should run the application, and which action is in progress. The hub writes it, and the console reads it."
+    evidence: [drpc-status, source-trace]
+    card: {kind: DRPlacementControl, name: gitops-vm-protection, role: records the recovery decision}
+    def: {what: "The hub object that records which cluster should run the application and which action is in progress.", creator: "The Ramen hub operator, from the Placement.", reader: "The Ramen hub operator, the console, and anyone debugging recovery.", where: "Hub cluster, namespace openshift-dr-ops.", analogy: "The dispatcher's clipboard."}
+
+  - id: "1.2"
+    chapter: Cast of characters
+    visual: Card and definition for the VRG.
+    narration: "The site manager. The VolumeReplicationGroup is Ramen's per-application object on a spoke. It finds the claims, asks for replication, restores records, and reports whether the data and the saved objects are ready."
+    evidence: [vrg-primary, source-trace]
+    card: {kind: VolumeReplicationGroup, name: gitops-vm-protection, role: coordinates the application on one spoke}
+    def: {what: "Ramen's per-application object on a spoke. It finds the claims, requests replication, restores records, and reports readiness.", creator: "The Ramen hub operator, delivered as a ManifestWork.", reader: "The Ramen cluster operator, the hub, and csi-addons.", where: "Spoke cluster, namespace openshift-dr-ops.", analogy: "The site manager."}
+
+  - id: "1.3"
+    chapter: Cast of characters
+    visual: Card and definition for the VGR.
+    narration: "One container instead of eight parcels. The VolumeGroupReplication is a csi-addons object that treats several volumes as one replication group, so they change role together. Ramen creates it when the peer class says grouping is supported."
+    evidence: [vgr-primary, drpolicy]
+    card: {kind: VolumeGroupReplication, name: vgr-b7e3115af7a9714fe9c0857d760dc769-gitops-vm-protection, role: one replication group for eight claims}
+    def: {what: "A csi-addons object that groups several volumes so they replicate and change role together.", creator: "Ramen, when the DRPolicy peer class reports that grouping is supported.", reader: "csi-addons and the CSI driver.", where: "Spoke cluster, namespace gitops-vms.", analogy: "One shipping container instead of eight parcels."}
+
+  - id: "1.4"
+    chapter: Cast of characters
+    visual: Card and definition for the group VolumeReplication.
+    narration: "The single switch for the container. One VolumeReplication whose data source is the VGR asks the driver to promote, demote or resync the whole group. It is not one VolumeReplication per claim."
+    evidence: [vgr-primary, source-trace]
+    card: {kind: VolumeReplication, name: vr-93d5f65a-e0ed-4b6b-8509-070f0e5f2802, role: promotes or demotes the whole group}
+    def: {what: "A VolumeReplication whose data source is the VolumeGroupReplication. It asks the driver to act on the group as one unit.", creator: "csi-addons, from the VGR.", reader: "csi-addons, the VGR, and Ramen.", where: "Spoke cluster, namespace gitops-vms.", analogy: "The single switch for the container."}
+
+  - id: "1.5"
+    chapter: Cast of characters
+    visual: Card and definition for the VGRC.
+    narration: "The manifest for the container. VolumeGroupReplicationContent holds the storage group handle and the list of volume handles. The driver needs it to know which volumes belong together, and which peer handles to use after a move."
+    evidence: [vgr-primary, source-trace]
+    card: {kind: VolumeGroupReplicationContent, name: vgrcontent-93d5f65a-e0ed-4b6b-8509-070f0e5f2802, role: group handle and volume handle list}
+    def: {what: "The cluster-scoped object that holds the storage group handle and the list of volume handles for a group.", creator: "csi-addons, from the VGR.", reader: "csi-addons, the CSI driver, and Ramen during restore.", where: "Spoke cluster, cluster scope.", analogy: "The manifest for the container."}
+
+  - id: "1.6"
+    chapter: Cast of characters
+    visual: Card and definition for the PVC.
+    narration: "A claim ticket for a locker. A PersistentVolumeClaim is a namespaced request for storage. The workload uses it, and Ramen protects it by label. Here, one claim exists for each virtual machine disk."
+    evidence: [pvc-primary, pvc-secondary]
+    card: {kind: PersistentVolumeClaim, name: rhel9-node-001, role: one namespaced storage request}
+    def: {what: "A namespaced request for storage that a workload uses.", creator: "The application, or the GitOps tooling that deploys it.", reader: "Pods, the persistent volume controller, and Ramen.", where: "Spoke cluster, namespace gitops-vms.", analogy: "A claim ticket for a locker."}
+
+  - id: "1.7"
+    chapter: Cast of characters
+    visual: Card and definition for the PV.
+    narration: "The locker itself. A PersistentVolume is the cluster-wide record of a real storage volume. It carries the CSI volume handle that the driver uses to find the image, and a claim reference that says which claim owns it."
+    evidence: [pv-secondary, pv-handles]
+    card: {kind: PersistentVolume, name: pvc-47291817-f92a-40a0-bf59-123465a72aae, role: cluster-wide record of one storage volume}
+    def: {what: "The cluster-wide record of a real storage volume, including its CSI handle and its claim reference.", creator: "The CSI provisioner.", reader: "The persistent volume controller, kubelet, and the CSI driver.", where: "Spoke cluster, cluster scope.", analogy: "The locker itself."}
+
+  - id: "1.8"
+    chapter: Cast of characters
+    visual: Two-field card for the PV that separates ownership from identity.
+    narration: "Two fields, two different questions. claimRef says which claim owns the volume. volumeHandle tells the driver which storage image to attach. A volume can have the right handle and still fail to bind, because binding never asks the storage driver."
+    evidence: [pv-handles, pv-secondary-claimrefs, k8s-source]
+    card: {kind: PV fields, name: claimRef and volumeHandle, role: ownership and identity are separate}
+    def: {what: "claimRef names the claim that owns a volume. volumeHandle names the storage image behind it.", creator: "claimRef is set during binding. volumeHandle is set by the CSI provisioner.", reader: "The persistent volume controller reads claimRef. The CSI driver reads volumeHandle.", where: "On each PV, cluster scope.", analogy: "The name on the locker and the key number."}
+
+  - id: "1.9"
+    chapter: Cast of characters
+    visual: Card and definition for the S3 archive.
+    narration: "The inventory list stored off site. Ramen saves the PV, PVC, VGR and VGRC records to an object store. The target reads them to rebuild the objects, because the replicated disks alone do not describe themselves."
+    evidence: [drpc-status, source-trace]
+    card: {kind: S3 archive, name: s3profile-ocp-primary-ocs-storagecluster, role: "stores PV, PVC, VGR and VGRC records"}
+    def: {what: "An object store holding the PV, PVC, VGR and VGRC records that the target needs to rebuild an application.", creator: "The primary VRG writes it.", reader: "The target VRG reads it during restore.", where: "S3 profile s3profile-ocp-primary-ocs-storagecluster.", analogy: "The inventory list stored off site."}
+
+  - id: "1.10"
+    chapter: Cast of characters
+    visual: Card and definition for csi-addons and the CSI driver.
+    narration: "The translator and the warehouse crew. csi-addons translates Kubernetes replication objects into CSI calls. The driver does the storage work: create the group, promote it, or change which volumes belong to it."
+    evidence: [vgr-primary, source-trace]
+    card: {kind: Controller, name: csi-addons and the CSI driver, role: translates objects into storage operations}
+    def: {what: "csi-addons turns replication objects into CSI calls. The CSI driver performs the storage operations.", creator: "The storage operator installs both.", reader: "Ramen and csi-addons use the results.", where: "Spoke cluster, namespace openshift-storage.", analogy: "The translator and the warehouse crew."}
+
+  - id: "1.11"
+    chapter: Cast of characters
+    visual: Card and definition for the persistent volume controller.
+    narration: "The clerk who matches tickets to lockers. The persistent volume controller binds claims to volumes. It compares names, namespaces and UIDs. It does not use the CSI volume handle, and it does not ask the storage array anything."
+    evidence: [k8s-source, events]
+    card: {kind: Controller, name: persistent volume controller, role: binds claims to volumes by UID}
+    def: {what: "The Kubernetes controller that binds PersistentVolumeClaims to PersistentVolumes.", creator: "The Kubernetes control plane.", reader: "Anyone who reads a claim's phase or a volume's claim reference.", where: "Each cluster, control plane.", analogy: "The clerk who matches tickets to lockers."}
+
+  - id: "1.12"
+    chapter: Cast of characters
+    visual: Five-job summary strip.
+    narration: "Five jobs. Ramen decides and records. csi-addons translates. The driver moves storage. The persistent volume controller binds. The workload starts only after all of them agree. The rest of this video follows one handoff at a time."
+    evidence: [source-trace]
+    pause_after: 1.2
+
+  - id: "2.1"
+    chapter: The promise
+    visual: Timeline from protection to the click.
+    narration: "Why start before the click? Because a failover does not create data. It inherits whatever the target already has: the replicated images, and the records that say which image belongs to which claim. Both have to be right."
+    evidence: [drpc-status, source-trace]
+
+  - id: "2.2"
+    chapter: The promise
+    visual: Hub, two spokes and their in-cluster storage.
+    narration: "The hub is a separate ACM cluster. The two spokes are ocp-primary and ocp-secondary. There is no external array here. Each spoke runs OpenShift Data Foundation, and the claims use the ocs-storagecluster-ceph-rbd-virtualization storage class."
+    evidence: [versions, pvc-primary]
+
+  - id: "2.3"
+    chapter: The promise
+    visual: Four virtual machine cards on the primary, empty target.
+    narration: "On ocp-primary, four virtual machines were running: rhel9-node-001, rhel9-node-pvc-001, windows2k22-server-001 and windows2k25-server-001. On ocp-secondary, the same namespace existed, but it held no virtual machines."
+    evidence: [vm-inventory, vm-secondary]
+
+  - id: "2.4"
+    chapter: The promise
+    visual: Eight claim names in one consistency group.
+    narration: "The application used eight claims in namespace gitops-vms, two per virtual machine. All eight carried the same consistency group label. That label is what turns eight claims into one group, and the group is what makes them change role together."
+    evidence: [drpc-status, vgr-primary, pvc-primary]
+
+  - id: "2.5"
+    chapter: The promise
+    visual: DRPolicy and peer class values.
+    narration: "The DRPolicy was 2m-vm. Its schedule was two minutes, and its replication class selector required the flatten-mode label set to force. The peer class therefore reported grouping true, with a group replication ID and a replication ID. Grouping is a result, not a field you set."
+    evidence: [drpolicy, vrg-secondary, source-trace]
+    define: {term: peer class, text: "The DRPolicy's record of which storage classes match across two clusters, and whether they can be grouped."}
+
+  - id: "2.6"
+    chapter: The promise
+    visual: VGR, VGRC and group VolumeReplication cards on the primary.
+    narration: "On the primary, the group existed as three objects. The VolumeGroupReplication, the VGRC that holds its group handle, and one group VolumeReplication whose data source is the VGR. Their exact names are on screen. This is the shape a group failover has to reproduce on the other side."
+    evidence: [vgr-primary]
+
+  - id: "2.7"
+    chapter: The promise
+    visual: Protected conditions and the recorded sync time.
+    narration: "The DRPC reported Protected true. The VRG reported ClusterDataProtected true with reason Uploaded, and the group last synced at 20:08 UTC. On paper, the application was ready for a planned move."
+    evidence: [drpc-status, vrg-summary, vgr-primary]
+
+  - id: "2.8"
+    chapter: The promise
+    visual: Recap strip.
+    narration: "So far: four virtual machines, eight claims, one consistency group, three group objects, and a protected state recorded at 20:08. The next event is a single field on the hub."
+
+  - id: "3.1"
+    chapter: The click
+    visual: Hub region highlighted, spokes dimmed.
+    narration: "Why does the hub go first? Because the decision belongs to the hub. The spokes own their local objects, but only the DRPC decides which cluster should be primary and which action is running."
+    evidence: [source-trace]
+
+  - id: "3.2"
+    chapter: The click
+    t: "20:10:43"
+    visual: DRPC spec after the click.
+    narration: "At 20:10:43 UTC, the DRPC received action Failover, with the failover cluster set to ocp-secondary. The preferred cluster stayed ocp-primary. The console showed the action as started, not as finished."
+    evidence: [drpc-status, drpc-list, versions]
+
+  - id: "3.3"
+    chapter: The click
+    visual: Arrow from the hub DRPC to the target VRG.
+    narration: "The hub's first real step was one instruction: set the VRG on ocp-secondary to primary. It travels as a ManifestWork. Everything that follows on the target happens because that one field changed."
+    evidence: [source-trace, drpc-status]
+
+  - id: "3.4"
+    chapter: The click
+    visual: Progression, Available and PeerReady conditions.
+    narration: "The hub then recorded progression WaitForResourceRestore and the message waiting for App resources to be restored. Available became false, and PeerReady became false with reason NotStarted. Those two conditions stayed false."
+    evidence: [drpc-status, source-trace]
+
+  - id: "3.5"
+    chapter: The click
+    visual: Three readiness gates.
+    narration: "To finish, the hub waits for three things on the target VRG: DataReady true, ClusterDataReady true, and state Primary. Each condition must also match the VRG's current generation, so a stale true does not count."
+    evidence: [source-trace]
+    define: {term: generation, text: "A counter Kubernetes increments on every spec change. A condition only counts if it was observed at the current generation."}
+
+  - id: "3.6"
+    chapter: The click
+    visual: Phase and progression shown on separate lines.
+    narration: "The DRPC phase had already become FailedOver, because the target VRG existed as primary. That branch only waits. It does not rewrite the old Available message, so the DRPC can look finished in phase while it is still waiting in progression."
+    evidence: [source-trace, drpc-status]
+
+  - id: "3.7"
+    chapter: The click
+    visual: Recap strip.
+    narration: "So far: one click, one ManifestWork, three gates, and a hub that will not declare success until the target restores its records. The next chapter opens the target's work."
+
+  - id: "4.1"
+    chapter: Restore the records
+    t: "20:11:08"
+    visual: Target VRG reading the archive.
+    narration: "Why must the target restore records at all? The replicated images exist on the target's storage. What does not exist is the Kubernetes description of them: which image is which claim, and which claims belong to the group."
+    evidence: [vrg-secondary, source-trace]
+
+  - id: "4.2"
+    chapter: Restore the records
+    visual: Four-step restore order.
+    narration: "The target restores in this order: PVs, then PVCs, then the VGRC, then the VGR. That order surprises people. The group objects come last, and a failure in the earlier steps stops the later ones in that reconcile."
+    evidence: [source-trace, restore-log]
+
+  - id: "4.3"
+    chapter: Restore the records
+    visual: A copied PV with its claim reference.
+    narration: "Before creating a PV, Ramen clears its claimRef UID but keeps the claim name and namespace. Kubernetes calls that pre-bound: the volume is reserved for a claim that does not exist yet. That part is deliberate."
+    evidence: [source-trace, pv-secondary-claimrefs]
+    define: {term: pre-bound, text: "A volume whose claim reference names a claim but has no UID yet. Kubernetes treats it as reserved for that claim."}
+
+  - id: "4.4"
+    chapter: Restore the records
+    visual: Conditional handle rewrite.
+    narration: "Ramen rewrites the CSI volume handle only when the archived PV carries the annotation ramendr.openshift.io/destination-volume-handle. If the annotation is absent, the archived handle is written back unchanged."
+    evidence: [source-trace, pv-primary-annotations]
+
+  - id: "4.5"
+    chapter: Restore the records
+    visual: Annotation list from the primary PVs.
+    narration: "On this primary, every PV carried the vr-archived and vr-retained annotations. None carried a destination-volume-handle annotation. The ticket records that as a fact about all eight claims."
+    evidence: [pv-primary-annotations, ticket]
+
+  - id: "4.6"
+    chapter: Restore the records
+    visual: Primary and target handles side by side.
+    narration: "So the six restored PVs kept the primary handle. For the rhel9-node-001 volume, the target handle was byte for byte the same as the primary handle, ending in e6d8e968. The exact PV name is on screen. The storage on the target was never asked for its own identity."
+    evidence: [pv-handles]
+
+  - id: "4.7"
+    chapter: Restore the records
+    visual: Driver capability to annotation chain.
+    narration: "That annotation is written on the primary, and only when the VGR reports DestinationInfoAvailable true. That condition comes from the driver's GetReplicationDestinationInfo response. If the driver never advertises it, the annotation is never written."
+    evidence: [source-trace, vgr-primary]
+
+  - id: "4.8"
+    chapter: Restore the records
+    visual: Recap strip.
+    narration: "So far: the objects were restored, but one field still points at the primary's image. That is a real defect, but it is not the reason the claims are Lost. The next chapter shows the count that never reaches eight."
+
+  - id: "5.1"
+    chapter: The count that never reaches eight
+    visual: Restore counter.
+    narration: "Why does a count decide the whole recovery? Because the target VRG reports ClusterDataReady only after every restore step succeeds. One object that exists but is not counted keeps the whole application not ready."
+    evidence: [source-trace, vrg-secondary]
+
+  - id: "5.2"
+    chapter: The count that never reaches eight
+    t: "20:11:18"
+    visual: PV list and PVC list restored in sequence.
+    narration: "The target restores the PV list and the PVC list from S3. For each object it creates what is missing, and for each object that already exists it runs a validation. If validation fails, the object is skipped, and the restored count stays short."
+    evidence: [source-trace, restore-log]
+
+  - id: "5.3"
+    chapter: The count that never reaches eight
+    visual: Validation and skip log lines.
+    narration: "For a claim, the validation is simple: it must be Bound. A claim that exists in Pending or Lost phase is rejected with the message PVC exists and is not bound. The controller logs Object exists, ignoring and moving to next object, and continues."
+    evidence: [restore-log, source-trace]
+
+  - id: "5.4"
+    chapter: The count that never reaches eight
+    visual: The three different counts.
+    narration: "The result was Total/Restored 8/1: eight claims in the list, one counted as restored. Later the log also shows the warning Mismatch in PV/PVC count 6/1, and the DRPC status shows 8/0. The numbers move, the outcome does not."
+    evidence: [restore-log, drpc-status]
+
+  - id: "5.5"
+    chapter: The count that never reaches eight
+    visual: Claim phase table.
+    narration: "On the target, six claims were Lost and two were Pending. The six Lost claims had a volume name that matched an existing PV. The two Pending claims named PVs that did not exist at all."
+    evidence: [pvc-pv-secondary-summary, pvc-secondary]
+
+  - id: "5.6"
+    chapter: The count that never reaches eight
+    visual: The two missing volume names.
+    narration: "The two missing volumes were the data disks for rhel9-node-001 and windows2k22-server-001. Their full PV names are on screen. Eight claims, six volumes."
+    evidence: [pvc-pv-secondary-summary]
+
+  - id: "5.7"
+    chapter: The count that never reaches eight
+    visual: Recap strip.
+    narration: "So far: the target has six volumes and eight claims, and only one claim is counted as restored. The persistent volume controller now has to decide what those six volumes are bound to."
+
+  - id: "6.1"
+    chapter: What Kubernetes does with those objects
+    visual: Two layers, handle below and binding above.
+    narration: "Why separate the handle from the binding? Because they fail at different layers. The handle matters when a pod asks the driver to attach a disk. Binding happens earlier, inside Kubernetes, without asking the driver anything."
+    evidence: [source-trace, k8s-source]
+
+  - id: "6.2"
+    chapter: What Kubernetes does with those objects
+    visual: Annotations removed from a restored claim.
+    narration: "When Ramen restores a claim, it removes the annotations that start with pv.kubernetes.io. That includes bind-completed. A restored claim therefore enters the unbound path, where Kubernetes tries to bind it to its named volume."
+    evidence: [source-trace, k8s-source]
+
+  - id: "6.3"
+    chapter: What Kubernetes does with those objects
+    visual: The unbound path and the empty UID wildcard.
+    narration: "In the unbound path, the check is name, namespace and UID. An empty PV claimRef UID matches any claim UID. That is why pre-bound volumes normally bind: the empty UID is a wildcard, not a mistake."
+    evidence: [k8s-source, pv-secondary-claimrefs]
+
+  - id: "6.4"
+    chapter: What Kubernetes does with those objects
+    visual: The bound path, marked unverified.
+    narration: "But six claims did not take that path. They reached the bound path, which expects bind-completed to be present. That means those claims had been bound at some earlier point. The ticket does not record who re-added the annotation."
+    evidence: [k8s-source, events]
+    unverified: true
+
+  - id: "6.5"
+    chapter: What Kubernetes does with those objects
+    visual: UID comparison and the claim result.
+    narration: "In the bound path, Kubernetes compares the PV claimRef UID with the claim UID. The restored PV has an empty UID. The claim has a real one. They differ, so Kubernetes marks the claim Lost and emits ClaimMisbound."
+    evidence: [k8s-source, events]
+    define: {term: ClaimMisbound, text: "A Kubernetes event meaning a claim and its volume disagree about which claim owns the volume."}
+
+  - id: "6.6"
+    chapter: What Kubernetes does with those objects
+    visual: Exact event text, six times.
+    narration: "The event text is exact: Two claims are bound to the same volume, this one is bound incorrectly. It appeared six times, once for each Lost claim. The message is about ownership, not about data corruption."
+    evidence: [events]
+
+  - id: "6.7"
+    chapter: What Kubernetes does with those objects
+    visual: Pending branch for a missing volume.
+    narration: "The two Pending claims took the other branch. Their volume name pointed at a PV that did not exist, so Kubernetes set them Pending and said it would try again later. No retry can create the missing volume."
+    evidence: [k8s-source, pvc-pv-secondary-summary]
+
+  - id: "6.8"
+    chapter: What Kubernetes does with those objects
+    visual: Handle problem shown at the attach layer.
+    narration: "The retained primary handle did not cause ClaimMisbound. It matters one layer lower: when a pod is scheduled, the driver is asked to attach that handle on the target, where it either does not exist or names a different image state."
+    evidence: [source-trace, pv-handles]
+
+  - id: "6.9"
+    chapter: What Kubernetes does with those objects
+    visual: Recap strip.
+    narration: "So far: six Lost claims are an ownership mismatch, two Pending claims are missing volumes, and the wrong handle is a third, later problem. None of them is a failure of the replicated data."
+
+  - id: "7.1"
+    chapter: Why it never finishes
+    visual: Readiness chain from claim to DRPC.
+    narration: "Why does one bad claim stop the entire DRPC? Because the readiness chain is serial. ClusterDataReady stays false, DataReady aggregates false, the VRG state becomes Unknown, and the hub's three gates cannot all pass."
+    evidence: [source-trace, vrg-secondary]
+
+  - id: "7.2"
+    chapter: Why it never finishes
+    visual: The exact ClusterDataReady condition.
+    narration: "The exact condition was ClusterDataReady false with reason Error and the message Failed to restore PVs/PVCs. The detail inside it was Total/Restored 8/1. That condition is written only on the failure path."
+    evidence: [vrg-secondary, restore-log, source-trace]
+
+  - id: "7.3"
+    chapter: Why it never finishes
+    visual: DataReady aggregation and state Unknown.
+    narration: "DataReady is an aggregate of the per-claim conditions. A claim that cannot bind cannot report ready. With DataReady false, the VRG's state logic sets state Unknown. Unknown is a symptom here, not an independent finding."
+    evidence: [vrg-secondary, source-trace]
+
+  - id: "7.4"
+    chapter: Why it never finishes
+    visual: The three gates, two failing.
+    narration: "The hub's readiness check needs DataReady true, ClusterDataReady true and state Primary. Two of the three were false, so the DRPC set progression WaitForReadiness and returned. It never reached the success write that would set Available true."
+    evidence: [source-trace, drpc-status]
+
+  - id: "7.5"
+    chapter: Why it never finishes
+    t: "21:51:28"
+    visual: The recorded console popover on the right, the stalled restore on the left.
+    narration: "This is the console at 21:51 UTC. The title says Failover complete. The subtitle says two of four steps. The Restoring step is still spinning. Application volumes last synced at 20:08, Kubernetes resources at 20:11. The screen and the API disagree."
+    evidence: [screenshot, drpc-status]
+    screenshot: image-20260926-215128.png
+    focus: {x: 212, y: 30, w: 418, h: 608}
+    caption: "Hub console · DR Status popover while the failover was stalled"
+    pause_after: 1.8
+
+  - id: "7.6"
+    chapter: Why it never finishes
+    visual: Three console defects labelled by ticket.
+    narration: "Three separate console problems sit in that one popover. The title is wrong before cleanup ends, tracked as VIRTDR-316. The last-synced value comes from a driver field that can return the current time, tracked as VIRTDR-333. Neither is the cause, and both make the stall harder to see."
+    evidence: [screenshot, ticket, vgr-primary]
+
+  - id: "7.7"
+    chapter: Why it never finishes
+    visual: The loop arrow.
+    narration: "Every reconcile repeats the same sequence. The claim exists but is not bound, so it is skipped, so the count is short, so ClusterDataReady stays false. There is no error event, no timeout, and no escalation. The DRPC waits forever."
+    evidence: [source-trace, restore-log, drpc-status]
+
+  - id: "7.8"
+    chapter: Why it never finishes
+    visual: Recap strip.
+    narration: "So far: the restore loop, the readiness chain and the console all point at the same stuck step. The remaining question is why the records and the handles were wrong in the first place."
+
+  - id: "8.1"
+    chapter: Causes, fix and what remains
+    visual: Two independent causes.
+    narration: "Why two causes? Because the ticket found one at the object store and one in the restore code. They are independent, and either one is enough to keep the failover from completing."
+    evidence: [ticket, source-trace]
+
+  - id: "8.2"
+    chapter: Causes, fix and what remains
+    visual: Eight claims, six volumes in the archive.
+    narration: "First cause: the object store held eight PVCs but only six PVs. The two missing PVs are the same two claims that stayed Pending. The restore loop compares the PV and PVC counts, so six against eight can never pass."
+    evidence: [pvc-pv-secondary-summary, ticket, source-trace]
+
+  - id: "8.3"
+    chapter: Causes, fix and what remains
+    visual: The 4.22 VGRC path.
+    narration: "Second cause: the 4.22 branch we read does not rewrite the VGRC group handle on restore. It recreates the VGRC with the source group ID, so csi-addons takes the modify-membership path with source handles. That is source-proven for the ref we read."
+    evidence: [source-trace]
+    unverified: true
+
+  - id: "8.4"
+    chapter: Causes, fix and what remains
+    visual: The upstream repair functions.
+    narration: "Upstream main contains the repair. It writes the destination group handle onto the VGRC, rewrites the volume handles from the persistent volume mapping list, and updates the cluster ID. Those functions are absent from the 4.22 branch at the ref we read."
+    evidence: [source-trace]
+
+  - id: "8.5"
+    chapter: Causes, fix and what remains
+    visual: What the ticket establishes and what it does not.
+    narration: "What we cannot say is which commit built the running 4.22 operator. The ticket's team agreed on the missing PVs and on degraded retry behavior, and a fix author was named. The exact deployed build remains unverified."
+    evidence: [ticket, versions, source-trace]
+    unverified: true
+
+  - id: "8.6"
+    chapter: Causes, fix and what remains
+    visual: Checklist for a group failover.
+    narration: "The practical checklist for a group failover: every protected claim has a PV in the archive, every PV carries a destination handle, the VGRC is rewritten with the target group handle, every claim binds, and ClusterDataReady turns true."
+    evidence: [source-trace, pv-primary-annotations, vrg-secondary]
+
+  - id: "8.7"
+    chapter: Causes, fix and what remains
+    visual: Full-chain recap.
+    narration: "The chain in order: the hub sets the target VRG to primary. The target restores PVs and PVCs. Two PVs are missing, and the rest keep the primary handle. The claims fail to bind. ClusterDataReady stays false. The DRPC waits."
+    evidence: [drpc-status, restore-log, source-trace]
+
+  - id: "8.8"
+    chapter: Causes, fix and what remains
+    visual: Proves and does not prove.
+    narration: "What this run proves: a group failover can report Protected true and still fail to restore usable claims. What it does not prove: that the missing PVs are the only cause, that the 4.22 build is the branch we read, or that the fix works."
+    evidence: [ticket, source-trace, versions]
+    unverified: true
+
+  - id: "8.9"
+    chapter: Causes, fix and what remains
+    visual: Closing card.
+    narration: "The storage copy was never the problem. The records that describe the disks, and the binding that follows, were. That is the part a group failover adds, and the part to check before you trust the next one."
+    evidence: [drpc-status, source-trace]
+    pause_after: 2.2
