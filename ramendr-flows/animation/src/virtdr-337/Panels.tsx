@@ -63,25 +63,35 @@ const ColdCard: React.FC<{f: number; dur: number}> = ({f, dur}) => (
 );
 
 const HourRing: React.FC<{f: number; dur: number}> = ({f, dur}) => {
-  const cx = 800, cy = 520, r = 250;
-  const marks = [259641, 259887, 260378, 260502];
-  const labels = ['259,641 s', '259,887 s', '260,378 s', '260,502 s'];
-  return <div style={{position: 'absolute', left: 60, top: 200, width: 1200, fontFamily: sans}}>
-    <div style={{fontSize: 26, color: C.dim, letterSpacing: 1}}>NODE A PANIC UPTIMES</div>
-    <svg width={1200} height={760}>
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke={C.border} strokeWidth={26} />
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke={C.red} strokeWidth={8} strokeDasharray="4 14" opacity={0.85} />
-      {labels.map((l, i) => {
-        const a = (i / labels.length) * Math.PI * 2 - Math.PI / 2;
-        const a2 = prog(f, dur * (0.15 + i * 0.1), dur * (0.15 + i * 0.1) + 22);
-        return <g key={l} opacity={a2}>
-          <circle cx={cx + Math.cos(a) * r} cy={cy + Math.sin(a) * r} r={15} fill={C.red} />
-          <text x={cx + Math.cos(a) * (r + 58)} y={cy + Math.sin(a) * (r + 58) + 8} textAnchor="middle" fill={C.text} fontSize={25} fontFamily={mono}>{l}</text>
+  const cx = 330, cy = 380, r = 210;
+  const rows = [
+    {v: '259,641 s', n: 'VSA-A-A', d: '2026-10-11'},
+    {v: '260,378 s', n: 'VSA-B-A', d: '2026-10-11'},
+    {v: '260,502 s', n: 'VSA-A-A', d: '2026-10-17'},
+    {v: '259,887 s', n: 'VSA-B-A', d: '2026-10-17'},
+  ];
+  return <div style={{position: 'absolute', left: 80, top: 205, width: 1180, fontFamily: sans}}>
+    <div style={{fontSize: 25, color: C.dim, letterSpacing: 1}}>NODE A PANIC UPTIMES</div>
+    <svg width={1180} height={700}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke={C.border} strokeWidth={24} />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke={C.red} strokeWidth={7} strokeDasharray="4 14" opacity={0.85} />
+      {rows.map((row, i) => {
+        const a = (i / rows.length) * Math.PI * 2 - Math.PI / 2;
+        const p = prog(f, dur * (0.12 + i * 0.1), dur * (0.12 + i * 0.1) + 20);
+        return <circle key={row.v} cx={cx + Math.cos(a) * r} cy={cy + Math.sin(a) * r} r={13} fill={C.red} opacity={p} />;
+      })}
+      <text x={cx} y={cy - 4} textAnchor="middle" fill={C.text} fontSize={40} fontFamily={sans} fontWeight={800}>72.1-72.3 h</text>
+      <text x={cx} y={cy + 34} textAnchor="middle" fill={C.dim} fontSize={21} fontFamily={sans}>four panics</text>
+      {rows.map((row, i) => {
+        const p = prog(f, dur * (0.2 + i * 0.1), dur * (0.2 + i * 0.1) + 20);
+        const y = 250 + i * 82;
+        return <g key={row.v} opacity={p}>
+          <circle cx={640} cy={y - 8} r={11} fill={C.red} />
+          <text x={668} y={y} fill={C.text} fontSize={26} fontFamily={mono}>{row.v}</text>
+          <text x={668} y={y + 28} fill={C.dim} fontSize={20} fontFamily={sans}>{row.n} · {row.d}</text>
         </g>;
       })}
-      <text x={cx} y={cy - 6} textAnchor="middle" fill={C.text} fontSize={54} fontFamily={sans} fontWeight={800}>72.1 to 72.3 h</text>
-      <text x={cx} y={cy + 38} textAnchor="middle" fill={C.dim} fontSize={23} fontFamily={sans}>four panic episodes</text>
-      <text x={cx} y={cy + 92} textAnchor="middle" fill={C.amber} fontSize={22} fontFamily={sans}>one later boot reached 522,722 s</text>
+      <text x={640} y={600} fill={C.amber} fontSize={21} fontFamily={sans} opacity={prog(f, dur * 0.6, dur * 0.6 + 20)}>one later boot reached 522,722 s, two full cycles</text>
     </svg>
   </div>;
 };

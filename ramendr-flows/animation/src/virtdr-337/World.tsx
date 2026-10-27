@@ -7,18 +7,18 @@ export type Box = [number, number, number, number];
 type Node = {kind: string; name: string; role: string; scope: string; box: Box; color: string};
 
 export const NODES: Record<string, Node> = {
-  drpcA: {kind: 'DRPlacementControl', name: 'dell-vm-drpc', role: 'records the requested move and its progression', scope: 'hub · openshift-gitops', box: [95, 88, 505, 112], color: C.orange},
-  drpcB: {kind: 'DRPlacementControl', name: 'dell-win-drpc', role: 'the second protected application', scope: 'hub · openshift-gitops', box: [625, 88, 505, 112], color: C.orange},
-  csi0: {kind: 'CSIDriver', name: 'csi-powerstore', role: 'turns replication requests into array calls', scope: 'spoke-0 · cluster scope', box: [95, 300, 505, 108], color: C.amber},
-  csi1: {kind: 'CSIDriver', name: 'csi-powerstore', role: 'turns replication requests into array calls', scope: 'spoke-1 · cluster scope', box: [1255, 300, 505, 108], color: C.amber},
-  nA0: {kind: 'Appliance node', name: 'VSA-A-A', role: 'Node A of VSA-A', scope: 'VSA-A · 10.46.48.22', box: [95, 600, 505, 205], color: C.green},
-  nB0: {kind: 'Appliance node', name: 'VSA-A-B', role: 'Node B of VSA-A', scope: 'VSA-A · 10.46.48.23', box: [635, 600, 505, 205], color: C.green},
-  nA1: {kind: 'Appliance node', name: 'VSA-B-A', role: 'Node A of VSA-B', scope: 'VSA-B · 10.46.48.32', box: [1255, 600, 505, 205], color: C.green},
-  nB1: {kind: 'Appliance node', name: 'VSA-B-B', role: 'Node B of VSA-B', scope: 'VSA-B · 10.46.48.33', box: [1795, 600, 505, 205], color: C.green},
-  cs0: {kind: 'Cluster service', name: 'VSA-A-appliance-1', role: 'keeps both nodes acting as one array', scope: 'VSA-A · management 10.46.48.20', box: [95, 840, 1045, 150], color: C.blue},
-  cs1: {kind: 'Cluster service', name: 'VSA-B-appliance-1', role: 'keeps both nodes acting as one array', scope: 'VSA-B · management 10.46.48.30', box: [1255, 840, 1045, 150], color: C.blue},
-  io0: {kind: 'Array state', name: 'IO servicing', role: 'the line between a slow copy and no copy', scope: 'VSA-A', box: [95, 1025, 1045, 175], color: C.cyan},
-  io1: {kind: 'Array state', name: 'IO servicing', role: 'the line between a slow copy and no copy', scope: 'VSA-B', box: [1255, 1025, 1045, 175], color: C.cyan},
+  drpcA: {kind: 'DRPlacementControl', name: 'dell-vm-drpc', role: 'records the requested move and its progression', scope: 'hub · openshift-gitops', box: [95, 78, 505, 170], color: C.orange},
+  drpcB: {kind: 'DRPlacementControl', name: 'dell-win-drpc', role: 'the second protected application', scope: 'hub · openshift-gitops', box: [625, 78, 505, 170], color: C.orange},
+  csi0: {kind: 'CSIDriver', name: 'csi-powerstore', role: 'turns replication requests into array calls', scope: 'spoke-0 · cluster scope', box: [95, 352, 505, 170], color: C.amber},
+  csi1: {kind: 'CSIDriver', name: 'csi-powerstore', role: 'turns replication requests into array calls', scope: 'spoke-1 · cluster scope', box: [1255, 352, 505, 170], color: C.amber},
+  nA0: {kind: 'Appliance node', name: 'VSA-A-A', role: 'Node A of VSA-A', scope: 'VSA-A · 10.46.48.22', box: [95, 650, 505, 170], color: C.green},
+  nB0: {kind: 'Appliance node', name: 'VSA-A-B', role: 'Node B of VSA-A', scope: 'VSA-A · 10.46.48.23', box: [635, 650, 505, 170], color: C.green},
+  nA1: {kind: 'Appliance node', name: 'VSA-B-A', role: 'Node A of VSA-B', scope: 'VSA-B · 10.46.48.32', box: [1255, 650, 505, 170], color: C.green},
+  nB1: {kind: 'Appliance node', name: 'VSA-B-B', role: 'Node B of VSA-B', scope: 'VSA-B · 10.46.48.33', box: [1795, 650, 505, 170], color: C.green},
+  cs0: {kind: 'Cluster service', name: 'VSA-A-appliance-1', role: 'keeps both nodes acting as one array', scope: 'VSA-A · management 10.46.48.20', box: [95, 880, 1045, 160], color: C.blue},
+  cs1: {kind: 'Cluster service', name: 'VSA-B-appliance-1', role: 'keeps both nodes acting as one array', scope: 'VSA-B · management 10.46.48.30', box: [1255, 880, 1045, 160], color: C.blue},
+  io0: {kind: 'Array state', name: 'IO servicing', role: 'the line between a slow copy and no copy', scope: 'VSA-A', box: [95, 1085, 1045, 160], color: C.cyan},
+  io1: {kind: 'Array state', name: 'IO servicing', role: 'the line between a slow copy and no copy', scope: 'VSA-B', box: [1255, 1085, 1045, 160], color: C.cyan},
 };
 export const RECT = Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k, n.box])) as Record<string, Box>;
 
@@ -132,19 +132,18 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   const paused = reached(c.id, '3.2') && !reached(c.id, '7.3');
   const dead = reached(c.id, '4.4') && !reached(c.id, '7.2');
   const recovered = reached(c.id, '7.3');
-  const off = reached(c.id, '7.1') && !reached(c.id, '7.2');
   const sessionColor = recovered ? C.green : paused ? C.amber : C.orange;
   const sessionText = recovered ? 'replication resumed · 8 sessions OK' : paused ? 'replication System_Paused' : 'replication sessions · one per disk';
 
   return (
-    <div style={{position: 'absolute', width: 2400, height: 1500}}>
-      <Region b={{x: 60, y: 30, w: 2280, h: 190}} title="HUB · edge36" sub="four protected applications" color={C.blue} />
-      <Region b={{x: 60, y: 250, w: 1120, h: 200}} title="SPOKE-0 · edge95" sub="workloads · CSI driver" color={C.spoke0} />
-      <Region b={{x: 1220, y: 250, w: 1120, h: 200}} title="SPOKE-1 · edge97" sub="workloads · CSI driver" color={C.spoke1} />
-      <Region b={{x: 60, y: 520, w: 1120, h: 720}} title="VSA-A" sub="PS3b37452a6e0f" color={C.array} glow={dead ? 0.5 : 0} />
-      <Region b={{x: 1220, y: 520, w: 1120, h: 720}} title="VSA-B" sub="PSff392f423bd6" color={C.array} glow={dead ? 0.5 : 0} />
+    <div style={{position: 'absolute', width: 2400, height: 1520}}>
+      <Region b={{x: 60, y: 30, w: 2280, h: 240}} title="HUB · edge36" sub="four protected applications" color={C.blue} />
+      <Region b={{x: 60, y: 305, w: 1120, h: 240}} title="SPOKE-0 · edge95" sub="workloads · CSI driver" color={C.spoke0} />
+      <Region b={{x: 1220, y: 305, w: 1120, h: 240}} title="SPOKE-1 · edge97" sub="workloads · CSI driver" color={C.spoke1} />
+      <Region b={{x: 60, y: 580, w: 1120, h: 780}} title="VSA-A" sub="PS3b37452a6e0f" color={C.array} glow={dead ? 0.5 : 0} />
+      <Region b={{x: 1220, y: 580, w: 1120, h: 780}} title="VSA-B" sub="PSff392f423bd6" color={C.array} glow={dead ? 0.5 : 0} />
 
-      <div style={{position: 'absolute', left: 1200, top: 108, width: 1080, fontFamily: sans, fontSize: 21, color: C.dim, lineHeight: 1.35}}>
+      <div style={{position: 'absolute', left: 1200, top: 110, width: 1080, fontFamily: sans, fontSize: 21, color: C.dim, lineHeight: 1.35}}>
         <span style={{color: C.text, fontWeight: 700}}>+ 2 more DRPCs</span> · all four report Protected=true only while both array nodes serve
       </div>
 
@@ -173,7 +172,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         );
       })}
 
-      <svg width={2400} height={1500} style={{position: 'absolute', left: 0, top: 0, pointerEvents: 'none'}}>
+      <svg width={2400} height={1520} style={{position: 'absolute', left: 0, top: 0, pointerEvents: 'none'}}>
         <defs>
           <marker id="tip337" markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill={sessionColor} /></marker>
           <marker id="tip337R" markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill={C.red} /></marker>
@@ -181,30 +180,25 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
         {/* replication session link between the arrays */}
         {chapter >= 2 ? <g opacity={prog(c.f, c.dur * 0.05, c.dur * 0.05 + 25)}>
-          <path d="M640,1245 L640,1320 L1660,1320 L1660,1245" fill="none" stroke={sessionColor} strokeWidth={5} strokeDasharray={paused && !recovered ? '12 10' : undefined} markerEnd="url(#tip337)" />
-          <rect x={770} y={1292} width={760} height={42} rx={12} fill={C.bg} />
-          <text x={1150} y={1321} textAnchor="middle" fill={sessionColor} fontSize={23} fontFamily={sans}>{sessionText}</text>
+          <path d="M640,1362 L640,1408 L1660,1408 L1660,1362" fill="none" stroke={sessionColor} strokeWidth={5} strokeDasharray={paused && !recovered ? '12 10' : undefined} markerEnd="url(#tip337)" />
+          <rect x={770} y={1378} width={760} height={42} rx={12} fill={C.bg} />
+          <text x={1150} y={1407} textAnchor="middle" fill={sessionColor} fontSize={23} fontFamily={sans}>{sessionText}</text>
         </g> : null}
 
         {/* node to cluster service handoff */}
         {chapter >= 2 ? <g opacity={prog(c.f, c.dur * 0.1, c.dur * 0.1 + 22)}>
-          <path d="M890,807 L890,838" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#tip337)" />
-          <path d="M2050,807 L2050,838" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#tip337)" />
+          <path d="M890,822 L890,878" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#tip337)" />
+          <path d="M2050,822 L2050,878" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#tip337)" />
         </g> : null}
 
         {/* the array stops servicing IO */}
         {dead ? <g opacity={prog(c.f, 0, 18)}>
-          <path d="M617,992 L617,1023" fill="none" stroke={C.red} strokeWidth={5} strokeDasharray="10 8" markerEnd="url(#tip337R)" />
-          <path d="M1777,992 L1777,1023" fill="none" stroke={C.red} strokeWidth={5} strokeDasharray="10 8" markerEnd="url(#tip337R)" />
-          <text x={700} y={1018} fill={C.red} fontSize={21} fontFamily={sans}>cluster service stops</text>
-          <text x={1860} y={1018} fill={C.red} fontSize={21} fontFamily={sans}>cluster service stops</text>
+          <path d="M617,1052 L617,1083" fill="none" stroke={C.red} strokeWidth={5} strokeDasharray="10 8" markerEnd="url(#tip337R)" />
+          <path d="M1777,1052 L1777,1083" fill="none" stroke={C.red} strokeWidth={5} strokeDasharray="10 8" markerEnd="url(#tip337R)" />
+          <text x={700} y={1078} fill={C.red} fontSize={21} fontFamily={sans}>cluster service stops</text>
+          <text x={1860} y={1078} fill={C.red} fontSize={21} fontFamily={sans}>cluster service stops</text>
         </g> : null}
 
-        {/* recovery: both nodes together */}
-        {off ? <g opacity={prog(c.f, c.dur * 0.1, c.dur * 0.1 + 20)}>
-          <rect x={420} y={470} width={760} height={44} rx={12} fill={C.bg} stroke={C.amber} />
-          <text x={800} y={500} textAnchor="middle" fill={C.amber} fontSize={24} fontFamily={sans}>both nodes off together, then Node B first</text>
-        </g> : null}
       </svg>
     </div>
   );
