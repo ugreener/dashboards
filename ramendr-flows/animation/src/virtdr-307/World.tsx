@@ -161,7 +161,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         <rect x={830} y={292} width={620} height={34} rx={10} fill={C.bg}/><text x={1140} y={316} textAnchor="middle" fill={C.cyan} fontSize={21} fontFamily={sans}>set the target VRG to Primary</text>
       </g> : null}
       {on('4.1') ? <g opacity={prog(c.f, 20, 45)}>
-        <path d="M1760,560 L1850,560 L1850,280" fill="none" stroke={C.purple} strokeWidth={4} strokeDasharray="9 9" markerEnd="url(#tip307)"/>
+        <path d="M1760,560 L1795,560 L1795,280" fill="none" stroke={C.purple} strokeWidth={4} strokeDasharray="9 9" markerEnd="url(#tip307)"/>
         <rect x={1500} y={330} width={640} height={34} rx={10} fill={C.bg}/><text x={1820} y={354} textAnchor="middle" fill={C.purple} fontSize={21} fontFamily={sans}>reads PV, PVC, VGR and VGRC records</text>
       </g> : null}
       {on('5.2') ? <g opacity={prog(c.f, 20, 45)}>
