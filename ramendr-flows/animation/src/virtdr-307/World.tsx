@@ -144,7 +144,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   };
   const on = (id: string) => c.id === id;
   return <div style={{position: 'absolute', width: 2400, height: 1460}}>
-    <Region b={{x: 70, y: 45, w: 2260, h: 285}} title="HUB · ACM" sub="decision and records" color={C.blue} opacity={hubOn || primOn || targetOn ? 1 : 0.35}/>
+    <Region b={{x: 70, y: 45, w: 2260, h: 285}} title="HUB · ACM" sub="decision and records" color={C.blue} opacity={hubOn ? 1 : 0.35}/>
     <Region b={{x: 70, y: 420, w: 1120, h: 700}} title="OCP-PRIMARY" sub="recorded source" color={C.spoke0} opacity={primOn ? 1 : 0.35}/>
     <Region b={{x: 1210, y: 420, w: 1120, h: 700}} title="OCP-SECONDARY" sub={reached(c.id, '7.2') ? 'recorded target · stuck' : 'recorded target'} color={reached(c.id, '7.2') ? C.red : C.spoke1} opacity={targetOn ? 1 : 0.35}/>
     <Region b={{x: 70, y: 1210, w: 1120, h: 210}} title="OCP-PRIMARY STORAGE" sub="ODF Ceph RBD" color={C.array} small opacity={0.3}/>
