@@ -17,9 +17,10 @@ const CAMS: Record<string, Partial<Cam>> = {
 };
 const fit = (id: string): Cam => {
   const side = !!META[id]?.screenshot || PANEL_BEATS.has(id);
-  const keys = focusFor(id); let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  const keys = focusFor(id); const targetOn = keys.some(k => ['vrg1','vgrc1','pv1','pvc1','pvctl','vm1','odf1'].includes(k)); let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const key of keys) { const r = RECT[key]; if (!r) continue; x0 = Math.min(x0, r[0]); y0 = Math.min(y0, r[1]); x1 = Math.max(x1, r[0] + r[2]); y1 = Math.max(y1, r[1] + r[3]); }
   if (y0 >= 1180) y0 = 1150; else if (y0 >= 420) y0 = 385; else y0 = 0;
+  if (targetOn) x0 = Math.min(x0, 1210);
   x0 -= 40; x1 += 40; y1 += 65;
   const left = 35, right = META[id]?.screenshot ? 1090 : side ? 825 : 1880, top = 210, bottom = META[id]?.define ? 740 : 895;
   const z = Math.min(1.15, (right - left) / (x1 - x0), (bottom - top) / (y1 - y0));
