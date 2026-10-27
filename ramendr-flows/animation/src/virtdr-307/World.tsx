@@ -157,7 +157,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     <svg width={2400} height={1460} style={{position: 'absolute', left: 0, top: 0, pointerEvents: 'none'}}>
       <defs><marker id="tip307" markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill={C.cyan}/></marker></defs>
       {on('3.3') ? <g opacity={prog(c.f, 20, 45)}>
-        <path d="M740,270 L740,320 L1510,320 L1510,472" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#tip307)"/>
+        <path d="M740,270 L740,320 L1780,320 L1780,565 L1760,565" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#tip307)"/>
         <rect x={830} y={292} width={620} height={34} rx={10} fill={C.bg}/><text x={1140} y={316} textAnchor="middle" fill={C.cyan} fontSize={21} fontFamily={sans}>set the target VRG to Primary</text>
       </g> : null}
       {on('4.1') ? <g opacity={prog(c.f, 20, 45)}>

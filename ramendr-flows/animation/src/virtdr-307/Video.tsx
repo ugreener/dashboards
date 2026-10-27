@@ -13,7 +13,8 @@ const META = BEATS as Record<string, Meta>;
 type Cam = {x: number; y: number; z: number; sx: number; sy: number};
 const CAMS: Record<string, Partial<Cam>> = {
   '0.1': {x: 1200, z: 0.72},
-
+  '3.2': {x: 430, y: 60, z: 1.2},
+  '3.4': {x: 430, y: 60, z: 1.2},
 };
 const fit = (id: string): Cam => {
   const side = !!META[id]?.screenshot || PANEL_BEATS.has(id);
