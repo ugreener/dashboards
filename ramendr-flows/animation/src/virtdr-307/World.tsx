@@ -152,7 +152,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     {Object.entries(NODES).map(([key, n]) => {
       const s = status(key);
       const appear = chapter === 2 ? prog(c.f, -15, 35) : 1;
-      return <Card key={key} x={n.box[0]} y={n.box[1]} w={n.box[2]} kind={n.kind} name={n.name} role={n.role} nameSize={n.nameSize ?? 22} lines={[n.scope, s || 'recorded configuration']} appear={appear} focus={focus(key)} hl={keys.includes(key) ? 0.25 : 0} color={n.color} detail={Math.max(0, Math.min(1, (c.zoom - .65) / .2))}/>;
+      const hide = c.id === '8.5' && key === 's3';
+      return <Card key={key} x={n.box[0]} y={n.box[1]} w={n.box[2]} kind={n.kind} name={n.name} role={n.role} nameSize={n.nameSize ?? 22} lines={[n.scope, s || 'recorded configuration']} appear={appear} focus={focus(key)} hl={keys.includes(key) ? 0.25 : 0} color={n.color} detail={Math.max(0, Math.min(1, (c.zoom - .65) / .2))} exit={hide ? 1 : 0}/>;
     })}
     <svg width={2400} height={1460} style={{position: 'absolute', left: 0, top: 0, pointerEvents: 'none'}}>
       <defs><marker id="tip307" markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill={C.cyan}/></marker></defs>
