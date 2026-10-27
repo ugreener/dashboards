@@ -1,0 +1,464 @@
+# yamllint disable rule:line-length
+ticket: VIRTDR-337
+run: 2026-10-11
+direction: none. Recorded appliance failure, no application failover
+diagram: two PowerStore VSA appliances, two nodes each, in the edge36 / edge95 / edge97 DR lab
+beats:
+  # ---------------------------------------------------------------- chapter 0
+  - id: "0.1"
+    chapter: Cold open
+    t: 2026-10-11T15:20:48Z
+    visual: Two appliance boxes. VSA-B Node B greys out. A clock runs 15:20 to 15:27.
+    narration: >
+      At 15:20 UTC on the eleventh of October, storage array VSA-B stopped one of
+      its two nodes. Five seconds later it reported the node had stopped. Three
+      minutes after that it declared the same node healthy. One second later, the
+      node stopped again. By 15:27 both arrays had stopped servicing input and
+      output, and the surviving node on each had panicked.
+    evidence: VSA-B-events-2026-10-11.txt 15:20:48, 15:20:53, 15:24:34, 15:24:35; VSA-A-events-2026-10-11.txt 15:27:35
+    pause_after: 1.8
+  - id: "0.2"
+    chapter: Cold open
+    visual: A 72-hour ring with four panic markers.
+    narration: >
+      Both PowerStore virtual arrays in this lab do it. VSA-A and VSA-B. Nine
+      node-stop episodes since the eleventh of September. Four of them ended in a
+      kernel panic on the surviving node, and each panic came within a few minutes
+      of seventy-two hours of uptime.
+    evidence: VSA-A-node-stops-since-2026-09-01.txt; VSA-B-node-stops-since-2026-09-01.txt; panic uptimes in the three panic excerpts
+    pause_after: 1.5
+  - id: "0.3"
+    chapter: Cold open
+    visual: Two columns labelled RECORDED and INFERRED, mostly empty on the right.
+    narration: >
+      Nobody has established why. What the logs do establish is the order, the
+      timing, the recovery, and the cost. A recovery buys about three days of DR
+      testing, and restarting one node does not bring the array back. This video
+      keeps what was recorded separate from what is still inferred.
+    evidence: ticket impact section; docs/ramendr/unplanned-failover-simulation.md
+    pause_after: 2.0
+
+  # ---------------------------------------------------------------- chapter 1
+  - id: "1.1"
+    chapter: Cast of characters
+    card:
+      kind: PowerStore VSA
+      name: VSA-A and VSA-B
+      role: the two arrays that hold both copies of every protected disk
+    def:
+      what: A virtual storage appliance, PowerStore software running inside two virtual machines instead of dedicated hardware.
+      creator: Installed by the storage administrator when the lab was built.
+      reader: The Dell CSI driver over iSCSI, and the lab operator over HTTPS and SSH.
+      where: VSA-A beside spoke-0, VSA-B beside spoke-1, one per site.
+      analogy: Two branch warehouses that each keep a copy of every parcel.
+    narration: >
+      Start with the two appliances. VSA-A sits beside spoke-0. VSA-B sits beside
+      spoke-1. Each holds one copy of every protected disk, and between them they
+      are half of every disaster recovery promise in this lab. Everything that
+      follows happens inside these two boxes.
+    evidence: ticket description, environment section
+  - id: "1.2"
+    chapter: Cast of characters
+    card:
+      kind: Appliance node
+      name: VSA-A-A, VSA-A-B, VSA-B-A, VSA-B-B
+      role: the two halves of each array, either of which can serve input and output
+    def:
+      what: One of the two controller virtual machines inside an appliance, called Node A and Node B.
+      creator: Created with the appliance, as two virtual machines on an ESXi host.
+      reader: The other node through the cluster service, and the operator through management.
+      where: Each array has one Node A and one Node B, for example VSA-A-A and VSA-A-B.
+      analogy: Two engines on one aircraft. Either can fly it, and you want both.
+    narration: >
+      Inside each appliance are two controllers, called Node A and Node B. VSA-A
+      runs VSA-A-A and VSA-A-B. VSA-B runs VSA-B-A and VSA-B-B. Either node can
+      serve input and output on its own. Losing one costs redundancy. Losing both
+      stops the array.
+    evidence: attachment filenames and serial consoles; docs/ramendr/unplanned-failover-simulation.md node inventory
+  - id: "1.3"
+    chapter: Cast of characters
+    card:
+      kind: Cluster service
+      name: appliance cluster service
+      role: the software that keeps the two nodes acting as one array
+    def:
+      what: The layer that coordinates the two nodes, decides which one owns a volume, and keeps their view of the data identical.
+      creator: Started by the appliance itself at boot.
+      reader: Both nodes, and the array event log, which reports every state change.
+      where: Inside each appliance, shared by its Node A and Node B.
+      analogy: A referee between two players who must never both grab the ball.
+    narration: >
+      The two nodes are kept in step by the appliance cluster service. It decides
+      which node owns a volume and makes sure both see the same data. When it
+      stops, the array stops. The event log names the reason exactly: no nodes in
+      brick. That is the appliance saying neither node is available to serve.
+    evidence: VSA-A-events-2026-10-11.txt 15:27:35, 15:27:40
+  - id: "1.4"
+    chapter: Cast of characters
+    card:
+      kind: multipathd
+      name: multipathd and multipath
+      role: the path manager that chooses which physical path to a disk to use
+    def:
+      what: A service that presents one disk over several physical paths and retries a failed path instead of failing the disk.
+      creator: Started by the node operating system.
+      reader: The kernel device-mapper multipath layer, and anything that issues disk input and output.
+      where: On every array node, for example VSA-A-A.
+      analogy: A courier who knows three routes to the same address.
+    narration: >
+      Each node reaches its disks over several physical paths. A service called
+      multipathd chooses which path to use and retries when one fails. When a path
+      misbehaves, the kernel puts the device into SCSI error handling, and any
+      process that issues input and output waits there. In the panic logs,
+      multipathd is exactly where the waiting happens.
+    evidence: VSA-A-A-panic-excerpt.txt call traces
+  - id: "1.5"
+    chapter: Cast of characters
+    card:
+      kind: Watchdog
+      name: khungtaskd and kdump
+      role: the kernel check that panics a node whose task is stuck, and the crash dump after it
+    def:
+      what: khungtaskd is a kernel thread that reports any task blocked for more than 120 seconds. kdump writes memory to disk after the panic.
+      creator: Part of the Linux kernel and the SUSE configuration on the node.
+      reader: The kernel itself, and the operator reading the serial console.
+      where: On every array node, for example VSA-B-A.
+      analogy: A smoke alarm that also photographs the room.
+    narration: >
+      Linux runs a watchdog called khungtaskd. When a task stays blocked for more
+      than a hundred and twenty seconds, it prints the stack, and then it panics
+      the machine. That is deliberate. A node that cannot serve input and output
+      should not pretend that it can. kdump then writes memory to disk and reboots,
+      which is the hard reset the hypervisor records.
+    evidence: "VSA-A-A-panic-excerpt.txt: blocked for more than 122 seconds, then Kernel panic - not syncing: hung_task"
+  - id: "1.6"
+    chapter: Cast of characters
+    card:
+      kind: Replication session
+      name: PowerStore replication session
+      role: one copy job per volume, between the two arrays
+    def:
+      what: The array-side object that copies changed blocks for one volume from one array to the other on a schedule.
+      creator: Created when replication is configured, here through the Dell CSI driver and csi-addons.
+      reader: Both arrays, and the Dell CSI driver when it reports status.
+      where: On the source array, named for its volume, for example csivol-ec5862ac71.
+      analogy: A scheduled courier run with a manifest.
+    narration: >
+      Each protected disk has a replication session on the source array. It copies
+      changed blocks to the other array on a schedule. When the far array becomes
+      unreachable, the session does not fail. It moves to a state called System
+      Paused, which means the copy is held and will resume when the peer returns.
+    evidence: VSA-A-events-2026-10-11.txt 15:21:22
+  - id: "1.7"
+    chapter: Cast of characters
+    card:
+      kind: Initiator
+      name: worker initiator sessions
+      role: the login a cluster worker holds to each array node
+    def:
+      what: A registered iSCSI or NVMe initiator, one per worker node, holding a session to each array node.
+      creator: The worker storage configuration, when it logs in to the array.
+      reader: The array, which counts active sessions per initiator.
+      where: On both arrays, listed per worker.
+      analogy: Two phone lines to the same office, one per receptionist.
+    narration: >
+      Each cluster worker logs in to the array once per node, so a healthy worker
+      holds two sessions per array. After a node stop, the array reports a state
+      called Partial Node Connection Loss, and those workers drop to one session
+      instead of two. That is the DR consequence in a single number.
+    evidence: docs/ramendr/unplanned-failover-simulation.md, environment state; ticket 2026-10-25 post-recovery checks
+  - id: "1.8"
+    chapter: Cast of characters
+    card:
+      kind: Array event
+      name: stop reason 351
+      role: the array label for the second node stop
+    def:
+      what: A numeric stop reason the appliance writes when it changes a node stop type. The log line reads, node stop type was changed from stopped to none, stop reason is 351.
+      creator: The appliance cluster service.
+      reader: The array event log, and Dell support.
+      where: In the event log of each array.
+      analogy: A code on a maintenance ticket that only the manufacturer can decode.
+    narration: >
+      The array labels the second stop with a number. The event reads, node stop
+      type was changed from stopped to none, stop reason is three five one. What
+      that number means is not documented anywhere this investigation reached.
+      Dell has the question, and this label stays unverified here.
+    evidence: VSA-B-events-2026-10-11.txt 15:24:33; VSA-A-events-2026-10-11.txt 15:30:04
+    unverified: true
+  - id: "1.9"
+    chapter: Cast of characters
+    visual: All glossary cards in a grid.
+    narration: >
+      So the cast is two appliances, two nodes each, a cluster service that holds
+      them together, a path manager that waits in error handling, a watchdog that
+      panics, and three array states that record the damage. Now follow the
+      sequence.
+    evidence: recap of chapter 1
+
+  # ---------------------------------------------------------------- chapter 2
+  - id: "2.1"
+    chapter: Why the array is half the promise
+    t: 2026-10-11T15:00:00Z
+    visual: Topology. Hub edge36, spoke-0 on edge95 with VSA-A, spoke-1 on edge97 with VSA-B.
+    narration: >
+      The arrays are not abstract. VSA-A sits under spoke-0 on edge95. VSA-B sits
+      under spoke-1 on edge97. The hub edge36 runs four DR placement controls. Every
+      disk those applications protect has a replication session, and every session
+      needs both array nodes to be available.
+    evidence: ticket 2026-10-25 post-recovery checks, four DRPCs; docs/ramendr/unplanned-failover-simulation.md topology
+  - id: "2.2"
+    chapter: Why the array is half the promise
+    visual: One node lit, then both lit, then both dark.
+    narration: >
+      Why two nodes. Because the array is the half of the promise that keeps the
+      bytes. One node can carry the input and output alone, so a single node stop
+      is a warning. Both nodes down stops the array, and an array that has stopped
+      servicing input and output is not a slow copy. It is no copy.
+    evidence: ticket impact section
+  - id: "2.3"
+    chapter: Why the array is half the promise
+    visual: A 3-day window bar with a recovery at the start.
+    narration: >
+      That is not only a storage problem. A recovery buys about three days of DR
+      testing before the cycle returns. The lab method document rejected powering
+      down a source array as a way to simulate storage loss, because recovery here
+      is disruptive. So the reliability of these two boxes sets the pace of every
+      test this program runs.
+    evidence: ticket impact, DR test windows limited to about 3 days; docs/ramendr/unplanned-failover-simulation.md options table
+    pause_after: 1.5
+
+  # ---------------------------------------------------------------- chapter 3
+  - id: "3.1"
+    chapter: The trigger
+    t: 2026-10-11T15:20:48Z
+    visual: VSA-B region. Node B card turns amber then grey.
+    narration: >
+      On the eleventh of October at 15:20 and 48 seconds, VSA-B reported its Node B
+      physically removed or shut down. The hypervisor log for that node records no
+      reset, so this was the appliance stopping the node, not VMware. Five seconds
+      later the array reported that the node had stopped.
+    evidence: VSA-B-events-2026-10-11.txt 15:20:48 and 15:20:53; VSA-B-B-vmware.log, no reset
+  - id: "3.2"
+    chapter: The trigger
+    t: 2026-10-11T15:21:22Z
+    visual: Session arrows between arrays turn amber with System_Paused.
+    narration: >
+      At 15:21 and 22 seconds, VSA-A replication sessions for csivol-ec5862ac71 and
+      for a volume group moved to System Paused. The reason it gave was precise. The
+      remote system service at the VSA-B management address was not available. The
+      arrays had noticed before any operator did.
+    evidence: VSA-A-events-2026-10-11.txt 15:21:22 and 15:21:24
+  - id: "3.3"
+    chapter: The trigger
+    t: 2026-10-11T15:22:42Z
+    visual: VSA-A region. Node B card greys out. Then management chips light again.
+    narration: >
+      At 15:22 and 42 seconds, VSA-A's own Node B also stopped, and at 15:22 and 49
+      it reported the node has stopped. Now both arrays were running on one node.
+      But the appliance did not stay there. Cluster management came back online
+      about three minutes later on each array.
+    evidence: VSA-A-events-2026-10-11.txt 15:22:42, 15:22:49, 15:25:52; VSA-B-events-2026-10-11.txt 15:24:07
+  - id: "3.4"
+    chapter: The trigger
+    t: 2026-10-11T15:27:32Z
+    visual: Lifecycle chip flips to Healthy, then to stopped, with a three-second counter.
+    narration: >
+      Then the detail that matters most. At 15:27 and 32 on VSA-A, the node
+      lifecycle changed from disconnected to healthy. Three seconds later the
+      cluster service stopped. On VSA-B the same gap was one second. Healthy at
+      15:24 and 34, stopped again at 15:24 and 35.
+    evidence: VSA-A-events-2026-10-11.txt 15:27:32, 15:27:35; VSA-B-events-2026-10-11.txt 15:24:34, 15:24:35
+    pause_after: 2.0
+
+  # ---------------------------------------------------------------- chapter 4
+  - id: "4.1"
+    chapter: The cascade
+    t: 2026-10-11T15:27:33Z
+    visual: Inside VSA-A-A. multipathd tasks stack up; a 122-second timer runs.
+    define:
+      term: device-mapper suspend
+      text: A pause request on a mapped disk. The kernel waits for every reader to leave before the pause completes.
+    narration: >
+      On the surviving node, the first symptom is a wait. VSA-A-A logged task
+      multipathd blocked for more than 122 seconds. Ten tasks were blocked. Some sat
+      in device-mapper suspend, waiting for a synchronisation grace period. Others
+      sat in SCSI error handling.
+    evidence: VSA-A-A-panic-excerpt.txt, 10 blocked tasks
+    pause_after: 1.5
+  - id: "4.2"
+    chapter: The cascade
+    visual: Call trace panel with the four function names highlighted.
+    narration: >
+      The stack names the exact functions. scsi block when processing errors,
+      scsi ioctl block when processing errors, sd ioctl, blkdev ioctl. Whatever was
+      wrong with the disk path, the kernel had put the device into error handling
+      and would not let anything issue input and output until it finished. It did
+      not finish in time.
+    evidence: VSA-A-A-panic-excerpt.txt call trace
+  - id: "4.3"
+    chapter: The cascade
+    t: 2026-10-11T15:27:35Z
+    visual: Panic banner. Uptime counters 259642 and 260378 on the two arrays.
+    narration: >
+      At uptime 259,642 seconds, khungtaskd fired. The line is, kernel panic, not
+      syncing, hung task, blocked tasks. VSA-B-A hit the identical signature at
+      uptime 260,378 seconds. Ten blocked tasks there too, eight multipathd and two
+      multipath. Two arrays, the same failure, minutes apart.
+    evidence: VSA-A-A-panic-excerpt.txt; VSA-B-A-panic-excerpt.txt
+    pause_after: 2.0
+  - id: "4.4"
+    chapter: The cascade
+    t: 2026-10-11T15:30:36Z
+    visual: Array event strip fills with the critical lines.
+    narration: >
+      Three minutes later the hypervisor records a hard CPU reset, which is kdump
+      rebooting the node. In the same window the array wrote the end of the story.
+      The appliance has stopped servicing input and output. The cluster service is
+      stopping, stop reason no nodes in brick. And Node A has stopped. All at 15:27
+      and 35 on VSA-A.
+    evidence: VSA-A-A-vmware.log 15:30:36 hard reset; VSA-A-events-2026-10-11.txt 15:27:35
+  - id: "4.5"
+    chapter: The cascade
+    visual: Node A reboots, the array stays single-node, a red "not re-integrated" chip.
+    narration: >
+      Node A rebooted. It did not come back into the appliance. The array kept
+      running on Node B alone, with no redundancy, and the management address
+      stayed unreachable. Restarting that one node does not repair it. The
+      documented fix is to power both nodes off together.
+    evidence: ticket impact section; recovery sections
+
+  # ---------------------------------------------------------------- chapter 5
+  - id: "5.1"
+    chapter: The degraded steady state
+    visual: Both arrays show Partial_Node_Connection_Loss. Worker session counters drop 2 to 1.
+    narration: >
+      While the arrays are in that state, they see each other badly. Both report
+      Partial Node Connection Loss for the remote system. Cluster workers drop from
+      two array sessions to one, which is the first place the damage becomes
+      visible above the array.
+    evidence: docs/ramendr/unplanned-failover-simulation.md, environment state
+  - id: "5.2"
+    chapter: The degraded steady state
+    visual: Session arrows stay amber, then turn green with a "resumed" chip.
+    narration: >
+      The replication sessions stayed in System Paused during the degraded window.
+      After recovery they resumed on their own, without a rebuild. On the
+      twenty-fifth of October, the three VSA-B source sessions that had paused were
+      all back to OK by 08:02 and 47.
+    evidence: ticket 2026-10-25 post-recovery checks
+  - id: "5.3"
+    chapter: The degraded steady state
+    visual: One-node array with a countdown ring and a red risk label.
+    narration: >
+      One node is not a redundancy level. It is a countdown. Until both nodes are
+      power cycled together, a second failure leaves the array with nothing, and
+      every replication session behind it stops. That is why the lab treats the
+      degraded state as an outage and not as a warning.
+    evidence: ticket impact, single-node power-cycle does not re-integrate Node A
+
+  # ---------------------------------------------------------------- chapter 6
+  - id: "6.1"
+    chapter: The 72-hour pattern
+    visual: Uptime bars at 72.1 h, 72.2 h, 72.3 h and a double-length fifth bar.
+    narration: >
+      Four panic episodes, four uptimes. 259,641 seconds on VSA-A-A. 260,378 on
+      VSA-B-A. Then 260,502 and 259,887 in the next episode. That is seventy-two
+      point one to seventy-two point three hours. A later episode reached 522,722
+      seconds, which is two full cycles in one boot.
+    evidence: VSA-A-A-panic-excerpt.txt; VSA-B-A-panic-excerpt.txt; VSA-A-A-panic-excerpt-2026-10-24.txt
+  - id: "6.2"
+    chapter: The 72-hour pattern
+    visual: A ruled-out list with ticks.
+    narration: >
+      Several explanations are excluded by the record. No hypervisor stun, no
+      vMotion and no host move before the failure, and the two arrays run on
+      different ESXi hosts. The licence is valid. There were no warnings in the
+      twenty-four hours before, apart from two replication failovers about ninety
+      minutes earlier.
+    evidence: ticket ruled-out section; four vmware.log files
+  - id: "6.3"
+    chapter: The 72-hour pattern
+    visual: Node B journal excerpt, then the panic backtrace dump filename.
+    narration: >
+      One lead remains, and it is a lead only. On the twenty-fourth of October,
+      Node B's own journal shows its pacemaker proxy failing to reach the broker for
+      about a minute before the node stopped. At the moment of the stop the data
+      path process dumped a backtrace. Six minutes later a watchdog line records
+      IoWatchdog, and the dump it produced is labelled signal six.
+    evidence: vsa-a-2026-10-24-node-b-key-events.txt 10:50:01-10:51:31, 10:57:06; core_xenv_11.cyc_bsc_docker.xtremapp.2026-10-24_10-57-06.pid_14527.sig_6.dump.tgz
+    unverified: true
+  - id: "6.4"
+    chapter: The 72-hour pattern
+    visual: Two-column, recorded versus not established.
+    narration: >
+      None of that proves a cause. The proxy failures are recorded for one episode,
+      not for all of them. The dump has not been interpreted. The honest statement
+      is the one the ticket makes. The root cause inside PowerStore is not
+      established, and Dell has the question.
+    evidence: ticket open question and suggested next steps
+    unverified: true
+    pause_after: 1.8
+
+  # ---------------------------------------------------------------- chapter 7
+  - id: "7.1"
+    chapter: The recovery and what stays open
+    visual: Four-step recovery strip.
+    narration: >
+      The repair is not a restart. Both nodes of the array must be powered off
+      together, verified off, held off for about a minute, then powered on with
+      Node B first and Node A second. Powering off one node leaves it unable to
+      rejoin.
+    evidence: ticket recovery sections 2026-10-14 and 2026-10-25
+  - id: "7.2"
+    chapter: The recovery and what stays open
+    t: 2026-10-25T07:43:05Z
+    visual: Exact UTC steps fill a timeline.
+    narration: >
+      On the twenty-fifth of October the sequence ran on VSA-A with exact times.
+      Node A off at 07:43 and 05. Node B off at 07:43 and 12. Node B on at 07:44
+      and 09. Node A on at 07:44 and 11. Both nodes active at 07:50 and 19.
+      Cluster active at 07:50 and 22. Servicing input and output at 07:50 and 27.
+      Management online at 07:54 and 27.
+    evidence: ticket comment, recovery of VSA-A 2026-10-25
+  - id: "7.3"
+    chapter: The recovery and what stays open
+    visual: Verification checklist filling in.
+    define:
+      term: NVMe/TCP path
+      text: An NVMe connection over the network to one array node. Two paths mean one session to each node.
+    narration: >
+      Node A rejoined on the first attempt. The checks that follow are the ones to
+      copy. Management addresses answer. Storage addresses answer on NVMe TCP port
+      4420. The remote system shows OK in both directions. Every worker initiator
+      holds two sessions again, and all four DRPCs report Protected true.
+    evidence: ticket 2026-10-25 post-recovery checks, 08:03 UTC
+  - id: "7.4"
+    chapter: The recovery and what stays open
+    visual: Three-day window bar, then the rejected simulation method.
+    narration: >
+      The cost is time. A recovery buys about three days of DR testing before the
+      cycle returns, and the ticket says so directly. That constraint is why the
+      lab suspends spoke node virtual machines to simulate a site loss instead of
+      powering down a source array.
+    evidence: ticket impact, DR test windows limited to about 3 days; docs/ramendr/unplanned-failover-simulation.md options table
+  - id: "7.5"
+    chapter: The recovery and what stays open
+    visual: Four-line operator checklist.
+    narration: >
+      If you operate this lab, the checklist is four lines. Confirm both nodes
+      active before a run. Treat one node as an outage, not a warning. If a node
+      stops, power both off together. And verify two sessions per initiator before
+      you trust any replication check.
+    evidence: derived from VIRTDR-337 recovery and verification sections
+  - id: "7.6"
+    chapter: The recovery and what stays open
+    visual: Four open questions, then the closing card.
+    narration: >
+      Four things stay unverified. Why Node B stops. What PowerStore runs on a
+      seventy-two hour schedule. Why Node A does not rejoin after its reboot. And
+      what the data path dump actually shows. The sequence is recorded. The cause
+      is still Dell's to answer.
+    evidence: ticket open question
+    unverified: true
+    pause_after: 2.5
