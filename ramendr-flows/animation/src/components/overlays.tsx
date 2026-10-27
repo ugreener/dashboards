@@ -145,7 +145,7 @@ const toS = (t: string) => {
   const [h, m, s] = t.split(':').map(Number);
   return h * 3600 + m * 60 + s;
 };
-export const TimelineBar: React.FC<{now: string | null; events?: TEvent[]}> = ({now, events = EVENTS}) => {
+export const TimelineBar: React.FC<{now: string | null; events?: TEvent[]; marker?: 'triangle' | 'dot'}> = ({now, events = EVENTS, marker = 'triangle'}) => {
   const EV = events;
   const X0 = 120;
   const X1 = 1800;
@@ -181,7 +181,8 @@ export const TimelineBar: React.FC<{now: string | null; events?: TEvent[]}> = ({
           </g>
         );
       })}
-      {now ? <polygon points={`${x(now) - 9},116 ${x(now) + 9},116 ${x(now)},104`} fill={C.blue} /> : null}
+      {now && marker === 'triangle' ? <polygon points={`${x(now) - 9},116 ${x(now) + 9},116 ${x(now)},104`} fill={C.blue} /> : null}
+      {now && marker === 'dot' ? <circle cx={x(now)} cy={60} r={7} fill={C.blue} stroke={C.bg} strokeWidth={3} /> : null}
     </svg>
   );
 };

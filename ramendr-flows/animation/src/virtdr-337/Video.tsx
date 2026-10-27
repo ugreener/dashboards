@@ -16,6 +16,8 @@ const CAMS: Record<string, Partial<Cam>> = {
   // Both Node A cards at readable size, with the window edge landing between VSA-B-A and VSA-B-B
   // so no card is sliced at the right of the frame.
   '4.3': {x: 820, y: 470, z: 1.0, sx: 960, sy: 552},
+  // Keep the window edge between VSA-B-A and VSA-B-B.
+  '4.5': {x: 780, y: 900, z: 0.95, sx: 960, sy: 552},
 };
 
 const fit = (id: string): Cam => {
@@ -109,7 +111,7 @@ export const VsaCascade: React.FC<{chapters: number[]}> = ({chapters}) => {
     {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null} ticket="VIRTDR-337" /> : null}
     {seg.type === 'beat' && ch >= 2 ? <ArrayPhases current={ch <= 2 ? 0 : ch === 3 ? 1 : ch === 4 ? 2 : ch === 5 ? 3 : ch === 6 ? 3 : 4} appear={1} /> : null}
-    {seg.type === 'beat' && ch >= 3 && ch <= 5 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS} /> : null}
+    {seg.type === 'beat' && ch >= 3 && ch <= 5 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS} marker="dot" /> : null}
     {seg.type === 'beat' && m.screenshot ? <Screenshot src={`evidence/virtdr-337/${m.screenshot}`} date="2026-10-24" caption={m.caption ?? ''} focus={m.focus} a={win(0.14, 0.98)} z={progIO(f, b.audio * 0.2, b.audio * 0.65)} y={215} x={865} w={1010} sourceLabel="PowerStore Manager · historical capture" /> : null}
     {seg.type === 'beat' && m.define ? <DefinitionPanel term={m.define.term} text={m.define.text} a={win(0.05, 0.97)} x={1050} bottom={300} /> : null}
     {seg.type === 'chapter' ? <ChapterCard n={seg.chapter.n} title={seg.chapter.title} sub={seg.chapter.sub} p={prog(frame - seg.from, 0, 30)} out={prog(frame - seg.from, seg.dur - 30, seg.dur)} /> : null}
