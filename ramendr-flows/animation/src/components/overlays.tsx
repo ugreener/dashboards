@@ -181,7 +181,7 @@ export const TimelineBar: React.FC<{now: string | null; events?: TEvent[]}> = ({
           </g>
         );
       })}
-      {now ? <polygon points={`${x(now) - 9},92 ${x(now) + 9},92 ${x(now)},80`} fill={C.blue} /> : null}
+      {now ? <polygon points={`${x(now) - 9},116 ${x(now) + 9},116 ${x(now)},104`} fill={C.blue} /> : null}
     </svg>
   );
 };
