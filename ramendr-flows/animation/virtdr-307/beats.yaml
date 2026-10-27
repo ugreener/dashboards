@@ -86,7 +86,7 @@ beats:
     visual: Two-field card for the PV that separates ownership from identity.
     narration: "Two fields, two different questions. claimRef says which claim owns the volume. volumeHandle tells the driver which storage image to attach. A volume can have the right handle and still fail to bind, because binding never asks the storage driver."
     evidence: [pv-handles, pv-secondary-claimrefs, k8s-source]
-    card: {kind: PV fields, name: claimRef and volumeHandle, role: ownership and identity are separate}
+    card: {kind: PersistentVolume, name: claimRef and volumeHandle, role: ownership and identity are separate}
     def: {what: "claimRef names the claim that owns a volume. volumeHandle names the storage image behind it.", creator: "claimRef is set during binding. volumeHandle is set by the CSI provisioner.", reader: "The persistent volume controller reads claimRef. The CSI driver reads volumeHandle.", where: "On each PV, cluster scope.", analogy: "The name on the locker and the key number."}
 
   - id: "1.9"
@@ -102,7 +102,7 @@ beats:
     visual: Card and definition for csi-addons and the CSI driver.
     narration: "The translator and the warehouse crew. csi-addons translates Kubernetes replication objects into CSI calls. The driver does the storage work: create the group, promote it, or change which volumes belong to it."
     evidence: [vgr-primary, source-trace]
-    card: {kind: Controller, name: csi-addons and the CSI driver, role: translates objects into storage operations}
+    card: {kind: Controller, name: csi-addons, role: "translates objects into CSI calls; the driver moves storage"}
     def: {what: "csi-addons turns replication objects into CSI calls. The CSI driver performs the storage operations.", creator: "The storage operator installs both.", reader: "Ramen and csi-addons use the results.", where: "Spoke cluster, namespace openshift-storage.", analogy: "The translator and the warehouse crew."}
 
   - id: "1.11"
@@ -162,6 +162,7 @@ beats:
     visual: Protected conditions and the recorded sync time.
     narration: "The DRPC reported Protected true. The VRG reported ClusterDataProtected true with reason Uploaded, and the group last synced at 20:08 UTC. On paper, the application was ready for a planned move."
     evidence: [drpc-status, vrg-summary, vgr-primary]
+    define: {term: Protected, text: "A DRPC condition meaning the target has the disk data and the saved object records it needs to restore the application."}
 
   - id: "2.8"
     chapter: The promise
@@ -186,6 +187,7 @@ beats:
     visual: Arrow from the hub DRPC to the target VRG.
     narration: "The hub's first real step was one instruction: set the VRG on ocp-secondary to primary. It travels as a ManifestWork. Everything that follows on the target happens because that one field changed."
     evidence: [source-trace, drpc-status]
+    define: {term: ManifestWork, text: "The ACM object that carries a resource from the hub to a spoke, and reports what the spoke applied."}
 
   - id: "3.4"
     chapter: The click
@@ -278,6 +280,7 @@ beats:
     visual: Validation and skip log lines.
     narration: "For a claim, the validation is simple: it must be Bound. A claim that exists in Pending or Lost phase is rejected with the message PVC exists and is not bound. The controller logs Object exists, ignoring and moving to next object, and continues."
     evidence: [restore-log, source-trace]
+    define: {term: Bound, text: "The claim is matched to a volume and ready for a pod to use. A Pending or Lost claim is not Bound."}
 
   - id: "5.4"
     chapter: The count that never reaches eight
@@ -395,7 +398,7 @@ beats:
   - id: "7.6"
     chapter: Why it never finishes
     visual: Three console defects labelled by ticket.
-    narration: "Three separate console problems sit in that one popover. The title is wrong before cleanup ends, tracked as VIRTDR-316. The last-synced value comes from a driver field that can return the current time, tracked as VIRTDR-333. Neither is the cause, and both make the stall harder to see."
+    narration: "Two separate console problems sit in that one popover. The title says complete before the cleanup step ends, tracked as VIRTDR-316. And the last-synced value is a driver report, not an independent measurement. Neither is the cause, and both make the stall harder to see."
     evidence: [screenshot, ticket, vgr-primary]
 
   - id: "7.7"
@@ -424,7 +427,7 @@ beats:
   - id: "8.3"
     chapter: Causes, fix and what remains
     visual: The 4.22 VGRC path.
-    narration: "Second cause: the 4.22 branch we read does not rewrite the VGRC group handle on restore. It recreates the VGRC with the source group ID, so csi-addons takes the modify-membership path with source handles. That is source-proven for the ref we read."
+    narration: "Second cause: the 4.22 branch we read does not rewrite the VGRC group handle on restore. It recreates the VGRC with the source group ID, so the code takes the modify-membership path with source handles. That is source-proven for the ref we read."
     evidence: [source-trace]
     unverified: true
 

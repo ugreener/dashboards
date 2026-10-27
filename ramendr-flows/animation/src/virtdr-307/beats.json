@@ -1,0 +1,393 @@
+{
+ "0.1": {
+  "chapter": "Cold open",
+  "t": "21:51:28"
+ },
+ "0.2": {
+  "chapter": "Cold open",
+  "t": "21:35:32"
+ },
+ "0.3": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPlacementControl",
+   "name": "gitops-vm-protection",
+   "role": "records the recovery decision"
+  },
+  "def": {
+   "what": "The hub object that records which cluster should run the application and which action is in progress.",
+   "creator": "The Ramen hub operator, from the Placement.",
+   "reader": "The Ramen hub operator, the console, and anyone debugging recovery.",
+   "where": "Hub cluster, namespace openshift-dr-ops.",
+   "analogy": "The dispatcher's clipboard."
+  }
+ },
+ "1.2": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationGroup",
+   "name": "gitops-vm-protection",
+   "role": "coordinates the application on one spoke"
+  },
+  "def": {
+   "what": "Ramen's per-application object on a spoke. It finds the claims, requests replication, restores records, and reports readiness.",
+   "creator": "The Ramen hub operator, delivered as a ManifestWork.",
+   "reader": "The Ramen cluster operator, the hub, and csi-addons.",
+   "where": "Spoke cluster, namespace openshift-dr-ops.",
+   "analogy": "The site manager."
+  }
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeGroupReplication",
+   "name": "vgr-b7e3115af7a9714fe9c0857d760dc769-gitops-vm-protection",
+   "role": "one replication group for eight claims"
+  },
+  "def": {
+   "what": "A csi-addons object that groups several volumes so they replicate and change role together.",
+   "creator": "Ramen, when the DRPolicy peer class reports that grouping is supported.",
+   "reader": "csi-addons and the CSI driver.",
+   "where": "Spoke cluster, namespace gitops-vms.",
+   "analogy": "One shipping container instead of eight parcels."
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplication",
+   "name": "vr-93d5f65a-e0ed-4b6b-8509-070f0e5f2802",
+   "role": "promotes or demotes the whole group"
+  },
+  "def": {
+   "what": "A VolumeReplication whose data source is the VolumeGroupReplication. It asks the driver to act on the group as one unit.",
+   "creator": "csi-addons, from the VGR.",
+   "reader": "csi-addons, the VGR, and Ramen.",
+   "where": "Spoke cluster, namespace gitops-vms.",
+   "analogy": "The single switch for the container."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeGroupReplicationContent",
+   "name": "vgrcontent-93d5f65a-e0ed-4b6b-8509-070f0e5f2802",
+   "role": "group handle and volume handle list"
+  },
+  "def": {
+   "what": "The cluster-scoped object that holds the storage group handle and the list of volume handles for a group.",
+   "creator": "csi-addons, from the VGR.",
+   "reader": "csi-addons, the CSI driver, and Ramen during restore.",
+   "where": "Spoke cluster, cluster scope.",
+   "analogy": "The manifest for the container."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PersistentVolumeClaim",
+   "name": "rhel9-node-001",
+   "role": "one namespaced storage request"
+  },
+  "def": {
+   "what": "A namespaced request for storage that a workload uses.",
+   "creator": "The application, or the GitOps tooling that deploys it.",
+   "reader": "Pods, the persistent volume controller, and Ramen.",
+   "where": "Spoke cluster, namespace gitops-vms.",
+   "analogy": "A claim ticket for a locker."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PersistentVolume",
+   "name": "pvc-47291817-f92a-40a0-bf59-123465a72aae",
+   "role": "cluster-wide record of one storage volume"
+  },
+  "def": {
+   "what": "The cluster-wide record of a real storage volume, including its CSI handle and its claim reference.",
+   "creator": "The CSI provisioner.",
+   "reader": "The persistent volume controller, kubelet, and the CSI driver.",
+   "where": "Spoke cluster, cluster scope.",
+   "analogy": "The locker itself."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PersistentVolume",
+   "name": "claimRef and volumeHandle",
+   "role": "ownership and identity are separate"
+  },
+  "def": {
+   "what": "claimRef names the claim that owns a volume. volumeHandle names the storage image behind it.",
+   "creator": "claimRef is set during binding. volumeHandle is set by the CSI provisioner.",
+   "reader": "The persistent volume controller reads claimRef. The CSI driver reads volumeHandle.",
+   "where": "On each PV, cluster scope.",
+   "analogy": "The name on the locker and the key number."
+  }
+ },
+ "1.9": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "S3 archive",
+   "name": "s3profile-ocp-primary-ocs-storagecluster",
+   "role": "stores PV, PVC, VGR and VGRC records"
+  },
+  "def": {
+   "what": "An object store holding the PV, PVC, VGR and VGRC records that the target needs to rebuild an application.",
+   "creator": "The primary VRG writes it.",
+   "reader": "The target VRG reads it during restore.",
+   "where": "S3 profile s3profile-ocp-primary-ocs-storagecluster.",
+   "analogy": "The inventory list stored off site."
+  }
+ },
+ "1.10": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Controller",
+   "name": "csi-addons",
+   "role": "translates objects into CSI calls; the driver moves storage"
+  },
+  "def": {
+   "what": "csi-addons turns replication objects into CSI calls. The CSI driver performs the storage operations.",
+   "creator": "The storage operator installs both.",
+   "reader": "Ramen and csi-addons use the results.",
+   "where": "Spoke cluster, namespace openshift-storage.",
+   "analogy": "The translator and the warehouse crew."
+  }
+ },
+ "1.11": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Controller",
+   "name": "persistent volume controller",
+   "role": "binds claims to volumes by UID"
+  },
+  "def": {
+   "what": "The Kubernetes controller that binds PersistentVolumeClaims to PersistentVolumes.",
+   "creator": "The Kubernetes control plane.",
+   "reader": "Anyone who reads a claim's phase or a volume's claim reference.",
+   "where": "Each cluster, control plane.",
+   "analogy": "The clerk who matches tickets to lockers."
+  }
+ },
+ "1.12": {
+  "chapter": "Cast of characters"
+ },
+ "2.1": {
+  "chapter": "The promise"
+ },
+ "2.2": {
+  "chapter": "The promise"
+ },
+ "2.3": {
+  "chapter": "The promise"
+ },
+ "2.4": {
+  "chapter": "The promise"
+ },
+ "2.5": {
+  "chapter": "The promise",
+  "define": {
+   "term": "peer class",
+   "text": "The DRPolicy's record of which storage classes match across two clusters, and whether they can be grouped."
+  }
+ },
+ "2.6": {
+  "chapter": "The promise"
+ },
+ "2.7": {
+  "chapter": "The promise",
+  "define": {
+   "term": "Protected",
+   "text": "A DRPC condition meaning the target has the disk data and the saved object records it needs to restore the application."
+  }
+ },
+ "2.8": {
+  "chapter": "The promise"
+ },
+ "3.1": {
+  "chapter": "The click"
+ },
+ "3.2": {
+  "chapter": "The click",
+  "t": "20:10:43"
+ },
+ "3.3": {
+  "chapter": "The click",
+  "define": {
+   "term": "ManifestWork",
+   "text": "The ACM object that carries a resource from the hub to a spoke, and reports what the spoke applied."
+  }
+ },
+ "3.4": {
+  "chapter": "The click"
+ },
+ "3.5": {
+  "chapter": "The click",
+  "define": {
+   "term": "generation",
+   "text": "A counter Kubernetes increments on every spec change. A condition only counts if it was observed at the current generation."
+  }
+ },
+ "3.6": {
+  "chapter": "The click"
+ },
+ "3.7": {
+  "chapter": "The click"
+ },
+ "4.1": {
+  "chapter": "Restore the records",
+  "t": "20:11:08"
+ },
+ "4.2": {
+  "chapter": "Restore the records"
+ },
+ "4.3": {
+  "chapter": "Restore the records",
+  "define": {
+   "term": "pre-bound",
+   "text": "A volume whose claim reference names a claim but has no UID yet. Kubernetes treats it as reserved for that claim."
+  }
+ },
+ "4.4": {
+  "chapter": "Restore the records"
+ },
+ "4.5": {
+  "chapter": "Restore the records"
+ },
+ "4.6": {
+  "chapter": "Restore the records"
+ },
+ "4.7": {
+  "chapter": "Restore the records"
+ },
+ "4.8": {
+  "chapter": "Restore the records"
+ },
+ "5.1": {
+  "chapter": "The count that never reaches eight"
+ },
+ "5.2": {
+  "chapter": "The count that never reaches eight",
+  "t": "20:11:18"
+ },
+ "5.3": {
+  "chapter": "The count that never reaches eight",
+  "define": {
+   "term": "Bound",
+   "text": "The claim is matched to a volume and ready for a pod to use. A Pending or Lost claim is not Bound."
+  }
+ },
+ "5.4": {
+  "chapter": "The count that never reaches eight"
+ },
+ "5.5": {
+  "chapter": "The count that never reaches eight"
+ },
+ "5.6": {
+  "chapter": "The count that never reaches eight"
+ },
+ "5.7": {
+  "chapter": "The count that never reaches eight"
+ },
+ "6.1": {
+  "chapter": "What Kubernetes does with those objects"
+ },
+ "6.2": {
+  "chapter": "What Kubernetes does with those objects"
+ },
+ "6.3": {
+  "chapter": "What Kubernetes does with those objects"
+ },
+ "6.4": {
+  "chapter": "What Kubernetes does with those objects",
+  "unverified": true
+ },
+ "6.5": {
+  "chapter": "What Kubernetes does with those objects",
+  "define": {
+   "term": "ClaimMisbound",
+   "text": "A Kubernetes event meaning a claim and its volume disagree about which claim owns the volume."
+  }
+ },
+ "6.6": {
+  "chapter": "What Kubernetes does with those objects"
+ },
+ "6.7": {
+  "chapter": "What Kubernetes does with those objects"
+ },
+ "6.8": {
+  "chapter": "What Kubernetes does with those objects"
+ },
+ "6.9": {
+  "chapter": "What Kubernetes does with those objects"
+ },
+ "7.1": {
+  "chapter": "Why it never finishes"
+ },
+ "7.2": {
+  "chapter": "Why it never finishes"
+ },
+ "7.3": {
+  "chapter": "Why it never finishes"
+ },
+ "7.4": {
+  "chapter": "Why it never finishes"
+ },
+ "7.5": {
+  "chapter": "Why it never finishes",
+  "t": "21:51:28",
+  "screenshot": "image-20260926-215128.png",
+  "focus": {
+   "x": 212,
+   "y": 30,
+   "w": 418,
+   "h": 608
+  },
+  "caption": "Hub console \u00b7 DR Status popover while the failover was stalled"
+ },
+ "7.6": {
+  "chapter": "Why it never finishes"
+ },
+ "7.7": {
+  "chapter": "Why it never finishes"
+ },
+ "7.8": {
+  "chapter": "Why it never finishes"
+ },
+ "8.1": {
+  "chapter": "Causes, fix and what remains"
+ },
+ "8.2": {
+  "chapter": "Causes, fix and what remains"
+ },
+ "8.3": {
+  "chapter": "Causes, fix and what remains",
+  "unverified": true
+ },
+ "8.4": {
+  "chapter": "Causes, fix and what remains"
+ },
+ "8.5": {
+  "chapter": "Causes, fix and what remains",
+  "unverified": true
+ },
+ "8.6": {
+  "chapter": "Causes, fix and what remains"
+ },
+ "8.7": {
+  "chapter": "Causes, fix and what remains"
+ },
+ "8.8": {
+  "chapter": "Causes, fix and what remains",
+  "unverified": true
+ },
+ "8.9": {
+  "chapter": "Causes, fix and what remains"
+ }
+}

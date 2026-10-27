@@ -17,9 +17,12 @@ import {ZertoPrimer} from './zerto-primer/Video';
 import {buildTimeline as buildTimelineZP} from './zerto-primer/timeline';
 import {RelocateHome} from './virtdr-343-relocate/Video';
 import {buildTimeline as buildTimeline343R} from './virtdr-343-relocate/timeline';
+import {VirtDr307} from './virtdr-307/Video';
+import {buildTimeline as buildTimeline307} from './virtdr-307/timeline';
 
 const ALL_291 = Array.from({length: 14}, (_, i) => i);
 const ALL_342 = Array.from({length: 10}, (_, i) => i);
+const ALL_307 = Array.from({length: 9}, (_, i) => i);
 
 const ALL = Array.from({length: 16}, (_, i) => i);
 const ALL_CL = Array.from({length: 8}, (_, i) => i);
@@ -30,6 +33,15 @@ const ALL_343R = Array.from({length: 8}, (_, i) => i);
 
 export const Root: React.FC = () => (
   <>
+    <Composition
+      id="virtdr-307"
+      component={VirtDr307}
+      durationInFrames={Math.max(1, buildTimeline307(ALL_307).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_307}}
+    />
     <Composition
       id="virtdr-343-relocate"
       component={RelocateHome}

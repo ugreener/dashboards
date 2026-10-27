@@ -9,7 +9,7 @@ export type Rect = {x: number; y: number; w: number; h: number};
  * Historical run screenshot in a browser-style frame on the right half of the screen.
  * `a` 0..1 slide-in/out, `z` 0..1 slow zoom toward `focus` (image pixels, 1920x1080 source).
  */
-export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a: number; z: number; x?: number; y?: number; w?: number; date?: string; sourceLabel?: string}> = ({
+export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a: number; z: number; x?: number; y?: number; w?: number; date?: string; sourceLabel?: string; iw?: number; ih?: number}> = ({
   src,
   date = '2026-10-07',
   sourceLabel = 'hub console · historical capture',
@@ -20,10 +20,12 @@ export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a
   x = 860,
   y = 150,
   w = 1040,
+  iw = 1920,
+  ih = 1080,
 }) => {
   if (a <= 0) return null;
-  const IW = 1920;
-  const IH = 1080;
+  const IW = iw;
+  const IH = ih;
   const h = (w * IH) / IW;
   // zoom so the focus box fills at most ~70% of the frame width
   const f = focus ?? {x: 0, y: 0, w: IW, h: IH};
