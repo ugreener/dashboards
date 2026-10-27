@@ -95,7 +95,8 @@ export const VsaCascade: React.FC<{chapters: number[]}> = ({chapters}) => {
     if (META[beat.id]?.card) list.push([0.04, 'pop', 0.17]);
     return list.map(([frac, name, v]) => ({at: base + Math.round(frac * beat.audio), name, v}));
   });
-  const showWorld = ch >= 2;
+  const NO_WORLD = new Set(['4.2', '6.1', '6.3', '6.4', '7.1', '7.2', '7.5', '7.6']);
+  const showWorld = ch >= 2 && !NO_WORLD.has(b.id);
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
     {showWorld ? <div style={{position: 'absolute', inset: 0, clipPath: 'inset(210px 0 0 0)'}}><div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} /></div></div> : null}
     {seg.type === 'beat' && ch === 1 ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
