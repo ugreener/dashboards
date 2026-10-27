@@ -19,10 +19,13 @@ import {RelocateHome} from './virtdr-343-relocate/Video';
 import {buildTimeline as buildTimeline343R} from './virtdr-343-relocate/timeline';
 import {VirtDr307} from './virtdr-307/Video';
 import {buildTimeline as buildTimeline307} from './virtdr-307/timeline';
+import {VsaCascade} from './virtdr-337/Video';
+import {buildTimeline as buildTimeline337} from './virtdr-337/timeline';
 
 const ALL_291 = Array.from({length: 14}, (_, i) => i);
 const ALL_342 = Array.from({length: 10}, (_, i) => i);
 const ALL_307 = Array.from({length: 9}, (_, i) => i);
+const ALL_337 = Array.from({length: 8}, (_, i) => i);
 
 const ALL = Array.from({length: 16}, (_, i) => i);
 const ALL_CL = Array.from({length: 8}, (_, i) => i);
@@ -33,6 +36,15 @@ const ALL_343R = Array.from({length: 8}, (_, i) => i);
 
 export const Root: React.FC = () => (
   <>
+    <Composition
+      id="virtdr-337"
+      component={VsaCascade}
+      durationInFrames={Math.max(1, buildTimeline337(ALL_337).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_337}}
+    />
     <Composition
       id="virtdr-307"
       component={VirtDr307}

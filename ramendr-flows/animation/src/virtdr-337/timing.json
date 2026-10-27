@@ -1,1 +1,187 @@
-{}
+{
+  "0.1": {
+    "seconds": 22.677,
+    "voice": "af_heart",
+    "pause": 1.8
+  },
+  "0.2": {
+    "seconds": 17.259,
+    "voice": "af_heart",
+    "pause": 1.5
+  },
+  "0.3": {
+    "seconds": 18.091,
+    "voice": "af_heart",
+    "pause": 2.0
+  },
+  "1.1": {
+    "seconds": 18.517,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.2": {
+    "seconds": 18.88,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.3": {
+    "seconds": 18.581,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.4": {
+    "seconds": 21.227,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.5": {
+    "seconds": 21.973,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.6": {
+    "seconds": 18.411,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.7": {
+    "seconds": 17.792,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.8": {
+    "seconds": 17.813,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "1.9": {
+    "seconds": 13.973,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "2.1": {
+    "seconds": 21.227,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "2.2": {
+    "seconds": 18.624,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "2.3": {
+    "seconds": 21.845,
+    "voice": "af_heart",
+    "pause": 1.5
+  },
+  "3.1": {
+    "seconds": 19.413,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "3.2": {
+    "seconds": 19.029,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "3.3": {
+    "seconds": 19.157,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "3.4": {
+    "seconds": 20.821,
+    "voice": "af_heart",
+    "pause": 2.0
+  },
+  "4.1": {
+    "seconds": 18.005,
+    "voice": "af_heart",
+    "pause": 1.5
+  },
+  "4.2": {
+    "seconds": 21.12,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "4.3": {
+    "seconds": 24.555,
+    "voice": "af_heart",
+    "pause": 2.0
+  },
+  "4.4": {
+    "seconds": 21.931,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "4.5": {
+    "seconds": 16.747,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "5.1": {
+    "seconds": 14.891,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "5.2": {
+    "seconds": 16.917,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "5.3": {
+    "seconds": 17.387,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "6.1": {
+    "seconds": 33.893,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "6.2": {
+    "seconds": 20.437,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "6.3": {
+    "seconds": 22.4,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "6.4": {
+    "seconds": 16.235,
+    "voice": "af_heart",
+    "pause": 1.8
+  },
+  "7.1": {
+    "seconds": 14.549,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.2": {
+    "seconds": 31.866,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.3": {
+    "seconds": 23.339,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.4": {
+    "seconds": 17.045,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.5": {
+    "seconds": 16.619,
+    "voice": "af_heart",
+    "pause": 0.8
+  },
+  "7.6": {
+    "seconds": 16.64,
+    "voice": "af_heart",
+    "pause": 2.5
+  }
+}
