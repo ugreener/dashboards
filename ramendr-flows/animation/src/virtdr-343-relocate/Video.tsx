@@ -14,12 +14,15 @@ type Cam = {x: number; y: number; z: number; sx: number; sy: number};
 const CAMS: Record<string, Partial<Cam>> = {
   '2.1': {x: 370, y: 190, z: 1.2, sx: 430, sy: 552},
   '2.3': {x: 650, y: 1180, z: .8, sx: 430, sy: 552},
+  '4.2': {x: 420},
   '4.4': {x: 1815, y: 950, z: .66, sx: 430, sy: 552},
+  '5.1': {z: .72},
   '5.4': {x: 1830, y: 1180, z: .8, sx: 430, sy: 552},
   '6.2': {x: 1830, y: 1180, z: .8, sx: 430, sy: 552},
   '6.5': {x: 1830, y: 1180, z: .8, sx: 430, sy: 552},
   '6.6': {x: 1830, y: 1180, z: .8, sx: 430, sy: 552},
-  '7.3': {x: 650, y: 1180, z: .8, sx: 430, sy: 552},
+  '7.3': {x: 900, y: 1180, z: .58, sx: 430, sy: 552},
+  '7.7': {x: 1210},
 };
 const fit = (id: string): Cam => {
   const side = !!META[id]?.screenshot || PANEL_BEATS.has(id);
