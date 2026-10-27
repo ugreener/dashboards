@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame} from 'remotion';
 import {C, sans} from '../theme';
 import {lerp, prog, progIO, sec} from '../lib/anim';
-import {ChapterCard, Hud, Legend, TimelineBar, TEvent} from '../components/overlays';
+import {ChapterCard, Hud, TimelineBar, TEvent} from '../components/overlays';
 import {DefinitionPanel, Def, PhaseTracker, Screenshot} from '../components/newcomer';
 import {buildTimeline, PAD_BEFORE, Segment} from './timeline';
 import {World, FOCUS, RECT, CH} from './World';
@@ -15,7 +15,6 @@ const CAMS: Record<string, Partial<Cam>> = {
   '2.1': {x: 370, y: 190, z: 1.2, sx: 430, sy: 552},
   '2.3': {x: 650, y: 1180, z: .8, sx: 430, sy: 552},
   '4.4': {x: 1815, y: 950, z: .66, sx: 430, sy: 552},
-  '5.3': {x: 370, y: 545, z: 1.2, sx: 430, sy: 552},
   '5.4': {x: 1830, y: 1180, z: .8, sx: 430, sy: 552},
   '6.2': {x: 1830, y: 1180, z: .8, sx: 430, sy: 552},
   '6.5': {x: 1830, y: 1180, z: .8, sx: 430, sy: 552},
@@ -50,10 +49,9 @@ const EVENTS_343: TEvent[] = [
   ['15:59:00', 'state capture', C.dim],
 ];
 const SFX: Record<string, [number, string, number][]> = {
-  '0.1': [[.05, 'type', .2], [.45, 'whoosh', .2]], '2.4': [[.2, 'whoosh', .16]], '3.2': [[.2, 'whoosh', .16]],
-  '3.3': [[.2, 'whoosh', .16]], '3.4': [[.25, 'click', .3]], '3.6': [[.4, 'flip', .2]], '4.2': [[.4, 'chime', .22]],
-  '4.5': [[.2, 'whoosh', .16]], '5.4': [[.2, 'whoosh', .16]], '5.6': [[.2, 'whoosh', .16]], '6.2': [[.3, 'alert', .2]],
-  '6.5': [[.4, 'chime', .22]], '7.7': [[.5, 'chime', .2]],
+  '0.1': [[.05, 'type', .2], [.45, 'whoosh', .2]],
+  '3.4': [[.25, 'click', .3]], '3.6': [[.4, 'flip', .2]], '4.2': [[.4, 'chime', .22]],
+  '6.2': [[.3, 'alert', .2]], '6.5': [[.4, 'chime', .22]], '7.7': [[.5, 'chime', .2]],
 };
 const sourceLabel = (file: string) => file.includes('replication') ? 'PowerStore console · historical capture' : file.includes('application') ? 'Argo CD · historical capture' : 'hub console · historical capture';
 export const RelocateHome: React.FC<{chapters: number[]}> = ({chapters}) => {
@@ -70,7 +68,7 @@ export const RelocateHome: React.FC<{chapters: number[]}> = ({chapters}) => {
   const cam = {x: lerp(old.x, target.x, p), y: lerp(old.y, target.y, p), z: lerp(old.z, target.z, p), sx: lerp(old.sx, target.sx, p), sy: lerp(old.sy, target.sy, p)};
   const ch = b.chapter.n, m = META[b.id] ?? {};
   const win = (a: number, z: number) => Math.min(prog(f, b.audio * a, b.audio * a + 22), 1 - prog(f, b.audio * z - 22, b.audio * z));
-  const cues = beats.flatMap(beat => {
+  const allCues = beats.flatMap(beat => {
     const base = beat.from + PAD_BEFORE;
     const list: [number, string, number][] = [...(SFX[beat.id] ?? [])];
     for (const [id, frac] of CH) if (id === beat.id) list.push([frac, 'flip', .18]);
@@ -78,6 +76,14 @@ export const RelocateHome: React.FC<{chapters: number[]}> = ({chapters}) => {
     if (META[beat.id]?.card) list.push([.04, 'pop', .17]);
     return list.map(([frac, name, v]) => ({at: base + Math.round(frac * beat.audio), name, v}));
   });
+  // Several state changes can land on the same frame; play one cue per frame and sound.
+  const cueMap = new Map<string, {at: number; name: string; v: number}>();
+  for (const c of allCues) {
+    const key = `${c.at}|${c.name}`;
+    const prev = cueMap.get(key);
+    if (!prev || c.v > prev.v) cueMap.set(key, c);
+  }
+  const cues = [...cueMap.values()];
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
     {ch >= 2 ? <div style={{position: 'absolute', left: 20, top: 205, width: m.screenshot || PANEL_BEATS.has(b.id) ? 820 : 1880, height: 690, overflow: 'hidden'}}>
       <div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z - 20}px,${cam.sy - cam.y * cam.z - 205}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}}/></div>
@@ -86,7 +92,6 @@ export const RelocateHome: React.FC<{chapters: number[]}> = ({chapters}) => {
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null} ticket="VIRTDR-343"/> : null}
     {seg.type === 'beat' && ch >= 2 ? <PhaseTracker current={ch - 2} phases={PHASES_343}/> : null}
     {seg.type === 'beat' && m.unverified ? <div style={{position: 'absolute', left: 40, right: 40, top: 165, padding: '6px 12px', fontFamily: sans, fontSize: 17, lineHeight: 1.25, color: C.amber, background: `${C.bg}f5`, borderLeft: `3px solid ${C.amber}`}}>UNVERIFIED: {m.unverified}</div> : null}
-    {seg.type === 'beat' && b.id === '2.6' ? <Legend appear={win(.04, .96)}/> : null}
     {seg.type === 'beat' && ch >= 3 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS_343}/> : null}
     {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio}/> : null}
     {seg.type === 'beat' && m.screenshot ? <Screenshot src={`evidence/virtdr-343-relocate/${m.screenshot}`} date="2026-10-26" caption={m.caption ?? ''} focus={m.focus} a={win(.14, .98)} z={progIO(f, b.audio * .2, b.audio * .65)} y={215} x={865} w={1010} sourceLabel={sourceLabel(m.screenshot)}/> : null}
