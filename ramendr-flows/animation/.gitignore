@@ -3,3 +3,5 @@ out/
 public/audio/
 public/sfx/
 public/evidence/
+__pycache__/
+*.pyc
