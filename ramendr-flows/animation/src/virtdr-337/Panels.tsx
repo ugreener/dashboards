@@ -153,7 +153,7 @@ const UptimeBars: React.FC<{f: number; dur: number}> = ({f, dur}) => {
     <svg width={1080} height={520}>
       <line x1={70} y1={330} x2={1040} y2={330} stroke={C.border} strokeWidth={2} />
       <line x1={70} y1={330 - (259200 / max) * h} x2={1040} y2={330 - (259200 / max) * h} stroke={C.amber} strokeWidth={2} strokeDasharray="8 8" />
-      <text x={1044} y={330 - (259200 / max) * h + 7} fill={C.amber} fontSize={19} fontFamily={mono}>72 h</text>
+      <text x={1032} y={330 - (259200 / max) * h + 7} textAnchor="end" fill={C.amber} fontSize={19} fontFamily={mono}>72 h</text>
       {bars.map((b, i) => {
         const bh = (b.v / max) * h;
         const x = 130 + i * 235;

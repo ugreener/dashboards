@@ -60,6 +60,7 @@ const EVENTS: TEvent[] = [
   ['15:24:34', 'declared Healthy', C.orange],
   ['15:27:35', 'panic and cluster stop', C.red],
   ['15:30:36', 'Node A hard reset', C.red],
+  ['15:31:00', 'single node', C.red],
 ];
 const SFX: Record<string, [number, string, number][]> = {
   '0.1': [[0.05, 'type', 0.2], [0.55, 'whoosh', 0.16]],
