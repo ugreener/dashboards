@@ -213,11 +213,11 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
   return (
     <div style={{position: 'absolute', width: 2400, height: 1520, opacity: appearWorld}}>
-      <Region b={{x: 60, y: 30, w: 2280, h: 240}} title="HUB · edge36" color={C.blue} opacity={regionOn('hub')} />
-      <Region b={{x: 60, y: 305, w: 1120, h: 400}} title="SPOKE-0 · edge95" color={C.spoke0} opacity={regionOn('s0')} />
-      <Region b={{x: 1220, y: 305, w: 1120, h: 400}} title="SPOKE-1 · edge97" color={C.spoke1} opacity={regionOn('s1')} />
-      <Region b={{x: 60, y: 745, w: 1120, h: 735}} title="VSA-A" sub="PS3b37452a6e0f" color={C.array} glow={orphans ? 0 : 0.15} opacity={regionOn('a')} />
-      <Region b={{x: 1220, y: 745, w: 1120, h: 735}} title="VSA-B" sub="PSff392f423bd6" color={C.array} glow={orphans ? 0.5 : 0.15} opacity={regionOn('b')} />
+      <Region b={{x: 60, y: 30, w: 2280, h: 240}} title="HUB · edge36" color={C.blue} opacity={c.panel ? 0 : regionOn('hub')} />
+      <Region b={{x: 60, y: 305, w: 1120, h: 400}} title="SPOKE-0 · edge95" color={C.spoke0} opacity={c.panel ? 0 : regionOn('s0')} />
+      <Region b={{x: 1220, y: 305, w: 1120, h: 400}} title="SPOKE-1 · edge97" color={C.spoke1} opacity={c.panel ? 0 : regionOn('s1')} />
+      <Region b={{x: 60, y: 745, w: 1120, h: 735}} title="VSA-A" sub="PS3b37452a6e0f" color={C.array} glow={orphans ? 0 : 0.15} opacity={c.panel ? 0 : regionOn('a')} />
+      <Region b={{x: 1220, y: 745, w: 1120, h: 735}} title="VSA-B" sub="PSff392f423bd6" color={C.array} glow={orphans ? 0.5 : 0.15} opacity={c.panel ? 0 : regionOn('b')} />
 
       {['1.2', '2.1', '2.2', '2.3', '2.4'].includes(c.id) ? (
         <div style={{position: 'absolute', left: 1180, top: 118, width: 1080, fontFamily: sans, fontSize: 21, color: C.dim, lineHeight: 1.35}}>
