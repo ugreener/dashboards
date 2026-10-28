@@ -2,15 +2,15 @@ import timing from './timing.json';
 import {FPS, sec} from '../lib/anim';
 export type Chapter={n:number;title:string;sub?:string};
 export const CHAPTERS:Chapter[]=[
-  {n:0,title:'Cold open',sub:'A failover that stopped at step two'},
-  {n:1,title:'Cast of characters',sub:'One job for every resource in the restore chain'},
-  {n:2,title:'The promise',sub:'Four VMs, eight claims, one consistency group'},
-  {n:3,title:'The click',sub:'One instruction from the hub, three gates'},
-  {n:4,title:'Restore the records',sub:'PVs, PVCs, then the group objects'},
-  {n:5,title:'The count that never reaches eight',sub:'One unbound claim keeps the whole app not ready'},
-  {n:6,title:'What Kubernetes does with those objects',sub:'Ownership is not identity'},
+  {n:0,title:'Cold open',sub:'A scheduled move that stopped halfway'},
+  {n:1,title:'The words you need',sub:'One concept at a time, before any resource name'},
+  {n:2,title:'What protection looked like',sub:'Four machines, eight claims, one copy every two minutes'},
+  {n:3,title:'The move order',sub:'One object on the hub, three gates on the target'},
+  {n:4,title:'Rebuilding the paperwork',sub:'The disks are there, the labels are not'},
+  {n:5,title:'The count that never reaches eight',sub:'Eight requests, six records, one counted as restored'},
+  {n:6,title:'Why Kubernetes says Lost',sub:'Ownership is not identity'},
   {n:7,title:'Why it never finishes',sub:'A loop with no error and no timeout'},
-  {n:8,title:'Causes, fix and what remains',sub:'The archive, the branch, and the next run'},
+  {n:8,title:'Causes, fix and the checklist',sub:'Two independent faults and what each one proves'},
 ];
 export const PHASES_307=['Promise','Click','Restore','Count','Bind','Gate','Causes'];
 export type Segment={type:'chapter';chapter:Chapter;from:number;dur:number}|{type:'beat';id:string;chapter:Chapter;from:number;dur:number;audio:number;afterChapter:boolean};

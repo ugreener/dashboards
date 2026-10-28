@@ -8,7 +8,8 @@ import {buildTimeline, PAD_BEFORE, Segment, PHASES_307} from './timeline';
 import {World, RECT, CH, focusFor} from './World';
 import {BeatPanel, GlossaryScene, PANEL_BEATS} from './Panels';
 import BEATS from './beats.json';
-type Meta = {t?: string; screenshot?: string; focus?: {x: number; y: number; w: number; h: number}; caption?: string; define?: {term: string; text: string}; card?: {kind: string; name: string; role: string}; def?: Def};
+type Concept = {title: string; rows: {k: string; t: string; c?: string}[]};
+type Meta = {t?: string; screenshot?: string; focus?: {x: number; y: number; w: number; h: number}; caption?: string; define?: {term: string; text: string}; card?: {kind: string; name: string; role: string}; def?: Def; concept?: Concept};
 const META = BEATS as Record<string, Meta>;
 type Cam = {x: number; y: number; z: number; sx: number; sy: number};
 const CAMS: Record<string, Partial<Cam>> = {
@@ -73,7 +74,7 @@ export const VirtDr307: React.FC<{chapters: number[]}> = ({chapters}) => {
   });
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
     {ch >= 2 ? <div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}}/></div> : null}
-    {seg.type === 'beat' && ch === 1 ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def}/> : null}
+    {seg.type === 'beat' && (ch === 1 || !!m.concept) ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} concept={m.concept}/> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null} ticket="VIRTDR-307"/> : null}
     {seg.type === 'beat' && ch >= 2 ? <PhaseTracker current={ch - 2} phases={PHASES_307}/> : null}
     {seg.type === 'beat' && ch >= 3 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS_307}/> : null}

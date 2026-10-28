@@ -28,18 +28,18 @@ export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: 
   '5.4': {title: 'Three different counts', rows: ['restore log: Total/Restored 8/1', 'restore log: Mismatch in PV/PVC count 6/1', 'DRPC status: Total/Restored 8/0', 'the outcome does not change'], color: C.red, mono: true},
   '5.5': {title: 'Claim state on the target', rows: ['rhel9-node-001 · Lost', 'rhel9-node-001-data · Pending', 'rhel9-node-pvc-001 · Lost', 'rhel9-node-pvc-001-data · Lost', 'windows2k22-server-001 · Lost', 'windows2k22-server-001-data · Pending', 'windows2k25-server-001 · Lost', 'windows2k25-server-001-data · Lost'], color: C.red, mono: true},
   '5.6': {title: 'The two volumes that are absent', rows: ['pvc-49334288-9ea3-4a69-b022-7bd1c2d31f0c', 'for rhel9-node-001-data', 'pvc-e19629b1-571c-4f2f-a485-a64e5abdc6b2', 'for windows2k22-server-001-data', 'eight claims, six volumes'], color: C.red, mono: true},
-  '6.2': {title: 'Ramen prunes pv.kubernetes.io annotations', rows: ['pv.kubernetes.io/bind-completed is removed', 'the restored claim enters syncUnboundClaim', 'binding is Kubernetes work, not CSI work'], color: C.blue},
-  '6.3': {title: 'The unbound path', rows: ['claim.spec.volumeName names the PV', 'PV claimRef name and namespace match', 'PV claimRef UID is empty, which acts as a wildcard', 'bind completes'], color: C.green},
-  '6.4': {title: 'Six claims took the bound path', rows: ['syncBoundClaim expects pv.kubernetes.io/bind-completed', 'Ramen removes that annotation on restore', 'something re-added it earlier', 'UNVERIFIED: who and when'], color: C.amber},
-  '6.5': {title: 'ClaimMisbound arithmetic', rows: ['PV claimRef UID: empty', 'PVC UID: a6617c4c-3bed-46dd-b960-0ddf97f1ca60', 'empty is not equal to the real UID', 'result: Lost + ClaimMisbound'], color: C.red, mono: true},
-  '6.7': {title: 'Pending is the missing-volume branch', rows: ['claim.spec.volumeName names the PV', 'the PV does not exist', 'result: Pending, retry later', 'no retry can create it'], color: C.amber},
+  '6.2': {title: 'The bound mark is removed on restore', rows: ['pv.kubernetes.io/bind-completed is removed', 'the restored claim enters syncUnboundClaim', 'binding is Kubernetes work, not CSI work'], color: C.blue},
+  '6.3': {title: 'When the claim is not marked bound', rows: ['claim.spec.volumeName names the PV', 'PV claimRef name and namespace match', 'PV claimRef UID is empty, which acts as a wildcard', 'bind completes'], color: C.green},
+  '6.4': {title: 'Six claims were treated as already bound', rows: ['syncBoundClaim expects pv.kubernetes.io/bind-completed', 'Ramen removes that annotation on restore', 'something re-added it earlier', 'UNVERIFIED: who and when'], color: C.amber},
+  '6.5': {title: 'The UIDs do not match', rows: ['PV claimRef UID: empty', 'PVC UID: a6617c4c-3bed-46dd-b960-0ddf97f1ca60', 'empty is not equal to the real UID', 'result: Lost + ClaimMisbound'], color: C.red, mono: true},
+  '6.7': {title: 'Pending means the volume record is missing', rows: ['claim.spec.volumeName names the PV', 'the PV does not exist', 'result: Pending, retry later', 'no retry can create it'], color: C.amber},
   '7.2': {title: 'ClusterDataReady', rows: ['status: False', 'reason: Error', 'message: Failed to restore PVs/PVCs', 'detail: Total/Restored 8/1'], color: C.red, mono: true},
-  '7.3': {title: 'One aggregate, one state', rows: ['per-PVC DataReady becomes aggregate DataReady', 'DataReady False sets status.state Unknown', 'Unknown is a symptom, not a finding'], color: C.amber},
+  '7.3': {title: 'Why the state becomes Unknown', rows: ['per-PVC DataReady becomes aggregate DataReady', 'DataReady False sets status.state Unknown', 'Unknown is a symptom, not a finding'], color: C.amber},
   '7.4': {title: 'The hub gate', rows: ['DataReady True: no', 'ClusterDataReady True: no', 'state Primary: no', 'progression: WaitForReadiness'], color: C.red, mono: true},
   '7.6': {title: 'Three console defects, none the cause', rows: ['VIRTDR-316: title says complete before cleanup ends', 'last-synced is a driver report, not a measurement', 'the popover is a renderer, not a measurement'], color: C.amber},
   '8.2': {title: 'The archive count', rows: ['PVCs in S3: 8', 'PVs in S3: 6', 'missing: pvc-49334288-9ea3-4a69-b022-7bd1c2d31f0c', 'missing: pvc-e19629b1-571c-4f2f-a485-a64e5abdc6b2', 'six is not eight, so the restore never converges'], color: C.red, mono: true},
-  '8.3': {title: 'The 4.22 VGRC path', rows: ['cleanupVGRCForRestore does not rewrite the group handle', 'the restored VGRC keeps the source group ID', 'csi-addons calls ModifyVolumeGroupMembership', 'with the source volume handles', 'source-proven for release-4.22 at the ref read'], color: C.orange},
-  '8.4': {title: 'What upstream main adds', rows: ['ramendr.openshift.io/destination-volume-group-handle', 'updateVGRCVolumeHandlesForRestore', 'updateVGRCClusterIDForRestore', 'absent from 4.22 at the ref read'], color: C.green, mono: true},
+  '8.3': {title: 'The 4.22 code keeps the source group handle', rows: ['cleanupVGRCForRestore does not rewrite the group handle', 'the restored VGRC keeps the source group ID', 'csi-addons calls ModifyVolumeGroupMembership', 'with the source volume handles', 'source-proven for release-4.22 at the ref read'], color: C.orange},
+  '8.4': {title: 'What the upstream fix adds', rows: ['ramendr.openshift.io/destination-volume-group-handle', 'updateVGRCVolumeHandlesForRestore', 'updateVGRCClusterIDForRestore', 'absent from 4.22 at the ref read'], color: C.green, mono: true},
   '8.6': {title: 'Checklist before trusting a group failover', rows: ['every protected claim has a PV in S3', 'every PV has a destination handle', 'the VGRC is rewritten with the target group handle', 'every claim binds on the target', 'ClusterDataReady is True at the current generation'], color: C.green},
   '8.7': {title: 'The chain in order', rows: ['hub sets the target VRG to Primary', 'target restores PVs, then PVCs', 'two PVs are missing, the rest keep the primary handle', 'claims fail to bind', 'ClusterDataReady stays False', 'DRPC waits in WaitForReadiness']},
   '8.8': {title: 'Proves and does not prove', rows: ['PROVES: group failover can report Protected true and restore nothing usable', 'DOES NOT PROVE: the missing PVs are the only cause', 'DOES NOT PROVE: the build is the 4.22 ref we read', 'DOES NOT PROVE: the fix works'], color: C.amber},
@@ -55,10 +55,19 @@ export const BeatPanel: React.FC<{id: string; f: number; dur: number}> = ({id, f
   </div>;
 };
 
-export const GlossaryScene: React.FC<{id: string; f: number; dur: number; card?: {kind: string; name: string; role: string}; def?: Def}> = ({id, f, dur, card, def}) => {
-  if (id === '1.12') return <div style={{position: 'absolute', inset: 0, fontFamily: sans}}>
-    <div style={{position: 'absolute', left: 110, top: 160, fontSize: 40, color: C.text, fontWeight: 700}}>Five jobs, one restore chain</div>
-    {[['Ramen', 'Decides and records the recovery'], ['csi-addons', 'Translates objects into CSI calls'], ['CSI driver', 'Moves and promotes the storage'], ['PV controller', 'Binds claims to volumes by UID'], ['Kubernetes', 'Starts the workload only after all agree']].map(([name, role], i) => <div key={name} style={{position: 'absolute', left: 110 + (i % 3) * 585, top: 290 + Math.floor(i / 3) * 280, width: 540, minHeight: 210, padding: 28, border: `2px solid ${C.cyan}`, borderRadius: 18, background: C.panel, opacity: prog(f, dur * (.03 + i * .09), dur * (.03 + i * .09) + 24)}}><div style={{fontSize: 31, color: C.cyan, fontWeight: 700}}>{name}</div><div style={{fontSize: 25, color: C.text, lineHeight: 1.4, marginTop: 20}}>{role}</div></div>)}
+type Concept = {title: string; rows: {k: string; t: string; c?: string}[]};
+const CONCEPT_COLOR: Record<string, string> = {green: C.green, amber: C.amber, red: C.red, blue: C.blue, cyan: C.cyan, purple: C.purple};
+
+export const GlossaryScene: React.FC<{id: string; f: number; dur: number; card?: {kind: string; name: string; role: string}; def?: Def; concept?: Concept}> = ({id, f, dur, card, def, concept}) => {
+  if (concept) return <div style={{position: 'absolute', inset: 0, fontFamily: sans}}>
+    <div style={{position: 'absolute', left: 110, top: 150, fontSize: 44, color: C.text, fontWeight: 700}}>{concept.title}</div>
+    {concept.rows.map((r, i) => {
+      const col = CONCEPT_COLOR[r.c ?? 'cyan'] ?? C.cyan;
+      return <div key={r.k} style={{position: 'absolute', left: 110 + (i % 2) * 880, top: 265 + Math.floor(i / 2) * 205, width: 820, minHeight: 165, padding: 26, border: `2px solid ${col}`, borderRadius: 18, background: C.panel, opacity: prog(f, dur * (.03 + i * .08), dur * (.03 + i * .08) + 24)}}>
+        <div style={{fontSize: 30, color: col, fontWeight: 700}}>{r.k}</div>
+        <div style={{fontSize: 24, color: C.text, lineHeight: 1.4, marginTop: 12}}>{r.t}</div>
+      </div>;
+    })}
   </div>;
   if (!card || !def) return <div style={{position: 'absolute', left: 180, top: 350, right: 180, color: C.text, fontFamily: sans, fontSize: 44, textAlign: 'center'}}>Every piece has one job. Follow the handoffs, not just the names.</div>;
   return <div style={{position: 'absolute', inset: 0, opacity: prog(f, -20, 24)}}>
