@@ -5,7 +5,7 @@ import {lerp, prog, progIO, sec} from '../lib/anim';
 import {ChapterCard, Hud} from '../components/overlays';
 import {DefinitionPanel, Def, PhaseTracker} from '../components/newcomer';
 import {buildTimeline, PAD_BEFORE, Segment} from './timeline';
-import {World, FOCUS, RECT, REGIONS, REGION_OF, TOPMOST} from './World';
+import {World, FOCUS, RECT, GHOST_RECT, REGIONS, REGION_OF, TOPMOST} from './World';
 import {BeatPanel, ColdOpen, GlossaryScene, PANEL_BEATS, PHASES_SP, LegendSP} from './Panels';
 import BEATS from './beats.json';
 
@@ -25,7 +25,7 @@ const fit = (id: string): Cam => {
     x1 = -Infinity,
     y1 = -Infinity;
   for (const key of keys) {
-    const r = RECT[key];
+    const r = RECT[key] ?? GHOST_RECT[key];
     if (!r) continue;
     x0 = Math.min(x0, r[0]);
     y0 = Math.min(y0, r[1]);
@@ -37,6 +37,9 @@ const fit = (id: string): Cam => {
       y0 = Math.min(y0, reg.b.y - 30);
       x0 = Math.min(x0, reg.b.x + 20);
     }
+  }
+  if (!Number.isFinite(x0) || !Number.isFinite(x1)) {
+    return fit('__all__');
   }
   x0 -= 60;
   x1 += 60;

@@ -44,6 +44,10 @@ export const REGION_OF: Record<string, string> = {
   volA: 'a',
   groupB: 'b',
   repB: 'b',
+  gvgr: 's1',
+  gvr: 's1',
+  gvgrc: 's1',
+  noCall: 'b',
 };
 export const TOPMOST: Record<string, string> = {hub: 'drpc', s0: 'vrg0', s1: 'vrg1', a: 'groupA', b: 'groupB'};
 
@@ -53,6 +57,8 @@ const GHOSTS: Record<string, {title: string; prop: string; sub: string; box: Box
   gvgrc: {title: 'no group content', prop: 'a group content with the handle', sub: 'nobody holds the handle', box: [1780, 545, 470, 140]},
   noCall: {title: 'no caller on this side', prop: 'no caller on this side', sub: 'no replication call for this group', box: [1270, 810, 970, 140]},
 };
+
+export const GHOST_RECT: Record<string, Box> = Object.fromEntries(Object.entries(GHOSTS).map(([k, g]) => [k, g.box])) as Record<string, Box>;
 
 export const FOCUS: Record<string, string[]> = {
   '1.3': ['drpc', 'stop'],
