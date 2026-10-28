@@ -211,9 +211,11 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       <Region b={{x: 60, y: 745, w: 1120, h: 735}} title="VSA-A" sub="PS3b37452a6e0f" color={C.array} glow={orphans ? 0 : 0.15} />
       <Region b={{x: 1220, y: 745, w: 1120, h: 735}} title="VSA-B" sub="PSff392f423bd6" color={C.array} glow={orphans ? 0.5 : 0.15} />
 
-      <div style={{position: 'absolute', left: 1180, top: 118, width: 1120, fontFamily: sans, fontSize: 21, color: C.dim, lineHeight: 1.35}}>
-        <span style={{color: C.text, fontWeight: 700}}>One application, two sites.</span> The hub asks each site to clean its part. The arrays hold the copies.
-      </div>
+      {chapter <= 2 ? (
+        <div style={{position: 'absolute', left: 1180, top: 118, width: 1080, fontFamily: sans, fontSize: 21, color: C.dim, lineHeight: 1.35}}>
+          <span style={{color: C.text, fontWeight: 700}}>One application, two sites.</span> The hub asks each site to clean its part. The arrays hold the copies.
+        </div>
+      ) : null}
 
       {Object.entries(NODES).map(([key, n]) => {
         const st = status(key);
@@ -295,19 +297,19 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
         {chapter >= 3 && !reached(c.id, '3.5') ? (
           <g opacity={prog(c.f, 0, 20)}>
-            <path d="M580,445 L618,445" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#spTip)" />
+            <path d="M580,470 L608,470" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#spTip)" />
             <path d="M345,530 L345,543" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#spTip)" />
             <path d="M855,530 L855,543" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#spTip)" />
-            <text x={600} y={430} fill={C.green} fontSize={18} fontFamily={sans}>owns</text>
+            <text x={584} y={450} fill={C.green} fontSize={17} fontFamily={sans}>owns</text>
           </g>
         ) : null}
 
         {chapter >= 3 && !reached(c.id, '3.5') ? (
           <g opacity={prog(c.f, 0, 22)}>
-            <path d="M690,690 L690,807" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#spTipC)" />
-            <path d="M345,690 L345,807" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#spTipC)" />
-            <text x={705} y={760} fill={C.cyan} fontSize={19} fontFamily={sans}>group handle</text>
-            <text x={360} y={760} fill={C.cyan} fontSize={19} fontFamily={sans}>on delete</text>
+            <path d="M1000,690 L1000,807" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#spTipC)" />
+            <path d="M480,690 L480,807" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#spTipC)" />
+            <text x={1015} y={760} fill={C.cyan} fontSize={19} fontFamily={sans}>group handle</text>
+            <text x={495} y={760} fill={C.cyan} fontSize={19} fontFamily={sans}>on delete</text>
           </g>
         ) : null}
 

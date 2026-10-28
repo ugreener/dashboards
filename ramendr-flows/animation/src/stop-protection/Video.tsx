@@ -32,7 +32,7 @@ const fit = (id: string): Cam => {
     x1 = Math.max(x1, r[0] + r[2]);
     y1 = Math.max(y1, r[1] + r[3]);
     const rk = REGION_OF[key];
-    if (rk && TOPMOST[rk] === key) {
+    if (rk) {
       const reg = REGIONS.find((g) => g.key === rk)!;
       y0 = Math.min(y0, reg.b.y - 30);
       x0 = Math.min(x0, reg.b.x + 20);
@@ -105,6 +105,9 @@ export const StopProtection: React.FC<{chapters: number[]}> = ({chapters}) => {
         <div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}>
           <World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} />
         </div>
+      ) : null}
+      {showWorld ? (
+        <div style={{position: 'absolute', left: 0, top: 0, width: 1920, height: 215, background: `linear-gradient(to bottom, ${C.bg} 0%, ${C.bg} 58%, transparent 100%)`}} />
       ) : null}
       {seg.type === 'beat' && PANEL_BEATS.has(b.id) ? (
         <div style={{position: 'absolute', left: 860, top: 0, width: 1060, height: 1080, background: `linear-gradient(to right, transparent, ${C.bg} 70px, ${C.bg})`}} />
