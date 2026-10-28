@@ -47,15 +47,14 @@ export const REGION_OF: Record<string, string> = {
 };
 export const TOPMOST: Record<string, string> = {hub: 'drpc', s0: 'vrg0', s1: 'vrg1', a: 'groupA', b: 'groupB'};
 
-const GHOSTS: Record<string, {title: string; sub: string; box: Box}> = {
-  gvgr: {title: 'no group replication', sub: 'nothing to reconcile', box: [1780, 375, 470, 140]},
-  gvr: {title: 'no child work order', sub: 'no role calls from this side', box: [1270, 545, 470, 140]},
-  gvgrc: {title: 'no group content', sub: 'nobody holds the handle', box: [1780, 545, 470, 140]},
-  noCall: {title: 'no caller on this side', sub: 'no replication call for this group', box: [1270, 810, 970, 140]},
+const GHOSTS: Record<string, {title: string; prop: string; sub: string; box: Box}> = {
+  gvgr: {title: 'no group replication', prop: 'a group replication here', sub: 'nothing to reconcile', box: [1780, 375, 470, 140]},
+  gvr: {title: 'no child work order', prop: 'a child work order here', sub: 'no role calls from this side', box: [1270, 545, 470, 140]},
+  gvgrc: {title: 'no group content', prop: 'a group content with the handle', sub: 'nobody holds the handle', box: [1780, 545, 470, 140]},
+  noCall: {title: 'no caller on this side', prop: 'no caller on this side', sub: 'no replication call for this group', box: [1270, 810, 970, 140]},
 };
 
 export const FOCUS: Record<string, string[]> = {
-  '1.2': [],
   '1.3': ['drpc', 'stop'],
   '1.4': ['drpc', 'vrg0'],
   '1.5': ['vrg0', 'vr0'],
@@ -266,7 +265,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
             }}
           >
             <div style={{fontSize: 16, letterSpacing: 1.2, textTransform: 'uppercase', color: prop ? C.purple : C.faint, fontWeight: 700}}>{prop ? 'proposed object' : 'absent'}</div>
-            <div style={{fontFamily: mono, fontSize: 20, color: prop ? C.text : C.dim, marginTop: 6, overflowWrap: 'break-word'}}>{g.title}</div>
+            <div style={{fontFamily: mono, fontSize: 20, color: prop ? C.text : C.dim, marginTop: 6, overflowWrap: 'break-word'}}>{prop ? g.prop : g.title}</div>
             <div style={{fontSize: 17, color: C.faint, marginTop: 6}}>{prop && key === 'gvgrc' ? st : g.sub}</div>
           </div>
         );
@@ -322,8 +321,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
         {orphans ? (
           <g opacity={prog(c.f, 0, 20)}>
-            <path d="M1515,960 L1515,982" fill="none" stroke={C.red} strokeWidth={4} strokeDasharray="8 7" markerEnd="url(#spTipO)" />
-            <text x={1530} y={975} fill={C.red} fontSize={20} fontFamily={sans}>no owner</text>
+            <text x={1310} y={1240} fill={C.red} fontSize={22} fontFamily={sans}>no object on this side names this group</text>
           </g>
         ) : null}
       </svg>

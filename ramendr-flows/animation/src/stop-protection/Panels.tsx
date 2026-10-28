@@ -7,15 +7,6 @@ import {prog} from '../lib/anim';
 export const PHASES_SP = ['Teardown', 'Cast', 'Two cleanups', 'Primary chain', 'Destination gap', 'Lab record', 'Fix', 'Evidence'];
 
 export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: string}> = {
-  '1.1': {
-    title: 'One question, one cast',
-    rows: [
-      'Removing protection must delete a group of volumes on two arrays.',
-      'A deletion happens because some object owns the handle and is deleted.',
-      'So the whole video asks: which object holds the handle on each side?',
-    ],
-    color: C.cyan,
-  },
   '1.11': {
     title: 'So far: the cast',
     rows: [
@@ -343,8 +334,8 @@ export const GlossaryScene: React.FC<{id: string; f: number; dur: number; card?:
   return (
     <div style={{position: 'absolute', inset: 0, opacity: prog(f, -20, 24)}}>
       <div style={{position: 'absolute', left: 100, top: 170, color: C.purple, fontFamily: mono, fontSize: 21}}>CAST OF CHARACTERS · {id.split('.')[1]}</div>
-      <Card x={100} y={300} w={660} kind={card.kind} name={card.name} role={card.role} nameSize={29} appear={prog(f, -10, 24)} color={C.cyan} />
-      <GlossaryPanel d={def} p={prog(f, dur * 0.03, dur * 0.75)} x={850} y={230} w={990} />
+      <Card x={100} y={330} w={660} kind={card.kind} name={card.name} role={card.role} nameSize={29} appear={prog(f, -10, 24)} color={C.cyan} />
+      <GlossaryPanel d={def} p={prog(f, dur * 0.03, dur * 0.75)} x={850} y={250} w={990} />
     </div>
   );
 };
