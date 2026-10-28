@@ -42,7 +42,7 @@ const fit = (id: string): Cam => {
   x1 += 60;
   y1 += 70;
   const left = 35,
-    right = side ? 825 : 1880,
+    right = side ? 790 : 1880,
     top = 210,
     bottom = META[id]?.define ? 760 : 900;
   const z = Math.min(1.2, (right - left) / (x1 - x0), (bottom - top) / (y1 - y0));

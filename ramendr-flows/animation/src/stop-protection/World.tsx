@@ -211,7 +211,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       <Region b={{x: 60, y: 745, w: 1120, h: 735}} title="VSA-A" sub="PS3b37452a6e0f" color={C.array} glow={orphans ? 0 : 0.15} />
       <Region b={{x: 1220, y: 745, w: 1120, h: 735}} title="VSA-B" sub="PSff392f423bd6" color={C.array} glow={orphans ? 0.5 : 0.15} />
 
-      {chapter <= 2 ? (
+      {['1.2', '2.1', '2.2', '2.3', '2.4'].includes(c.id) ? (
         <div style={{position: 'absolute', left: 1180, top: 118, width: 1080, fontFamily: sans, fontSize: 21, color: C.dim, lineHeight: 1.35}}>
           <span style={{color: C.text, fontWeight: 700}}>One application, two sites.</span> The hub asks each site to clean its part. The arrays hold the copies.
         </div>

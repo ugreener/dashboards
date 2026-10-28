@@ -43,7 +43,7 @@
    "role": "turns one application into per disk work orders"
   },
   "def": {
-   "what": "The per site manager for a protected application disks and objects.",
+   "what": "The per-site manager for a protected application's disks and objects.",
    "creator": "Ramen creates it from the DRPC.",
    "reader": "Ramen, and anyone reading DR status.",
    "where": "On the spoke, in the DR namespace.",
