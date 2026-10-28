@@ -103,7 +103,7 @@ export const StopProtection: React.FC<{chapters: number[]}> = ({chapters}) => {
     <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
       {showWorld ? (
         <div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}>
-          <World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} />
+          <World c={{id: b.id, f, dur: b.audio, zoom: cam.z, panel: PANEL_BEATS.has(b.id)}} />
         </div>
       ) : null}
       {showWorld ? (

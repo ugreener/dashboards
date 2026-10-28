@@ -85,12 +85,12 @@ export const FOCUS: Record<string, string[]> = {
   '4.5': ['groupB'],
   '4.6': ['groupB', 'noCall'],
   '4.7': ['groupB', 'vrg1'],
-  '5.1': ['groupB'],
-  '5.2': ['groupB'],
-  '5.3': ['groupB', 'groupA'],
-  '5.4': ['groupB', 'groupA'],
+  '5.1': ['groupA', 'volA', 'groupB', 'repB'],
+  '5.2': ['groupA', 'volA', 'groupB', 'repB'],
+  '5.3': ['groupA', 'volA', 'groupB', 'repB'],
+  '5.4': ['groupA', 'volA', 'groupB', 'repB'],
   '5.5': ['groupA', 'volA', 'groupB', 'repB'],
-  '5.6': ['vrg1', 'groupB'],
+  '5.6': ['groupB', 'repB'],
   '5.7': ['groupB', 'repB'],
   '5.8': ['groupB'],
   '6.1': ['vrg1', 'gvgr', 'gvgrc', 'gvr'],
@@ -108,7 +108,7 @@ export const FOCUS: Record<string, string[]> = {
   '7.6': ['groupA', 'groupB', 'volA'],
 };
 
-export type Ctx = {id: string; f: number; dur: number; zoom: number};
+export type Ctx = {id: string; f: number; dur: number; zoom: number; panel?: boolean};
 
 const phase = (id: string) => Number(id.split('.')[0]);
 const reached = (id: string, other: string) => {
@@ -180,6 +180,8 @@ const tone = (status: string, fallback: string) => {
 
 export const World: React.FC<{c: Ctx}> = ({c}) => {
   const keys = FOCUS[c.id] ?? [];
+  const activeRegions = new Set(keys.map((k) => REGION_OF[k]).filter(Boolean));
+  const regionOn = (k: string) => (c.panel && !activeRegions.has(k) ? 0 : 1);
   const status = (key: string) => {
     let v = base(key);
     for (const [beat, frac, k, value] of CH) {
@@ -205,11 +207,11 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
   return (
     <div style={{position: 'absolute', width: 2400, height: 1520, opacity: appearWorld}}>
-      <Region b={{x: 60, y: 30, w: 2280, h: 240}} title="HUB · edge36" color={C.blue} />
-      <Region b={{x: 60, y: 305, w: 1120, h: 400}} title="SPOKE-0 · edge95" color={C.spoke0} />
-      <Region b={{x: 1220, y: 305, w: 1120, h: 400}} title="SPOKE-1 · edge97" color={C.spoke1} />
-      <Region b={{x: 60, y: 745, w: 1120, h: 735}} title="VSA-A" sub="PS3b37452a6e0f" color={C.array} glow={orphans ? 0 : 0.15} />
-      <Region b={{x: 1220, y: 745, w: 1120, h: 735}} title="VSA-B" sub="PSff392f423bd6" color={C.array} glow={orphans ? 0.5 : 0.15} />
+      <Region b={{x: 60, y: 30, w: 2280, h: 240}} title="HUB · edge36" color={C.blue} opacity={regionOn('hub')} />
+      <Region b={{x: 60, y: 305, w: 1120, h: 400}} title="SPOKE-0 · edge95" color={C.spoke0} opacity={regionOn('s0')} />
+      <Region b={{x: 1220, y: 305, w: 1120, h: 400}} title="SPOKE-1 · edge97" color={C.spoke1} opacity={regionOn('s1')} />
+      <Region b={{x: 60, y: 745, w: 1120, h: 735}} title="VSA-A" sub="PS3b37452a6e0f" color={C.array} glow={orphans ? 0 : 0.15} opacity={regionOn('a')} />
+      <Region b={{x: 1220, y: 745, w: 1120, h: 735}} title="VSA-B" sub="PSff392f423bd6" color={C.array} glow={orphans ? 0.5 : 0.15} opacity={regionOn('b')} />
 
       {['1.2', '2.1', '2.2', '2.3', '2.4'].includes(c.id) ? (
         <div style={{position: 'absolute', left: 1180, top: 118, width: 1080, fontFamily: sans, fontSize: 21, color: C.dim, lineHeight: 1.35}}>
@@ -220,7 +222,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       {Object.entries(NODES).map(([key, n]) => {
         const st = status(key);
         const col = tone(st, n.color);
-        const show = chapter >= 1;
+        const show = chapter >= 1 && regionOn(REGION_OF[key] ?? '') > 0;
         return (
           <Card
             key={key}
@@ -243,7 +245,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       })}
 
       {Object.entries(GHOSTS).map(([key, g]) => {
-        const visible = key === 'noCall' ? phase(c.id) === 4 && reached(c.id, '4.6') : showGhosts;
+        const gRegion = key === 'noCall' ? 'b' : 's1';
+        const visible = regionOn(gRegion) > 0 && (key === 'noCall' ? phase(c.id) === 4 && reached(c.id, '4.6') : showGhosts);
         if (!visible) return null;
         const st = status(key);
         const prop = ghostsProposed && key !== 'noCall';
@@ -287,7 +290,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         </defs>
 
         {chapter >= 3 ? (
-          <g opacity={prog(c.f, 0, 22)}>
+          <g opacity={prog(c.f, 0, 22) * Math.min(regionOn('hub'), regionOn('s0'))}>
             <path d="M380,255 L380,368" fill="none" stroke={C.green} strokeWidth={4} strokeDasharray="9 7" markerEnd="url(#spTip)" />
             <path d="M1520,255 L1520,368" fill="none" stroke={C.faint} strokeWidth={4} strokeDasharray="9 7" markerEnd="url(#spTipO)" opacity={reached(c.id, '4.2') ? 0.8 : 0.35} />
             <text x={400} y={318} fill={C.green} fontSize={20} fontFamily={sans}>delete the VRG</text>
@@ -296,7 +299,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         ) : null}
 
         {chapter >= 3 && !reached(c.id, '3.5') ? (
-          <g opacity={prog(c.f, 0, 20)}>
+          <g opacity={prog(c.f, 0, 20) * regionOn('s0')}>
             <path d="M580,470 L608,470" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#spTip)" />
             <path d="M345,530 L345,543" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#spTip)" />
             <path d="M855,530 L855,543" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#spTip)" />
@@ -305,7 +308,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         ) : null}
 
         {chapter >= 3 && !reached(c.id, '3.5') ? (
-          <g opacity={prog(c.f, 0, 22)}>
+          <g opacity={prog(c.f, 0, 22) * Math.min(regionOn('s0'), regionOn('a'))}>
             <path d="M1000,690 L1000,807" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#spTipC)" />
             <path d="M480,690 L480,807" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#spTipC)" />
             <text x={1015} y={760} fill={C.cyan} fontSize={19} fontFamily={sans}>group handle</text>
@@ -313,7 +316,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
           </g>
         ) : null}
 
-        {chapter >= 2 && chapter <= 3 ? (
+        {chapter >= 2 && chapter <= 3 && regionOn('a') * regionOn('b') > 0 ? (
           <g opacity={prog(c.f, 0, 26) * (sessionGone ? 0.45 : 1)}>
             <path d="M345,1160 L345,1330 L1505,1330 L1505,1160" fill="none" stroke={sessionColor} strokeWidth={5} strokeDasharray={sessionGone ? '10 10' : undefined} markerEnd="url(#spTipO)" />
             <rect x={790} y={1303} width={430} height={44} rx={12} fill={C.bg} />
