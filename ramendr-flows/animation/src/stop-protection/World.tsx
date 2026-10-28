@@ -51,7 +51,7 @@ const GHOSTS: Record<string, {title: string; sub: string; box: Box}> = {
   gvgr: {title: 'no group replication', sub: 'nothing to reconcile', box: [1780, 375, 470, 140]},
   gvr: {title: 'no child work order', sub: 'no role calls from this side', box: [1270, 545, 470, 140]},
   gvgrc: {title: 'no group content', sub: 'nobody holds the handle', box: [1780, 545, 470, 140]},
-  noCall: {title: 'no caller on this side', sub: 'DeleteVolumeGroup is never sent', box: [1270, 810, 970, 140]},
+  noCall: {title: 'no caller on this side', sub: 'no replication call for this group', box: [1270, 810, 970, 140]},
 };
 
 export const FOCUS: Record<string, string[]> = {

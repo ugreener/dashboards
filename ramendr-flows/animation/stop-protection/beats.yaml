@@ -126,9 +126,10 @@ beats:
     card: {kind: 'CSI RPC', name: 'DeleteVolumeGroup', role: 'removes a group from the array by handle'}
     def: {what: 'The CSI call that deletes a volume group from the storage array.', creator: 'A CSI driver implements it.', reader: 'csi-addons calls it while deleting a group object.', where: 'Between the cluster and the array.', analogy: 'The only form the storage desk accepts to close a locker account.'}
     narration: >-
-      DeleteVolumeGroup is the call that removes the group from the array. It
-      takes the group handle and nothing else. If no object holds the handle on a
-      site, no caller can make this call there, however healthy the array is.
+      The call DeleteVolumeGroup removes a group from the array by its handle.
+      On the source side it is the call that deletes the group. On a destination
+      group the driver treats the same call differently, and that difference
+      matters later.
     evidence: [issue1180, source-trace]
   - id: '1.9'
     chapter: Cast of characters
@@ -136,9 +137,10 @@ beats:
     card: {kind: 'CSI RPC', name: 'DisableVolumeReplication', role: 'ends the copy on one session'}
     def: {what: 'The CSI call that stops replication for one disk or group.', creator: 'A CSI driver implements it.', reader: 'csi-addons calls it when replication objects are deleted.', where: 'Between the cluster and the array.', analogy: 'Cancelling the courier route, not the parcels.'}
     narration: >-
-      DisableVolumeReplication ends the copy on one session. It runs when the
-      last work order for that disk is deleted. On a destination side it can also
-      be refused, because the active session still belongs to the source.
+      The other call, DisableVolumeReplication, ends the copy on one session. In
+      the driver source we read, the destination side of this call is also what
+      removes the destination group, because the array refuses member changes on
+      a copy target.
     evidence: [virt224, virt305, source-trace]
   - id: '1.10'
     chapter: Cast of characters
@@ -311,8 +313,8 @@ beats:
     visual: The destination VRG delete finishes with nothing underneath it.
     narration: >-
       Now the delete arrives. The destination VRG is deleted, finds no children,
-      and finishes. There is no group object to reconcile, so no driver call is
-      made, and DeleteVolumeGroup is never sent to that array.
+      and finishes. There is no group object to reconcile, so no replication call
+      is made for the destination group at all.
     evidence: [issue2910, source-trace]
     pause_after: 1.5
   - id: '4.5'
@@ -328,9 +330,9 @@ beats:
     chapter: No chain on the destination
     visual: Driver, controller and call shown as present. The trigger shown as absent.
     narration: >-
-      It is not a driver bug and not a missing call. The driver can delete a
-      group, and the controller does call it on delete. The call is simply never
-      triggered on the side that needs it.
+      It is not a driver bug and not a missing function. The driver has a
+      destination cleanup path, and the controller has a delete path. The call is
+      simply never triggered on the side that needs it.
     evidence: [issue1180]
   - id: '4.7'
     chapter: No chain on the destination
@@ -418,8 +420,8 @@ beats:
     narration: >-
       Why is the obvious fix not in place. The obvious fix is a group object on
       both sides for the whole life of protection. The destination would hold the
-      handle, and its deletion would trigger the call. Upstream agrees on the
-      idea. It is not safe yet.
+      handle and a child work order, and deleting them would run the destination
+      teardown. Upstream agrees on the idea. It is not safe yet.
     evidence: [issue1180, issue2910]
   - id: '6.2'
     chapter: The fix is not settled
@@ -446,7 +448,7 @@ beats:
     narration: >-
       So Ramen avoids creating it. That is a deliberate workaround, not a design.
       The cost is the orphan this video describes. The requirement is written,
-      the upstream issues exist, and neither the controller change nor the
+      the upstream issues exist, and neither the controller fix nor the
       orchestration is merged.
     evidence: [issue1180, issue2910, virt374, virt375]
   - id: '6.5'
