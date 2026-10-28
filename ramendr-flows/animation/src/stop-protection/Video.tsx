@@ -107,7 +107,7 @@ export const StopProtection: React.FC<{chapters: number[]}> = ({chapters}) => {
         </div>
       ) : null}
       {showWorld ? (
-        <div style={{position: 'absolute', left: 0, top: 0, width: 1920, height: 215, background: `linear-gradient(to bottom, ${C.bg} 0%, ${C.bg} 58%, transparent 100%)`}} />
+        <div style={{position: 'absolute', left: 0, top: 0, width: 1920, height: 213, background: `linear-gradient(to bottom, ${C.bg} 0px, ${C.bg} 190px, transparent 212px)`}} />
       ) : null}
       {seg.type === 'beat' && PANEL_BEATS.has(b.id) ? (
         <div style={{position: 'absolute', left: 860, top: 0, width: 1060, height: 1080, background: `linear-gradient(to right, transparent, ${C.bg} 70px, ${C.bg})`}} />
