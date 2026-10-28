@@ -196,7 +196,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   };
   const focus = (key: string) => (keys.length === 0 || keys.includes(key) ? 1 : 0.1);
   const chapter = phase(c.id);
-  const showGhosts = reached(c.id, '4.3');
+  const showGhosts = reached(c.id, '4.3') && !reached(c.id, '7.1');
   const ghostsProposed = reached(c.id, '6.1');
   const sessionGone = reached(c.id, '3.5');
   const sessionColor = sessionGone ? C.faint : C.orange;

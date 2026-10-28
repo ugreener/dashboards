@@ -98,7 +98,7 @@ export const StopProtection: React.FC<{chapters: number[]}> = ({chapters}) => {
     if (META[beat.id]?.card) list.push([0.04, 'pop', 0.16]);
     return list.map(([frac, name, v]) => ({at: base + Math.round(frac * beat.audio), name, v}));
   });
-  const legendFrom = ch >= 3 && !PANEL_BEATS.has(b.id);
+  const legendFrom = ch >= 3 && ch <= 6 && !PANEL_BEATS.has(b.id);
   return (
     <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
       {showWorld ? (
