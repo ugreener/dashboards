@@ -25,13 +25,6 @@ DEFAULT_PAUSE = 0.8  # seconds of silence after a beat unless beats.yaml sets pa
 # Exact-token replacements applied before generic rules (order matters: longest first).
 SPOKEN = {
     "VIRTDR-307": "VIRT D R three oh seven",
-    "VIRTDR-316": "VIRT D R three sixteen",
-    "rhel9-node-pvc-001": "R H E L nine node P V C zero zero one",
-    "rhel9-node-001": "R H E L nine node zero zero one",
-    "windows2k22-server-001": "Windows two K twenty-two server zero zero one",
-    "windows2k25-server-001": "Windows two K twenty-five server zero zero one",
-    "S3": "S three",
-    "AWS": "A W S",
     "ocp-primary": "O C P primary",
     "ocp-secondary": "O C P secondary",
     "gitops-vm-protection": "Git Ops V M protection",
