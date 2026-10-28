@@ -106,6 +106,9 @@ export const StopProtection: React.FC<{chapters: number[]}> = ({chapters}) => {
           <World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} />
         </div>
       ) : null}
+      {seg.type === 'beat' && PANEL_BEATS.has(b.id) ? (
+        <div style={{position: 'absolute', left: 860, top: 0, width: 1060, height: 1080, background: `linear-gradient(to right, transparent, ${C.bg} 70px, ${C.bg})`}} />
+      ) : null}
       {seg.type === 'beat' && cold ? <ColdOpen id={b.id} f={f} dur={b.audio} /> : null}
       {seg.type === 'beat' && (glossary || b.id === '1.1') ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
       {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={null} ticket="STOP PROTECTION" /> : null}
