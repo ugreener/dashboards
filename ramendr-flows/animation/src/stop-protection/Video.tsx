@@ -109,7 +109,7 @@ export const StopProtection: React.FC<{chapters: number[]}> = ({chapters}) => {
       {seg.type === 'beat' && cold ? <ColdOpen id={b.id} f={f} dur={b.audio} /> : null}
       {seg.type === 'beat' && (glossary || b.id === '1.1') ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
       {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={null} ticket="STOP PROTECTION" /> : null}
-      {seg.type === 'beat' && ch >= 2 ? <PhaseTracker current={ch - 1} phases={PHASES_SP} /> : null}
+      {seg.type === 'beat' && ch >= 2 ? <PhaseTracker current={ch} phases={PHASES_SP} /> : null}
       {seg.type === 'beat' && legendFrom ? <LegendSP appear={win(0.04, 0.96)} /> : null}
       {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
       {seg.type === 'beat' && m.define ? <DefinitionPanel term={m.define.term} text={m.define.text} a={win(0.05, 0.97)} bottom={150} /> : null}
