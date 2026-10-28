@@ -1,0 +1,530 @@
+# yamllint disable rule:line-length
+ticket: stop-protection
+direction: conceptual. No recorded run of stop protection with artifacts exists, so the teardown is taught from ticket records, upstream design issues and controller source.
+beats:
+  - id: '0.1'
+    chapter: Cold open
+    visual: Two sites, one application. One site empties. On the other array a group box stays lit with nothing around it.
+    narration: >-
+      An operator decides to stop protecting an application. The application must
+      keep running, with its data intact. The disaster recovery setup must
+      disappear from both sites. On the first site everything is removed. On the
+      second site one piece stays behind, and nothing that remains can name it.
+    evidence: [virt224, virt306, issue1180]
+    pause_after: 2
+  - id: '0.2'
+    chapter: Cold open
+    visual: A volume group box on the destination array, alone. A question mark where a handle record should be.
+    narration: >-
+      This is not a crash and not a failed command. The teardown ran. What stays
+      behind is a volume group on the storage array, a container for the disks
+      that replication created. The record that could have deleted it was never
+      made on that side.
+    evidence: [virt224, issue1180]
+    pause_after: 1.6
+  - id: '0.3'
+    chapter: Cold open
+    visual: The application keeps serving on one side while a leftover group sits on the other.
+    narration: >-
+      So the promise is only half kept. Protection is gone from the clusters.
+      The array still holds a group of volumes that no application uses. It
+      costs capacity, and it confuses the next setup. This video follows the
+      teardown, one handoff at a time.
+    evidence: [virt306, issue1180]
+  - id: '0.4'
+    chapter: Cold open
+    visual: An evidence label slides in and stays visible for the whole video.
+    narration: >-
+      Two notes about the evidence. The stop protection scenarios were run in
+      the lab and written up in the ticket, without logs or screenshots. Where a
+      step comes from controller source or an upstream design issue, the video
+      says so explicitly.
+    evidence: [virt224, virt306]
+    pause_after: 1.5
+  - id: '0.5'
+    chapter: Cold open
+    visual: A five step outline appears, then folds away.
+    narration: >-
+      What you will see. The objects that do the deleting. The side where the
+      chain fires. The side where it has nothing to fire. Three ways to reach the
+      same orphan. And the fix that is still being argued upstream.
+    evidence: [virt306, issue1180, issue2910]
+    pause_after: 2.2
+
+  - id: '1.1'
+    chapter: Cast of characters
+    visual: The question that organizes the whole glossary.
+    narration: >-
+      Before the teardown, meet the objects. Every one of them answers one
+      question. Who is allowed to delete the group of volumes that replication
+      created. Keep that question in mind and the chain will make sense.
+    evidence: [issue1180]
+  - id: '1.2'
+    chapter: Cast of characters
+    visual: Topology appears, hub above, two spokes below, one array under each spoke.
+    narration: >-
+      Start with the two sites. The hub at edge36 runs the control objects. The
+      spokes run the workloads. Each spoke sits next to its own PowerStore array.
+      Spoke-0 runs on edge95 with VSA-A. Spoke-1 runs on edge97 with VSA-B.
+    evidence: [virt224, virt337]
+  - id: '1.3'
+    chapter: Cast of characters
+    visual: One DRPC card and its definition.
+    card: {kind: DRPlacementControl, name: 'the application DRPC', role: 'records the request and drives both sites'}
+    def: {what: 'The hub control record for one protected application.', creator: 'The DR administrator enrolls the application.', reader: 'Ramen on the hub, and the DR console.', where: 'On the hub, in the application DR namespace.', analogy: 'A job ticket that says what should happen and how far it got.'}
+    narration: >-
+      The DRPlacementControl, or DRPC, is the hub record for one protected
+      application. It holds the policy, the protected claims and the requested
+      action. Removing protection starts here. The DRPC is deleted, and each
+      site is told to clean up its part.
+    evidence: [issue1180, source-trace]
+  - id: '1.4'
+    chapter: Cast of characters
+    visual: One primary VRG card and its definition.
+    card: {kind: VolumeReplicationGroup, name: 'the primary site manager', role: 'turns one application into per disk work orders'}
+    def: {what: 'The per site manager for a protected application disks and objects.', creator: 'Ramen creates it from the DRPC.', reader: 'Ramen, and anyone reading DR status.', where: 'On the spoke, in the DR namespace.', analogy: 'A site foreman who turns one job ticket into individual work orders.'}
+    narration: >-
+      On each spoke a VolumeReplicationGroup, or VRG, is the site manager. On the
+      primary it finds the protected claims and creates one work order per disk.
+      It is also the object whose deletion starts the storage cleanup on that
+      side.
+    evidence: [source-trace]
+  - id: '1.5'
+    chapter: Cast of characters
+    visual: One VolumeReplication card and its definition.
+    card: {kind: VolumeReplication, name: 'one work order per disk', role: 'gives one disk its replication role'}
+    def: {what: 'The request that gives one disk its replication role.', creator: 'The VRG creates it for each protected claim.', reader: 'csi-addons, then the CSI driver.', where: 'On the spoke, beside the VRG.', analogy: 'One line item on the foreman list.'}
+    narration: >-
+      A VolumeReplication is the work order for one disk. Its desired role is
+      primary, secondary or resync. csi-addons reads it and calls the storage
+      driver, and the driver asks the array to copy, promote, demote or stop.
+    evidence: [source-trace]
+  - id: '1.6'
+    chapter: Cast of characters
+    visual: One VolumeGroupReplication card and its definition.
+    card: {kind: VolumeGroupReplication, name: 'the group switch', role: 'one request for a whole volume group'}
+    def: {what: 'One request that controls a whole volume group instead of one disk.', creator: 'The VRG creates it when the policy uses group replication.', reader: 'csi-addons, then the CSI driver.', where: 'On the spoke, beside the VRG.', analogy: 'One switch for a whole rack instead of one switch per machine.'}
+    narration: >-
+      When disks replicate as a group, one VolumeGroupReplication replaces the
+      per disk work orders. It asks the driver to create, modify, promote, demote
+      or delete a whole volume group, using a single group handle.
+    evidence: [source-trace]
+  - id: '1.7'
+    chapter: Cast of characters
+    visual: One VolumeGroupReplicationContent card and its definition.
+    card: {kind: VolumeGroupReplicationContent, name: 'the handle holder', role: 'stores the group handle and the volume map'}
+    def: {what: 'The object that stores the array group handle and the volume mapping.', creator: 'csi-addons creates it while reconciling the group replication.', reader: 'csi-addons, when it calls the driver.', where: 'On the spoke, owned by the group replication.', analogy: 'The key card that matches a locker number to its owner.'}
+    narration: >-
+      The VolumeGroupReplicationContent holds the group handle itself, the
+      identifier the array gave to that group, plus the mapping from each claim
+      volume to its replica. Without this object nothing can name the group at
+      deletion time.
+    evidence: [source-trace, kb-vgr-chain]
+  - id: '1.8'
+    chapter: Cast of characters
+    visual: The DeleteVolumeGroup call, with its single argument.
+    card: {kind: 'CSI RPC', name: 'DeleteVolumeGroup', role: 'removes a group from the array by handle'}
+    def: {what: 'The CSI call that deletes a volume group from the storage array.', creator: 'A CSI driver implements it.', reader: 'csi-addons calls it while deleting a group object.', where: 'Between the cluster and the array.', analogy: 'The only form the storage desk accepts to close a locker account.'}
+    narration: >-
+      DeleteVolumeGroup is the call that removes the group from the array. It
+      takes the group handle and nothing else. If no object holds the handle on a
+      site, no caller can make this call there, however healthy the array is.
+    evidence: [issue1180, source-trace]
+  - id: '1.9'
+    chapter: Cast of characters
+    visual: The DisableVolumeReplication call on the same session.
+    card: {kind: 'CSI RPC', name: 'DisableVolumeReplication', role: 'ends the copy on one session'}
+    def: {what: 'The CSI call that stops replication for one disk or group.', creator: 'A CSI driver implements it.', reader: 'csi-addons calls it when replication objects are deleted.', where: 'Between the cluster and the array.', analogy: 'Cancelling the courier route, not the parcels.'}
+    narration: >-
+      DisableVolumeReplication ends the copy on one session. It runs when the
+      last work order for that disk is deleted. On a destination side it can also
+      be refused, because the active session still belongs to the source.
+    evidence: [virt224, virt305, source-trace]
+  - id: '1.10'
+    chapter: Cast of characters
+    visual: The application keeps running while the DR layer is peeled away.
+    card: {kind: 'Operation', name: 'stop protection', role: 'removes DR, keeps the application'}
+    def: {what: 'Removing DR for an application while the application keeps running with its data.', creator: 'The DR administrator, from the console, the CLI or YAML.', reader: 'Ramen, which removes the DR objects on both sites.', where: 'Hub and both spokes.', analogy: 'Cancelling the insurance policy, not selling the house.'}
+    narration: >-
+      One more distinction. Removing protection is not deleting the workload. The
+      virtual machine keeps running, its claim stays bound, and its volume stays
+      on the array. What disappears is the copy, the DR records and the standby.
+    evidence: [virt306, virt361]
+  - id: '1.11'
+    chapter: Cast of characters
+    visual: Recap of the cast, one line each.
+    narration: >-
+      So far. One hub record. A site manager on each side. A work order or a
+      group switch. A handle holder. And two calls that do the array work. Now
+      the teardown, and one question. Who holds the handle on each side.
+    evidence: [issue1180]
+    pause_after: 1.8
+
+  - id: '2.1'
+    chapter: Two cleanups
+    visual: Two groups appear, one built by a chain of objects, one created by the array during the first copy.
+    narration: >-
+      Why does removing protection need two cleanups. Because replication created
+      something on both arrays. The source group is created when protection is
+      enabled. The destination group is created by the array itself when the
+      first copy session starts. Kubernetes never asked for it.
+    evidence: [issue1180, issue2910]
+  - id: '2.2'
+    chapter: Two cleanups
+    visual: A chain under the source group, an empty space under the destination group.
+    narration: >-
+      That asymmetry is the whole problem. One group has a chain of objects
+      behind it. The other was a side effect of copying. To delete a side effect,
+      something on that side must hold its handle and ask for the deletion.
+    evidence: [issue1180, issue2910]
+    pause_after: 1.5
+  - id: '2.3'
+    chapter: Two cleanups
+    visual: 'Three protected things stay green: VM, claim, source volume.'
+    narration: >-
+      Three things must survive the operation. The running virtual machine. The
+      claim, still bound to its volume. And the data on the primary array. The
+      policy, the placement and the replication objects must not survive.
+    evidence: [virt306, virt361]
+  - id: '2.4'
+    chapter: Two cleanups
+    visual: 'Three things must go: session, source group, destination group.'
+    narration: >-
+      Three things must disappear. The copy session between the arrays. The
+      source volume group. And the destination volume group. Two of the three are
+      easy. The third is the one this video is about.
+    evidence: [virt306, issue1180]
+    pause_after: 1.5
+  - id: '2.5'
+    chapter: Two cleanups
+    visual: The upstream bar as one sentence, with the three checks under it.
+    narration: >-
+      Upstream states the bar in one line. After enable and then disable, both
+      sides return to a pre replication state. The session is gone, the source
+      group is deleted, and the destination group is deleted, not left as an
+      orphan.
+    evidence: [issue1180, virt306]
+  - id: '2.6'
+    chapter: Two cleanups
+    visual: Recap panel.
+    narration: >-
+      So far. Two arrays, two groups, two cleanups. The application and its data
+      stay. The question is not whether the cluster can delete a group. It is
+      whether any object on the destination side knows the group handle.
+    evidence: [issue1180]
+    pause_after: 1.8
+
+  - id: '3.1'
+    chapter: The chain that fires
+    visual: The primary side highlighted, a complete chain from DRPC down to the array.
+    narration: >-
+      Why start with the side that works. Because the broken side is easier to
+      see once you know what should have happened. The primary side is a complete
+      chain from one deleted object to one array call.
+    evidence: [source-trace, issue1180]
+  - id: '3.2'
+    chapter: The chain that fires
+    visual: DRPC fades, VRG on the primary highlighted.
+    narration: >-
+      The operator removes protection. The DRPC goes first. Ramen then deletes
+      the VRG on each spoke, and that deletion is what tells the children the
+      application is no longer protected.
+    evidence: [source-trace]
+  - id: '3.3'
+    chapter: The chain that fires
+    visual: VRG delete arrow to the group replication, then to the group content.
+    narration: >-
+      On the primary, the VRG owns a group replication and a group content.
+      Deleting the VRG deletes them in order. The group replication goes first.
+      The group content carries the handle the driver needs.
+    evidence: [source-trace, issue1180]
+  - id: '3.4'
+    chapter: The chain that fires
+    visual: Two arrows leave the cluster, one to each RPC.
+    narration: >-
+      Two calls leave the cluster. The child replication deletion ends the copy
+      with DisableVolumeReplication. The group content deletion removes the group
+      with DeleteVolumeGroup. Same group, two different jobs.
+    evidence: [source-trace, issue1180]
+  - id: '3.5'
+    chapter: The chain that fires
+    visual: Session clears, source group clears, workload volume stays.
+    narration: >-
+      The array answers. The session disappears and the source group is gone. The
+      workload volume stays. That is exactly the pre replication state the
+      requirement asks for, on this side.
+    evidence: [issue1180, virt306]
+  - id: '3.6'
+    chapter: The chain that fires
+    visual: A source line from the controller is quoted and glossed.
+    narration: >-
+      Upstream confirms that this delete path is already correct. On group object
+      deletion the driver still calls DeleteVolumeGroup with the known handle.
+      Nothing on the primary side needs to change for this to work.
+    evidence: [issue1180]
+  - id: '3.7'
+    chapter: The chain that fires
+    visual: A destination side disable is refused, and the controller records the reason.
+    narration: >-
+      One driver detail belongs here. A destination side disable can be refused
+      while the source still owns the session, and the reply names that reason.
+      The controller tolerates the refusal and moves on. That is a fix, not a
+      failure.
+    evidence: [virt224, virt305]
+    unverified: true
+  - id: '3.8'
+    chapter: The chain that fires
+    visual: Recap panel.
+    narration: >-
+      So far. Deleting the primary VRG deletes the group objects. Deleting the
+      group objects produces both array calls. The chain is short, it is ordered,
+      and it ends in a deleted group. Now look at the other side.
+    evidence: [source-trace]
+    pause_after: 1.8
+
+  - id: '4.1'
+    chapter: No chain on the destination
+    visual: The destination side, empty under the VRG.
+    narration: >-
+      Why does the same delete not work on the destination. Because a chain needs
+      a first object, and on the destination there is no first object to delete.
+      Nothing was ever created there that owns the group.
+    evidence: [issue2910, source-trace]
+  - id: '4.2'
+    chapter: No chain on the destination
+    visual: The primary VRG creates objects from claims. The secondary VRG has no claims.
+    narration: >-
+      Ramen creates a VRG only where it has work to do. A VRG is created when
+      claims exist to protect, and it creates group objects from the claims it
+      selects. The destination has no claims. It has replicas only.
+    evidence: [issue2910, source-trace]
+  - id: '4.3'
+    chapter: No chain on the destination
+    visual: 'Three empty slots on the destination: group replication, group content, child replication.'
+    narration: >-
+      No claims means no group objects. No group replication, no group content,
+      no child work order. The replica volumes exist on the array, because the
+      source created them, but no Kubernetes object on that site points at them.
+    evidence: [issue2910, issue1180]
+  - id: '4.4'
+    chapter: No chain on the destination
+    visual: The destination VRG delete finishes with nothing underneath it.
+    narration: >-
+      Now the delete arrives. The destination VRG is deleted, finds no children,
+      and finishes. There is no group object to reconcile, so no driver call is
+      made, and DeleteVolumeGroup is never sent to that array.
+    evidence: [issue2910, source-trace]
+    pause_after: 1.5
+  - id: '4.5'
+    chapter: No chain on the destination
+    visual: The key sentence, held on screen.
+    narration: >-
+      This is the sentence to remember. The cleanup chain fires where the objects
+      are. The destination group is a side effect of copying, and a side effect
+      has no object to delete.
+    evidence: [issue1180, issue2910]
+    pause_after: 2
+  - id: '4.6'
+    chapter: No chain on the destination
+    visual: Driver, controller and call shown as present. The trigger shown as absent.
+    narration: >-
+      It is not a driver bug and not a missing call. The driver can delete a
+      group, and the controller does call it on delete. The call is simply never
+      triggered on the side that needs it.
+    evidence: [issue1180]
+  - id: '4.7'
+    chapter: No chain on the destination
+    visual: Recap panel.
+    narration: >-
+      So far. No claims, no group objects, no delete call, no cleanup. The
+      destination array keeps a group that nothing in the cluster can name.
+      Everything that follows is a consequence of that one missing object.
+    evidence: [issue2910]
+    pause_after: 1.8
+
+  - id: '5.1'
+    chapter: The lab record
+    visual: Three paths entering the same result.
+    narration: >-
+      Why test three paths instead of one. Because protection can be removed from
+      three different states. Straight from protected. After a failover and a
+      resync. And after a relocate. If the orphan appears in all three, it is
+      structural, not a corner case.
+    evidence: [virt224, virt306]
+  - id: '5.2'
+    chapter: The lab record
+    visual: Path A, atomic stop.
+    narration: >-
+      The first path is the simple one. The application is protected, nothing has
+      moved, and the operator removes protection. The source group is deleted,
+      the session ends, and the destination group remains.
+    evidence: [virt224, virt306]
+  - id: '5.3'
+    chapter: The lab record
+    visual: Path B, failover then stop.
+    narration: >-
+      The second path fails over first. The application runs on the other site,
+      replication is reversed and resynced, and then protection is removed. The
+      roles have swapped, so the orphan lands on whichever array is the
+      destination at that moment.
+    evidence: [virt224, virt306]
+  - id: '5.4'
+    chapter: The lab record
+    visual: Path C, relocate then stop.
+    narration: >-
+      The third path relocates the application back to its preferred site, then
+      removes protection. Again the copy is reversed, and again the group that is
+      the destination at the end is the one left behind.
+    evidence: [virt224, virt306]
+  - id: '5.5'
+    chapter: The lab record
+    visual: The three results side by side, all the same.
+    narration: >-
+      All three were run on the edge lab, hub at edge36, spoke-0 on edge95 with
+      VSA-A, spoke-1 on edge97 with VSA-B. All three left the same result.
+      Whichever array was the destination kept its group.
+    evidence: [virt224, virt306]
+  - id: '5.6'
+    chapter: The lab record
+    visual: Two older failure reports crossed out, with the reason.
+    narration: >-
+      The record also corrected an earlier claim. Two failures reported from
+      older labs, a DRPC stuck while deleting and a circular dependency between a
+      claim and its replication, did not reproduce here. Driver changes closed
+      them. Do not repeat those reports as current.
+    evidence: [virt224, virt305]
+    pause_after: 1.6
+  - id: '5.7'
+    chapter: The lab record
+    visual: 'An array audit checklist: volume handle, destination identifier, session.'
+    narration: >-
+      One caution for anyone auditing an array. A healthy destination replica has
+      no persistent volume until it is promoted. A group is an orphan only when
+      no volume, no destination identifier and no session still refers to it.
+    evidence: [kb-setup]
+  - id: '5.8'
+    chapter: The lab record
+    visual: Recap panel.
+    narration: >-
+      So far. Three paths, one outcome. Protection removed, application intact,
+      destination group left behind. That is the finding. The fix is a separate
+      question, and it is not settled.
+    evidence: [virt224, virt306]
+    pause_after: 1.8
+
+  - id: '6.1'
+    chapter: The fix is not settled
+    visual: The proposed dual side model, drawn as a dashed outline.
+    narration: >-
+      Why is the obvious fix not in place. The obvious fix is a group object on
+      both sides for the whole life of protection. The destination would hold the
+      handle, and its deletion would trigger the call. Upstream agrees on the
+      idea. It is not safe yet.
+    evidence: [issue1180, issue2910]
+  - id: '6.2'
+    chapter: The fix is not settled
+    visual: The controller rewrites the volume list on every reconcile.
+    narration: >-
+      The blocker is in csi-addons. While a group replication is secondary, the
+      controller still treats the group content like a local owner. On every
+      reconcile it rewrites the volume list from the claim selector and calls
+      modify membership.
+    evidence: [issue1180]
+  - id: '6.3'
+    chapter: The fix is not settled
+    visual: An empty list arrives and the destination handles dim.
+    narration: >-
+      On a destination with no claims that list is empty. Modifying membership
+      with an empty list can wipe the handles that were pre filled from the
+      source. A secondary group object would damage the very thing it was created
+      to clean up.
+    evidence: [issue1180]
+    pause_after: 1.6
+  - id: '6.4'
+    chapter: The fix is not settled
+    visual: The workaround branch, with the cost highlighted.
+    narration: >-
+      So Ramen avoids creating it. That is a deliberate workaround, not a design.
+      The cost is the orphan this video describes. The requirement is written,
+      the upstream issues exist, and neither the controller change nor the
+      orchestration is merged.
+    evidence: [issue1180, issue2910, virt374, virt375]
+  - id: '6.5'
+    chapter: The fix is not settled
+    visual: Two design paths, with a maintainer note to unify them.
+    narration: >-
+      There is also a question above the code. Ramen already has a way to keep a
+      group object in secondary state for another product, and the maintainers
+      asked that any new work unify with it rather than add a second path.
+    evidence: [issue2910]
+  - id: '6.6'
+    chapter: The fix is not settled
+    visual: A direction arrow labeled not shipped.
+    narration: >-
+      What that means here. The fix is a direction, not a shipped feature. Do not
+      read this chapter as instructions for today build. Read it as the shape of
+      the work that closes the gap.
+    evidence: [issue1180, issue2910]
+  - id: '6.7'
+    chapter: The fix is not settled
+    visual: Recap panel.
+    narration: >-
+      So far. The missing object is deliberate. Creating it today would be
+      unsafe, because a secondary group object is still treated as a local owner.
+      The fix needs a controller contract first, then orchestration.
+    evidence: [issue1180]
+    pause_after: 1.8
+
+  - id: '7.1'
+    chapter: What the record proves
+    visual: Three evidence tiers, with the observed tier lit.
+    narration: >-
+      Here is the boundary of the evidence. The outcome was observed in the lab
+      on three paths. The mechanism is described in upstream design issues and in
+      the controller files they cite. No run log, no postcheck and no screenshot
+      were attached to the ticket.
+    evidence: [virt224, virt306]
+    pause_after: 1.6
+  - id: '7.2'
+    chapter: What the record proves
+    visual: Seen, documented, proposed, in three columns.
+    narration: >-
+      So the video separates three kinds of claim. What was seen. Protection
+      removed and a group left behind. What is documented. Which object is
+      missing and why. And what is proposed. The dual side group design. Only the
+      first is an observation.
+    evidence: [virt224, issue1180, issue2910]
+  - id: '7.3'
+    chapter: What the record proves
+    visual: What a re-run would capture, as a checklist.
+    narration: >-
+      What would tighten it. A re-run of the three paths with the group objects
+      captured before and after, the driver log lines for both array calls, and
+      the group and session lists on both arrays. That turns the mechanism into a
+      recording.
+    evidence: [virt224, virt306]
+  - id: '7.4'
+    chapter: What the record proves
+    visual: The orphan test, four checks.
+    narration: >-
+      If you meet this on a real array, check in this order. The group exists. No
+      active volume handle uses it. No replication destination identifier names
+      it. No session refers to it. Only then is it an orphan and not a standby.
+    evidence: [kb-setup]
+  - id: '7.5'
+    chapter: What the record proves
+    visual: Two array snapshots, before and after.
+    narration: >-
+      And the practical rule for today. Before removing protection, record what
+      exists on both arrays. After it, check again. The cluster will look clean in
+      both cases, so the arrays are the only place the difference shows.
+    evidence: [virt224, kb-setup]
+  - id: '7.6'
+    chapter: What the record proves
+    visual: The one sentence, then the full chain recap.
+    narration: >-
+      The one sentence to remember. Removing protection deletes what Kubernetes
+      owns, and the destination group was never a Kubernetes object. Until
+      something on that side owns its handle, it stays.
+    evidence: [issue1180, issue2910]
+    pause_after: 2.4
