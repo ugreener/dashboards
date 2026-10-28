@@ -24,9 +24,9 @@ export const NODES: Record<string, Node> = {
 export const RECT = Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k, n.box])) as Record<string, Box>;
 
 export const REGIONS: {key: string; b: {x: number; y: number; w: number; h: number}; title: string; sub?: string; color: string}[] = [
-  {key: 'hub', b: {x: 60, y: 30, w: 2280, h: 240}, title: 'HUB · edge36', sub: 'control objects', color: C.blue},
-  {key: 's0', b: {x: 60, y: 305, w: 1120, h: 400}, title: 'SPOKE-0 · edge95', sub: 'primary side', color: C.spoke0},
-  {key: 's1', b: {x: 1220, y: 305, w: 1120, h: 400}, title: 'SPOKE-1 · edge97', sub: 'destination side', color: C.spoke1},
+  {key: 'hub', b: {x: 60, y: 30, w: 2280, h: 240}, title: 'HUB · edge36', color: C.blue},
+  {key: 's0', b: {x: 60, y: 305, w: 1120, h: 400}, title: 'SPOKE-0 · edge95', color: C.spoke0},
+  {key: 's1', b: {x: 1220, y: 305, w: 1120, h: 400}, title: 'SPOKE-1 · edge97', color: C.spoke1},
   {key: 'a', b: {x: 60, y: 745, w: 1120, h: 735}, title: 'VSA-A', sub: 'PS3b37452a6e0f', color: C.array},
   {key: 'b', b: {x: 1220, y: 745, w: 1120, h: 735}, title: 'VSA-B', sub: 'PSff392f423bd6', color: C.array},
 ];
@@ -89,7 +89,7 @@ export const FOCUS: Record<string, string[]> = {
   '5.2': ['groupB'],
   '5.3': ['groupB', 'groupA'],
   '5.4': ['groupB', 'groupA'],
-  '5.5': ['groupA', 'groupB'],
+  '5.5': ['groupA', 'volA', 'groupB', 'repB'],
   '5.6': ['vrg1', 'groupB'],
   '5.7': ['groupB', 'repB'],
   '5.8': ['groupB'],
@@ -196,7 +196,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   };
   const focus = (key: string) => (keys.length === 0 || keys.includes(key) ? 1 : 0.1);
   const chapter = phase(c.id);
-  const showGhosts = reached(c.id, '4.3') && !reached(c.id, '7.1');
+  const showGhosts = (reached(c.id, '4.3') && !reached(c.id, '5.1')) || (reached(c.id, '6.1') && !reached(c.id, '7.1'));
   const ghostsProposed = reached(c.id, '6.1');
   const sessionGone = reached(c.id, '3.5');
   const sessionColor = sessionGone ? C.faint : C.orange;
@@ -205,9 +205,9 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
   return (
     <div style={{position: 'absolute', width: 2400, height: 1520, opacity: appearWorld}}>
-      <Region b={{x: 60, y: 30, w: 2280, h: 240}} title="HUB · edge36" sub="control objects" color={C.blue} />
-      <Region b={{x: 60, y: 305, w: 1120, h: 400}} title="SPOKE-0 · edge95" sub="primary side" color={C.spoke0} />
-      <Region b={{x: 1220, y: 305, w: 1120, h: 400}} title="SPOKE-1 · edge97" sub="destination side" color={C.spoke1} />
+      <Region b={{x: 60, y: 30, w: 2280, h: 240}} title="HUB · edge36" color={C.blue} />
+      <Region b={{x: 60, y: 305, w: 1120, h: 400}} title="SPOKE-0 · edge95" color={C.spoke0} />
+      <Region b={{x: 1220, y: 305, w: 1120, h: 400}} title="SPOKE-1 · edge97" color={C.spoke1} />
       <Region b={{x: 60, y: 745, w: 1120, h: 735}} title="VSA-A" sub="PS3b37452a6e0f" color={C.array} glow={orphans ? 0 : 0.15} />
       <Region b={{x: 1220, y: 745, w: 1120, h: 735}} title="VSA-B" sub="PSff392f423bd6" color={C.array} glow={orphans ? 0.5 : 0.15} />
 
@@ -241,7 +241,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       })}
 
       {Object.entries(GHOSTS).map(([key, g]) => {
-        const visible = key === 'noCall' ? reached(c.id, '4.6') : showGhosts;
+        const visible = key === 'noCall' ? phase(c.id) === 4 && reached(c.id, '4.6') : showGhosts;
         if (!visible) return null;
         const st = status(key);
         const prop = ghostsProposed && key !== 'noCall';
@@ -311,7 +311,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
           </g>
         ) : null}
 
-        {chapter >= 2 ? (
+        {chapter >= 2 && chapter <= 3 ? (
           <g opacity={prog(c.f, 0, 26) * (sessionGone ? 0.45 : 1)}>
             <path d="M345,1160 L345,1330 L1505,1330 L1505,1160" fill="none" stroke={sessionColor} strokeWidth={5} strokeDasharray={sessionGone ? '10 10' : undefined} markerEnd="url(#spTipO)" />
             <rect x={790} y={1303} width={430} height={44} rx={12} fill={C.bg} />
@@ -319,11 +319,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
           </g>
         ) : null}
 
-        {orphans ? (
-          <g opacity={prog(c.f, 0, 20)}>
-            <text x={1310} y={1240} fill={C.red} fontSize={22} fontFamily={sans}>no object on this side names this group</text>
-          </g>
-        ) : null}
+
       </svg>
     </div>
   );
