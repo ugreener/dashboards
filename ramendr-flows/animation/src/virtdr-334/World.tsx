@@ -174,7 +174,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         <rect x={70} y={1085} width={2340} height={300} rx={22} fill={`${C.bg2}dd`} stroke={`${C.cyan}aa`} strokeWidth={2.5}/>
         <text x={1200} y={1122} textAnchor="middle" fill={C.cyan} fontSize={23} fontFamily={sans} fontWeight={700}>{bandTitle}</text>
       </g> : null}
-      {ch >= 2 ? <g opacity={reversed ? 1 : .9}>
+      {ch >= 2 && ch <= 4 ? <g opacity={reversed ? 1 : .9}>
         <path d={reversed ? 'M1178,905 L1368,905' : 'M1368,905 L1178,905'} fill="none" stroke={C.orange} strokeWidth={6} markerEnd="url(#tip334)"/>
         <text x={1273} y={882} textAnchor="middle" fill={C.orange} fontSize={19} fontFamily={sans}>copies</text>
         <text x={1273} y={946} textAnchor="middle" fill={C.dim} fontSize={17} fontFamily={mono}>RPO 900s</text>
@@ -227,7 +227,7 @@ const JobBand: React.FC<{id: string}> = ({id}) => {
   const firstData = jx(13, 44, 17);
   const gateFor = (h: number, m: number, k: string, row: 'root' | 'data') => {
     if (k === 'failover') return '3.2';
-    if (k === 'reprotect') return '3.5';
+    if (k === 'reprotect') return '3.4';
     if (h === 13 && m === 22) return '3.1';
     if (row === 'data') return h === 13 && m === 44 ? '4.5' : '4.6';
     return h === 13 && m === 36 ? '4.2' : '4.6';
@@ -264,7 +264,7 @@ const JobBand: React.FC<{id: string}> = ({id}) => {
       <text x={jx(13, 26, 43)} y={rootY - 30} textAnchor="middle" fill={C.red} fontSize={15} fontFamily={sans}>2 FAILED</text>
     </g> : null}
 
-    {showRepro && show(id, '3.5') ? <text x={jx(13, 26, 45) + 14} y={1352} fill={C.green} fontSize={18} fontFamily={sans}>reprotect COMPLETED 13:26:45</text> : null}
+    {showRepro && show(id, '3.4') ? <text x={jx(13, 26, 45) + 14} y={1352} fill={C.green} fontSize={18} fontFamily={sans}>reprotect COMPLETED 13:26:45</text> : null}
 
     {show(id, '4.2') ? <text x={jx(13, 36, 57)} y={rootY - 26} textAnchor="middle" fill={C.cyan} fontSize={18} fontFamily={sans}>first copy 13:36:57</text> : null}
 

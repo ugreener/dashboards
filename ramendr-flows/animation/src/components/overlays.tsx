@@ -175,7 +175,7 @@ export const TimelineBar: React.FC<{now: string | null; events?: TEvent[]; marke
             <text y={i % 2 ? 40 : -20} textAnchor="middle" fill={done ? C.text : C.dim} fontFamily={sans} fontSize={17} fontWeight={600}>
               {label}
             </text>
-            <text y={i % 2 ? 62 : -40} textAnchor="middle" fill={C.dim} fontFamily={mono} fontSize={15}>
+            <text y={i % 2 ? 82 : -40} textAnchor="middle" fill={C.dim} fontFamily={mono} fontSize={15}>
               {t}
             </text>
           </g>
