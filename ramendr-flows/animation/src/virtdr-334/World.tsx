@@ -33,11 +33,11 @@ export const BAND_BOX: Box = [70, 1085, 2340, 300];
 export const RECT: Record<string, Box> = {...Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k, n.box])), band: BAND_BOX};
 
 export const FOCUS: Record<string, string[]> = {
-  '2.1': ['vrg1', 'vr1r', 'vr1d', 'sb_r', 'sb_d', 'band'],
-  '2.2': ['vrg1', 'vr1r', 'vr1d', 'sb_r', 'sb_d', 'band'],
+  '2.1': ['sb_r', 'sb_d', 'band'],
+  '2.2': ['sb_r', 'sb_d', 'band'],
   '2.3': ['policy', 'drpc'],
   '2.4': ['drpc', 'policy'],
-  '2.5': ['vrg1', 'vr1r', 'vr1d', 'sb_r', 'sb_d', 'band'],
+  '2.5': ['sb_r', 'sb_d', 'band'],
   '3.1': ['drpc'],
   '3.2': ['sa_r', 'sa_d', 'sb_r', 'sb_d'],
   '3.3': ['drpc', 'vrg1', 'vr1r', 'vr1d', 'sa_r', 'sa_d'],
@@ -170,7 +170,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       <defs>
         <marker id="tip334" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto"><path d="M0,0 L0,8 L11,4 z" fill={C.orange}/></marker>
       </defs>
-      {ch >= 2 ? <g opacity={rop('band')}>
+      {ch >= 2 && ch !== 6 ? <g opacity={rop('band')}>
         <rect x={70} y={1085} width={2340} height={300} rx={22} fill={`${C.bg2}dd`} stroke={`${C.cyan}aa`} strokeWidth={2.5}/>
         <text x={1200} y={1122} textAnchor="middle" fill={C.cyan} fontSize={23} fontFamily={sans} fontWeight={700}>{bandTitle}</text>
       </g> : null}

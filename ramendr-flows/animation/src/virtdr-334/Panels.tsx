@@ -24,7 +24,6 @@ export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: 
   '7.1': {title: 'The lab gate', rows: ['Two COMPLETED scheduled copies per disk.', 'Since the protection was created or last reversed.', 'Each carrying writes, with no failed jobs.', 'Every gap and the latest copy within the RPO.', 'Applied in the site-down run, VIRTDR-342.'], color: C.cyan},
   '7.3': {title: 'VIRTDR-361 · GA requirements', rows: ['Expose basic protection status.', 'Show the last successful synchronization timestamp.', 'Support planned and unplanned failover, failback, and re-protection.', 'Confirm automatic re-protection after cleanup.'], color: C.green},
   '7.5': {title: 'What stays unverified', rows: ['Why the two disks differed.', 'Whether the first interval is expected scheduling or a defect.', 'Whether the failed reprotect attempts matter.', 'The record shows the timing, not the cause.'], color: C.amber},
-  '7.7': {title: 'The finding', rows: ['Root first copy 13:36:57 · 10m 12s · inside the promise', 'Data first copy 13:44:17 · 17m 32s · outside by 2m 32s', 'The session stayed OK · no alert', 'Next data copy 13:56:17 · cadence restored', 'Measure the first copy, not the badge.'], color: C.cyan},
 };
 
 export const PANEL_BEATS = new Set(Object.keys(PANEL_DATA));
