@@ -23,12 +23,15 @@ import {VsaCascade} from './virtdr-337/Video';
 import {buildTimeline as buildTimeline337} from './virtdr-337/timeline';
 import {StopProtection} from './stop-protection/Video';
 import {buildTimeline as buildTimelineSP} from './stop-protection/timeline';
+import {ReprotectWindow} from './virtdr-334/Video';
+import {buildTimeline as buildTimeline334} from './virtdr-334/timeline';
 
 const ALL_291 = Array.from({length: 14}, (_, i) => i);
 const ALL_342 = Array.from({length: 10}, (_, i) => i);
 const ALL_307 = Array.from({length: 9}, (_, i) => i);
 const ALL_337 = Array.from({length: 8}, (_, i) => i);
 const ALL_SP = Array.from({length: 8}, (_, i) => i);
+const ALL_334 = Array.from({length: 8}, (_, i) => i);
 
 const ALL = Array.from({length: 16}, (_, i) => i);
 const ALL_CL = Array.from({length: 8}, (_, i) => i);
@@ -39,6 +42,15 @@ const ALL_343R = Array.from({length: 8}, (_, i) => i);
 
 export const Root: React.FC = () => (
   <>
+    <Composition
+      id="virtdr-334"
+      component={ReprotectWindow}
+      durationInFrames={Math.max(1, buildTimeline334(ALL_334).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_334}}
+    />
     <Composition
       id="stop-protection"
       component={StopProtection}

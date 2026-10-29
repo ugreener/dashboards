@@ -112,12 +112,37 @@ only. This avoids repeating the ambiguity of the Relocate schedule investigation
   or to a different array model. Only the planned failover and the same-volume
   creation case are recorded.
 
-## Controller path
+## Controller path (upstream source trace)
 
-The video teaches array behaviour, not controller internals. It states that the driver
-runs the failover and reprotect operations after the console writes the DRPC action.
-The exact controller call order is not shown on screen. An upstream source trace is
-recorded separately and any step not confirmed there stays out of the narration.
+Read from the default branches of `RamenDR/ramen`, `csi-addons/kubernetes-csi-addons`
+and `dell/csi-powerstore`. One beat narrates this chain; the rest of the video stays on
+observed array behaviour.
+
+1. Ramen sets the desired state. `DRPCInstance.RunFailover`
+   (`internal/controller/drplacementcontrol.go:430-510`) promotes the target VRG and
+   moves the progression to `Cleaning Up`, then `EnsureCleanup` ->
+   `cleanupSecondary` -> `updateVRGState(cluster, rmn.Secondary)` (2395).
+2. The VRG controller writes `ReplicationState: Secondary` and `AutoResync: true` on
+   the old source VolumeReplications (`internal/controller/vrg_volrep.go:1442-1475`,
+   1494-1495).
+3. csi-addons demotes, then calls resync because auto-resync is set
+   (`internal/controller/replication.storage/volumereplication_controller.go:358-383`).
+4. The array Failover action is issued by csi-powerstore in `PromoteVolume` ->
+   `promoteVolumeForVolume` -> `ExecuteAction(..., RsActionFailover)`
+   (`pkg/controller/csiaddons_replication.go:1008-1014`;
+   `pkg/controller/replication.go:270-283`).
+5. Reprotect is issued in `resyncVolumeForVolume` when the session is `Failed_Over`
+   and the local role is Source (`csiaddons_replication.go:1609-1619`). The promote
+   path never calls Reprotect. Demote on a Failed_Over source is an explicit no-op
+   (`1315-1322`).
+6. No Kubernetes controller schedules the first array copy. After Reprotect,
+   `ResyncVolume` returns `Ready:false` and polls session states
+   (`1585-1593`). That the array performs the first sync from the replication rule is
+   **UNVERIFIED by code** and is stated as array behaviour only, backed by the job
+   history.
+7. `GetVolumeReplicationInfo` sets `LastSyncTime = timestamppb.Now()` for an OK
+   session (`csiaddons_replication.go:1862-1866`), which is the VIRTDR-333 defect used
+   as a one-line reference in chapter 7.
 
 ## Corrections and cautions
 

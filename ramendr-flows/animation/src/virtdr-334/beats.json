@@ -80,7 +80,7 @@
   },
   "def": {
    "what": "The operation that resumes a failed-over session in the reverse direction and begins synchronization to the original source.",
-   "creator": "The driver, after a failover.",
+   "creator": "The driver, during resync after a failover.",
    "reader": "The array, which then schedules the first copy in the new direction.",
    "where": "The session job history on the new source array.",
    "analogy": "Re-opening a route after the one-way sign flips. The first pickup still has to be scheduled."
@@ -184,16 +184,19 @@
   "chapter": "The reversal"
  },
  "3.3": {
-  "chapter": "The reversal",
-  "unverified": "Why the first reprotect attempts failed is not recorded."
+  "chapter": "The reversal"
  },
  "3.4": {
-  "chapter": "The reversal"
+  "chapter": "The reversal",
+  "unverified": "Why the first reprotect attempts failed is not recorded."
  },
  "3.5": {
   "chapter": "The reversal"
  },
  "3.6": {
+  "chapter": "The reversal"
+ },
+ "3.7": {
   "chapter": "The reversal"
  },
  "4.1": {

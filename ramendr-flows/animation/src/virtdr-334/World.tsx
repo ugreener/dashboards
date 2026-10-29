@@ -12,12 +12,14 @@ export const NODES: Record<string, Node> = {
   gate: {kind: 'Preflight check', name: 'two completed copies', role: 'since creation or last reversal', scope: 'lab runbook', box: [1750, 100, 610, 150], color: C.cyan},
 
   vm0: {kind: 'VirtualMachine', name: 'hammerdb-rhel9', role: 'the recovered database VM', scope: 'spoke-0 · gitops-vms', box: [110, 395, 520, 150], color: C.green},
+  nowork0: {kind: 'Workload', name: 'no VirtualMachine', role: 'standby site before the move', scope: 'spoke-0 · gitops-vms', box: [110, 395, 520, 150], color: C.dim},
   vrg0: {kind: 'VolumeReplicationGroup', name: 'dell-vm-drpc', role: 'coordinates both disks on this site', scope: 'spoke-0 · gitops-vms', box: [670, 395, 480, 150], color: C.spoke0},
   vr0r: {kind: 'VolumeReplication', name: 'hammerdb-rhel9-rootdisk', role: 'root disk work order', scope: 'spoke-0 · gitops-vms', box: [110, 575, 520, 85], color: C.amber, nameSize: 19},
   vr0d: {kind: 'VolumeReplication', name: 'hammerdb-rhel9-datadisk', role: 'data disk work order', scope: 'spoke-0 · gitops-vms', box: [670, 575, 480, 85], color: C.amber, nameSize: 19},
 
   vrg1: {kind: 'VolumeReplicationGroup', name: 'dell-vm-drpc', role: 'standby side after the move', scope: 'spoke-1 · gitops-vms', box: [1380, 395, 480, 150], color: C.spoke1},
-  nowork: {kind: 'Workload', name: 'no VirtualMachine', role: 'GitOps removed it after the move', scope: 'spoke-1 · gitops-vms', box: [1900, 395, 480, 150], color: C.dim},
+  nowork1: {kind: 'Workload', name: 'no VirtualMachine', role: 'GitOps removed it after the move', scope: 'spoke-1 · gitops-vms', box: [1900, 395, 480, 150], color: C.dim},
+  vm1: {kind: 'VirtualMachine', name: 'hammerdb-rhel9', role: 'the VM before the move', scope: 'spoke-1 · gitops-vms', box: [1900, 395, 480, 150], color: C.green},
   vr1r: {kind: 'VolumeReplication', name: 'hammerdb-rhel9-rootdisk', role: 'standby work order', scope: 'spoke-1 · gitops-vms', box: [1380, 575, 480, 85], color: C.amber, nameSize: 19},
   vr1d: {kind: 'VolumeReplication', name: 'hammerdb-rhel9-datadisk', role: 'standby work order', scope: 'spoke-1 · gitops-vms', box: [1900, 575, 480, 85], color: C.amber, nameSize: 19},
 
@@ -34,14 +36,15 @@ export const FOCUS: Record<string, string[]> = {
   '2.1': ['sb_r', 'sb_d', 'band'],
   '2.2': ['sb_r', 'sb_d', 'band'],
   '2.3': ['policy', 'drpc'],
-  '2.4': ['console', 'drpc'],
+  '2.4': ['drpc', 'policy'],
   '2.5': ['sb_r', 'sb_d', 'band'],
-  '3.1': ['drpc', 'console'],
+  '3.1': ['drpc'],
   '3.2': ['sa_r', 'sa_d', 'sb_r', 'sb_d'],
-  '3.3': ['sa_r', 'sa_d', 'band'],
+  '3.3': ['drpc', 'vrg1', 'vr1r', 'vr1d', 'sa_r', 'sa_d'],
   '3.4': ['sa_r', 'sa_d', 'band'],
-  '3.5': ['console', 'vm0'],
-  '3.6': ['sa_r', 'sa_d', 'band'],
+  '3.5': ['sa_r', 'sa_d', 'band'],
+  '3.6': ['console', 'vm0'],
+  '3.7': ['sa_r', 'sa_d', 'band'],
   '4.1': ['sa_r', 'sa_d'],
   '4.2': ['band'],
   '4.3': ['band'],
@@ -81,11 +84,13 @@ const BASE: Record<string, string> = {
   console: 'all volumes are synced',
   gate: 'two COMPLETED copies',
   vm0: 'Running · worker-2',
+  vm1: 'Running · source site',
+  nowork0: 'no workload yet',
+  nowork1: 'removed by GitOps',
   vrg0: 'Primary',
   vr0r: 'Primary',
   vr0d: 'Primary',
   vrg1: 'Secondary',
-  nowork: 'removed by GitOps',
   vr1r: 'Secondary',
   vr1d: 'Secondary',
   sa_r: 'Source · OK',
@@ -100,8 +105,8 @@ export const CH: [string, number, string, string][] = [
   ['3.2', 0.2, 'sb_r', 'Destination · failed over'],
   ['3.2', 0.2, 'sb_d', 'Destination · failed over'],
   ['3.2', 0.2, 'drpc', 'FailedOver · Cleaning Up'],
-  ['3.3', 0.2, 'sa_r', 'Source · reprotected 13:26:45'],
-  ['3.3', 0.2, 'sa_d', 'Source · reprotected 13:26:45'],
+  ['3.5', 0.2, 'sa_r', 'Source · reprotected 13:26:45'],
+  ['3.5', 0.2, 'sa_d', 'Source · reprotected 13:26:45'],
   ['4.2', 0.2, 'sa_r', 'Source · OK · last 13:37:01'],
   ['4.4', 0.2, 'sa_d', 'Source · OK · last 13:22:27'],
   ['4.5', 0.2, 'sa_d', 'Source · OK · last 13:45:11'],
@@ -115,6 +120,17 @@ export const CH: [string, number, string, string][] = [
 export const World: React.FC<{c: Ctx}> = ({c}) => {
   const keys = FOCUS[c.id] ?? [];
   const status = (key: string) => {
+    if (ch === 6) {
+      if (key === 'sa_r') return '10-06 lifecycle · last 19:24:56';
+      if (key === 'sa_d') return '10-06 lifecycle · last 19:10:10';
+    }
+    if (!reversed) {
+      if (key === 'drpc') return 'Deployed · Completed';
+      if (key === 'vrg0' || key.startsWith('vr0')) return 'Secondary';
+      if (key === 'vrg1' || key.startsWith('vr1')) return 'Primary';
+      if (key.startsWith('sa_')) return 'Destination · OK';
+      if (key.startsWith('sb_')) return 'Source · OK';
+    }
     let v = BASE[key] ?? '';
     for (const [beat, frac, k, value] of CH) if (k === key && reached(c.id, beat) && (c.id !== beat || c.f > c.dur * frac)) v = value;
     return v;
@@ -123,7 +139,12 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   const ch = phase(c.id);
   const reversed = reached(c.id, '3.2');
   const afterFailover = reached(c.id, '3.2');
-  const appear = (key: string) => (key === 'gate' ? (reached(c.id, '7.1') ? prog(c.f, -15, 35) : 0) : ch === 2 ? prog(c.f, -15, 35) : 1);
+  const appear = (key: string) => {
+    if (key === 'gate') return reached(c.id, '7.1') ? prog(c.f, -15, 35) : 0;
+    if (key === 'vm1' || key === 'nowork1') return ch === 2 ? 1 : 0;
+    if (key === 'vm0' || key === 'nowork0') return ch === 2 ? 0 : 1;
+    return ch === 2 && c.id === '2.1' ? prog(c.f, -15, 35) : 1;
+  };
   return <div style={{position: 'absolute', width: 2480, height: 1420}}>
     <Region b={{x: 70, y: 45, w: 2340, h: 250}} title="HUB · edge36" sub="Ramen control objects and the operator view" color={C.blue}/>
     <Region b={{x: 70, y: 335, w: 1100, h: 350}} title="SPOKE-0 · edge95" sub={afterFailover ? 'workload site after the failover' : 'standby before the failover'} color={C.spoke0}/>
@@ -159,7 +180,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
           })}
         </g>
       ) : null}
-      {ch >= 3 ? <JobBand id={c.id}/> : null}
+      {ch >= 3 && ch !== 6 ? <JobBand id={c.id}/> : null}
     </svg>
   </div>;
 };
@@ -190,8 +211,15 @@ const JobBand: React.FC<{id: string}> = ({id}) => {
   const col = (k: string) => (k === 'sync' ? C.cyan : k === 'failover' ? C.amber : C.green);
   const deadline = jx(13, 41, 45);
   const firstData = jx(13, 44, 17);
-  const bar = (jobs: [number, number, number, string][], y: number) => jobs.map(([h, m, s, k]) => {
-    const gate = k === 'sync' && h >= 13 && m >= 30 && s >= 57 ? '4.2' : k === 'sync' && (h > 13 || (h === 13 && m >= 44)) ? '4.5' : k === 'sync' ? '3.1' : k === 'failover' ? '3.2' : '3.3';
+  const gateFor = (h: number, m: number, k: string, row: 'root' | 'data') => {
+    if (k === 'failover') return '3.2';
+    if (k === 'reprotect') return '3.5';
+    if (h === 13 && m === 22) return '3.1';
+    if (row === 'data') return h === 13 && m === 44 ? '4.5' : '4.6';
+    return h === 13 && m === 36 ? '4.2' : '4.6';
+  };
+  const bar = (jobs: [number, number, number, string][], y: number, row: 'root' | 'data') => jobs.map(([h, m, s, k]) => {
+    const gate = gateFor(h, m, k, row);
     if (!show(id, gate)) return null;
     const x = jx(h, m, s);
     return <g key={`${y}-${h}-${m}-${s}`}>
@@ -211,23 +239,23 @@ const JobBand: React.FC<{id: string}> = ({id}) => {
     <text x={160} y={1280} fill={C.dim} fontSize={19} fontFamily={sans}>data</text>
     <line x1={170} y1={rootY} x2={2350} y2={rootY} stroke={`${C.border}88`} strokeWidth={1.5}/>
     <line x1={170} y1={dataY} x2={2350} y2={dataY} stroke={`${C.border}88`} strokeWidth={1.5}/>
-    {bar(rootJobs, rootY)}
-    {bar(dataJobs, dataY)}
+    {bar(rootJobs, rootY, 'root')}
+    {bar(dataJobs, dataY, 'data')}
 
-    {show(id, '3.3') ? <g>
+    {show(id, '3.4') ? <g>
       <rect x={jx(13, 26, 43) - 4} y={dataY - 22} width={8} height={44} rx={2} fill={C.red} opacity={.9}/>
       <text x={jx(13, 26, 43)} y={dataY - 30} textAnchor="middle" fill={C.red} fontSize={15} fontFamily={sans}>3 FAILED</text>
       <rect x={jx(13, 26, 43) - 4} y={rootY - 22} width={8} height={44} rx={2} fill={C.red} opacity={.9}/>
       <text x={jx(13, 26, 43)} y={rootY - 30} textAnchor="middle" fill={C.red} fontSize={15} fontFamily={sans}>2 FAILED</text>
     </g> : null}
 
-    {show(id, '3.4') ? <text x={jx(13, 26, 45) + 16} y={1338} fill={C.green} fontSize={18} fontFamily={sans}>reprotect COMPLETED 13:26:45</text> : null}
+    {show(id, '3.5') ? <text x={jx(13, 26, 45) + 16} y={1338} fill={C.green} fontSize={18} fontFamily={sans}>reprotect COMPLETED 13:26:45</text> : null}
 
     {show(id, '4.2') ? <text x={jx(13, 36, 57)} y={rootY - 26} textAnchor="middle" fill={C.cyan} fontSize={18} fontFamily={sans}>first copy 13:36:57</text> : null}
 
     {show(id, '4.3') ? <g>
       <line x1={deadline} y1={1180} x2={deadline} y2={1330} stroke={C.red} strokeWidth={2.5} strokeDasharray="8 7"/>
-      <text x={deadline + 8} y={1372} fill={C.red} fontSize={18} fontFamily={sans}>RPO deadline 13:41:45</text>
+      <text x={deadline - 10} y={1372} textAnchor="end" fill={C.red} fontSize={18} fontFamily={sans}>RPO deadline 13:41:45</text>
     </g> : null}
 
     {show(id, '4.3') ? <g opacity={show(id, '4.5') ? 1 : .55}>
@@ -236,7 +264,7 @@ const JobBand: React.FC<{id: string}> = ({id}) => {
 
     {show(id, '4.5') ? <g>
       <text x={firstData} y={dataY - 26} textAnchor="middle" fill={C.orange} fontSize={18} fontFamily={sans}>first copy 13:44:17</text>
-      <text x={(deadline + firstData) / 2} y={dataY + 44} textAnchor="middle" fill={C.red} fontSize={17} fontFamily={sans}>2m 32s past</text>
+      <text x={(deadline + firstData) / 2} y={dataY + 40} textAnchor="middle" fill={C.red} fontSize={17} fontFamily={sans}>2m 32s past</text>
     </g> : null}
 
     {show(id, '4.6') ? <text x={jx(13, 56, 17)} y={dataY - 26} textAnchor="middle" fill={C.cyan} fontSize={17} fontFamily={sans}>13:56:17</text> : null}

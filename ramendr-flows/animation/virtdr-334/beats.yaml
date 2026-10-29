@@ -90,7 +90,7 @@ beats:
   - id: '1.6'
     chapter: Cast of characters
     card: {kind: "Array operation", name: "Reprotect replication session", role: "starts copying in the new direction"}
-    def: {what: "The operation that resumes a failed-over session in the reverse direction and begins synchronization to the original source.", creator: "The driver, after a failover.", reader: "The array, which then schedules the first copy in the new direction.", where: "The session job history on the new source array.", analogy: "Re-opening a route after the one-way sign flips. The first pickup still has to be scheduled."}
+    def: {what: "The operation that resumes a failed-over session in the reverse direction and begins synchronization to the original source.", creator: "The driver, during resync after a failover.", reader: "The array, which then schedules the first copy in the new direction.", where: "The session job history on the new source array.", analogy: "Re-opening a route after the one-way sign flips. The first pickup still has to be scheduled."}
     narration: >-
       Reprotect is the operation that starts copying in the new direction after a
       failover. It resumes the session and begins a synchronization back to the
@@ -214,6 +214,16 @@ beats:
 
   - id: '3.3'
     chapter: The reversal
+    visual: The handoff chain from DRPC to driver to array, then the session cards.
+    narration: >-
+      After the failover, Ramen marked the old source secondary. csi-addons then
+      asked the driver to resync, and the driver issued reprotect on the array. That
+      is the handoff that starts the new direction.
+    evidence: Ramen vrg_volrep autoResync, csi-addons ResyncVolume, csi-powerstore resyncVolumeForVolume
+    pause_after: 1.4
+
+  - id: '3.4'
+    chapter: The reversal
     visual: Four reprotect ticks, three red then one green.
     narration: >-
       Reprotect did not succeed on the first try. The data session recorded three
@@ -224,7 +234,7 @@ beats:
     unverified: Why the first reprotect attempts failed is not recorded.
     pause_after: 1.6
 
-  - id: '3.4'
+  - id: '3.5'
     chapter: The reversal
     visual: A clock starts at 13:26:45 on the job history.
     narration: >-
@@ -234,7 +244,7 @@ beats:
     evidence: VIRTDR-334 reprotect COMPLETED 13:26:45
     pause_after: 1.5
 
-  - id: '3.5'
+  - id: '3.6'
     chapter: The reversal
     visual: The console row stays healthy; the array history stays empty.
     narration: >-
@@ -243,7 +253,7 @@ beats:
       history has not said anything yet.
     evidence: VIRTDR-292 screenshot 28, console row on spoke-0
 
-  - id: '3.6'
+  - id: '3.7'
     chapter: The reversal
     visual: Two sessions now Source on VSA-A, one clock at 13:26:45.
     narration: >-
