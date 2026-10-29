@@ -100,21 +100,26 @@
     "pause": 1.4
   },
   "3.3": {
+    "seconds": 12.544,
+    "voice": "af_heart",
+    "pause": 1.4
+  },
+  "3.4": {
     "seconds": 23.467,
     "voice": "af_heart",
     "pause": 1.6
   },
-  "3.4": {
+  "3.5": {
     "seconds": 15.147,
     "voice": "af_heart",
     "pause": 1.5
   },
-  "3.5": {
+  "3.6": {
     "seconds": 12.181,
     "voice": "af_heart",
     "pause": 0.8
   },
-  "3.6": {
+  "3.7": {
     "seconds": 13.013,
     "voice": "af_heart",
     "pause": 0.8
