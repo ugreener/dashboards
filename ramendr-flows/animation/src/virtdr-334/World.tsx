@@ -150,15 +150,17 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   const rop = (g: string) => (keys.length === 0 || GROUPS[g].some(k => keys.includes(k)) ? 1 : 0.35);
   const appear = (key: string) => {
     if (key === 'gate') return reached(c.id, '7.1') ? prog(c.f, -15, 35) : 0;
-    if (key === 'vm1' || key === 'nowork1') return ch === 2 ? 1 : 0;
-    if (key === 'vm0' || key === 'nowork0') return ch === 2 ? 0 : 1;
+    if (key === 'vm1') return ch === 2 ? 1 : 0;
+    if (key === 'nowork1') return ch === 2 ? 0 : 1;
+    if (key === 'vm0') return ch === 2 ? 0 : 1;
+    if (key === 'nowork0') return ch === 2 ? 1 : 0;
     return ch === 2 && c.id === '2.1' ? prog(c.f, -15, 35) : 1;
   };
   const bandTitle = ch === 2 ? 'ARRAY JOB HISTORY · VSA-B · before the reversal' : 'ARRAY JOB HISTORY · VSA-A · after the reversal';
   return <div style={{position: 'absolute', width: 2480, height: 1420}}>
     <Region b={{x: 70, y: 45, w: 2340, h: 250}} title="HUB · edge36" sub="Ramen control objects" color={C.blue} opacity={rop('hub')}/>
-    <Region b={{x: 70, y: 335, w: 1100, h: 350}} title="SPOKE-0 · edge95" sub="workload site" color={C.spoke0} opacity={rop('spoke0')}/>
-    <Region b={{x: 1380, y: 335, w: 1030, h: 350}} title="SPOKE-1 · edge97" sub="peer site" color={C.spoke1} opacity={rop('spoke1')}/>
+    <Region b={{x: 70, y: 335, w: 1100, h: 380}} title="SPOKE-0 · edge95" sub="workload site" color={C.spoke0} opacity={rop('spoke0')}/>
+    <Region b={{x: 1380, y: 335, w: 1030, h: 380}} title="SPOKE-1 · edge97" sub="peer site" color={C.spoke1} opacity={rop('spoke1')}/>
     <Region b={{x: 70, y: 735, w: 1100, h: 300}} title="VSA-A" sub="spoke-0 storage" color={C.array} opacity={rop('vsaA')}/>
     <Region b={{x: 1380, y: 735, w: 1030, h: 300}} title="VSA-B" sub="spoke-1 storage" color={C.array} opacity={rop('vsaB')}/>
 
@@ -179,8 +181,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       </g> : null}
       {ch === 2 ? (
         <g>
-          <text x={160} y={1170} fill={C.dim} fontSize={22} fontFamily={sans}>VSA-B · scheduled copies about every</text>
-          <text x={540} y={1170} fill={C.cyan} fontSize={22} fontFamily={mono}>12m</text>
+          <text x={160} y={1170} fill={C.cyan} fontSize={22} fontFamily={sans}>VSA-B · one copy about every 12 minutes</text>
           <text x={160} y={1225} fill={C.dim} fontSize={20} fontFamily={sans}>root</text>
           <text x={160} y={1300} fill={C.dim} fontSize={20} fontFamily={sans}>data</text>
           <text x={160} y={1360} fill={C.amber} fontSize={19} fontFamily={sans}>last completed 13:22:27, both disks</text>
