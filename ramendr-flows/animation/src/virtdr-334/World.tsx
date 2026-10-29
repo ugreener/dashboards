@@ -174,7 +174,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         <rect x={70} y={1085} width={2340} height={300} rx={22} fill={`${C.bg2}dd`} stroke={`${C.cyan}aa`} strokeWidth={2.5}/>
         <text x={1200} y={1122} textAnchor="middle" fill={C.cyan} fontSize={23} fontFamily={sans} fontWeight={700}>{bandTitle}</text>
       </g> : null}
-      {ch >= 2 && ch <= 4 ? <g opacity={reversed ? 1 : .9}>
+      {ch >= 2 && ch <= 3 ? <g opacity={reversed ? 1 : .9}>
         <path d={reversed ? 'M1178,905 L1368,905' : 'M1368,905 L1178,905'} fill="none" stroke={C.orange} strokeWidth={6} markerEnd="url(#tip334)"/>
         <text x={1273} y={882} textAnchor="middle" fill={C.orange} fontSize={19} fontFamily={sans}>copies</text>
         <text x={1273} y={946} textAnchor="middle" fill={C.dim} fontSize={17} fontFamily={mono}>RPO 900s</text>
