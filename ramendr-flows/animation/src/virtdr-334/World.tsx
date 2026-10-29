@@ -33,11 +33,11 @@ export const BAND_BOX: Box = [70, 1085, 2340, 300];
 export const RECT: Record<string, Box> = {...Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k, n.box])), band: BAND_BOX};
 
 export const FOCUS: Record<string, string[]> = {
-  '2.1': ['sb_r', 'sb_d', 'band'],
-  '2.2': ['sb_r', 'sb_d', 'band'],
+  '2.1': ['vrg1', 'vr1r', 'vr1d', 'sb_r', 'sb_d', 'band'],
+  '2.2': ['vrg1', 'vr1r', 'vr1d', 'sb_r', 'sb_d', 'band'],
   '2.3': ['policy', 'drpc'],
   '2.4': ['drpc', 'policy'],
-  '2.5': ['sb_r', 'sb_d', 'band'],
+  '2.5': ['vrg1', 'vr1r', 'vr1d', 'sb_r', 'sb_d', 'band'],
   '3.1': ['drpc'],
   '3.2': ['sa_r', 'sa_d', 'sb_r', 'sb_d'],
   '3.3': ['drpc', 'vrg1', 'vr1r', 'vr1d', 'sa_r', 'sa_d'],
@@ -52,7 +52,7 @@ export const FOCUS: Record<string, string[]> = {
   '4.5': ['band'],
   '4.6': ['band'],
   '4.7': ['sa_r', 'sa_d', 'band'],
-  '5.1': ['console', 'sa_d'],
+  '5.1': ['console'],
   '5.2': ['policy', 'console'],
   '5.3': ['sa_d', 'band'],
   '5.4': ['sa_d', 'band'],
@@ -68,6 +68,15 @@ export const FOCUS: Record<string, string[]> = {
   '7.5': ['sa_d'],
   '7.6': ['sa_r', 'sa_d', 'band'],
   '7.7': ['sa_r', 'sa_d', 'band'],
+};
+
+const GROUPS: Record<string, string[]> = {
+  hub: ['drpc', 'policy', 'console', 'gate'],
+  spoke0: ['vm0', 'nowork0', 'vrg0', 'vr0r', 'vr0d'],
+  spoke1: ['vrg1', 'nowork1', 'vm1', 'vr1r', 'vr1d'],
+  vsaA: ['sa_r', 'sa_d'],
+  vsaB: ['sb_r', 'sb_d'],
+  band: ['band'],
 };
 
 export type Ctx = {id: string; f: number; dur: number; zoom: number};
@@ -109,7 +118,7 @@ export const CH: [string, number, string, string][] = [
   ['3.5', 0.2, 'sa_d', 'Source · reprotected 13:26:45'],
   ['4.2', 0.2, 'sa_r', 'Source · OK · last 13:37:01'],
   ['4.4', 0.2, 'sa_d', 'Source · OK · last 13:22:27'],
-  ['4.5', 0.2, 'sa_d', 'Source · OK · last 13:45:11'],
+  ['4.5', 0.55, 'sa_d', 'Source · OK · last 13:45:11'],
   ['4.6', 0.2, 'sa_d', 'Source · OK · last 13:56:19'],
   ['4.6', 0.2, 'sa_r', 'Source · OK · last 14:00:59'],
   ['5.1', 0.2, 'console', 'all volumes are synced'],
@@ -119,6 +128,8 @@ export const CH: [string, number, string, string][] = [
 
 export const World: React.FC<{c: Ctx}> = ({c}) => {
   const keys = FOCUS[c.id] ?? [];
+  const ch = phase(c.id);
+  const reversed = reached(c.id, '3.2');
   const status = (key: string) => {
     if (ch === 6) {
       if (key === 'sa_r') return '10-06 lifecycle · last 19:24:56';
@@ -136,22 +147,20 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     return v;
   };
   const focus = (key: string) => (keys.length === 0 || keys.includes(key) ? 1 : 0.08);
-  const ch = phase(c.id);
-  const reversed = reached(c.id, '3.2');
-  const afterFailover = reached(c.id, '3.2');
+  const rop = (g: string) => (keys.length === 0 || GROUPS[g].some(k => keys.includes(k)) ? 1 : 0.35);
   const appear = (key: string) => {
     if (key === 'gate') return reached(c.id, '7.1') ? prog(c.f, -15, 35) : 0;
     if (key === 'vm1' || key === 'nowork1') return ch === 2 ? 1 : 0;
     if (key === 'vm0' || key === 'nowork0') return ch === 2 ? 0 : 1;
     return ch === 2 && c.id === '2.1' ? prog(c.f, -15, 35) : 1;
   };
+  const bandTitle = ch === 2 ? 'ARRAY JOB HISTORY · VSA-B · before the reversal' : 'ARRAY JOB HISTORY · VSA-A · after the reversal';
   return <div style={{position: 'absolute', width: 2480, height: 1420}}>
-    <Region b={{x: 70, y: 45, w: 2340, h: 250}} title="HUB · edge36" sub="Ramen control objects and the operator view" color={C.blue}/>
-    <Region b={{x: 70, y: 335, w: 1100, h: 350}} title="SPOKE-0 · edge95" sub={afterFailover ? 'workload site after the failover' : 'standby before the failover'} color={C.spoke0}/>
-    <Region b={{x: 1380, y: 335, w: 1030, h: 350}} title="SPOKE-1 · edge97" sub={afterFailover ? 'old site · now the destination' : 'workload site before the failover'} color={C.spoke1}/>
-    <Region b={{x: 70, y: 735, w: 1100, h: 300}} title="VSA-A · spoke-0 storage" sub="PS3b37452a6e0f" color={C.array}/>
-    <Region b={{x: 1380, y: 735, w: 1030, h: 300}} title="VSA-B · spoke-1 storage" sub="PSff392f423bd6" color={C.array}/>
-    <Region b={{x: 70, y: 1085, w: 2340, h: 300}} title="ARRAY JOB HISTORY" sub={ch === 2 ? 'VSA-B · before the reversal' : 'VSA-A · after the reversal'} color={C.cyan}/>
+    <Region b={{x: 70, y: 45, w: 2340, h: 250}} title="HUB · edge36" sub="Ramen control objects" color={C.blue} opacity={rop('hub')}/>
+    <Region b={{x: 70, y: 335, w: 1100, h: 350}} title="SPOKE-0 · edge95" sub="workload site" color={C.spoke0} opacity={rop('spoke0')}/>
+    <Region b={{x: 1380, y: 335, w: 1030, h: 350}} title="SPOKE-1 · edge97" sub="peer site" color={C.spoke1} opacity={rop('spoke1')}/>
+    <Region b={{x: 70, y: 735, w: 1100, h: 300}} title="VSA-A" sub="spoke-0 storage" color={C.array} opacity={rop('vsaA')}/>
+    <Region b={{x: 1380, y: 735, w: 1030, h: 300}} title="VSA-B" sub="spoke-1 storage" color={C.array} opacity={rop('vsaB')}/>
 
     {Object.entries(NODES).map(([key, n]) => <Card key={key} x={n.box[0]} y={n.box[1]} w={n.box[2]} kind={n.kind} name={n.name} role={n.role} nameSize={n.nameSize ?? 22} lines={[n.scope, status(key) || 'recorded configuration']} appear={appear(key)} focus={focus(key)} hl={keys.includes(key) ? 0.25 : 0} color={n.color} detail={Math.max(0, Math.min(1, (c.zoom - .65) / .2))}/>)}
 
@@ -159,6 +168,10 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       <defs>
         <marker id="tip334" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto"><path d="M0,0 L0,8 L11,4 z" fill={C.orange}/></marker>
       </defs>
+      {ch >= 2 ? <g opacity={rop('band')}>
+        <rect x={70} y={1085} width={2340} height={300} rx={22} fill={`${C.bg2}dd`} stroke={`${C.cyan}aa`} strokeWidth={2.5}/>
+        <text x={1200} y={1122} textAnchor="middle" fill={C.cyan} fontSize={23} fontFamily={sans} fontWeight={700}>{bandTitle}</text>
+      </g> : null}
       {ch >= 2 ? <g opacity={reversed ? 1 : .9}>
         <path d={reversed ? 'M1178,905 L1368,905' : 'M1368,905 L1178,905'} fill="none" stroke={C.orange} strokeWidth={6} markerEnd="url(#tip334)"/>
         <text x={1273} y={882} textAnchor="middle" fill={C.orange} fontSize={19} fontFamily={sans}>copies</text>
@@ -166,16 +179,16 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       </g> : null}
       {ch === 2 ? (
         <g>
-          <text x={160} y={1160} fill={C.dim} fontSize={22} fontFamily={sans}>VSA-B · scheduled copies every</text>
-          <text x={470} y={1160} fill={C.cyan} fontSize={22} fontFamily={mono}>12m</text>
-          <text x={160} y={1200} fill={C.dim} fontSize={20} fontFamily={sans}>root</text>
-          <text x={160} y={1280} fill={C.dim} fontSize={20} fontFamily={sans}>data</text>
-          <text x={160} y={1350} fill={C.amber} fontSize={19} fontFamily={sans}>last completed 13:22:27, both disks</text>
+          <text x={160} y={1170} fill={C.dim} fontSize={22} fontFamily={sans}>VSA-B · scheduled copies about every</text>
+          <text x={540} y={1170} fill={C.cyan} fontSize={22} fontFamily={mono}>12m</text>
+          <text x={160} y={1225} fill={C.dim} fontSize={20} fontFamily={sans}>root</text>
+          <text x={160} y={1300} fill={C.dim} fontSize={20} fontFamily={sans}>data</text>
+          <text x={160} y={1360} fill={C.amber} fontSize={19} fontFamily={sans}>last completed 13:22:27, both disks</text>
           {[12 * 60 + 34, 12 * 60 + 46, 12 * 60 + 58, 13 * 60 + 10, 13 * 60 + 22].map((m) => {
             const x = 170 + (m * 60 + 27 - (12 * 3600 + 30 * 60)) * 0.6;
             return <g key={m}>
-              <rect x={x - 5} y={1208} width={10} height={30} rx={3} fill={C.cyan}/>
-              <rect x={x - 5} y={1288} width={10} height={30} rx={3} fill={C.cyan}/>
+              <rect x={x - 5} y={1228} width={10} height={30} rx={3} fill={C.cyan}/>
+              <rect x={x - 5} y={1303} width={10} height={30} rx={3} fill={C.cyan}/>
             </g>;
           })}
         </g>
@@ -199,7 +212,7 @@ const JobBand: React.FC<{id: string}> = ({id}) => {
   const ticks = [
     [13, 20], [13, 25], [13, 30], [13, 35], [13, 40], [13, 45], [13, 50], [13, 55], [14, 0], [14, 5],
   ] as [number, number][];
-  const rootY = 1225, dataY = 1305;
+  const rootY = 1240, dataY = 1315;
   const rootJobs: [number, number, number, string][] = [
     [13, 22, 28, 'sync'], [13, 26, 42, 'failover'], [13, 26, 45, 'reprotect'],
     [13, 36, 57, 'sync'], [13, 48, 57, 'sync'], [14, 0, 57, 'sync'],
@@ -226,17 +239,18 @@ const JobBand: React.FC<{id: string}> = ({id}) => {
       <rect x={x - 5} y={y - 15} width={10} height={30} rx={3} fill={col(k)}/>
     </g>;
   });
+  const showRepro = id === '3.4' || id === '3.5' || id === '3.7' || id.startsWith('7.');
   return <g>
     {ticks.map(([h, m]) => {
       const x = jx(h, m);
       return <g key={`t${h}${m}`}>
-        <line x1={x} y1={1150} x2={x} y2={1158} stroke={C.faint} strokeWidth={1.5}/>
-        <text x={x} y={1140} textAnchor="middle" fill={C.faint} fontSize={16} fontFamily={mono}>{`${h}:${String(m).padStart(2, '0')}`}</text>
+        <line x1={x} y1={1162} x2={x} y2={1170} stroke={C.faint} strokeWidth={1.5}/>
+        <text x={x} y={1155} textAnchor="middle" fill={C.faint} fontSize={16} fontFamily={mono}>{`${h}:${String(m).padStart(2, '0')}`}</text>
       </g>;
     })}
-    <line x1={170} y1={1150} x2={2350} y2={1150} stroke={C.border} strokeWidth={2}/>
-    <text x={160} y={1200} fill={C.dim} fontSize={19} fontFamily={sans}>root</text>
-    <text x={160} y={1280} fill={C.dim} fontSize={19} fontFamily={sans}>data</text>
+    <line x1={170} y1={1162} x2={2350} y2={1162} stroke={C.border} strokeWidth={2}/>
+    <text x={178} y={1214} fill={C.dim} fontSize={18} fontFamily={sans}>root</text>
+    <text x={178} y={1289} fill={C.dim} fontSize={18} fontFamily={sans}>data</text>
     <line x1={170} y1={rootY} x2={2350} y2={rootY} stroke={`${C.border}88`} strokeWidth={1.5}/>
     <line x1={170} y1={dataY} x2={2350} y2={dataY} stroke={`${C.border}88`} strokeWidth={1.5}/>
     {bar(rootJobs, rootY, 'root')}
@@ -249,13 +263,13 @@ const JobBand: React.FC<{id: string}> = ({id}) => {
       <text x={jx(13, 26, 43)} y={rootY - 30} textAnchor="middle" fill={C.red} fontSize={15} fontFamily={sans}>2 FAILED</text>
     </g> : null}
 
-    {show(id, '3.5') ? <text x={jx(13, 26, 45) + 16} y={1338} fill={C.green} fontSize={18} fontFamily={sans}>reprotect COMPLETED 13:26:45</text> : null}
+    {showRepro && show(id, '3.5') ? <text x={jx(13, 26, 45) + 14} y={1352} fill={C.green} fontSize={18} fontFamily={sans}>reprotect COMPLETED 13:26:45</text> : null}
 
     {show(id, '4.2') ? <text x={jx(13, 36, 57)} y={rootY - 26} textAnchor="middle" fill={C.cyan} fontSize={18} fontFamily={sans}>first copy 13:36:57</text> : null}
 
     {show(id, '4.3') ? <g>
-      <line x1={deadline} y1={1180} x2={deadline} y2={1330} stroke={C.red} strokeWidth={2.5} strokeDasharray="8 7"/>
-      <text x={deadline - 10} y={1372} textAnchor="end" fill={C.red} fontSize={18} fontFamily={sans}>RPO deadline 13:41:45</text>
+      <line x1={deadline} y1={1185} x2={deadline} y2={1338} stroke={C.red} strokeWidth={2.5} strokeDasharray="8 7"/>
+      <text x={deadline - 10} y={1376} textAnchor="end" fill={C.red} fontSize={18} fontFamily={sans}>RPO deadline 13:41:45</text>
     </g> : null}
 
     {show(id, '4.3') ? <g opacity={show(id, '4.5') ? 1 : .55}>
