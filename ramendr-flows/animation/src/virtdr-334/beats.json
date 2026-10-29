@@ -1,0 +1,270 @@
+{
+ "0.1": {
+  "chapter": "Cold open"
+ },
+ "0.2": {
+  "chapter": "Cold open"
+ },
+ "0.3": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "Cast of characters"
+ },
+ "1.2": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Replication session",
+   "name": "one per protected disk",
+   "role": "the array's copy record for one disk"
+  },
+  "def": {
+   "what": "The array-side record that copies one disk to the peer array, with a role, a state, and a copy history.",
+   "creator": "The PowerStore driver, when Ramen asks for replication on a disk.",
+   "reader": "The driver, the array, and anyone reading the job history.",
+   "where": "On the PowerStore array, referenced by the VolumeReplication.",
+   "analogy": "A standing delivery route for one parcel."
+  }
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Session role",
+   "name": "Source or Destination",
+   "role": "which side writes and which side receives"
+  },
+  "def": {
+   "what": "Source holds the copy the application writes to. Destination receives copies from Source.",
+   "creator": "Set by failover, reprotect, or promotion.",
+   "reader": "The array scheduler and the driver.",
+   "where": "The session record on both arrays.",
+   "analogy": "One-way street signs. Reversing the direction means changing both ends."
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Array job",
+   "name": "Sync replication session",
+   "role": "one copy run with a start and end time"
+  },
+  "def": {
+   "what": "One scheduled copy run. The array records a start time, an end time, and a state.",
+   "creator": "The array scheduler, from the replication rule.",
+   "reader": "The job history query, and any preflight that checks copy age.",
+   "where": "The array job history, retained for days.",
+   "analogy": "A delivery receipt with a departure time, not just a promise."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Session field",
+   "name": "last_sync_timestamp",
+   "role": "when the array last finished a copy"
+  },
+  "def": {
+   "what": "The completion time of the most recent successful copy for that session.",
+   "creator": "The array, when a sync job completes.",
+   "reader": "The driver, and anything that asks the session for its status.",
+   "where": "The replication session record.",
+   "analogy": "The timestamp on the last delivery, not the time you checked the mailbox."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Array operation",
+   "name": "Reprotect replication session",
+   "role": "starts copying in the new direction"
+  },
+  "def": {
+   "what": "The operation that resumes a failed-over session in the reverse direction and begins synchronization to the original source.",
+   "creator": "The driver, after a failover.",
+   "reader": "The array, which then schedules the first copy in the new direction.",
+   "where": "The session job history on the new source array.",
+   "analogy": "Re-opening a route after the one-way sign flips. The first pickup still has to be scheduled."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Policy field",
+   "name": "900 seconds",
+   "role": "the permitted data-loss window"
+  },
+  "def": {
+   "what": "The recovery point objective, the most data you accept losing, expressed as time.",
+   "creator": "The storage administrator, in the DRPolicy and the replication rule.",
+   "reader": "The preflight, the postcheck, and the administrator.",
+   "where": "DRPolicy dr-policy-15m and rule rr-vg-VSA-B-Fifteen_Minutes.",
+   "analogy": "A promise about the gap between deliveries, not a stopwatch on the wall."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Rule field",
+   "name": "alert_threshold 15",
+   "role": "grace period before a compliance alert"
+  },
+  "def": {
+   "what": "The time the array waits after a session misses its RPO before it raises a compliance alert.",
+   "creator": "The storage administrator, in the replication rule.",
+   "reader": "The array alert engine.",
+   "where": "Rule rr-vg-VSA-B-Fifteen_Minutes.",
+   "analogy": "A late-delivery complaint window, not a guarantee that every delivery is on time."
+  }
+ },
+ "1.9": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Console",
+   "name": "Protected applications",
+   "role": "the operator's view of protection"
+  },
+  "def": {
+   "what": "A table built from controller status, one row per application, with a health label, a policy, and a last synced time.",
+   "creator": "The ACM Data Services console, reading Ramen status.",
+   "reader": "The DR administrator.",
+   "where": "The hub console on edge36.",
+   "analogy": "A noticeboard fed by reports. It is only as current as the report."
+  }
+ },
+ "1.10": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Measurement",
+   "name": "reprotect to first job start",
+   "role": "the interval this video measures"
+  },
+  "def": {
+   "what": "The time from reprotect completed to the first scheduled copy job start for one disk.",
+   "creator": "Derived from two array records, the reprotect job end time and the next sync job start time.",
+   "reader": "This video, and the preflight gate that follows from it.",
+   "where": "The array job history on the new source.",
+   "analogy": "The time between re-opening the route and the first pickup."
+  }
+ },
+ "2.1": {
+  "chapter": "The steady state"
+ },
+ "2.2": {
+  "chapter": "The steady state"
+ },
+ "2.3": {
+  "chapter": "The steady state"
+ },
+ "2.4": {
+  "chapter": "The steady state",
+  "screenshot": "VIRTDR-292-2026-10-07-21-pre-initiate-hub-managed-status.png",
+  "focus": {
+   "x": 458,
+   "y": 622,
+   "w": 1180,
+   "h": 142
+  },
+  "caption": "Before the click, dell-vm-workload on spoke-1, healthy, policy dr-policy-15m."
+ },
+ "2.5": {
+  "chapter": "The steady state"
+ },
+ "3.1": {
+  "chapter": "The reversal",
+  "screenshot": "VIRTDR-292-2026-10-07-23-confirmation-hub-managed-target-spoke-0.png",
+  "focus": {
+   "x": 528,
+   "y": 320,
+   "w": 864,
+   "h": 444
+  },
+  "caption": "The failover dialog, target spoke-0, readiness Ready."
+ },
+ "3.2": {
+  "chapter": "The reversal"
+ },
+ "3.3": {
+  "chapter": "The reversal",
+  "unverified": "Why the first reprotect attempts failed is not recorded."
+ },
+ "3.4": {
+  "chapter": "The reversal"
+ },
+ "3.5": {
+  "chapter": "The reversal"
+ },
+ "3.6": {
+  "chapter": "The reversal"
+ },
+ "4.1": {
+  "chapter": "The wait"
+ },
+ "4.2": {
+  "chapter": "The wait"
+ },
+ "4.3": {
+  "chapter": "The wait"
+ },
+ "4.4": {
+  "chapter": "The wait"
+ },
+ "4.5": {
+  "chapter": "The wait"
+ },
+ "4.6": {
+  "chapter": "The wait"
+ },
+ "4.7": {
+  "chapter": "The wait"
+ },
+ "5.1": {
+  "chapter": "Why nothing alerted"
+ },
+ "5.2": {
+  "chapter": "Why nothing alerted"
+ },
+ "5.3": {
+  "chapter": "Why nothing alerted"
+ },
+ "5.4": {
+  "chapter": "Why nothing alerted"
+ },
+ "5.5": {
+  "chapter": "Why nothing alerted"
+ },
+ "6.1": {
+  "chapter": "The same window, another day"
+ },
+ "6.2": {
+  "chapter": "The same window, another day"
+ },
+ "6.3": {
+  "chapter": "The same window, another day",
+  "unverified": "Why the two disks differ, and whether the first interval is expected scheduling."
+ },
+ "6.4": {
+  "chapter": "The same window, another day"
+ },
+ "7.1": {
+  "chapter": "The gate and what stays open"
+ },
+ "7.2": {
+  "chapter": "The gate and what stays open"
+ },
+ "7.3": {
+  "chapter": "The gate and what stays open"
+ },
+ "7.4": {
+  "chapter": "The gate and what stays open"
+ },
+ "7.5": {
+  "chapter": "The gate and what stays open",
+  "unverified": "Cause, per-disk variance, and the significance of the failed reprotect attempts."
+ },
+ "7.6": {
+  "chapter": "The gate and what stays open"
+ },
+ "7.7": {
+  "chapter": "The gate and what stays open"
+ }
+}

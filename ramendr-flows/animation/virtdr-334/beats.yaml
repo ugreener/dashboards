@@ -174,7 +174,7 @@ beats:
     visual: Protected applications row, dell-vm-workload on spoke-1.
     narration: >-
       The console agreed. The row named dell-vm-workload sat on spoke-1, healthy,
-      with policy dr-policy-15m. This is the view the operator had before the
+      with the fifteen-minute policy. This is the view the operator had before the
       click, and it is correct for that moment.
     screenshot: VIRTDR-292-2026-10-07-21-pre-initiate-hub-managed-status.png
     focus: {x: 458, y: 622, w: 1180, h: 142}
@@ -306,7 +306,7 @@ beats:
     visual: The next data tick at 13:56:17, twelve minutes later.
     narration: >-
       The next data copy started at 13:56:17, twelve minutes later, and the cadence
-      was back. By 14:00:57 the root disk had completed three copies. The array was
+      was back. Just after fourteen hundred hours, the root disk had completed three copies. The array was
       working. The first interval was the outlier.
     evidence: VSA-A job list, 13:56:17 and 14:00:57
     pause_after: 1.6
