@@ -13,7 +13,7 @@ const META = BEATS as Record<string, Meta>;
 type Cam = {x: number; y: number; z: number; sx: number; sy: number};
 const CAMS: Record<string, Partial<Cam>> = {
   '2.1': {x: 1240, y: 1120, z: .74, sx: 960, sy: 600},
-  '2.2': {x: 1240, y: 1200, z: .84, sx: 960, sy: 600},
+  '2.2': {x: 1240, y: 1150, z: .78, sx: 960, sy: 600},
   '2.5': {x: 1240, y: 1120, z: .74, sx: 960, sy: 600},
   '3.2': {x: 1250},
   '3.3': {x: 1245, y: 545, z: .76, sx: 960, sy: 600},
