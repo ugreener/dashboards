@@ -90,7 +90,7 @@ export const FOCUS: Record<string, string[]> = {
   '4.4': ['vrg1', 'gvgr', 'gvgrc', 'gvr'],
   '4.5': ['groupB'],
   '4.6': ['groupB', 'noCall'],
-  '4.7': ['groupB', 'vrg1'],
+  '4.7': ['groupB', 'repB'],
   '5.1': ['groupB', 'repB'],
   '5.2': ['groupB', 'repB'],
   '5.3': ['groupB', 'repB'],
@@ -252,7 +252,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
       {Object.entries(GHOSTS).map(([key, g]) => {
         const gRegion = key === 'noCall' ? 'b' : 's1';
-        const visible = regionOn(gRegion) > 0 && (key === 'noCall' ? phase(c.id) === 4 && reached(c.id, '4.6') : showGhosts);
+        const visible = !c.panel && regionOn(gRegion) > 0 && (key === 'noCall' ? phase(c.id) === 4 && reached(c.id, '4.6') : showGhosts);
         if (!visible) return null;
         const st = status(key);
         const prop = ghostsProposed && key !== 'noCall';
