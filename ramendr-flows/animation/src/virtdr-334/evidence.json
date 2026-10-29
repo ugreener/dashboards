@@ -1,0 +1,72 @@
+[
+ {
+  "file": "VIRTDR-292-2026-10-07-21-pre-initiate-hub-managed-status.png",
+  "id": "1237288",
+  "size": 150973,
+  "created": "2026-10-07T13:44:30.775+0000",
+  "ticket": "VIRTDR-292"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-23-confirmation-hub-managed-target-spoke-0.png",
+  "id": "1237290",
+  "size": 138541,
+  "created": "2026-10-07T13:44:34.696+0000",
+  "ticket": "VIRTDR-292"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-25-transition-hub-managed-cleaning-up-popover.png",
+  "id": "1237292",
+  "size": 165018,
+  "created": "2026-10-07T13:44:38.276+0000",
+  "ticket": "VIRTDR-292"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-28-completed-hub-managed-status.png",
+  "id": "1237297",
+  "size": 160068,
+  "created": "2026-10-07T13:44:44.394+0000",
+  "ticket": "VIRTDR-292"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-29-completed-spoke-0-target-vmi-ready.png",
+  "id": "1237298",
+  "size": 142514,
+  "created": "2026-10-07T13:44:46.372+0000",
+  "ticket": "VIRTDR-292"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-30-completed-hub-dr-policy-unchanged.png",
+  "id": "1237299",
+  "size": 102824,
+  "created": "2026-10-07T13:44:48.395+0000",
+  "ticket": "VIRTDR-292"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-preflight-20261007T131558Z.json",
+  "id": "1237287",
+  "size": 20793,
+  "created": "2026-10-07T13:44:28.683+0000",
+  "ticket": "VIRTDR-292"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-run-log.md",
+  "id": "1237286",
+  "size": 5158,
+  "created": "2026-10-07T13:44:26.859+0000",
+  "ticket": "VIRTDR-292"
+ },
+ {
+  "file": "driver-replication-info-spoke0-20261007.log",
+  "id": "1237323",
+  "size": 233458,
+  "created": "2026-10-07T14:05:37.169+0000",
+  "ticket": "VIRTDR-334"
+ },
+ {
+  "file": "powerstore-replication-sessions-jobs-alerts-20261007.json",
+  "id": "1237322",
+  "size": 49638,
+  "created": "2026-10-07T14:05:35.336+0000",
+  "ticket": "VIRTDR-334"
+ }
+]
