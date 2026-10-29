@@ -1,0 +1,481 @@
+# yamllint disable rule:line-length
+ticket: VIRTDR-334
+run: '2026-10-07'
+direction: spoke-1 to spoke-0 failover, reprotect back to VSA-B
+beats:
+  - id: '0.1'
+    chapter: Cold open
+    visual: A policy mark at fifteen minutes, then a second marker at seventeen thirty-two.
+    narration: >-
+      At 13:26:45 on the seventh of October, a storage array finished reversing
+      a copy direction. The application was already running on the other site.
+      Fifteen minutes was the promise for how much data could be lost. The first
+      new copy of one disk did not start for seventeen minutes and thirty-two
+      seconds. Nothing turned red.
+    evidence: VIRTDR-334 job table, reprotect COMPLETED 13:26:45, data first sync 13:44:17
+    pause_after: 2.4
+
+  - id: '0.2'
+    chapter: Cold open
+    visual: Two bars on one axis, one inside the fifteen minute mark, one past it.
+    narration: >-
+      Every protection policy in this lab promises a copy at least every fifteen
+      minutes. That promise is measured from copy to copy. When the direction
+      reverses, the clock restarts, and the first copy after the reversal is the
+      one nobody watches.
+    evidence: DRPolicy dr-policy-15m, 900 seconds
+    pause_after: 1.5
+
+  - id: '0.3'
+    chapter: Cold open
+    visual: Recorded-run stamp, then the application and the two arrays.
+    narration: >-
+      This is a managed application failover on the Dell PowerStore lab. The
+      application is dell-vm-workload, its virtual machine is hammerdb-rhel9, the
+      hub object is dell-vm-drpc, and the arrays are VSA-A and VSA-B. Every name
+      and time comes from the recorded run and the bug filed from it, VIRTDR-334.
+    evidence: VIRTDR-292 run log 2026-10-07, VIRTDR-334
+    pause_after: 1.6
+
+  - id: '1.1'
+    chapter: Cast of characters
+    visual: Three clusters and two arrays on the existing lab map.
+    narration: >-
+      Three clusters and two arrays. The hub is edge36. spoke-0 is edge95, beside
+      array VSA-A. spoke-1 is edge97, beside array VSA-B. The workload started on
+      spoke-1 and now runs on spoke-0. The arrays copy disk blocks between the two
+      sites.
+    evidence: VIRTDR-218 environment, VIRTDR-292 run log
+
+  - id: '1.2'
+    chapter: Cast of characters
+    card: {kind: "Replication session", name: "one per protected disk", role: "the array's copy record for one disk"}
+    def: {what: "The array-side record that copies one disk to the peer array, with a role, a state, and a copy history.", creator: "The PowerStore driver, when Ramen asks for replication on a disk.", reader: "The driver, the array, and anyone reading the job history.", where: "On the PowerStore array, referenced by the VolumeReplication.", analogy: "A standing delivery route for one parcel."}
+    narration: >-
+      Inside the array, each protected disk has a replication session. It has a
+      role, a state, a last sync time, and a job history. The session is the object
+      this whole story is about.
+    evidence: VIRTDR-334 session dump, two session IDs
+
+  - id: '1.3'
+    chapter: Cast of characters
+    card: {kind: "Session role", name: "Source or Destination", role: "which side writes and which side receives"}
+    def: {what: "Source holds the copy the application writes to. Destination receives copies from Source.", creator: "Set by failover, reprotect, or promotion.", reader: "The array scheduler and the driver.", where: "The session record on both arrays.", analogy: "One-way street signs. Reversing the direction means changing both ends."}
+    narration: >-
+      Source means this array holds the copy the application writes to.
+      Destination means it receives copies. After a failover the roles swap. The
+      array on the new site becomes Source, and the old site becomes Destination.
+    evidence: VIRTDR-334 roles after failover
+
+  - id: '1.4'
+    chapter: Cast of characters
+    card: {kind: "Array job", name: "Sync replication session", role: "one copy run with a start and end time"}
+    def: {what: "One scheduled copy run. The array records a start time, an end time, and a state.", creator: "The array scheduler, from the replication rule.", reader: "The job history query, and any preflight that checks copy age.", where: "The array job history, retained for days.", analogy: "A delivery receipt with a departure time, not just a promise."}
+    narration: >-
+      A scheduled sync job is one copy run. The array starts it on a schedule, and
+      the job records a start time, an end time, and a state. A completed job is
+      the only proof that a copy actually ran.
+    evidence: VIRTDR-334 job list, description "Sync replication session"
+
+  - id: '1.5'
+    chapter: Cast of characters
+    card: {kind: "Session field", name: "last_sync_timestamp", role: "when the array last finished a copy"}
+    def: {what: "The completion time of the most recent successful copy for that session.", creator: "The array, when a sync job completes.", reader: "The driver, and anything that asks the session for its status.", where: "The replication session record.", analogy: "The timestamp on the last delivery, not the time you checked the mailbox."}
+    narration: >-
+      The last sync timestamp is when the array last finished a copy. It is not
+      when you asked. It is not when the console refreshed. It is the array's own
+      record, and the job history is the only place that proves it moved.
+    evidence: VIRTDR-334 session last_sync_timestamp values
+
+  - id: '1.6'
+    chapter: Cast of characters
+    card: {kind: "Array operation", name: "Reprotect replication session", role: "starts copying in the new direction"}
+    def: {what: "The operation that resumes a failed-over session in the reverse direction and begins synchronization to the original source.", creator: "The driver, after a failover.", reader: "The array, which then schedules the first copy in the new direction.", where: "The session job history on the new source array.", analogy: "Re-opening a route after the one-way sign flips. The first pickup still has to be scheduled."}
+    narration: >-
+      Reprotect is the operation that starts copying in the new direction after a
+      failover. It resumes the session and begins a synchronization back to the
+      original source. It is not a second failover, and it is not a cleanup.
+    evidence: Dell PowerStore reprotect operation, VIRTDR-334 reprotect jobs
+
+  - id: '1.7'
+    chapter: Cast of characters
+    card: {kind: "Policy field", name: "900 seconds", role: "the permitted data-loss window"}
+    def: {what: "The recovery point objective, the most data you accept losing, expressed as time.", creator: "The storage administrator, in the DRPolicy and the replication rule.", reader: "The preflight, the postcheck, and the administrator.", where: "DRPolicy dr-policy-15m and rule rr-vg-VSA-B-Fifteen_Minutes.", analogy: "A promise about the gap between deliveries, not a stopwatch on the wall."}
+    narration: >-
+      The recovery point objective is the most data you are willing to lose,
+      measured in time. Here it is nine hundred seconds. It is a promise about the
+      gap between copies, not a timer that resets by itself.
+    evidence: DRPolicy dr-policy-15m, rpo_seconds 900 in the preflight
+
+  - id: '1.8'
+    chapter: Cast of characters
+    card: {kind: "Rule field", name: "alert_threshold 15", role: "grace period before a compliance alert"}
+    def: {what: "The time the array waits after a session misses its RPO before it raises a compliance alert.", creator: "The storage administrator, in the replication rule.", reader: "The array alert engine.", where: "Rule rr-vg-VSA-B-Fifteen_Minutes.", analogy: "A late-delivery complaint window, not a guarantee that every delivery is on time."}
+    narration: >-
+      The alert threshold is a grace period. The array waits this long after a
+      session misses its RPO before it raises a compliance alert. With a
+      fifteen-minute RPO and a threshold of fifteen, a short miss that recovers
+      can pass without an alert.
+    evidence: Dell PowerStore Protecting Your Data, Alert threshold, VIRTDR-334 rule
+
+  - id: '1.9'
+    chapter: Cast of characters
+    card: {kind: "Console", name: "Protected applications", role: "the operator's view of protection"}
+    def: {what: "A table built from controller status, one row per application, with a health label, a policy, and a last synced time.", creator: "The ACM Data Services console, reading Ramen status.", reader: "The DR administrator.", where: "The hub console on edge36.", analogy: "A noticeboard fed by reports. It is only as current as the report."}
+    narration: >-
+      The disaster recovery console shows a row per application, a status, and a
+      last synced time. It is a view built from controller status. It is not the
+      array's job history, and the two can disagree.
+    evidence: VIRTDR-292 console screenshots, VIRTDR-333
+
+  - id: '1.10'
+    chapter: Cast of characters
+    card: {kind: "Measurement", name: "reprotect to first job start", role: "the interval this video measures"}
+    def: {what: "The time from reprotect completed to the first scheduled copy job start for one disk.", creator: "Derived from two array records, the reprotect job end time and the next sync job start time.", reader: "This video, and the preflight gate that follows from it.", where: "The array job history on the new source.", analogy: "The time between re-opening the route and the first pickup."}
+    narration: >-
+      This video measures one interval, from reprotect completed to the first
+      scheduled copy of each disk. Two disks, two sessions, one rule, fifteen
+      minutes. The measurement is the first job start in the array's own history.
+    evidence: VIRTDR-334 job start times
+    pause_after: 1.8
+
+  - id: '2.1'
+    chapter: The steady state
+    visual: The two session cards on VSA-B as Source, with the twelve minute cadence.
+    narration: >-
+      Start before the reversal, because that is the only fair baseline. If the
+      old direction already copied every twelve minutes, then a seventeen-minute
+      first copy is a change in behaviour, not a slow array.
+    evidence: VIRTDR-334 pre-reversal cadence; VIRTDR-292 preflight
+
+  - id: '2.2'
+    chapter: The steady state
+    visual: Five completed jobs per disk, about twelve minutes apart, ending 13:22:28.
+    narration: >-
+      On the seventh of October both sessions ran on VSA-B as Source. From 12:34
+      to 13:22 they completed a scheduled copy about every twelve minutes. The
+      last completed copy was 13:22:27 for both disks.
+    evidence: VSA-B job list, VIRTDR-292 run log 13:22:27
+    pause_after: 1.5
+
+  - id: '2.3'
+    chapter: The steady state
+    visual: The preflight result panel, twenty-four checks.
+    narration: >-
+      At 13:15:58 the scripted preflight passed all twenty-four checks. It found
+      eighty-seven scheduled syncs since the protection was created, no failed
+      jobs, and every gap under nine hundred seconds. Both disks were inside the
+      promise.
+    evidence: VIRTDR-292 preflight JSON 20261007T131558Z, OVERALL PASS 24/24
+    pause_after: 1.8
+
+  - id: '2.4'
+    chapter: The steady state
+    visual: Protected applications row, dell-vm-workload on spoke-1.
+    narration: >-
+      The console agreed. The row named dell-vm-workload sat on spoke-1, healthy,
+      with policy dr-policy-15m. This is the view the operator had before the
+      click, and it is correct for that moment.
+    screenshot: VIRTDR-292-2026-10-07-21-pre-initiate-hub-managed-status.png
+    focus: {x: 458, y: 622, w: 1180, h: 142}
+    caption: Before the click, dell-vm-workload on spoke-1, healthy, policy dr-policy-15m.
+    evidence: VIRTDR-292 screenshot 21, 2026-10-07
+
+  - id: '2.5'
+    chapter: The steady state
+    visual: The cadence strip and the last copy time.
+    narration: >-
+      So far, two disks, two sessions, one rule, twelve-minute copies, and a last
+      copy at 13:22:27. Nothing is late yet. Next, the reversal that restarts the
+      clock.
+    evidence: VIRTDR-334 baseline
+
+  - id: '3.1'
+    chapter: The reversal
+    visual: The failover dialog on the hub console.
+    narration: >-
+      At 13:26:40 the operator initiated failover from the hub console, targeting
+      spoke-0. The workload was on spoke-1. This is a planned test, so both sites
+      were reachable and the source was paused, not destroyed.
+    screenshot: VIRTDR-292-2026-10-07-23-confirmation-hub-managed-target-spoke-0.png
+    focus: {x: 528, y: 320, w: 864, h: 444}
+    caption: The failover dialog, target spoke-0, readiness Ready.
+    evidence: VIRTDR-292 screenshot 23, run log 13:26:40
+
+  - id: '3.2'
+    chapter: The reversal
+    visual: The two session cards flip role, and the copy direction arrow turns.
+    narration: >-
+      The array ran a failover job for the data session at 13:26:41 and for the
+      root session at 13:26:42. Each completed in about two seconds. The roles
+      swapped. VSA-A became Source and VSA-B became Destination.
+    evidence: VSA-A job list, failover jobs 13:26:41 and 13:26:42
+    pause_after: 1.4
+
+  - id: '3.3'
+    chapter: The reversal
+    visual: Four reprotect ticks, three red then one green.
+    narration: >-
+      Reprotect did not succeed on the first try. The data session recorded three
+      failed reprotect attempts at 13:26:43 and 13:26:44, then a completed one at
+      13:26:45. The root session recorded two failures, then a completed one in the
+      same second. The cause of the failures is not established.
+    evidence: VSA-A job list, FAILED and COMPLETED Reprotect jobs
+    unverified: Why the first reprotect attempts failed is not recorded.
+    pause_after: 1.6
+
+  - id: '3.4'
+    chapter: The reversal
+    visual: A clock starts at 13:26:45 on the job history.
+    narration: >-
+      At 13:26:45 reprotect completed on both sessions. That is the moment the
+      fifteen-minute promise restarts for the new direction. The question for the
+      rest of this video is simple. When does each disk make its first copy?
+    evidence: VIRTDR-334 reprotect COMPLETED 13:26:45
+    pause_after: 1.5
+
+  - id: '3.5'
+    chapter: The reversal
+    visual: The console row stays healthy; the array history stays empty.
+    narration: >-
+      Back in the console, the application is healthy on spoke-0 and the policy is
+      unchanged. The screen has no reason to doubt the copy. The array's new job
+      history has not said anything yet.
+    evidence: VIRTDR-292 screenshot 28, console row on spoke-0
+
+  - id: '3.6'
+    chapter: The reversal
+    visual: Two sessions now Source on VSA-A, one clock at 13:26:45.
+    narration: >-
+      So far, failover done, reprotect done at 13:26:45, two sessions now Source on
+      VSA-A. The promise has restarted. Now we wait, and we read the array's own
+      record.
+    evidence: VIRTDR-334
+
+  - id: '4.1'
+    chapter: The wait
+    visual: An empty new direction next to the old cadence.
+    narration: >-
+      A reversed session has no copy history in its new direction. The array must
+      schedule the first one. The pre-failover cadence tells you what the array can
+      do, not what it will do in the first interval.
+    evidence: VIRTDR-334; VIRTDR-292 preflight cadence
+
+  - id: '4.2'
+    chapter: The wait
+    visual: The root row gets its first tick at 13:36:57.
+    narration: >-
+      The root disk's first scheduled copy started at 13:36:57, ten minutes and
+      twelve seconds after reprotect. It completed four seconds later. For the
+      root disk, the promise held.
+    evidence: VSA-A job list, root sync 13:36:57 to 13:37:01
+    pause_after: 1.5
+
+  - id: '4.3'
+    chapter: The wait
+    visual: The data row stays empty past the dashed RPO deadline at 13:41:45.
+    narration: >-
+      The data disk did not copy at 13:36. At 13:41:45, fifteen minutes after
+      reprotect, it still had not started. That is the first moment the promise was
+      broken.
+    evidence: VIRTDR-334, RPO deadline 13:26:45 plus 900 seconds
+    pause_after: 1.8
+
+  - id: '4.4'
+    chapter: The wait
+    visual: Session card reads OK while its last copy is twenty minutes old.
+    narration: >-
+      At 13:42:28 the data session reported state OK, no error code, and a last
+      sync timestamp of 13:22:27. That copy was twenty minutes and one second old.
+      The session was healthy and the disk was late at the same time.
+    evidence: VIRTDR-334 array dump, 13:42:28 session state; run log observation
+    pause_after: 2.2
+
+  - id: '4.5'
+    chapter: The wait
+    visual: The data tick lands at 13:44:17, past the deadline band.
+    narration: >-
+      The data disk's first scheduled copy started at 13:44:17, seventeen minutes
+      and thirty-two seconds after reprotect, and completed at 13:45:11. It was
+      past the deadline by two minutes and thirty-two seconds.
+    evidence: VSA-A job list, data sync 13:44:17 to 13:45:11
+    pause_after: 2
+
+  - id: '4.6'
+    chapter: The wait
+    visual: The next data tick at 13:56:17, twelve minutes later.
+    narration: >-
+      The next data copy started at 13:56:17, twelve minutes later, and the cadence
+      was back. By 14:00:57 the root disk had completed three copies. The array was
+      working. The first interval was the outlier.
+    evidence: VSA-A job list, 13:56:17 and 14:00:57
+    pause_after: 1.6
+
+  - id: '4.7'
+    chapter: The wait
+    visual: Two gaps, 10:12 and 17:32, beside the fifteen minute mark.
+    narration: >-
+      So far, root first copy at 13:36:57, data first copy at 13:44:17, one disk
+      inside the promise and one outside. The session never left OK. Next, why
+      nothing alerted.
+    evidence: VIRTDR-334
+
+  - id: '5.1'
+    chapter: Why nothing alerted
+    visual: The alert list for the window, four entries, none about the RPO.
+    narration: >-
+      The array's alert list for 13:20 to 14:04 contains two informational
+      operating-normally entries at 13:26:45, a licensing warning at 13:33, and a
+      licence expiry alert at 14:03. There is no RPO alert.
+    evidence: VSA-A alerts list, VIRTDR-334
+    pause_after: 1.5
+
+  - id: '5.2'
+    chapter: Why nothing alerted
+    visual: A threshold bar sitting after the RPO mark.
+    narration: >-
+      That is not a broken alert. The alert threshold is the time the array waits
+      after a session misses its RPO before raising a compliance alert. With a
+      threshold of fifteen and an RPO of fifteen, a miss that ends in a successful
+      copy can stay silent.
+    evidence: Dell PowerStore Protecting Your Data, Alert threshold; rule rr-vg-VSA-B-Fifteen_Minutes
+    pause_after: 2
+
+  - id: '5.3'
+    chapter: Why nothing alerted
+    visual: The documented definition next to the observed window.
+    narration: >-
+      So the silence is documented behaviour, not evidence that the copy was on
+      time. The threshold protects against a sustained miss. It does not certify
+      the first interval after a reversal.
+    evidence: Dell alert threshold definition; VIRTDR-334 observed 152 second overrun
+
+  - id: '5.4'
+    chapter: Why nothing alerted
+    visual: Event entries 13:26:41 to 13:26:45, then nothing.
+    narration: >-
+      The event list tells the same story from the other side. At 13:26:41 the
+      data session is failing over. At 13:26:43 it has failed over. At 13:26:45 it
+      is operating normally. Nothing after that mentions a late copy.
+    evidence: VSA-A events 13:26 to 13:46, VIRTDR-334
+    pause_after: 1.5
+
+  - id: '5.5'
+    chapter: Why nothing alerted
+    visual: No alert, no error, no red badge, and one job start time.
+    narration: >-
+      So far, no alert, no error, no red badge. The only record of the late copy is
+      the job start time in the array's history. Next, the same window on another
+      day.
+    evidence: VIRTDR-334
+
+  - id: '6.1'
+    chapter: The same window, another day
+    visual: The day before, session created, initial copy, then silence.
+    narration: >-
+      On the sixth of October the same data session was created at 19:09:53. It
+      completed that initial copy in seventeen seconds. Then it did not sync again
+      before the failover at 19:29:41.
+    evidence: VSA-A job list 2026-10-06, session creation to failover
+    pause_after: 1.6
+
+  - id: '6.2'
+    chapter: The same window, another day
+    visual: The root disk on the same rule copies at 19:24:53.
+    narration: >-
+      The root disk on the same rule did sync at 19:24:53, five minutes before the
+      failover. So the rule was working. The data disk was the one that waited.
+    evidence: VSA-A job list 2026-10-06, root sync 19:24:53
+    pause_after: 1.5
+
+  - id: '6.3'
+    chapter: The same window, another day
+    visual: Two occurrences side by side, same volume, same rule.
+    narration: >-
+      That is twice on the same volume, once after creation and once after
+      reprotect. The root disk was on time both times. The pattern is per disk, not
+      per array, and the cause inside PowerStore is not established.
+    evidence: VIRTDR-334, two recorded occurrences
+    unverified: Why the two disks differ, and whether the first interval is expected scheduling.
+    pause_after: 1.8
+
+  - id: '6.4'
+    chapter: The same window, another day
+    visual: Two occurrences, one volume, one rule.
+    narration: >-
+      So far, two recorded occurrences, one volume, one rule, and a per-disk
+      difference that the record does not explain. Next, the gate that follows from
+      it.
+    evidence: VIRTDR-334
+
+  - id: '7.1'
+    chapter: The gate and what stays open
+    visual: The two-sync preflight gate card.
+    narration: >-
+      The lab's preflight gate now requires at least two completed scheduled copies
+      per disk since the protection was created or last reversed. The gate is
+      applied in the site-down run, two completed copies per disk before initiate.
+    evidence: lab setup document gate rule; VIRTDR-342 beat 3.2
+    pause_after: 1.8
+
+  - id: '7.2'
+    chapter: The gate and what stays open
+    visual: One copy versus two copies on a strip.
+    narration: >-
+      Two, because one copy can be the initial synchronization. Two proves the
+      schedule is running, not just that a session started. The gate is the
+      operational answer to this window.
+    evidence: lab setup document gate rule
+
+  - id: '7.3'
+    chapter: The gate and what stays open
+    visual: The GA requirement rows.
+    narration: >-
+      The GA feature for Dell PowerStore requires the product to show the last
+      successful synchronization timestamp and to confirm automatic re-protection
+      after cleanup. This window is where those two requirements meet.
+    evidence: VIRTDR-361 requirements, MVP rows
+    pause_after: 1.6
+
+  - id: '7.4'
+    chapter: The gate and what stays open
+    visual: The console timestamp and the array job history, side by side.
+    narration: >-
+      The console's timestamp comes from the driver, and the driver reports the
+      current time as the last sync time. That defect is tracked in VIRTDR-333 and
+      is already explained in two other videos. Here it means only one thing. The
+      console cannot corroborate this window.
+    evidence: VIRTDR-333; virtdr-292 beat 4.2; virtdr-343-relocate beat 6.7
+    pause_after: 1.8
+
+  - id: '7.5'
+    chapter: The gate and what stays open
+    visual: Three unverified markers.
+    narration: >-
+      Three things stay unverified. Why the two disks differed. Whether the first
+      interval is expected scheduling or a defect. And whether the failed reprotect
+      attempts matter. The record shows the timing, not the cause.
+    evidence: VIRTDR-334 root cause not established, Dell investigating
+    unverified: Cause, per-disk variance, and the significance of the failed reprotect attempts.
+    pause_after: 1.6
+
+  - id: '7.6'
+    chapter: The gate and what stays open
+    visual: The measured result on the job history.
+    narration: >-
+      The measured result is one disk inside the promise at ten minutes twelve, one
+      outside at seventeen minutes thirty-two, no alert, and the cadence restored
+      on the next copy. That is the whole finding.
+    evidence: VIRTDR-334
+    pause_after: 1.8
+
+  - id: '7.7'
+    chapter: The gate and what stays open
+    visual: Full recap, both rows, both gaps.
+    narration: >-
+      Recap. Two disks, two sessions, one rule. Reprotect completed at 13:26:45.
+      Root copied at 13:36:57. Data copied at 13:44:17. The session stayed OK, the
+      alert threshold stayed quiet, and the job history is the only witness.
+      Measure the first copy, not the badge.
+    evidence: VIRTDR-334
+    pause_after: 2.2
