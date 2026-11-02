@@ -27,7 +27,7 @@ export const RECT = Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k,
 export const FOCUS: Record<string, string[]> = {
   '2.1': ['nodes1','array1'],
   '2.2': ['nodes1','array1'],
-  '2.3': ['drpc','policy','array0'],
+  '2.3': ['drpc','policy'],
   '2.4': ['array0'],
   '2.5': ['drpc','vrg0'],
   '3.1': ['array0'],
@@ -85,7 +85,14 @@ export const CH: [string, number, string, string][] = [
 ];
 const DARK = (id: string) => reached(id, '2.2');
 
-export const World: React.FC<{c: Ctx}> = ({c}) => {
+const REGION_KEYS: Record<string,string[]> = {
+  hub:['drpc','policy','mcv','s3'],
+  spoke0:['vrg0','vr0','pvc0','driver','vm0','velero0'],
+  spoke1:['vrg1','vr1','nodes1'],
+  array0:['array0'],
+  array1:['array1'],
+};
+export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
   const keys = FOCUS[c.id] ?? [];
   const status = (key: string) => {
     let v = '';
@@ -96,6 +103,12 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   const chapter = phase(c.id);
   const dark = DARK(c.id);
   const appear = chapter === 2 ? prog(c.f, -15, 35) : 1;
+  const regOn = (id: string) => {
+    const on = (REGION_KEYS[id] ?? []).some(k => keys.includes(k));
+    if (on) return 1;
+    return panel ? 0 : 0.22;
+  };
+  const cardOn = (key: string) => (panel && !keys.includes(key) ? 0 : 1);
   const tip = 'tip-pag';
   const arrow = (x1: number, y1: number, x2: number, y2: number, midY: number, label: string, color: string, opacity: number) => (
     <g opacity={opacity}>
@@ -105,15 +118,16 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     </g>
   );
   return <div style={{position:'absolute', width:2480, height:1660}}>
-    <Region b={{x:70, y:45, w:2340, h:300}} title="HUB · edge36" sub="recovery coordinator and metadata store" color={C.blue}/>
-    <Region b={{x:70, y:425, w:1170, h:830}} title="SPOKE-0 · edge95 · RECOVERY TARGET" sub="where the applications were sent" color={C.spoke0}/>
-    <Region b={{x:1235, y:425, w:1175, h:830}} title="SPOKE-1 · edge97 · SOURCE" sub={dark ? 'compute and storage both gone' : 'the site that serves the workload'} color={dark ? C.red : C.spoke1}/>
-    <Region b={{x:70, y:1310, w:1170, h:310}} title="VSA-A · TARGET ARRAY" color={C.array}/>
-    <Region b={{x:1235, y:1310, w:1175, h:310}} title="VSA-B · SOURCE ARRAY" color={dark ? C.red : C.array}/>
+    {regOn('hub') > 0 ? <Region b={{x:70, y:45, w:2340, h:300}} title="HUB · edge36" sub="recovery coordinator and metadata store" color={C.blue} opacity={regOn('hub')}/> : null}
+    {regOn('spoke0') > 0 ? <Region b={{x:70, y:425, w:1170, h:830}} title="SPOKE-0 · edge95 · RECOVERY TARGET" sub="where the applications were sent" color={C.spoke0} opacity={regOn('spoke0')}/> : null}
+    {regOn('spoke1') > 0 ? <Region b={{x:1235, y:425, w:1175, h:830}} title="SPOKE-1 · edge97 · SOURCE" sub={dark ? 'compute and storage both gone' : 'the site that serves the workload'} color={dark ? C.red : C.spoke1} opacity={regOn('spoke1')}/> : null}
+    {regOn('array0') > 0 ? <Region b={{x:70, y:1310, w:1170, h:310}} title="VSA-A · TARGET ARRAY" color={C.array} opacity={regOn('array0')}/> : null}
+    {regOn('array1') > 0 ? <Region b={{x:1235, y:1310, w:1175, h:310}} title="VSA-B · SOURCE ARRAY" color={dark ? C.red : C.array} opacity={regOn('array1')}/> : null}
 
     {Object.entries(NODES).map(([key, n]) => {
       const s = status(key);
       const isDead = dark && (key === 'vrg1' || key === 'vr1' || key === 'nodes1' || key === 'array1');
+      if (cardOn(key) === 0) return null;
       return <Card key={key} x={n.box[0]} y={n.box[1]} w={n.box[2]} kind={n.kind} name={n.name} role={n.role}
         lines={[n.scope, s || (isDead ? 'unreachable · no answer' : 'recorded configuration')]}
         appear={appear} focus={isDead ? 0.35 : focus(key)} hl={keys.includes(key) && !isDead ? 0.25 : 0}
@@ -123,19 +137,19 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     <svg width={2480} height={1660} style={{position:'absolute', left:0, top:0, pointerEvents:'none'}}>
       <defs><marker id={tip} markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill={C.cyan}/></marker></defs>
 
-      {c.id === '2.3' ? [
+      {c.id === '2.3' && regOn('hub') > 0 ? [
         ['11:47:36','hammerdb'],
         ['11:47:52','dell-win'],
         ['11:48:11','hammerdb-win'],
         ['11:48:26','dell-vm'],
       ].map(([t,app],i)=><g key={t} opacity={prog(c.f, c.dur*(.1+i*.12), c.dur*(.1+i*.12)+22)}>
-        <rect x={150+i*540} y={360} width={500} height={62} rx={12} fill={C.panel} stroke={C.blue} strokeWidth={2}/>
-        <text x={170+i*540} y={401} fill={C.blue} fontFamily={mono} fontSize={24}>{t}</text>
-        <text x={330+i*540} y={401} fill={C.text} fontFamily={sans} fontSize={22}>{app}</text>
+        <rect x={150+i*540} y={300} width={500} height={44} rx={12} fill={C.panel} stroke={C.blue} strokeWidth={2}/>
+        <text x={170+i*540} y={330} fill={C.blue} fontFamily={mono} fontSize={22}>{t}</text>
+        <text x={330+i*540} y={330} fill={C.text} fontFamily={sans} fontSize={21}>{app}</text>
       </g>) : null}
 
       {/* source site dark overlay */}
-      {dark ? <g>
+      {dark && (regOn('spoke1') > 0 || regOn('array1') > 0) ? <g>
         <rect x={1245} y={435} width={1155} height={810} rx={18} fill="#000" opacity={0.42}/>
         <rect x={1245} y={1320} width={1155} height={290} rx={18} fill="#000" opacity={0.55}/>
         <text x={1320} y={1170} fill={C.red} fontFamily={mono} fontSize={26}>SITE OFFLINE · 11:46:58 UTC</text>
@@ -143,7 +157,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       </g> : null}
 
       {/* node chips in the source cluster */}
-      {dark ? [1330,1470,1610,1750,1890,2030].map((x,i)=>
+      {dark && regOn('spoke1') > 0 ? [1330,1470,1610,1750,1890,2030].map((x,i)=>
         <g key={x}><rect x={x-52} y={925} width={104} height={34} rx={7} fill={`${C.red}33`} stroke={C.red} strokeWidth={2}/>
           <text x={x} y={948} textAnchor="middle" fill={C.dim} fontSize={16} fontFamily={sans}>{i<3?'master':'worker'}</text></g>) : null}
 
@@ -154,15 +168,9 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         <text x={1240} y={1297} textAnchor="middle" fill={C.orange} fontSize={25} fontFamily={sans}>Scheduled copy: VSA-B to VSA-A</text>
       </g> : null}
 
-      {/* promotion path, chapter 3 */}
-      {c.id === '3.2' || c.id === '3.3' ? <g opacity={prog(c.f, c.dur * .15, c.dur * .15 + 25)}>
-        <path d="M660,1360 L660,1300 L950,1300 L950,690" fill="none" stroke={C.green} strokeWidth={4} markerEnd={`url(#${tip})`}/>
-        <rect x={680} y={1180} width={540} height={34} rx={10} fill={C.bg}/>
-        <text x={950} y={1204} textAnchor="middle" fill={C.green} fontSize={20} fontFamily={sans}>promote the local copy, peer not required</text>
-      </g> : null}
 
       {/* reprotect attempt, blocked */}
-      {chapter >= 4 ? <g opacity={reached(c.id, '4.3') ? 1 : 0.35}>
+      {chapter >= 4 && regOn('array0') > 0 && regOn('array1') > 0 ? <g opacity={reached(c.id, '4.3') ? 1 : 0.35}>
         <path d="M660,1360 L660,1250 L1820,1250 L1820,1360" fill="none" stroke={C.red} strokeWidth={5} strokeDasharray="16 12" markerEnd={`url(#${tip})`}/>
         <g transform="translate(1240,1250)">
           <circle r={26} fill={C.bg} stroke={C.red} strokeWidth={4}/>
@@ -175,7 +183,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       </g> : null}
 
       {/* the gate, chapters 5 and 6 */}
-      {chapter >= 5 ? <g opacity={prog(c.f, 0, 25)}>
+      {chapter >= 5 && regOn('spoke0') > 0 ? <g opacity={prog(c.f, 0, 25)}>
         <path d="M950,675 L950,1010" fill="none" stroke={C.red} strokeWidth={5} strokeDasharray="14 12"/>
         <g transform="translate(950,860)">
           <rect x={-16} y={-56} width={32} height={112} rx={8} fill={`${C.red}22`} stroke={C.red} strokeWidth={4}/>
@@ -184,10 +192,9 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         </g>
       </g> : null}
 
-      {c.id === '5.6' || c.id === '6.5' ? arrow(370, 285, 370, 480, 380, 'hub reads the target VRG', C.cyan, prog(c.f, c.dur * .12, c.dur * .12 + 25)) : null}
-      {c.id === '3.5' ? arrow(660, 1300, 660, 690, 1210, 'restore the saved disk records', C.s3, prog(c.f, c.dur * .15, c.dur * .15 + 25)) : null}
+      {(c.id === '5.6' || c.id === '6.5') && regOn('hub') > 0 && regOn('spoke0') > 0 ? arrow(370, 285, 370, 480, 380, 'hub reads the target VRG', C.cyan, prog(c.f, c.dur * .12, c.dur * .12 + 25)) : null}
     </svg>
 
-    {c.id === '5.5' ? <div style={{position:'absolute', left:150, top:1080, width:440, fontFamily:mono, fontSize:22, color:C.red}}>no VM · no VMI · no DataVolumes</div> : null}
+    {c.id === '5.5' && regOn('spoke0') > 0 ? <div style={{position:'absolute', left:150, top:1080, width:440, fontFamily:mono, fontSize:22, color:C.red}}>no VM · no VMI · no DataVolumes</div> : null}
   </div>;
 };

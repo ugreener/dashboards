@@ -69,7 +69,7 @@ export const PeerArrayGate:React.FC<{chapters:number[]}>=({chapters})=>{
   }
   const cues=[...seen.values()];
   return <AbsoluteFill style={{background:`radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`,overflow:'hidden'}}>
-    {ch>=2?<div style={{position:'absolute',transformOrigin:'0 0',transform:`translate(${cam.sx-cam.x*cam.z}px,${cam.sy-cam.y*cam.z}px) scale(${cam.z})`}}><World c={{id:b.id,f,dur:b.audio,zoom:cam.z}}/></div>:null}
+    {ch>=2?<div style={{position:'absolute',transformOrigin:'0 0',transform:`translate(${cam.sx-cam.x*cam.z}px,${cam.sy-cam.y*cam.z}px) scale(${cam.z})`}}><World c={{id:b.id,f,dur:b.audio,zoom:cam.z}} panel={!!META[b.id]?.screenshot||PANEL_BEATS.has(b.id)}/></div>:null}
     {seg.type==='beat'&&ch===0?<ColdOpen id={b.id} f={f} dur={b.audio}/>:null}
     {seg.type==='beat'&&ch===1?<GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def}/>:null}
     {seg.type==='beat'?<Hud chapter={b.chapter.title} clock={CLOCK_LABELS[b.id]??CLOCK[b.id]??null} ticket="DFBUGS-12519"/>:null}
