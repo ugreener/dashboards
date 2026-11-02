@@ -138,8 +138,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       {dark ? <g>
         <rect x={1245} y={435} width={1155} height={810} rx={18} fill="#000" opacity={0.42}/>
         <rect x={1245} y={1320} width={1155} height={290} rx={18} fill="#000" opacity={0.55}/>
-        <text x={1320} y={1225} fill={C.red} fontFamily={mono} fontSize={26}>SITE OFFLINE · 11:46:58 UTC</text>
-        <text x={1320} y={1630} fill={C.red} fontFamily={mono} fontSize={26}>BOTH ARRAY NODES POWERED OFF</text>
+        <text x={1320} y={1170} fill={C.red} fontFamily={mono} fontSize={26}>SITE OFFLINE · 11:46:58 UTC</text>
+        <text x={1320} y={1595} fill={C.red} fontFamily={mono} fontSize={26}>BOTH ARRAY NODES POWERED OFF</text>
       </g> : null}
 
       {/* node chips in the source cluster */}
@@ -184,10 +184,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         </g>
       </g> : null}
 
-      {c.id === '5.6' || c.id === '6.5' ? arrow(370, 285, 370, 480, 380, 'hub reads the target VRG', C.purple, prog(c.f, c.dur * .12, c.dur * .12 + 25)) : null}
-      {c.id === '4.2' ? arrow(950, 935, 950, 690, 810, 'csi-addons asks for resync', C.cyan, prog(c.f, c.dur * .15, c.dur * .15 + 25)) : null}
+      {c.id === '5.6' || c.id === '6.5' ? arrow(370, 285, 370, 480, 380, 'hub reads the target VRG', C.cyan, prog(c.f, c.dur * .12, c.dur * .12 + 25)) : null}
       {c.id === '3.5' ? arrow(660, 1300, 660, 690, 1210, 'restore the saved disk records', C.s3, prog(c.f, c.dur * .15, c.dur * .15 + 25)) : null}
-      {c.id === '5.4' ? arrow(950, 1195, 950, 690, 960, 'object restore skipped', C.amber, prog(c.f, c.dur * .2, c.dur * .2 + 25)) : null}
     </svg>
 
     {c.id === '5.5' ? <div style={{position:'absolute', left:150, top:1080, width:440, fontFamily:mono, fontSize:22, color:C.red}}>no VM · no VMI · no DataVolumes</div> : null}
