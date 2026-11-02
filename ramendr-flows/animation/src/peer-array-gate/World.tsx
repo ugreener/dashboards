@@ -180,15 +180,6 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
         <text x={1580} y={1245} textAnchor="middle" fill={C.red} fontSize={24} fontFamily={sans}>no session state to answer with</text>
       </g> : null}
 
-      {/* the gate, chapters 5 and 6 */}
-      {chapter >= 5 && regOn('spoke0') > 0 ? <g opacity={prog(c.f, 0, 25)}>
-        <path d="M950,675 L950,1010" fill="none" stroke={C.red} strokeWidth={5} strokeDasharray="14 12"/>
-        <g transform="translate(950,860)">
-          <rect x={-16} y={-56} width={32} height={112} rx={8} fill={`${C.red}22`} stroke={C.red} strokeWidth={4}/>
-          <text x={38} y={-8} fill={C.red} fontSize={22} fontFamily={sans}>DataReady false</text>
-          <text x={38} y={24} fill={C.dim} fontSize={20} fontFamily={sans}>restore waits here</text>
-        </g>
-      </g> : null}
 
       {(c.id === '5.6' || c.id === '6.5') && regOn('hub') > 0 && regOn('spoke0') > 0 ? arrow(370, 285, 370, 480, 380, 'hub reads the target VRG', C.cyan, prog(c.f, c.dur * .12, c.dur * .12 + 25)) : null}
     </svg>
