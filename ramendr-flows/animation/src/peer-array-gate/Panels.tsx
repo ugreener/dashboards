@@ -133,7 +133,7 @@ export const GlossaryScene: React.FC<{id:string;f:number;dur:number;card?:{kind:
       ['ClusterDataReady','Were the saved disk records restored?'],
       ['KubeObjectsReady','Were the workload definitions restored?'],
     ].map(([w,q],i)=><div key={w} style={{position:'absolute', left:130, top:340+i*180, width:1600, padding:'24px 30px', border:`2px solid ${C.orange}`, borderRadius:16, background:C.panel, opacity:prog(f,dur*(.04+i*.1),dur*(.04+i*.1)+22)}}>
-      <span style={{fontFamily:mono, fontSize:30, color:C.orange, marginRight:34}}>{w}</span>
+      <span style={{display:'inline-block', width:360, fontFamily:mono, fontSize:30, color:C.orange}}>{w}</span>
       <span style={{fontSize:28, color:C.text}}>{q}</span>
     </div>)}
   </div>;

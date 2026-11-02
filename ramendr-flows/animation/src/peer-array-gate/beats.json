@@ -133,21 +133,13 @@
   }
  },
  "1.10": {
-  "chapter": "Cast of characters",
-  "define": {
-   "term": "Failed_Over",
-   "text": "The session was promoted on this side and is waiting to be reversed. Until that happens the arrays copy nothing."
-  }
+  "chapter": "Cast of characters"
  },
  "1.11": {
   "chapter": "Cast of characters"
  },
  "1.12": {
-  "chapter": "Cast of characters",
-  "define": {
-   "term": "WaitForReadiness",
-   "text": "The hub has asked the target to recover and is waiting for the target's own readiness answer before going further."
-  }
+  "chapter": "Cast of characters"
  },
  "1.13": {
   "chapter": "Cast of characters"

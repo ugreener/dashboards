@@ -163,9 +163,6 @@ beats:
     visual: Two state words with definitions
     narration: "Two state words matter here. Failed Over means the session was promoted on the far side and now needs reprotect before it can copy again. Complete Data Connection Loss means the array cannot reach its peer at all."
     evidence: attachment sections 1 and 6
-    define:
-      term: Failed_Over
-      text: "The session was promoted on this side and is waiting to be reversed. Until that happens the arrays copy nothing."
 
   - id: "1.11"
     chapter: Cast of characters
@@ -178,9 +175,6 @@ beats:
     visual: Progression and two hub conditions
     narration: "The hub reports a progression and two conditions. Wait For Readiness means it is waiting for the target to prove itself. Available means the application is usable. Peer Ready means the other site is ready for the next action."
     evidence: attachment section 3
-    define:
-      term: WaitForReadiness
-      text: "The hub has asked the target to recover and is waiting for the target's own readiness answer before going further."
 
   - id: "1.13"
     chapter: Cast of characters
