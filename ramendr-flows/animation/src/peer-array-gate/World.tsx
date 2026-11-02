@@ -30,7 +30,7 @@ export const FOCUS: Record<string, string[]> = {
   '2.3': ['drpc','policy','mcv','s3'],
   '2.4': ['array0'],
   '2.5': ['drpc','vrg0'],
-  '3.1': ['array0'],
+  '3.1': ['array0','array1'],
   '3.2': ['array0','array1'],
   '3.3': ['vr0'],
   '3.4': ['pvc0','vr0'],
