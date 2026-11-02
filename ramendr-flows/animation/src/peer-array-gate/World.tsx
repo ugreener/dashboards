@@ -27,7 +27,7 @@ export const RECT = Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k,
 export const FOCUS: Record<string, string[]> = {
   '2.1': ['nodes1','array1'],
   '2.2': ['nodes1','array1'],
-  '2.3': ['drpc','policy'],
+  '2.3': ['drpc','policy','mcv','s3'],
   '2.4': ['array0'],
   '2.5': ['drpc','vrg0'],
   '3.1': ['array0'],
@@ -149,7 +149,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       </g>) : null}
 
       {/* source site dark overlay */}
-      {dark && (regOn('spoke1') > 0 || regOn('array1') > 0) ? <g>
+      {dark && (keys.includes('array1') || keys.includes('nodes1')) ? <g>
         <rect x={1245} y={435} width={1155} height={810} rx={18} fill="#000" opacity={0.42}/>
         <rect x={1245} y={1320} width={1155} height={290} rx={18} fill="#000" opacity={0.55}/>
         <text x={1320} y={1170} fill={C.red} fontFamily={mono} fontSize={26}>SITE OFFLINE · 11:46:58 UTC</text>
@@ -157,7 +157,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       </g> : null}
 
       {/* node chips in the source cluster */}
-      {dark && regOn('spoke1') > 0 ? [1330,1470,1610,1750,1890,2030].map((x,i)=>
+      {dark && keys.includes('nodes1') ? [1330,1470,1610,1750,1890,2030].map((x,i)=>
         <g key={x}><rect x={x-52} y={925} width={104} height={34} rx={7} fill={`${C.red}33`} stroke={C.red} strokeWidth={2}/>
           <text x={x} y={948} textAnchor="middle" fill={C.dim} fontSize={16} fontFamily={sans}>{i<3?'master':'worker'}</text></g>) : null}
 
