@@ -55,7 +55,7 @@ export const FOCUS: Record<string, string[]> = {
   '6.2': ['vrg0'],
   '6.3': ['array0','array1'],
   '6.4': ['array0','array1'],
-  '6.5': ['drpc','mcv'],
+  '6.5': ['drpc'],
   '6.6': ['vrg0'],
   '6.7': ['vm0'],
   '6.8': ['drpc','vrg0'],
