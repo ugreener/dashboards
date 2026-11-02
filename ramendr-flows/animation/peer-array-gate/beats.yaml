@@ -1,0 +1,420 @@
+# yamllint disable rule:line-length
+ticket: DFBUGS-12519
+beats:
+  # ---------------------------------------------------------------- chapter 0
+  - id: "0.1"
+    chapter: Cold open
+    t: "2026-10-29T11:46:58Z"
+    visual: Title card, then the source site going dark on both halves
+    narration: "At eleven forty-six in the morning, a test team switched off an entire site: six cluster nodes stopped, and both storage nodes powered off. Then they asked four applications to fail over to the surviving site. Every disk became writable. Not one application started."
+    evidence: DFBUGS-12519 actual results and attachment bug-failover-blocked-vr-conditions.txt line 4
+    pause_after: 1.8
+
+  - id: "0.2"
+    chapter: Cold open
+    visual: Two cards, a writable disk and a missing guest
+    narration: "This video follows the recovery of one of those four applications. It explains the difference between a disk that is ready and an application that is running, and it shows which single condition held all four back."
+    evidence: DFBUGS-12519 actual results
+
+  - id: "0.3"
+    chapter: Cold open
+    visual: Recorded-run stamp
+    narration: "Every name and time comes from one recorded run on the Dell Power Store lab. The record is the defect D F bugs twelve five one nine, opened after the run. Where the video explains a cause from source code, it says so."
+    evidence: DFBUGS-12519 metadata, created 2026-10-29
+    pause_after: 1.6
+
+  # ---------------------------------------------------------------- chapter 1
+  - id: "1.1"
+    chapter: Cast of characters
+    visual: Four clusters of objects over the lab topology
+    narration: "Four groups of objects run this recovery. On the hub, the coordinator and the policy. On each site, a manager and one work order per disk. On the arrays, a copy session. And on the target, the guest and its saved definition."
+    evidence: attachment bug-failover-blocked-vr-conditions.txt sections 1 to 5
+
+  - id: "1.2"
+    chapter: Cast of characters
+    visual: DRPC card and definition panel
+    narration: "The D R Placement Control, or D R P C, is the control sheet for one protected application. The console writes the requested action here. Everything after that is a controller reacting to this one edit."
+    evidence: DRPC conditions in attachment section 3
+    card:
+      kind: DRPlacementControl
+      name: hammerdb-drpc
+      role: the hub control sheet for one protected application
+    def:
+      what: "The request that says which application to protect, with which policy, and which action to perform now."
+      creator: "The operator or the console, once per protected application."
+      reader: "The Ramen hub controller, which turns it into work for each site."
+      where: "Hub cluster, namespace openshift-dr-ops."
+      analogy: "A work order pinned to the office board: it names the job and the current instruction, not the tools."
+
+  - id: "1.3"
+    chapter: Cast of characters
+    visual: DRPolicy card and definition panel
+    narration: "The D R Policy names the two sites and the fifteen-minute recovery point objective. That is the most data the business accepts losing, measured in time, not a timer that stops recovery."
+    evidence: DRPolicy dr-policy-15m, attachment line 2
+    card:
+      kind: DRPolicy
+      name: dr-policy-15m
+      role: names the two sites and the data-loss budget
+    def:
+      what: "A cluster-scoped object that pairs two sites and sets the replication interval."
+      creator: "An administrator, once per pair of sites."
+      reader: "Every DRPC that references it, and every site manager that applies its interval."
+      where: "Hub cluster, cluster scope."
+      analogy: "A service contract between two offices: it names both addresses and how fresh the copy must be."
+
+  - id: "1.4"
+    chapter: Cast of characters
+    visual: VRG card and definition panel
+    narration: "On each site the Volume Replication Group is the site manager. It finds the protected claims, creates one work order per disk, and reports one readiness answer for the whole application. The hub reads that answer, not the individual disks."
+    evidence: attachment section 4
+    card:
+      kind: VolumeReplicationGroup
+      name: hammerdb-drpc
+      role: the site manager that summarises every protected disk
+    def:
+      what: "A per-site object that owns the disk work orders and reports one readiness answer for the application."
+      creator: "The hub controller, through the delivery mechanism, on each site."
+      reader: "The hub controller, which reads it to decide whether the application is ready."
+      where: "Each spoke, in openshift-dr-ops for a discovered application."
+      analogy: "A site foreman who collects every worker's report and signs one summary at the end of the shift."
+
+  - id: "1.5"
+    chapter: Cast of characters
+    visual: VolumeReplication card and definition panel
+    narration: "A Volume Replication is the work order for one disk. It asks the storage driver to promote the disk, demote it, or resync it. The controller that carries the request is C S I addons, and the driver underneath is Dell's C S I powerstore."
+    evidence: attachment section 5, example hammerdb-rhel9-rootdisk
+    card:
+      kind: VolumeReplication
+      name: hammerdb-rhel9-rootdisk
+      role: one disk's request to promote, demote or resync
+    def:
+      what: "One object per protected disk, holding the desired role and the last answer from the storage driver."
+      creator: "The site manager, one per protected claim."
+      reader: "C S I addons, which calls the storage driver on its behalf."
+      where: "Each spoke, in the application namespace."
+      analogy: "A single work order for a single machine: one worker, one instruction, one result."
+
+  - id: "1.6"
+    chapter: Cast of characters
+    visual: Claim and volume card
+    narration: "The claim is the application's request for a disk. Behind it, the persistent volume records the array volume handle, the real address of the copy. A bound claim proves the request was matched. It does not prove the disk carries valid data."
+    evidence: attachment section 2, eight bound claims
+    card:
+      kind: PersistentVolumeClaim
+      name: hammerdb-rhel9-rootdisk
+      role: the application's request, bound to a promoted disk
+    def:
+      what: "The namespace-scoped request for storage, and the volume object that records the real disk behind it."
+      creator: "The application, or the restore step that recreates it."
+      reader: "The pod or virtual machine that mounts it, and the DR controllers that track it."
+      where: "Application namespace on the cluster that runs the workload."
+      analogy: "A cloakroom ticket: it proves the counter matched you to a hook, not that the coat is yours."
+
+  - id: "1.7"
+    chapter: Cast of characters
+    visual: VirtualMachine and instance cards
+    narration: "The Virtual Machine is the saved blueprint. The Virtual Machine Instance is the running guest. Open Shift Virtualization creates the instance from the blueprint, so if the blueprint is missing, nothing starts, however healthy the disks are."
+    evidence: DFBUGS-12519 actual results, no VM created
+    card:
+      kind: VirtualMachine
+      name: hammerdb-rhel9
+      role: the blueprint that starts the guest
+    def:
+      what: "The saved definition of a virtual machine, and the running instance created from it."
+      creator: "The application owner, or the object restore for a discovered application."
+      reader: "Open Shift Virtualization, which turns the blueprint into a running guest."
+      where: "Application namespace on the cluster that runs the workload."
+      analogy: "A recipe card and the meal: the card can sit safely in a drawer while nothing is cooking."
+
+  - id: "1.8"
+    chapter: Cast of characters
+    visual: Velero card and definition panel
+    narration: "For a discovered application there is no Git copy of the blueprint, so Ramen asks Velero, packaged by Red Hat as O A D P, to restore it from object storage. Velero moves definitions, not disk blocks."
+    evidence: DFBUGS-12505 context and VIRTDR-342 restore path
+    card:
+      kind: Velero (OADP)
+      name: velero
+      role: restores workload definitions from object storage
+    def:
+      what: "The backup and restore engine that carries Kubernetes objects, not disk contents."
+      creator: "The O A D P operator, installed on each site."
+      reader: "The site manager, which asks it to save and later restore the workload objects."
+      where: "Each spoke, in the O A D P namespace."
+      analogy: "A moving company for paperwork: it boxes the recipe cards and unpacks them at the new office."
+
+  - id: "1.9"
+    chapter: Cast of characters
+    visual: Two array cards and a session card
+    narration: "Behind every protected disk is a Power Store replication session. One array is the source, the other the destination. The session copies changed blocks on the fifteen-minute schedule, and its state tells the driver what must happen next."
+    evidence: attachment section 1, eight sessions
+    card:
+      kind: ReplicationSession
+      name: 52001a43-4c9e-44c2
+      role: one disk's copy job between the two arrays
+    def:
+      what: "An array-side object that copies one disk from the source array to the destination array."
+      creator: "The storage driver, when a protected disk is first replicated."
+      reader: "The storage driver and the array interface, which report its role and state."
+      where: "Both arrays, one session per protected disk."
+      analogy: "A courier route between two warehouses: the route has a direction, a schedule, and a health state."
+
+  - id: "1.10"
+    chapter: Cast of characters
+    visual: Two state words with definitions
+    narration: "Two state words matter here. Failed Over means the session was promoted on the far side and now needs reprotect before it can copy again. Complete Data Connection Loss means the array cannot reach its peer at all."
+    evidence: attachment sections 1 and 6
+    define:
+      term: Failed_Over
+      text: "The session was promoted on this side and is waiting to be reversed. Until that happens the arrays copy nothing."
+
+  - id: "1.11"
+    chapter: Cast of characters
+    visual: Three condition words
+    narration: "Three conditions summarise health. Data Ready means every protected claim is ready for use. Cluster Data Ready means the saved disk records were restored. Kube Objects Ready means the workload definitions were restored."
+    evidence: attachment section 4
+
+  - id: "1.12"
+    chapter: Cast of characters
+    visual: Progression and two hub conditions
+    narration: "The hub reports a progression and two conditions. Wait For Readiness means it is waiting for the target to prove itself. Available means the application is usable. Peer Ready means the other site is ready for the next action."
+    evidence: attachment section 3
+    define:
+      term: WaitForReadiness
+      text: "The hub has asked the target to recover and is waiting for the target's own readiness answer before going further."
+
+  - id: "1.13"
+    chapter: Cast of characters
+    visual: Recap of the four groups
+    narration: "That is the cast: a control sheet, a policy, a site manager, a work order per disk, a claim, a blueprint, a restore engine, and a copy session. Now we can follow what the power-off actually changed."
+    evidence: attachment sections 1 to 6
+
+  # ---------------------------------------------------------------- chapter 2
+  - id: "2.1"
+    chapter: The loss on the clock
+    visual: Two earlier runs side by side, arrays online
+    narration: "Earlier site-down tests in this lab stopped only the cluster nodes. Both arrays stayed online and copying. Those runs completed, and one of them is already a video in this series. This run changed one variable: the source array went off too."
+    evidence: virtdr-342 trace.md line 37, both arrays remained running
+    pause_after: 1.5
+
+  - id: "2.2"
+    chapter: The loss on the clock
+    visual: Nodes suspended, then both array storage nodes powered off
+    narration: "At eleven forty-six and fifty-eight seconds, both storage nodes of V S A B were force-powered off. There was no graceful handover, no final copy, and no session state the peer could report. The source site was now gone in both halves."
+    evidence: attachment line 4
+    pause_after: 2.0
+
+  - id: "2.3"
+    chapter: The loss on the clock
+    visual: Four failover initiations on a clock
+    narration: "The four failovers were started from the hub console over the next ninety seconds: eleven forty-seven thirty-six, eleven forty-seven fifty-two, eleven forty-eight eleven, and eleven forty-eight twenty-six. All four targets were declared ready before the click."
+    evidence: attachment line 3
+
+  - id: "2.4"
+    chapter: The loss on the clock
+    visual: Last sync values around the power-off
+    narration: "The surviving array still had the last completed copies. Their last sync values ran from eleven thirty-five forty-one to eleven forty-six oh one, so the recovery point was between six and twelve minutes old, inside the fifteen-minute objective."
+    evidence: attachment line 9
+
+  - id: "2.5"
+    chapter: The loss on the clock
+    visual: So far card
+    narration: "So far: the cluster half and the storage half of the site are both gone, and the four failovers began within ninety seconds. Nothing about the request was unusual. What follows is what the target did with it."
+    evidence: attachment lines 3, 4 and 9
+
+  # ---------------------------------------------------------------- chapter 3
+  - id: "3.1"
+    chapter: Promotion succeeded alone
+    visual: Writable disk on the target
+    narration: "Failover has a storage half and a workload half. Promotion is the storage half: the target array makes its local copy writable, and the cluster may now use it. Promotion says nothing about whether the application exists."
+    evidence: attachment sections 1 and 2
+
+  - id: "3.2"
+    chapter: Promotion succeeded alone
+    visual: Peer connection lost, promotion still completes
+    narration: "V S A A reported its peer as complete data connection loss. It promoted anyway. The array does not need the source to hand over a disk it already holds, so this step succeeded with the other site completely dark."
+    evidence: attachment lines 7 and 10
+
+  - id: "3.3"
+    chapter: Promotion succeeded alone
+    visual: Eight sessions, role source, state failed over
+    narration: "All eight replication sessions on the target became source, state failed over, with no error code. Eight sessions, four applications, two disks each. The storage side was doing exactly what an unplanned failover asks for."
+    evidence: attachment line 8
+
+  - id: "3.4"
+    chapter: Promotion succeeded alone
+    visual: Eight bound claims and the driver log line
+    narration: "All eight claims bound, and each one points at the promoted copy of the disk the application used before. The driver log says it plainly: the replication session is already primary. From the storage side, the failover looked finished."
+    evidence: attachment lines 10 and 12 to 16
+
+  - id: "3.5"
+    chapter: Promotion succeeded alone
+    visual: Cluster data ready restored
+    narration: "The target cluster also restored the saved disk records. Its Volume Replication Group reports Cluster Data Ready true, with four volume replication claims restored. The metadata the disks need to reattach is present."
+    evidence: attachment line 26
+
+  - id: "3.6"
+    chapter: Promotion succeeded alone
+    visual: So far card
+    narration: "So far: the target promoted every disk, bound every claim, and restored the disk records. If a failover were only a storage operation, this run succeeded. The next chapter is about the half that did not."
+    evidence: attachment sections 1 and 4
+    pause_after: 1.5
+
+  # ---------------------------------------------------------------- chapter 4
+  - id: "4.1"
+    chapter: The resync that needs the dead peer
+    visual: Reversed copy direction, both arrays required
+    narration: "Promotion alone leaves the new direction unprotected. After a failover the arrays must start copying the other way, so the old site can become the standby again. That reversal is called reprotect, and it needs both arrays to agree."
+    evidence: attachment section 6 and Dell reprotect semantics
+
+  - id: "4.2"
+    chapter: The resync that needs the dead peer
+    visual: csi-addons asks the driver to resync
+    narration: "C S I addons asks the driver to resync each disk. The driver looks at the session, sees failed over, and sees that this side is now the source. That combination means one thing to the driver: issue reprotect to the peer."
+    evidence: attachment lines 40 and 45 to 47
+
+  - id: "4.3"
+    chapter: The resync that needs the dead peer
+    visual: Reprotect arrow toward the powered-off array, blocked
+    narration: "Reprotect is a request to the other array. The peer must mark its own session as failed over before the reversal can begin. The peer was powered off, so it could not mark anything. The call could not succeed, and it was not a transient error."
+    evidence: attachment lines 40 to 42
+    pause_after: 1.8
+
+  - id: "4.4"
+    chapter: The resync that needs the dead peer
+    visual: Work order conditions, red
+    narration: "The driver returned the failure instead of a ready answer. On all eight volumes the work order reports completed false, reason failed to resync, and degraded true, with the message that reprotect failed because the remote peer session is not in failed over state."
+    evidence: attachment lines 33 to 37
+    pause_after: 1.8
+
+  - id: "4.5"
+    chapter: The resync that needs the dead peer
+    visual: Destination info pending
+    narration: "A second signal failed with it. Destination Info Available stayed false, pending update, because the target cannot learn the peer's volume handle. Ramen skips the annotation until that information arrives, and a step that waits for a peer cannot finish without one."
+    evidence: attachment line 32
+    define:
+      term: DestinationInfoPending
+      text: "The target has not learned which volume on the far array matches this disk, so it will not write the destination handle yet."
+
+  - id: "4.6"
+    chapter: The resync that needs the dead peer
+    visual: One return value feeding two decisions
+    narration: "Here is the coupling that matters. The driver's resync answer is not only about copying. It is also the answer the cluster uses to decide whether the disk is ready for use. Reprotect and readiness share one return value."
+    evidence: attachment lines 45 to 49
+
+  - id: "4.7"
+    chapter: The resync that needs the dead peer
+    visual: So far card
+    narration: "So far: the target promoted the disks, then asked the dead peer for permission to reverse the copy, and reported the disk as not ready when the peer did not answer. Next we follow that answer up the chain."
+    evidence: attachment sections 1, 5 and 6
+
+  # ---------------------------------------------------------------- chapter 5
+  - id: "5.1"
+    chapter: One condition closes the gate
+    visual: Per-claim conditions aggregating into the group
+    narration: "The Volume Replication Group aggregates. For every protected claim it reads the work order, and it writes one readiness condition per claim before summarising them into the group's own Data Ready condition. One bad claim is enough."
+    evidence: attachment lines 24 and 49
+
+  - id: "5.2"
+    chapter: One condition closes the gate
+    visual: Per-claim Data Ready error
+    narration: "Because completed is false, each claim's Data Ready condition becomes error, with the message all P V Cs of the Volume Replication Group are not ready. That sentence is true and useless: it names the symptom, not the peer."
+    evidence: attachment lines 24 and 25
+
+  - id: "5.3"
+    chapter: One condition closes the gate
+    visual: Group conditions, state primary
+    narration: "The group reports Data Ready false and Data Protected false. Its state is still primary, which is correct, because promotion succeeded. The application's storage is writable and not protected at the same time."
+    evidence: attachment lines 23 to 25
+
+  - id: "5.4"
+    chapter: One condition closes the gate
+    visual: Three conditions, two true and one skipped
+    narration: "Two other conditions are true, and that is the trap. Cluster Data Ready is true because the disk records were restored. Kube Objects Ready is true but marked unused, with the message that the object restore was skipped as secondary."
+    evidence: attachment lines 26 and 27
+
+  - id: "5.5"
+    chapter: One condition closes the gate
+    visual: Empty application namespace
+    narration: "So the target has writable disks, restored disk records, and a skipped object restore. There is no Virtual Machine, no running instance, and no Data Volumes in the application namespace. The blueprint never arrived."
+    evidence: DFBUGS-12519 actual results
+
+  - id: "5.6"
+    chapter: One condition closes the gate
+    visual: Hub conditions, four fields disagreeing
+    narration: "On the hub the picture is precise. Phase failed over, progression wait for readiness, Available false with reason failing over, Peer Ready false, and Protected true. Four fields disagree with each other, and each one is technically accurate."
+    evidence: attachment lines 19 and 20
+    pause_after: 1.8
+
+  - id: "5.7"
+    chapter: One condition closes the gate
+    visual: Hub console screenshot, four green FailedOver rows
+    screenshot: bug-failover-blocked-peer-array-down.png
+    focus: {x: 314, y: 470, w: 880, h: 270}
+    caption: "Protected applications page. All four rows read FailedOver with a green check, and none of the four applications is running."
+    narration: "The console is less precise. Its status column reads the phase, so all four rows show Failed Over with a green check, while none of the four applications is running. The screen and the objects disagree."
+    evidence: attachment bug-failover-blocked-peer-array-down.png, inspected; caption is the observed state
+    pause_after: 1.8
+
+  - id: "5.8"
+    chapter: One condition closes the gate
+    visual: The chain from resync to closed gate
+    narration: "So far: one failed resync produced one false readiness condition, and that condition closed the gate the object restore waits on. The disks are ready. The application is not. Nothing else in the chain is broken."
+    evidence: attachment sections 3, 4 and 5
+
+  # ---------------------------------------------------------------- chapter 6
+  - id: "6.1"
+    chapter: Why the peer matters
+    visual: Driver source excerpt, resync case
+    narration: "Upstream source shows the exact branch. In the Power Store driver's resync function, when the session is failed over and this side is the source, it executes reprotect, returns the error on failure, and even on success returns ready false."
+    evidence: dell/csi-powerstore pkg/controller/csiaddons_replication.go, resyncVolumeForVolume
+    unverified: deployed driver build is not recorded in the ticket
+    pause_after: 1.5
+
+  - id: "6.2"
+    chapter: Why the peer matters
+    visual: Ramen source excerpt, completed gate
+    narration: "Upstream source also shows the other half. Ramen's readiness check requires the work order's completed condition to be true, and writes error to every claim's Data Ready condition when it is not. The two halves fit the observed messages."
+    evidence: RamenDR/ramen internal/controller/vrg_volrep.go, validateVRStatus and validateVRCompletedStatus
+    unverified: deployed Ramen build is not recorded in the ticket
+
+  - id: "6.3"
+    chapter: Why the peer matters
+    visual: Two phases, one step in the wrong place
+    narration: "Step back and the defect is an ordering problem. Reprotect belongs to the next phase, re-protection, which matters for a later failback. Here it is a precondition of the current phase, so a step that should wait is blocking recovery."
+    evidence: DFBUGS-12519 expected results
+    define:
+      term: Reprotect
+      text: "The array operation that reverses the copy direction after a failover, so the old site can become the standby again."
+
+  - id: "6.4"
+    chapter: Why the peer matters
+    visual: Control run with both arrays online
+    narration: "A control run would settle the cause: the same four applications, the same power-off of the cluster nodes, but both arrays left running. The earlier runs in this lab are that control in spirit, and they completed because reprotect could succeed."
+    evidence: attachment line 53 and virtdr-342 trace.md line 37
+
+  - id: "6.5"
+    chapter: Why the peer matters
+    visual: Documentation path, replacement cluster
+    narration: "The product documentation promises this path. The Regional D R guide says to fail over when a managed cluster becomes unavailable, due to any reason, and to recover to a replacement cluster. A recovery that needs the destroyed array narrows that promise."
+    evidence: docs.redhat.com ODF 4.22 rdr-solution and recovering-to-a-replacement-cluster-with-rdr
+
+  - id: "6.6"
+    chapter: Why the peer matters
+    visual: What the run proves
+    narration: "What this run proves: promotion and binding can succeed while the application stays down, and the reason is visible in the work order and the group conditions. That is a recorded observation on the real lab, not a theory."
+    evidence: attachment sections 1 to 5
+    pause_after: 1.5
+
+  - id: "6.7"
+    chapter: Why the peer matters
+    visual: What the run does not prove
+    narration: "What it does not prove: that the stall is permanent, that four concurrent failovers played no part, or that the deployed build matches the source we read. There is no run log and no paired control in the record."
+    evidence: DFBUGS-12519 scope and missing attachments
+    pause_after: 1.5
+
+  - id: "6.8"
+    chapter: Why the peer matters
+    visual: Final lesson card
+    narration: "The lesson is the one the status could not tell you. A failover is finished only when the guest runs. Check the progression, the group conditions, and the peer, not the disk alone, and not the green check."
+    evidence: attachment sections 3 to 5
+    pause_after: 2.0
