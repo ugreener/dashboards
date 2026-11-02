@@ -14,7 +14,8 @@ export const Region: React.FC<{
   dashed?: boolean;
   glow?: number;
   small?: boolean;
-}> = ({b, title, sub, color, opacity = 1, dashed, glow = 0, small}) => (
+  hideTitle?: boolean;
+}> = ({b, title, sub, color, opacity = 1, dashed, glow = 0, small, hideTitle}) => (
   <div
     style={{
       position: 'absolute',
@@ -31,7 +32,7 @@ export const Region: React.FC<{
       transformOrigin: 'center',
     }}
   >
-    <div
+    {hideTitle ? null : <div
       style={{
         position: 'absolute',
         left: small ? 16 : 24,
@@ -50,7 +51,7 @@ export const Region: React.FC<{
     >
       {title}
       {sub ? <span style={{color: C.dim, fontWeight: 500, marginLeft: 12, fontSize: small ? 18 : 22}}>{sub}</span> : null}
-    </div>
+    </div>}
   </div>
 );
 

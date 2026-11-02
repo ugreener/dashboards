@@ -118,11 +118,11 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
     </g>
   );
   return <div style={{position:'absolute', width:2480, height:1660}}>
-    {regOn('hub') > 0 ? <Region b={{x:70, y:45, w:2340, h:300}} title="HUB · edge36" sub="recovery coordinator and metadata store" color={C.blue} opacity={regOn('hub')}/> : null}
-    {regOn('spoke0') > 0 ? <Region b={{x:70, y:425, w:1170, h:830}} title="SPOKE-0 · edge95 · RECOVERY TARGET" sub="where the applications were sent" color={C.spoke0} opacity={regOn('spoke0')}/> : null}
-    {regOn('spoke1') > 0 ? <Region b={{x:1235, y:425, w:1175, h:830}} title="SPOKE-1 · edge97 · SOURCE" sub={dark ? 'compute and storage both gone' : 'the site that serves the workload'} color={dark ? C.red : C.spoke1} opacity={regOn('spoke1')}/> : null}
-    {regOn('array0') > 0 ? <Region b={{x:70, y:1310, w:1170, h:310}} title="VSA-A · TARGET ARRAY" color={C.array} opacity={regOn('array0')}/> : null}
-    {regOn('array1') > 0 ? <Region b={{x:1235, y:1310, w:1175, h:310}} title="VSA-B · SOURCE ARRAY" color={dark ? C.red : C.array} opacity={regOn('array1')}/> : null}
+    {regOn('hub') > 0 ? <Region b={{x:70, y:45, w:2340, h:300}} title="HUB · edge36" sub="recovery coordinator and metadata store" color={C.blue} opacity={regOn('hub')} hideTitle={panel}/> : null}
+    {regOn('spoke0') > 0 ? <Region b={{x:70, y:425, w:1170, h:830}} title="SPOKE-0 · edge95 · RECOVERY TARGET" sub="where the applications were sent" color={C.spoke0} opacity={regOn('spoke0')} hideTitle={panel}/> : null}
+    {regOn('spoke1') > 0 ? <Region b={{x:1235, y:425, w:1175, h:830}} title="SPOKE-1 · edge97 · SOURCE" sub={dark ? 'compute and storage both gone' : 'the site that serves the workload'} color={dark ? C.red : C.spoke1} opacity={regOn('spoke1')} hideTitle={panel}/> : null}
+    {regOn('array0') > 0 ? <Region b={{x:70, y:1310, w:1170, h:310}} title="VSA-A · TARGET ARRAY" color={C.array} opacity={regOn('array0')} hideTitle={panel}/> : null}
+    {regOn('array1') > 0 ? <Region b={{x:1235, y:1310, w:1175, h:310}} title="VSA-B · SOURCE ARRAY" color={dark ? C.red : C.array} opacity={regOn('array1')} hideTitle={panel}/> : null}
 
     {Object.entries(NODES).map(([key, n]) => {
       const s = status(key);
@@ -164,8 +164,6 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       {/* baseline copy before the loss, and the direction after promotion */}
       {chapter === 2 && !dark ? <g opacity={prog(c.f, c.dur * .3, c.dur * .3 + 25)}>
         <path d="M1820,1360 L1820,1290 L660,1290 L660,1360" fill="none" stroke={C.orange} strokeWidth={5} markerEnd={`url(#${tip})`}/>
-        <rect x={930} y={1268} width={620} height={40} rx={12} fill={C.bg}/>
-        <text x={1240} y={1297} textAnchor="middle" fill={C.orange} fontSize={25} fontFamily={sans}>Scheduled copy: VSA-B to VSA-A</text>
       </g> : null}
 
 
