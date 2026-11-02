@@ -16,6 +16,7 @@ export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: 
   '5.4':{title:'Three conditions, two of them true',rows:['ClusterDataReady=True (Restored)','Restored 0 volsync PVs/PVCs and 4 volrep PVs/PVCs','KubeObjectsReady=True (Unused)','k8s resource restore skipped as Secondary','DataReady=False (Error)'],monoRows:[0,1,2,3,4],color:C.amber},
   '5.6':{title:'DRPC · all four applications',rows:['phase=FailedOver','progression=WaitForReadiness','Available=False (FailingOver)','PeerReady=False (NotStarted)','Protected=True'],monoRows:[0,1,2,3,4],color:C.orange},
   '6.4':{title:'What a control run would settle',rows:['Same four applications, same node suspension','Both arrays left running','Reprotect succeeds, because the peer answers','Earlier runs in this lab are that control in spirit'],color:C.green},
+  '6.5':{title:'What the product documentation promises',rows:['Fail over when a managed cluster becomes','unavailable, due to any reason.','Recovering to a replacement cluster:','fail over all protected applications first.'],color:C.blue},
   '6.6':{title:'What this run proves',rows:['Promotion and binding can succeed alone.','The application can still be down.','The reason is visible in two conditions.','Recorded on the real lab, not inferred.'],color:C.green},
   '6.7':{title:'What this run does not prove',rows:['That the stall is permanent','That four concurrent failovers played no part','That the deployed build matches upstream source','There is no run log and no paired control'],color:C.amber},
 };

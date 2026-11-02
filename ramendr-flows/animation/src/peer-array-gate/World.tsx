@@ -82,6 +82,10 @@ export const CH: [string, number, string, string][] = [
   ['5.4', 0.35, 'velero0', 'object restore skipped'],
   ['5.6', 0.3, 'drpc', 'wait for readiness'],
   ['6.3', 0.3, 'array0', 'reprotect blocked'],
+  ['5.6', 0.72, 'drpc', 'four fields, one stalled recovery'],
+  ['5.8', 0.45, 'vrg0', 'data ready false · gate closed'],
+  ['5.8', 0.75, 'vm0', 'never created'],
+  ['6.8', 0.5, 'drpc', 'the guest is the proof'],
 ];
 const DARK = (id: string) => reached(id, '2.2');
 
