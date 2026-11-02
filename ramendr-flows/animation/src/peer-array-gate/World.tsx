@@ -46,7 +46,7 @@ export const FOCUS: Record<string, string[]> = {
   '5.1': ['vrg0','vr0'],
   '5.2': ['vrg0'],
   '5.3': ['vrg0'],
-  '5.4': ['vrg0','velero0'],
+  '5.4': ['vrg0'],
   '5.5': ['vm0','velero0','pvc0'],
   '5.6': ['drpc','vrg0'],
   '5.7': ['drpc','vrg0'],
@@ -168,7 +168,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
 
 
       {/* reprotect attempt, blocked */}
-      {chapter >= 4 && regOn('array0') > 0 && regOn('array1') > 0 ? <g opacity={reached(c.id, '4.3') ? 1 : 0.35}>
+      {chapter >= 4 && keys.includes('array0') && keys.includes('array1') ? <g opacity={reached(c.id, '4.3') ? 1 : 0.35}>
         <path d="M660,1360 L660,1250 L1820,1250 L1820,1360" fill="none" stroke={C.red} strokeWidth={5} strokeDasharray="16 12" markerEnd={`url(#${tip})`}/>
         <g transform="translate(1240,1250)">
           <circle r={26} fill={C.bg} stroke={C.red} strokeWidth={4}/>
@@ -193,6 +193,6 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       {(c.id === '5.6' || c.id === '6.5') && regOn('hub') > 0 && regOn('spoke0') > 0 ? arrow(370, 285, 370, 480, 380, 'hub reads the target VRG', C.cyan, prog(c.f, c.dur * .12, c.dur * .12 + 25)) : null}
     </svg>
 
-    {c.id === '5.5' && regOn('spoke0') > 0 ? <div style={{position:'absolute', left:150, top:1080, width:440, fontFamily:mono, fontSize:22, color:C.red}}>no VM · no VMI · no DataVolumes</div> : null}
+    {c.id === '5.5' && regOn('spoke0') > 0 ? <div style={{position:'absolute', left:130, top:1206, width:520, fontFamily:mono, fontSize:22, color:C.red}}>no VM · no VMI · no DataVolumes</div> : null}
   </div>;
 };
