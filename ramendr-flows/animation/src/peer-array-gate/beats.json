@@ -1,0 +1,275 @@
+{
+ "0.1": {
+  "chapter": "Cold open",
+  "t": "2026-10-29T11:46:58Z"
+ },
+ "0.2": {
+  "chapter": "Cold open"
+ },
+ "0.3": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "Cast of characters"
+ },
+ "1.2": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPlacementControl",
+   "name": "hammerdb-drpc",
+   "role": "the hub control sheet for one protected application"
+  },
+  "def": {
+   "what": "The request that says which application to protect, with which policy, and which action to perform now.",
+   "creator": "The operator or the console, once per protected application.",
+   "reader": "The Ramen hub controller, which turns it into work for each site.",
+   "where": "Hub cluster, namespace openshift-dr-ops.",
+   "analogy": "A work order pinned to the office board: it names the job and the current instruction, not the tools."
+  }
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPolicy",
+   "name": "dr-policy-15m",
+   "role": "names the two sites and the data-loss budget"
+  },
+  "def": {
+   "what": "A cluster-scoped object that pairs two sites and sets the replication interval.",
+   "creator": "An administrator, once per pair of sites.",
+   "reader": "Every DRPC that references it, and every site manager that applies its interval.",
+   "where": "Hub cluster, cluster scope.",
+   "analogy": "A service contract between two offices: it names both addresses and how fresh the copy must be."
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationGroup",
+   "name": "hammerdb-drpc",
+   "role": "the site manager that summarises every protected disk"
+  },
+  "def": {
+   "what": "A per-site object that owns the disk work orders and reports one readiness answer for the application.",
+   "creator": "The hub controller, through the delivery mechanism, on each site.",
+   "reader": "The hub controller, which reads it to decide whether the application is ready.",
+   "where": "Each spoke, in openshift-dr-ops for a discovered application.",
+   "analogy": "A site foreman who collects every worker's report and signs one summary at the end of the shift."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplication",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "one disk's request to promote, demote or resync"
+  },
+  "def": {
+   "what": "One object per protected disk, holding the desired role and the last answer from the storage driver.",
+   "creator": "The site manager, one per protected claim.",
+   "reader": "C S I addons, which calls the storage driver on its behalf.",
+   "where": "Each spoke, in the application namespace.",
+   "analogy": "A single work order for a single machine: one worker, one instruction, one result."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PersistentVolumeClaim",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "the application's request, bound to a promoted disk"
+  },
+  "def": {
+   "what": "The namespace-scoped request for storage, and the volume object that records the real disk behind it.",
+   "creator": "The application, or the restore step that recreates it.",
+   "reader": "The pod or virtual machine that mounts it, and the DR controllers that track it.",
+   "where": "Application namespace on the cluster that runs the workload.",
+   "analogy": "A cloakroom ticket: it proves the counter matched you to a hook, not that the coat is yours."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VirtualMachine",
+   "name": "hammerdb-rhel9",
+   "role": "the blueprint that starts the guest"
+  },
+  "def": {
+   "what": "The saved definition of a virtual machine, and the running instance created from it.",
+   "creator": "The application owner, or the object restore for a discovered application.",
+   "reader": "OpenShift Virtualization, which turns the blueprint into a running guest.",
+   "where": "Application namespace on the cluster that runs the workload.",
+   "analogy": "A recipe card and the meal: the card can sit safely in a drawer while nothing is cooking."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Velero (OADP)",
+   "name": "velero",
+   "role": "restores workload definitions from object storage"
+  },
+  "def": {
+   "what": "The backup and restore engine that carries Kubernetes objects, not disk contents.",
+   "creator": "The O A D P operator, installed on each site.",
+   "reader": "The site manager, which asks it to save and later restore the workload objects.",
+   "where": "Each spoke, in the O A D P namespace.",
+   "analogy": "A moving company for paperwork: it boxes the recipe cards and unpacks them at the new office."
+  }
+ },
+ "1.9": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ReplicationSession",
+   "name": "52001a43-4c9e-44c2",
+   "role": "one disk's copy job between the two arrays"
+  },
+  "def": {
+   "what": "An array-side object that copies one disk from the source array to the destination array.",
+   "creator": "The storage driver, when a protected disk is first replicated.",
+   "reader": "The storage driver and the array interface, which report its role and state.",
+   "where": "Both arrays, one session per protected disk.",
+   "analogy": "A courier route between two warehouses: the route has a direction, a schedule, and a health state."
+  }
+ },
+ "1.10": {
+  "chapter": "Cast of characters",
+  "define": {
+   "term": "Failed_Over",
+   "text": "The session was promoted on this side and is waiting to be reversed. Until that happens the arrays copy nothing."
+  }
+ },
+ "1.11": {
+  "chapter": "Cast of characters"
+ },
+ "1.12": {
+  "chapter": "Cast of characters",
+  "define": {
+   "term": "WaitForReadiness",
+   "text": "The hub has asked the target to recover and is waiting for the target's own readiness answer before going further."
+  }
+ },
+ "1.13": {
+  "chapter": "Cast of characters"
+ },
+ "2.1": {
+  "chapter": "The loss on the clock"
+ },
+ "2.2": {
+  "chapter": "The loss on the clock"
+ },
+ "2.3": {
+  "chapter": "The loss on the clock"
+ },
+ "2.4": {
+  "chapter": "The loss on the clock"
+ },
+ "2.5": {
+  "chapter": "The loss on the clock"
+ },
+ "3.1": {
+  "chapter": "Promotion succeeded alone"
+ },
+ "3.2": {
+  "chapter": "Promotion succeeded alone"
+ },
+ "3.3": {
+  "chapter": "Promotion succeeded alone"
+ },
+ "3.4": {
+  "chapter": "Promotion succeeded alone"
+ },
+ "3.5": {
+  "chapter": "Promotion succeeded alone"
+ },
+ "3.6": {
+  "chapter": "Promotion succeeded alone"
+ },
+ "4.1": {
+  "chapter": "The resync that needs the dead peer"
+ },
+ "4.2": {
+  "chapter": "The resync that needs the dead peer"
+ },
+ "4.3": {
+  "chapter": "The resync that needs the dead peer"
+ },
+ "4.4": {
+  "chapter": "The resync that needs the dead peer"
+ },
+ "4.5": {
+  "chapter": "The resync that needs the dead peer",
+  "define": {
+   "term": "DestinationInfoPending",
+   "text": "The target has not learned which volume on the far array matches this disk, so it will not write the destination handle yet."
+  }
+ },
+ "4.6": {
+  "chapter": "The resync that needs the dead peer"
+ },
+ "4.7": {
+  "chapter": "The resync that needs the dead peer"
+ },
+ "5.1": {
+  "chapter": "One condition closes the gate"
+ },
+ "5.2": {
+  "chapter": "One condition closes the gate"
+ },
+ "5.3": {
+  "chapter": "One condition closes the gate"
+ },
+ "5.4": {
+  "chapter": "One condition closes the gate"
+ },
+ "5.5": {
+  "chapter": "One condition closes the gate"
+ },
+ "5.6": {
+  "chapter": "One condition closes the gate"
+ },
+ "5.7": {
+  "chapter": "One condition closes the gate",
+  "screenshot": "bug-failover-blocked-peer-array-down.png",
+  "focus": {
+   "x": 314,
+   "y": 470,
+   "w": 880,
+   "h": 270
+  },
+  "caption": "Protected applications page. All four rows read FailedOver with a green check, and none of the four applications is running."
+ },
+ "5.8": {
+  "chapter": "One condition closes the gate"
+ },
+ "6.1": {
+  "chapter": "Why the peer matters",
+  "unverified": "deployed driver build is not recorded in the ticket"
+ },
+ "6.2": {
+  "chapter": "Why the peer matters",
+  "unverified": "deployed Ramen build is not recorded in the ticket"
+ },
+ "6.3": {
+  "chapter": "Why the peer matters",
+  "define": {
+   "term": "Reprotect",
+   "text": "The array operation that reverses the copy direction after a failover, so the old site can become the standby again."
+  }
+ },
+ "6.4": {
+  "chapter": "Why the peer matters"
+ },
+ "6.5": {
+  "chapter": "Why the peer matters"
+ },
+ "6.6": {
+  "chapter": "Why the peer matters"
+ },
+ "6.7": {
+  "chapter": "Why the peer matters"
+ },
+ "6.8": {
+  "chapter": "Why the peer matters"
+ }
+}

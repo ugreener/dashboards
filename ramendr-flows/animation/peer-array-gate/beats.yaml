@@ -113,7 +113,7 @@ beats:
   - id: "1.7"
     chapter: Cast of characters
     visual: VirtualMachine and instance cards
-    narration: "The Virtual Machine is the saved blueprint. The Virtual Machine Instance is the running guest. Open Shift Virtualization creates the instance from the blueprint, so if the blueprint is missing, nothing starts, however healthy the disks are."
+    narration: "The Virtual Machine is the saved blueprint. The Virtual Machine Instance is the running guest. OpenShift Virtualization creates the instance from the blueprint, so if the blueprint is missing, nothing starts, however healthy the disks are."
     evidence: DFBUGS-12519 actual results, no VM created
     card:
       kind: VirtualMachine
@@ -122,7 +122,7 @@ beats:
     def:
       what: "The saved definition of a virtual machine, and the running instance created from it."
       creator: "The application owner, or the object restore for a discovered application."
-      reader: "Open Shift Virtualization, which turns the blueprint into a running guest."
+      reader: "OpenShift Virtualization, which turns the blueprint into a running guest."
       where: "Application namespace on the cluster that runs the workload."
       analogy: "A recipe card and the meal: the card can sit safely in a drawer while nothing is cooking."
 

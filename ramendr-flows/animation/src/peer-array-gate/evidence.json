@@ -1,0 +1,16 @@
+[
+ {
+  "file": "bug-failover-blocked-peer-array-down.png",
+  "id": "1276011",
+  "size": 130637,
+  "created": "2026-10-29T12:18:16.000+0000",
+  "step": "hub protected applications after the blocked failover"
+ },
+ {
+  "file": "bug-failover-blocked-vr-conditions.txt",
+  "id": "1276012",
+  "size": 3403,
+  "created": "2026-10-29T12:18:17.000+0000",
+  "step": "VolumeReplication and VRG conditions plus driver log excerpt"
+ }
+]

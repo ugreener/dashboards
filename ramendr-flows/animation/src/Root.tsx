@@ -25,6 +25,10 @@ import {StopProtection} from './stop-protection/Video';
 import {buildTimeline as buildTimelineSP} from './stop-protection/timeline';
 import {ReprotectWindow} from './virtdr-334/Video';
 import {buildTimeline as buildTimeline334} from './virtdr-334/timeline';
+import {PeerArrayGate} from './peer-array-gate/Video';
+import {buildTimeline as buildTimelinePAG} from './peer-array-gate/timeline';
+
+const ALL_PAG = Array.from({length: 7}, (_, i) => i);
 
 const ALL_291 = Array.from({length: 14}, (_, i) => i);
 const ALL_342 = Array.from({length: 10}, (_, i) => i);
@@ -149,6 +153,15 @@ export const Root: React.FC = () => (
       width={1920}
       height={1080}
       defaultProps={{chapters: ALL_291}}
+    />
+    <Composition
+      id="peer-array-gate"
+      component={PeerArrayGate}
+      durationInFrames={Math.max(1, buildTimelinePAG(ALL_PAG).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_PAG}}
     />
   </>
 );

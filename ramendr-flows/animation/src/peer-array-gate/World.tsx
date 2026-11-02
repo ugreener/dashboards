@@ -27,13 +27,13 @@ export const RECT = Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k,
 export const FOCUS: Record<string, string[]> = {
   '2.1': ['array0','array1','nodes1','vm0'],
   '2.2': ['nodes1','array1','vr1','vrg1'],
-  '2.3': ['drpc','policy','array0','array1'],
-  '2.4': ['array1','array0','vr1'],
-  '2.5': ['drpc','vrg0','array0','array1'],
+  '2.3': ['drpc','policy','array0'],
+  '2.4': ['array0'],
+  '2.5': ['drpc','vrg0','array0'],
   '3.1': ['array0','array1','vr0'],
   '3.2': ['array0','array1'],
-  '3.3': ['array0','vr0','vr1'],
-  '3.4': ['pvc0','array0','vr0'],
+  '3.3': ['vr0'],
+  '3.4': ['pvc0','vr0'],
   '3.5': ['vrg0','pvc0'],
   '3.6': ['vrg0','vm0','array0'],
   '4.1': ['array0','array1','vr0'],
@@ -44,23 +44,22 @@ export const FOCUS: Record<string, string[]> = {
   '4.6': ['vr0','driver','vrg0'],
   '4.7': ['vr0','vrg0','vm0'],
   '5.1': ['vrg0','vr0'],
-  '5.2': ['vr0','vrg0'],
+  '5.2': ['vrg0'],
   '5.3': ['vrg0'],
   '5.4': ['vrg0','velero0'],
   '5.5': ['vm0','velero0','pvc0'],
-  '5.6': ['drpc','mcv','vrg0'],
+  '5.6': ['drpc','vrg0'],
   '5.7': ['drpc','vrg0','vm0'],
   '5.8': ['vr0','vrg0','vm0'],
-  '6.1': ['driver','vr0'],
-  '6.2': ['vrg0','vr0'],
+  '6.1': ['driver'],
+  '6.2': ['vrg0'],
   '6.3': ['array0','array1','vr0'],
-  '6.4': ['nodes1','array0','array1','vm0'],
+  '6.4': ['array0','array1'],
   '6.5': ['drpc','mcv'],
-  '6.6': ['vrg0','vr0','array0'],
-  '6.7': ['drpc','driver','vm0'],
-  '6.8': ['drpc','vrg0','vm0','array0'],
+  '6.6': ['vrg0'],
+  '6.7': ['vm0'],
+  '6.8': ['drpc','vrg0','vm0'],
 };
-
 export type Ctx = {id: string; f: number; dur: number; zoom: number};
 const phase = (id: string) => Number(id.split('.')[0]);
 const reached = (id: string, other: string) => {
@@ -123,6 +122,17 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
     <svg width={2480} height={1660} style={{position:'absolute', left:0, top:0, pointerEvents:'none'}}>
       <defs><marker id={tip} markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill={C.cyan}/></marker></defs>
+
+      {c.id === '2.3' ? [
+        ['11:47:36','hammerdb'],
+        ['11:47:52','dell-win'],
+        ['11:48:11','hammerdb-win'],
+        ['11:48:26','dell-vm'],
+      ].map(([t,app],i)=><g key={t} opacity={prog(c.f, c.dur*(.1+i*.12), c.dur*(.1+i*.12)+22)}>
+        <rect x={150+i*540} y={360} width={500} height={62} rx={12} fill={C.panel} stroke={C.blue} strokeWidth={2}/>
+        <text x={170+i*540} y={401} fill={C.blue} fontFamily={mono} fontSize={24}>{t}</text>
+        <text x={330+i*540} y={401} fill={C.text} fontFamily={sans} fontSize={22}>{app}</text>
+      </g>) : null}
 
       {/* source site dark overlay */}
       {dark ? <g>
