@@ -4,7 +4,7 @@ import {Card} from '../components/primitives';
 import {Def, GlossaryPanel} from '../components/newcomer';
 import {prog} from '../lib/anim';
 
-export const PHASES = ['Move','Storage half','Object half','Refusal','Compare','Prove'];
+export const PHASES = ['Move','The archive','The refusal','Compare','The fix','Prove'];
 
 export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: string; monoRows?: number[]}> = {
   '2.5':{title:'The disk records came back',rows:['ClusterDataReady=True (Restored)','Restored 4 volrep PVs/PVCs','It names which array volume each claim uses.','This is the storage half, and it finished.'],monoRows:[0,1],color:C.green},

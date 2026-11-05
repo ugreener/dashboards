@@ -49,12 +49,10 @@ const CLOCK_LABELS:Record<string,string>={
   '6.7':'not this run','6.8':'not this run','6.9':'not this run','6.10':'not this run','6.11':'not this run','6.12':'not this run',
 };
 const EVENTS: TEvent[]=[
-  ['07:49','object sync stops',C.amber],
   ['07:54:07','Relocate',C.blue],
-  ['08:01:13','source VM deleted',C.orange],
-  ['08:03:20','source claims gone',C.orange],
-  ['08:03:52','restore refused',C.red],
-  ['08:05:57','retry logged',C.red],
+  ['08:01:13','VM deleted',C.orange],
+  ['08:03:20','claims gone',C.orange],
+  ['08:03:52','refused',C.red],
   ['08:10','PVCs synced',C.green],
 ];
 const SHOT_DATE:Record<string,string>={
