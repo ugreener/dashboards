@@ -121,11 +121,11 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
   const cardOn = (key: string) => (panel && !keys.includes(key) ? 0 : 1);
   const tip = 'tip-pbg';
   return <div style={{position: 'absolute', width: 2480, height: 1900}}>
-    {regOn('hub') > 0 ? <Region b={{x: 70, y: 45, w: 2340, h: 300}} title="HUB · edge36" sub="the instruction, the policy, and the object store" color={C.blue} opacity={regOn('hub')} hideTitle={panel}/> : null}
-    {regOn('spoke0') > 0 ? <Region b={{x: 70, y: 410, w: 1165, h: 1060}} title="SPOKE-0 · edge95 · SOURCE" sub="the site that was serving before the move" color={C.spoke0} opacity={regOn('spoke0')} hideTitle={panel}/> : null}
-    {regOn('spoke1') > 0 ? <Region b={{x: 1240, y: 410, w: 1170, h: 1060}} title="SPOKE-1 · edge97 · TARGET" sub="where the move was asked to land" color={C.spoke1} opacity={regOn('spoke1')} hideTitle={panel}/> : null}
-    {regOn('array0') > 0 ? <Region b={{x: 70, y: 1540, w: 1165, h: 310}} title="VSA-A · SOURCE ARRAY" color={C.array} opacity={regOn('array0')} hideTitle={panel}/> : null}
-    {regOn('array1') > 0 ? <Region b={{x: 1240, y: 1540, w: 1170, h: 310}} title="VSA-B · TARGET ARRAY" color={C.array} opacity={regOn('array1')} hideTitle={panel}/> : null}
+    {regOn('hub') > 0 ? <Region b={{x: 70, y: 45, w: 2340, h: 300}} title="HUB · edge36" color={C.blue} opacity={regOn('hub')} hideTitle={panel}/> : null}
+    {regOn('spoke0') > 0 ? <Region b={{x: 70, y: 410, w: 1165, h: 1060}} title="SPOKE-0 · SOURCE" sub="edge95" color={C.spoke0} opacity={regOn('spoke0')} hideTitle={panel}/> : null}
+    {regOn('spoke1') > 0 ? <Region b={{x: 1240, y: 410, w: 1170, h: 1060}} title="SPOKE-1 · TARGET" sub="edge97" color={C.spoke1} opacity={regOn('spoke1')} hideTitle={panel}/> : null}
+    {regOn('array0') > 0 ? <Region b={{x: 70, y: 1540, w: 1165, h: 310}} title="VSA-A · SOURCE" color={C.array} opacity={regOn('array0')} hideTitle={panel}/> : null}
+    {regOn('array1') > 0 ? <Region b={{x: 1240, y: 1540, w: 1170, h: 310}} title="VSA-B · TARGET" color={C.array} opacity={regOn('array1')} hideTitle={panel}/> : null}
 
     {Object.entries(NODES).map(([key, n]) => {
       const s = status(key);
@@ -145,7 +145,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       </defs>
 
       {/* hub instructs the target site, across the gap between the hub and the spokes */}
-      {chapter >= 2 && chapter <= 3 && (keys.includes('vrg0') || keys.includes('drpc')) ? <g opacity={prog(c.f, c.dur * .1, c.dur * .1 + 25)}>
+      {chapter === 2 && (c.id === '2.1' || c.id === '2.2') ? <g opacity={prog(c.f, c.dur * .1, c.dur * .1 + 25)}>
         <path d="M370,350 L370,380 L1540,380 L1540,405" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd={`url(#${tip})`}/>
         <rect x={1050} y={356} width={430} height={34} rx={10} fill={C.bg}/>
         <text x={1265} y={381} textAnchor="middle" fill={C.cyan} fontSize={21} fontFamily={sans}>hub asks the target to take over</text>
