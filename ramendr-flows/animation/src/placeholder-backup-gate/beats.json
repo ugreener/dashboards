@@ -256,7 +256,9 @@
    "w": 960,
    "h": 320
   },
-  "caption": "Backup phase Failed: backup already exists in object storage"
+  "caption": "Backup phase Failed: backup already exists in object storage",
+  "iw": 960,
+  "ih": 320
  },
  "3.12": {
   "chapter": "The archive and the placeholder"
@@ -297,7 +299,9 @@
    "w": 900,
    "h": 320
   },
-  "caption": "Relocated/Completed while KubeObjectsReady reads Error"
+  "caption": "Relocated/Completed while KubeObjectsReady reads Error",
+  "iw": 900,
+  "ih": 320
  },
  "4.6": {
   "chapter": "The refusal"

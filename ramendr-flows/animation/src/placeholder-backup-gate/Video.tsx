@@ -8,7 +8,7 @@ import {buildTimeline,PAD_BEFORE,Segment} from './timeline';
 import {World,FOCUS,RECT,CH} from './World';
 import {BeatPanel,GlossaryScene,PANEL_BEATS,PHASES,ColdOpen} from './Panels';
 import BEATS from './beats.json';
-type Meta={t?:string;screenshot?:string;focus?:{x:number;y:number;w:number;h:number};caption?:string;define?:{term:string;text:string};card?:{kind:string;name:string;role:string};def?:Def};
+type Meta={t?:string;screenshot?:string;focus?:{x:number;y:number;w:number;h:number};caption?:string;define?:{term:string;text:string};card?:{kind:string;name:string;role:string};def?:Def;iw?:number;ih?:number};
 const META=BEATS as Record<string,Meta>;
 type Cam={x:number;y:number;z:number;sx:number;sy:number};
 const CAMS:Record<string,Partial<Cam>>={};
@@ -17,6 +17,14 @@ const fit=(id:string):Cam=>{
   const keys=FOCUS[id]??Object.keys(RECT);let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
   for(const key of keys){const r=RECT[key];if(!r)continue;x0=Math.min(x0,r[0]);y0=Math.min(y0,r[1]);x1=Math.max(x1,r[0]+r[2]);y1=Math.max(y1,r[1]+r[3]);}
   if(!Number.isFinite(x0)){x0=70;y0=45;x1=2410;y1=1850;}
+  // Keep the enclosing band's label pill inside the frame: if the focused cards sit in the
+  // target band, do not crop that band's left edge, and likewise for the source and hub bands.
+  const inTgt=keys.some(k=>RECT[k]&&RECT[k][0]>=1240);
+  const inSrc=keys.some(k=>RECT[k]&&RECT[k][0]<1240&&RECT[k][1]>=400);
+  const inHub=keys.some(k=>RECT[k]&&RECT[k][1]<400);
+  if(inTgt&&!inSrc)x0=Math.min(x0,1240);
+  if(inSrc&&!inTgt)x0=Math.min(x0,70);
+  if(inHub&&!inSrc&&!inTgt)x0=Math.min(x0,70);
   // Include the enclosing region header so a focused card never floats without its site label.
   if(y0>=1540)y0=1490;else if(y0>=1250)y0=1190;else if(y0>=990)y0=930;else if(y0>=730)y0=670;else if(y0>=470)y0=410;else y0=0;
   x0-=40;x1+=40;y1+=65;
@@ -98,7 +106,7 @@ export const PlaceholderBackupGate:React.FC<{chapters:number[]}>=({chapters})=>{
     {seg.type==='beat'&&ch>=2?<PhaseTracker current={ch-2} phases={PHASES}/>:null}
     {seg.type==='beat'&&ch>=3?<TimelineBar now={CLOCK[b.id]??null} events={EVENTS}/>:null}
     {seg.type==='beat'?<BeatPanel id={b.id} f={f} dur={b.audio}/>:null}
-    {seg.type==='beat'&&m.screenshot?<Screenshot src={`evidence/placeholder-backup-gate/${m.screenshot}`} date={SHOT_DATE[b.id]??'2026-11-05'} caption={m.caption??''} focus={m.focus} a={win(.14,.98)} z={progIO(f,b.audio*.2,b.audio*.65)} y={215} x={865} w={1010} sourceLabel="lab evidence · attached to the defect"/>:null}
+    {seg.type==='beat'&&m.screenshot?<Screenshot src={`evidence/placeholder-backup-gate/${m.screenshot}`} date={SHOT_DATE[b.id]??'2026-11-05'} caption={m.caption??''} focus={m.focus} iw={m.iw} ih={m.ih} a={win(.14,.98)} z={progIO(f,b.audio*.2,b.audio*.65)} y={215} x={865} w={1010} sourceLabel="lab evidence · attached to the defect"/>:null}
     {seg.type==='beat'&&m.define?<DefinitionPanel term={m.define.term} text={m.define.text} a={win(.05,.97)} bottom={150}/>:null}
     {seg.type==='chapter'?<ChapterCard n={seg.chapter.n} title={seg.chapter.title} sub={seg.chapter.sub} p={prog(frame-seg.from,0,30)} out={prog(frame-seg.from,seg.dur-30,seg.dur)}/>:null}
     {beats.map(beat=><Sequence key={beat.id} from={beat.from+PAD_BEFORE} durationInFrames={beat.audio+10}><Audio src={staticFile(`audio/placeholder-backup-gate/${beat.id}.wav`)} volume={.72}/></Sequence>)}

@@ -24,7 +24,7 @@ export const NODES: Record<string, Node> = {
   array0: {kind: 'PowerStore array', name: 'VSA-A', role: 'source array, disks promoted away', scope: 'source site · PS3b37452a6e0f', box: [120, 1600, 1080, 185], color: C.array},
   array1: {kind: 'PowerStore array', name: 'VSA-B', role: 'target array, serves the promoted copies', scope: 'target site · PSff392f423bd6', box: [1290, 1600, 1080, 185], color: C.array},
 };
-export const RECT = Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k, n.box])) as Record<string, Box>;
+export const RECT = {...Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k, n.box])), notesL: [150, 940, 1000, 340]} as Record<string, Box>;
 
 export const FOCUS: Record<string, string[]> = {
   '0.1': [], '0.2': [], '0.3': [], '0.4': [],
@@ -47,11 +47,11 @@ export const FOCUS: Record<string, string[]> = {
   '5.1': ['vm0', 'vm1'], '5.2': ['vm1'], '5.3': ['velero'], '5.4': ['velero'],
   '5.5': ['backup'], '5.6': ['s3', 'backup'], '5.7': ['drpc', 'vrg0'], '5.8': ['restore'],
   '5.9': ['s3', 'backup', 'restore'], '5.10': ['vrg0'], '5.11': ['vrg0'],
-  '6.1': ['bsl'], '6.2': ['bsl'], '6.3': ['bsl'], '6.4': ['bsl', 's3'],
-  '6.5': ['s3', 'backup'], '6.6': ['backup', 'bsl'], '6.7': ['backup'], '6.8': ['s3'],
+  '6.1': ['bsl'], '6.2': ['bsl'], '6.3': ['bsl'], '6.4': ['bsl', 's3', 'notesL'],
+  '6.5': ['s3', 'backup', 'notesL'], '6.6': ['backup', 'bsl', 'notesL'], '6.7': ['backup'], '6.8': ['s3'],
   '6.9': ['backup', 's3'], '6.10': ['backup'], '6.11': ['backup'], '6.12': ['backup'],
-  '7.1': ['drpc', 'vrg0'], '7.2': ['vrg0'], '7.3': ['vrg0', 'restore'], '7.4': ['vrg0'],
-  '7.5': ['vm1', 'pvc1', 'pvc2'], '7.6': ['backup', 'restore'], '7.7': ['drpc'],
+  '7.1': ['drpc', 'vrg0'], '7.2': ['vrg0'], '7.3': ['vrg0', 'restore'], '7.4': ['vrg0', 'notesL'],
+  '7.5': ['vm1', 'pvc1', 'pvc2', 'notesL'], '7.6': ['backup', 'restore', 'notesL'], '7.7': ['drpc'],
   '7.8': ['drpc'], '7.9': ['vrg0'], '7.10': ['backup', 's3'], '7.11': ['vrg0', 'vm1'], '7.12': ['vm1'],
 };
 
@@ -167,13 +167,6 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
         {[['one good archive', C.green], ['one self-made duplicate', C.amber], ['one failed record', C.red], ['one Restore pointing at it', C.purple]].map(([t, col], i) =>
           <g key={t}><rect x={150} y={960 + i * 74} width={700} height={56} rx={12} fill={C.panel} stroke={col} strokeWidth={2}/>
             <text x={178} y={997 + i * 74} fill={col} fontFamily={sans} fontSize={24}>{i + 1}. {t}</text></g>)}
-      </g> : null}
-
-      {chapter === 4 && keys.includes('restore') ? <g opacity={prog(c.f, c.dur * .15, c.dur * .15 + 25)}>
-        <rect x={150} y={960} width={700} height={150} rx={14} fill={C.panel} stroke={C.red} strokeWidth={2}/>
-        <text x={180} y={1005} fill={C.red} fontFamily={mono} fontSize={22}>phase FailedValidation</text>
-        <text x={180} y={1045} fill={C.text} fontFamily={sans} fontSize={22}>backup is in phase Failed and</text>
-        <text x={180} y={1080} fill={C.text} fontFamily={sans} fontSize={22}>cannot be used as a restore source</text>
       </g> : null}
 
       {chapter === 6 && c.id >= '6.4' && c.id <= '6.6' ? <g opacity={prog(c.f, c.dur * .1, c.dur * .1 + 25)}>
