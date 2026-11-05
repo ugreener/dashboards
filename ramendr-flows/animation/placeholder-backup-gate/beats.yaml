@@ -1,0 +1,726 @@
+# yamllint disable rule:line-length
+ticket: DFBUGS-12505
+run: 2026-11-05
+direction: Relocate of a discovered application from spoke-0 (edge95, VSA-A) to spoke-1 (edge97, VSA-B)
+beats:
+  # ---------------------------------------------------------------- chapter 0
+  - id: "0.1"
+    chapter: Cold open
+    t: "2026-11-05T07:54:07Z"
+    visual: Title card, then the clock and a missing guest
+    narration: "At seven fifty-four in the morning, an operator asked one database virtual machine to move back to its home site. Eight minutes later the control record said the move was complete. The disks had arrived. The machine had not."
+    evidence: "DFBUGS-12505 supplement, run 2026-11-05T07:54:07Z and 08:03 target observation"
+    pause_after: 1.8
+
+  - id: "0.2"
+    chapter: Cold open
+    visual: Two cards, a bound disk and an empty namespace
+    narration: "The record read Relocated, progression Completed, and the target was ready for the next action. In the target namespace two disks were bound, a cloud-init secret existed, and there was no virtual machine at all."
+    evidence: "DFBUGS-12505 attachment bug-placeholder-backup-failedvalidation.txt, DRPC and namespace blocks"
+    pause_after: 1.4
+
+  - id: "0.3"
+    chapter: Cold open
+    visual: The word Failed over a backup record
+    narration: "So the recovery passed its own completion test and still lost the workload. This video explains why, and it comes down to a backup that already existed, and one word Velero will not accept."
+    evidence: "DFBUGS-12505 summary and restoration path"
+
+  - id: "0.4"
+    chapter: Cold open
+    visual: Recorded-run stamp
+    narration: "Every name and time comes from one Jira defect, reproduced twice on the Dell Power Store lab. Where the cause comes from source code, the video says so, and marks what the record does not prove."
+    evidence: "DFBUGS-12505, created 2026-10-29, reproduced 2026-11-05"
+    pause_after: 1.6
+
+  # ---------------------------------------------------------------- chapter 1
+  - id: "1.1"
+    chapter: Cast of characters
+    visual: Three places, eight objects
+    narration: "Eight objects do the work here, in three places. On the hub, the instruction and the policy. On the target site, the site manager, the restore engine, and three small records that Velero reads. In the object store, the archive of the workload's own definition."
+    evidence: "DFBUGS-12505 object list and attachment bug-placeholder-backup-failedvalidation.txt"
+
+  - id: "1.2"
+    chapter: Cast of characters
+    visual: DRPC card and definition panel
+    narration: "The D R Placement Control, or D R P C, is the instruction. Ours is hammerdb-drpc, in openshift-dr-ops. The console writes the requested action here, Relocate in this run, and every other object is reacting to that one edit."
+    evidence: "attachment line 2, DRPC openshift-dr-ops/hammerdb-drpc"
+    card:
+      kind: DRPlacementControl
+      name: hammerdb-drpc
+      role: the hub instruction for one protected application
+    def:
+      what: "The object that names the application, the policy, the placement and the action to perform now."
+      creator: "The operator or the console, once per protected application."
+      reader: "The Ramen hub controller, which turns it into work for each site."
+      where: "Hub cluster, namespace openshift-dr-ops."
+      analogy: "A work order on the office board: it states the job and the current instruction, not the tools."
+
+  - id: "1.3"
+    chapter: Cast of characters
+    visual: DRPolicy card and definition panel
+    narration: "The D R Policy, dr-policy-15m, pairs the two sites and sets a fifteen-minute recovery point objective. That is the most data the business accepts losing, measured in time. It is a promise about copies, not a timer that stops recovery."
+    evidence: "attachment line 2, policy dr-policy-15m"
+    card:
+      kind: DRPolicy
+      name: dr-policy-15m
+      role: two sites and a fifteen-minute data-loss budget
+    def:
+      what: "A cluster-scoped object that pairs two sites and sets the replication interval."
+      creator: "An administrator, once per pair of sites."
+      reader: "Every DRPC that references it, and every site manager that applies its interval."
+      where: "Hub cluster, cluster scope."
+      analogy: "A service contract between two offices: both addresses, and how fresh the copy must be."
+
+  - id: "1.4"
+    chapter: Cast of characters
+    visual: VRG card and definition panel
+    narration: "On each site the Volume Replication Group, or V R G, is the site manager. The one on the target is also called hammerdb-drpc, in openshift-dr-ops. It finds the protected claims, drives the disk work, and reports one readiness answer per application. The hub reads that answer."
+    evidence: "attachment line 9, VRG on spoke-1 with five conditions"
+    card:
+      kind: VolumeReplicationGroup
+      name: hammerdb-drpc
+      role: the site manager that reports one readiness answer
+    def:
+      what: "A per-site object that owns the disk work and reports one summary answer for the application."
+      creator: "The hub controller, delivered to each site."
+      reader: "The hub controller, which reads it to decide whether the application is ready."
+      where: "Each spoke, in the application's control namespace."
+      analogy: "A site foreman who reports one line for the whole job, not one line per worker."
+
+  - id: "1.5"
+    chapter: Cast of characters
+    visual: Velero card and definition panel
+    narration: "Velero is the restore engine. Red Hat packages it as O A D P, the Open Shift A P I for Data Protection. For a discovered application, Velero is the only thing that can rebuild the virtual machine, because nothing in Git describes it."
+    evidence: "attachment, Ramen operator and Velero log blocks"
+    card:
+      kind: Controller
+      name: velero
+      role: restores workload definitions, packaged as OADP
+    def:
+      what: "The component that copies Kubernetes objects and can put them back on another cluster."
+      creator: "The platform, installed as the OADP operator with its own namespace."
+      reader: "Ramen, which asks it for backups and restores, and the operator reading its records."
+      where: "Each cluster, namespace openshift-adp in this run."
+      analogy: "A moving company for paperwork: it packs the forms and delivers them to the new address."
+
+  - id: "1.6"
+    chapter: Cast of characters
+    visual: Backup card and definition panel
+    narration: "A Backup is a Velero record about one archive: its name, its storage location, and its phase. It is a pointer with status, not the data. The data sits in the bucket, and the record only says whether Velero believes it is usable."
+    evidence: "attachment, Backup phase Failed line"
+    card:
+      kind: Backup
+      name: openshift-dr-ops--hammerdb-drpc--0----minio-on-hub
+      role: a record about one archive, with a phase
+    def:
+      what: "A Kubernetes object describing one backup: where it lives and whether Velero considers it usable."
+      creator: "Velero when it imports an archive, or whatever creates the record directly."
+      reader: "The restore path, which validates this record before reading anything."
+      where: "Target cluster, namespace openshift-adp."
+      analogy: "A library catalogue card. It describes the book and where it sits, and it is not the book."
+
+  - id: "1.7"
+    chapter: Cast of characters
+    visual: Restore card and definition panel
+    narration: "A Restore is the matching record for a read. It names the Backup it wants and the namespaces to rebuild, and it reports a phase of its own. When something is wrong, the Restore is where Velero states the refusal."
+    evidence: "attachment, Restore phase FailedValidation line"
+    card:
+      kind: Restore
+      name: hammerdb-drpc
+      role: the request to read one Backup, with its own phase
+    def:
+      what: "A Kubernetes object that asks Velero to rebuild objects from a named Backup."
+      creator: "Ramen, during the recover step of a move."
+      reader: "Velero, which validates it and then executes or refuses it."
+      where: "Target cluster, namespace openshift-adp."
+      analogy: "A request slip at the archive desk: which catalogue card, which folders, and then a stamp."
+
+  - id: "1.8"
+    chapter: Cast of characters
+    visual: BSL card and definition panel
+    narration: "The Backup Storage Location, or B S L, tells Velero which bucket to use and how often to refresh its list of archives. Ours is named after the application and the object-store profile, and its refresh period is set to zero, which disables that refresh."
+    evidence: "attachment, BSL phase Available backupSyncPeriod=0s"
+    card:
+      kind: BackupStorageLocation
+      name: openshift-dr-ops--hammerdb-drpc--0----minio-on-hub
+      role: which bucket to read, and how often to refresh it
+    def:
+      what: "The Velero setting that points at a bucket and controls how often its archives are imported."
+      creator: "Ramen, when it prepares the recover path for this application."
+      reader: "Velero, on every backup and restore it runs."
+      where: "Target cluster, namespace openshift-adp."
+      analogy: "The address of a warehouse, plus how often someone walks over to check what is on the shelves."
+
+  - id: "1.9"
+    chapter: Cast of characters
+    visual: Bucket card and definition panel
+    narration: "The bucket is called ramen-metadata, on MinIO beside the hub. It holds two different things: the disk records Ramen needs to rebuild claims, and the Velero archives of the workload definitions. This video is about the second kind."
+    evidence: "attachment, S3 MinIO bucket ramen-metadata block"
+    card:
+      kind: Bucket
+      name: ramen-metadata
+      role: disk records and object archives, side by side
+    def:
+      what: "An object store bucket that both Ramen and Velero write to."
+      creator: "The platform, configured once with its own credentials."
+      reader: "The site manager for disk records, and Velero for workload definitions."
+      where: "The hub failure domain, on MinIO in this lab."
+      analogy: "A shared safe: two different departments keep their documents in it, under different prefixes."
+
+  - id: "1.10"
+    chapter: Cast of characters
+    visual: PVC card and definition panel
+    narration: "A Persistent Volume Claim is the request for one disk. Both target claims are bound, rootdisk to csivol-841ca78019 and datadisk to csivol-3471d7938c. Bound means the storage half is finished."
+    evidence: "attachment, target namespace hammerdb block"
+    card:
+      kind: PersistentVolumeClaim
+      name: hammerdb-rhel9-rootdisk
+      role: the request for one disk, now bound on the target
+    def:
+      what: "A namespaced request for storage that binds to one specific volume."
+      creator: "The workload, or the platform rebuilding records from the metadata store."
+      reader: "The guest, which mounts it as a disk."
+      where: "Target cluster, namespace hammerdb."
+      analogy: "A claim ticket for a coat: the ticket is bound to one coat, and the ticket is not the coat."
+
+  - id: "1.11"
+    chapter: Cast of characters
+    visual: VirtualMachine card and definition panel
+    narration: "A Virtual Machine is the blueprint for the guest, and a Data Volume prepares its disks. In this run neither object exists on the target. That absence is the finding, and the rest of the video explains how it happened."
+    evidence: "attachment, target namespace block, VirtualMachine none, DataVolume none"
+    card:
+      kind: VirtualMachine
+      name: hammerdb-rhel9
+      role: the blueprint that was never delivered
+    def:
+      what: "The object that describes a guest: its disks, its memory, its network, and how it should run."
+      creator: "An administrator for a discovered application, or GitOps for a managed one."
+      reader: "Open Shift Virtualization, which starts the running instance from it."
+      where: "Target cluster, namespace hammerdb, when the restore works."
+      analogy: "A machine specification on paper. Without the paper, the parts on the bench are just parts."
+
+  - id: "1.12"
+    chapter: Cast of characters
+    visual: Three conditions, three questions
+    narration: "Three conditions summarise the target. Data Ready means the claims can be used. Cluster Data Ready means the saved disk records were rebuilt. Kube Objects Ready means the workload definitions were restored. Only the last one can tell you whether the machine is back."
+    evidence: "attachment, VRG conditions block"
+    pause_after: 1.6
+
+  # ---------------------------------------------------------------- chapter 2
+  - id: "2.1"
+    chapter: The two halves
+    visual: The move as one picture, hub to target
+    narration: "Start with the shape of a move. The hub asks, the target promotes its copies, the claims bind, and then the definitions come back so the guest can start. Two halves, in that order, on purpose."
+    evidence: "VIRTDR-291 beats 8.1 and 8.2 for the ordering, DFBUGS-12505 for this run"
+
+  - id: "2.2"
+    chapter: The two halves
+    t: "2026-11-05T07:54:07Z"
+    visual: Relocate initiated, target spoke-1
+    narration: "At seven fifty-four and seven seconds the operator chose Relocate for hammerdb-drpc, with spoke-1 as the target. Spoke-0 on edge95 was serving, and spoke-1 on edge97 was its standby, with arrays VSA-A and VSA-B."
+    evidence: "DFBUGS-12505 supplement, relocal run 07:54:07Z Relocate clicked"
+
+  - id: "2.3"
+    chapter: The two halves
+    t: "2026-11-05T08:01:13Z"
+    visual: Source VM and claims removed
+    narration: "Because this application was discovered, Ramen will not delete it for you. The operator removed the source virtual machine at eight oh one and thirteen seconds, and the source claims went at eight oh three and twenty. That cleanup is documented, and it is not the cause here."
+    evidence: "DFBUGS-12505 supplement, 08:01:13Z source VM deleted, 08:03:20Z source PVCs gone"
+
+  - id: "2.4"
+    chapter: The two halves
+    t: "2026-11-05T08:03:00Z"
+    visual: Target VRG becomes Primary
+    narration: "On the target, the site manager became Primary. By eight oh three the target V R G reported Data Ready true, and the storage half was complete."
+    evidence: "attachment, VRG DataReady True (Ready)"
+
+  - id: "2.5"
+    chapter: The two halves
+    visual: Cluster data restored, four records
+    narration: "Cluster Data Ready was true as well, with the message restored four volrep P V Cs and P Vs. That is Ramen rebuilding the records that describe which array volume belongs to which claim."
+    evidence: "attachment, ClusterDataReady True (Restored: 4 volrep PVs/PVCs)"
+
+  - id: "2.6"
+    chapter: The two halves
+    visual: Both claims bound to promoted handles
+    narration: "Both claims were bound, and the array handles matched the ones the disks had before the move. The disks are real, writable, and in the right place. Nothing in this video disputes that."
+    evidence: "attachment, PVCs Bound to csivol-841ca78019 and csivol-3471d7938c"
+
+  - id: "2.7"
+    chapter: The two halves
+    visual: KubeObjectsReady false, reason Error
+    narration: "Kube Objects Ready was false. Its reason was Error, and its message said, failed to restore kube objects, kube objects restore error, will retry. That is the second half, and it never completed."
+    evidence: "attachment, KubeObjectsReady False (Error: Failed to restore kube objects)"
+
+  - id: "2.8"
+    chapter: The two halves
+    visual: The namespace contents, listed
+    narration: "Look at what the namespace actually contains. Two bound claims, the cloud-init secret, and no virtual machine and no data volume. The stage is set for a guest that was never delivered."
+    evidence: "attachment, target namespace block"
+    pause_after: 1.4
+
+  - id: "2.9"
+    chapter: The two halves
+    t: "2026-11-05T08:10:00Z"
+    visual: Console popover, two sync lines
+    narration: "The console does separate the two halves, if you open the right place. This popover is titled Kubernetes resources are not syncing. Application volumes last synced at eight ten. Kubernetes resources last synced at seven forty-nine, five minutes before the move was requested."
+    evidence: "DFBUGS-12505 attachment 1294727, popover sync lines"
+    screenshot: 02-failure-popover.png
+    focus: {x: 900, y: 182, w: 388, h: 380}
+    caption: "Application volumes 08:10, Kubernetes resources 07:49, both on 5 November"
+    pause_after: 1.6
+
+  - id: "2.10"
+    chapter: The two halves
+    visual: Two clocks, one moving, one stopped
+    narration: "That is the shape of the failure. The storage clock moved forward. The object clock stopped, and the completion fields never consulted it."
+    evidence: "DFBUGS-12505 popover and DRPC status"
+    pause_after: 1.4
+
+  - id: "2.11"
+    chapter: The two halves
+    visual: Volumes first, then objects
+    narration: "Volumes first, then objects. That ordering is deliberate: the restored definitions must find their disks already waiting, so no new blank disk is created."
+    evidence: "VIRTDR-291 beat 8.2 ordering, DFBUGS-12505 target state"
+
+  - id: "2.12"
+    chapter: The two halves
+    visual: The question turns to a name
+    narration: "So the question is not why the disks failed. The question is what stopped the definitions, and the answer starts with a name."
+    evidence: "DFBUGS-12505 failure messages"
+
+  # ---------------------------------------------------------------- chapter 3
+  - id: "3.1"
+    chapter: The archive and the placeholder
+    t: "2026-11-05T08:03:00Z"
+    visual: Capture group zero, archive Completed
+    narration: "Ramen protects a discovered application's objects on a schedule, and each pass is a capture group with a number. This run selected group zero, and the archive for that group says phase Completed."
+    evidence: "DFBUGS-12505 attachment bug-placeholder-backup-failedvalidation.txt, captureToRecoverFrom and S3 blocks"
+
+  - id: "3.2"
+    chapter: The archive and the placeholder
+    visual: The key path inside the bucket
+    narration: "The archive sits in the bucket under the application's prefix, with its own metadata file. The workload definition is safe. That is not the problem."
+    evidence: "attachment, S3 key velero/backups/openshift-dr-ops--hammerdb-drpc--0----minio-on-hub/velero-backup.json"
+
+  - id: "3.3"
+    chapter: The archive and the placeholder
+    visual: Archive versus record
+    narration: "The problem is the difference between an archive and a Backup record. An archive is a folder in a bucket. A Backup is a Kubernetes object Velero can be asked to restore from. Velero restores records, and reads the bytes behind them."
+    evidence: "attachment, S3 block compared with Backup phase line"
+
+  - id: "3.4"
+    chapter: The archive and the placeholder
+    visual: BSL refresh period set to zero
+    narration: "A Backup record can arrive in two ways. Velero can import it from the bucket on a schedule, or something can create it directly. The target's storage location has its refresh period set to zero, which turns importing off."
+    evidence: "attachment, BSL phase Available backupSyncPeriod=0s"
+
+  - id: "3.5"
+    chapter: The archive and the placeholder
+    visual: No record exists on the target
+    narration: "So on the target cluster, at the moment of the move, there was no Backup record for that archive. Not a failed one. None."
+    evidence: "attachment, BSL and Backup blocks"
+
+  - id: "3.6"
+    chapter: The archive and the placeholder
+    visual: Code panel, name construction
+    narration: "Ramen builds the name it wants from three parts: a prefix, the group name, and the object-store profile. The function simply joins them with double hyphens. That produces the long name you will see in every message."
+    evidence: "RamenDR/ramen f023ed9e internal/controller/vrg_kubeobjects.go line 54"
+    pause_after: 1.2
+
+  - id: "3.7"
+    chapter: The archive and the placeholder
+    visual: Code panel, recover request
+    narration: "The recover request asks for a Backup record. If it finds one, it moves on. If it does not, it calls the create path, with that same name."
+    evidence: "RamenDR/ramen f023ed9e internal/controller/kubeobjects/velero/requests.go line 226"
+
+  - id: "3.8"
+    chapter: The archive and the placeholder
+    visual: Code panel, a real create
+    narration: "The create path makes a real Backup object. Not a read, and not a copy of the archive: a Create, with the name of an archive that already exists in the bucket."
+    evidence: "RamenDR/ramen f023ed9e requests.go line 514"
+    pause_after: 1.4
+
+  - id: "3.9"
+    chapter: The archive and the placeholder
+    visual: Velero picks up the new record
+    narration: "Velero's backup controller then does what it does for any new backup. It starts the backup, and it checks the bucket."
+    evidence: "Velero log lines, backup failed, controller=backup"
+
+  - id: "3.10"
+    chapter: The archive and the placeholder
+    visual: The name already exists
+    narration: "It finds an object with that name already there. A backup may not overwrite an existing backup, so Velero stops, and it marks the new record failed."
+    evidence: "attachment, Backup phase Failed, backup already exists in object storage"
+
+  - id: "3.11"
+    chapter: The archive and the placeholder
+    visual: The two recorded log lines
+    narration: "Here is the recorded message. Backup phase Failed, failure, backup execution failed, backup already exists in object storage. The archive itself is untouched and still Completed."
+    evidence: "DFBUGS-12505 attachment 1275834, Backup and Restore lines"
+    screenshot: 03-failed-placeholder-backup.png
+    focus: {x: 976, y: 128, w: 872, h: 54}
+    caption: "Backup phase Failed: backup already exists in object storage"
+    pause_after: 1.8
+
+  - id: "3.12"
+    chapter: The archive and the placeholder
+    visual: Code panel, Failed treated as usable
+    narration: "Now read Ramen's side. When it processes that record, Completed, Partially Failed, and Failed all lead to the same call: create a Restore. Failed is not treated as an error."
+    evidence: "RamenDR/ramen f023ed9e requests.go line 268"
+    pause_after: 1.6
+
+  - id: "3.13"
+    chapter: The archive and the placeholder
+    visual: The record as a handle
+    narration: "That is deliberate. The record was only ever meant to be a handle. Ramen knows the bytes are in the bucket, so it asks Velero to restore from the handle, whatever phase the handle is in."
+    evidence: "RamenDR/ramen#2947 merge description, older Velero read data from S3"
+
+  - id: "3.14"
+    chapter: The archive and the placeholder
+    visual: The chain, four records
+    narration: "So Ramen creates a Restore that names the failed Backup. Then it waits, and the next object in the chain makes the decision that matters."
+    evidence: "attachment, Restore phase FailedValidation"
+
+  - id: "3.15"
+    chapter: The archive and the placeholder
+    visual: One good archive, one duplicate, one refusal
+    narration: "So far: one good archive, one self-made duplicate, one failed record, and one Restore pointing at it. Nothing has been lost, and nothing has been restored."
+    evidence: "DFBUGS-12505 S3, Backup and Restore blocks"
+    pause_after: 1.4
+
+  - id: "3.16"
+    chapter: The archive and the placeholder
+    visual: The system collides with itself
+    narration: "This is the part that is easy to miss. The collision is not between two teams or two clusters. The system created the duplicate itself, by writing a record with the same name as the thing it wanted to read."
+    evidence: "Ramen code trace and Velero log"
+    pause_after: 1.8
+
+  # ---------------------------------------------------------------- chapter 4
+  - id: "4.1"
+    chapter: The refusal
+    t: "2026-11-05T08:03:52Z"
+    visual: Velero validates before it reads
+    narration: "Velero's restore controller validates every Restore before it reads anything. It loads the Backup the Restore names, and it checks the phase."
+    evidence: "pkg/controller/restore_controller.go validateAndComplete"
+
+  - id: "4.2"
+    chapter: The refusal
+    visual: Code panel, two accepted phases
+    narration: "The rule is two words wide. Completed, and Partially Failed, are accepted. Every other phase falls through to a validation error."
+    evidence: "pkg/controller/restore_controller.go lines 422 to 426"
+    pause_after: 1.4
+
+  - id: "4.3"
+    chapter: The refusal
+    visual: The refusal sentence
+    narration: "The error text names the backup and its phase: backup is in phase Failed and cannot be used as a restore source. That sentence is the whole failure, in one line."
+    evidence: "attachment, Restore validation errors block"
+
+  - id: "4.4"
+    chapter: The refusal
+    t: "2026-11-05T08:03:52Z"
+    visual: Restore ends FailedValidation
+    narration: "At eight oh three and fifty-two the Restore ended Failed Validation. Ramen logged it at eight oh five and fifty-seven, and again two seconds later. Each retry produced the same answer."
+    evidence: "DFBUGS-12505 supplement, 08:03:52Z, and Ramen log 08:05:57 and 08:05:59"
+
+  - id: "4.5"
+    chapter: The refusal
+    t: "2026-11-05T08:05:57Z"
+    visual: Four conditions on the target
+    narration: "The target site manager kept its own verdict. Kube Objects Ready false, reason Error, message, failed to restore kube objects, will retry. Will retry is honest, and it is also a loop."
+    evidence: "DFBUGS-12505 attachment 1275834, DRPC and VRG condition blocks"
+    screenshot: 03-failed-placeholder-backup.png
+    focus: {x: 38, y: 128, w: 872, h: 242}
+    caption: "Relocated/Completed while KubeObjectsReady reads Error"
+    pause_after: 1.8
+
+  - id: "4.6"
+    chapter: The refusal
+    visual: The loop cannot converge
+    narration: "Nothing in that loop can change the outcome. The Backup record is failed. The Restore validates the Backup. Retrying rewrites the same two facts."
+    evidence: "attachment, repeated Ramen log lines"
+
+  - id: "4.7"
+    chapter: The refusal
+    t: "2026-11-05T08:06:10Z"
+    visual: Velero log repeats
+    narration: "Three minutes later the Velero log is still repeating: backup failed, backup already exists in object storage. The controller is not stuck. It is correctly refusing the same request."
+    evidence: "DFBUGS-12505 supplement, Velero log 08:06:10 to 08:06:12"
+
+  - id: "4.8"
+    chapter: The refusal
+    t: "2026-11-05T08:03:40Z"
+    visual: The hub reports the move complete
+    narration: "Meanwhile the hub reports the move as finished. Phase Relocated, progression Completed, Available true, Peer Ready true."
+    evidence: "DFBUGS-12505 supplement, live DRPC status at 08:03:40Z"
+
+  - id: "4.9"
+    chapter: The refusal
+    visual: The one field that disagrees
+    narration: "The one field that disagrees is Protected. It reads false, with reason Progressing and the message, kube objects capture has not started."
+    evidence: "attachment, Protected False (Progressing: Kube objects capture has not started)"
+
+  - id: "4.10"
+    chapter: The refusal
+    visual: Four fields, one question each
+    narration: "Four fields on one object, and only one of them is about the missing machine. Completed answers a storage question. Protected answers the object question, and it is the field an operator is least likely to read."
+    evidence: "DFBUGS-12505 DRPC status block"
+    pause_after: 1.6
+
+  - id: "4.11"
+    chapter: The refusal
+    t: "2026-11-05T08:10:00Z"
+    visual: The console row, critical among healthy
+    narration: "In the console the row for hammerdb-drpc is marked critical, and the other four applications are healthy. The information was there. The completion fields simply do not summarise it."
+    evidence: "DFBUGS-12505 attachment 1294726, Protected applications table"
+    screenshot: 01-drpc-relocated-protected-false.png
+    focus: {x: 370, y: 490, w: 1180, h: 210}
+    caption: "hammerdb-drpc marked critical while the other four rows are healthy"
+    pause_after: 1.6
+
+  - id: "4.12"
+    chapter: The refusal
+    visual: Upstream change, June
+    narration: "Why did this only start now? Because Velero changed. On the eighth of June, upstream Velero added this phase check, so a Restore may not read from a Backup in any phase other than Completed or Partially Failed."
+    evidence: "velero-io/velero#9792, cited in RamenDR/ramen#2947 merge description"
+    unverified: "The upstream pull request number and date come from the maintainer revert text, not from a direct read of that pull request."
+
+  - id: "4.13"
+    chapter: The refusal
+    visual: Backport and image rollout
+    narration: "Red Hat backported it into the O A D P one point six branch, and that change merged on the twenty-third of October. The image carrying it reached spoke-1 on the twenty-eighth."
+    evidence: "openshift/velero#600 merged 2026-10-23, OADP CSV created 2026-10-28T08:09:20Z, image deployed 08:10:46Z"
+    pause_after: 1.4
+
+  - id: "4.14"
+    chapter: The refusal
+    visual: Older Velero ignored the phase
+    narration: "Before that change, Velero ignored the phase and read the archive directly. That is exactly why the placeholder worked for years, and why nothing in Ramen had to change for it to stop working."
+    evidence: "RamenDR/ramen#2947 merge description, older Velero read data straight from S3"
+    pause_after: 1.8
+
+  # ---------------------------------------------------------------- chapter 5
+  - id: "5.1"
+    chapter: The earlier success
+    visual: 19 October, the same application
+    narration: "Now the comparison that makes this concrete. On the nineteenth of October, the same application was failed over to spoke-0, and its virtual machine was rebuilt from the same kind of archive."
+    evidence: "VIRTDR-342, recorded 2026-10-19"
+
+  - id: "5.2"
+    chapter: The earlier success
+    visual: Guest running, order count unchanged
+    narration: "That run recorded the virtual machine running, Postgre S Q L active, and the order count unchanged. The object half worked, on this application, with this same code."
+    evidence: "VIRTDR-342 evidence and its animation, beat 5.5 and 8.5"
+
+  - id: "5.3"
+    chapter: The earlier success
+    visual: The older image
+    narration: "The Velero image on spoke-1 on that date was built on the twenty-sixth of August, digest four seven one two three c eight d."
+    evidence: "DFBUGS-12505 attachment, Velero images block"
+
+  - id: "5.4"
+    chapter: The earlier success
+    visual: The new image arrives
+    narration: "On the twenty-eighth of October, at eight ten in the morning, a new image was rolled out: digest e b one six six two c nine, with O A D P one point six point two."
+    evidence: "attachment, new ReplicaSet 2026-10-28T08:10:46Z and OADP CSV"
+
+  - id: "5.5"
+    chapter: The earlier success
+    visual: First failure, then reproduction
+    narration: "The first recorded failure is the twenty-ninth of October. The second is the fifth of November, reproduced on the current build."
+    evidence: "DFBUGS-12505 created 2026-10-29, comment 2026-11-05 reproduced"
+
+  - id: "5.6"
+    chapter: The earlier success
+    visual: Success, change, failure, failure
+    narration: "So the sequence is: success, image change, failure, failure. That pattern is worth taking seriously."
+    evidence: "VIRTDR-342 and DFBUGS-12505 dates"
+
+  - id: "5.7"
+    chapter: The earlier success
+    visual: Why it is not proof
+    narration: "It is also not proof. Two runs before and after a change is a correlation, and the two operations are not identical: October was a failover, November was a Relocate."
+    evidence: "VIRTDR-342 is a failover with the source cluster suspended, DFBUGS-12505 is a Relocate"
+    pause_after: 1.6
+
+  - id: "5.8"
+    chapter: The earlier success
+    visual: What would settle it
+    narration: "What would settle it is a Relocate on the old image, or a failover on the new one. Neither exists in the record. So the causal claim stays unverified, and the video says so."
+    evidence: "DFBUGS-12505, no such control run attached"
+    unverified: "Whether the image change alone caused the regression."
+
+  - id: "5.9"
+    chapter: The earlier success
+    visual: The four verified facts
+    narration: "What is verified is narrower and still useful. The archive is complete, the duplicate is failed, the Restore is refused, and the machine is absent. Those four facts do not depend on which image caused it."
+    evidence: "attachment, S3, Backup, Restore and namespace blocks"
+    pause_after: 1.4
+
+  - id: "5.10"
+    chapter: The earlier success
+    visual: Two kinds of claim, kept apart
+    narration: "Keep the two kinds of claim apart. The mechanism is read from source and matches every recorded message. The regression window is a correlation with a plausible explanation."
+    evidence: "source trace in trace.md, and DFBUGS-12505 dates"
+
+  - id: "5.11"
+    chapter: The earlier success
+    visual: Why the distinction matters
+    narration: "That distinction is not pedantry. A video that says this image broke recovery would be making a claim the record cannot support. A video that says this is what the code does, and here is when the behaviour changed, is making one it can."
+    evidence: "trace.md, deployed-build provenance unverified"
+    pause_after: 1.8
+
+  # ---------------------------------------------------------------- chapter 6
+  - id: "6.1"
+    chapter: The fix that did not work
+    visual: The obvious repair
+    narration: "The obvious fix is to turn the import back on. If the Backup record were imported from the bucket instead of created, there would be no duplicate, and the phase would be Completed."
+    evidence: "RamenDR/ramen#2940, described in the #2947 revert"
+
+  - id: "6.2"
+    chapter: The fix that did not work
+    visual: Someone tried it
+    narration: "Someone tried exactly that. A Ramen change left the storage location's refresh period unset on recover locations, so Velero would import the real archive."
+    evidence: "RamenDR/ramen#2940, reverted by #2947"
+
+  - id: "6.3"
+    chapter: The fix that did not work
+    visual: Merged, then reverted
+    narration: "It merged, and then it was reverted on the fourth of November. The revert explains why, and the reason is precise."
+    evidence: "RamenDR/ramen#2947, merged 2026-11-04"
+
+  - id: "6.4"
+    chapter: The fix that did not work
+    visual: Import does not overwrite
+    narration: "Importing does not overwrite records that already exist. Velero compares the archives in the bucket with the Backup objects in the cluster, and imports only the difference."
+    evidence: "RamenDR/ramen#2947 merge description, backupsToSync difference set"
+
+  - id: "6.5"
+    chapter: The fix that did not work
+    visual: Two sets, one difference, one skip
+    narration: "Two sets. Archives in the bucket, records in the cluster. Import takes the difference. The placeholder is already in the second set, so it is never imported."
+    evidence: "RamenDR/ramen#2947 merge description"
+    pause_after: 1.6
+
+  - id: "6.6"
+    chapter: The fix that did not work
+    visual: The placeholder stays failed
+    narration: "Ramen creates the placeholder before the import could ever see it. So the placeholder stays failed, the Restore still points at it, and the validation still refuses it."
+    evidence: "RamenDR/ramen#2947 merge description"
+
+  - id: "6.7"
+    chapter: The fix that did not work
+    visual: The revert
+    narration: "The fix changed nothing, and it was reverted rather than left in place."
+    evidence: "RamenDR/ramen#2947"
+
+  - id: "6.8"
+    chapter: The fix that did not work
+    visual: The second reason
+    narration: "There was a second reason too. Turning import on globally can pull stale archives back into view, objects Ramen deliberately keeps out of the cluster."
+    evidence: "RamenDR/ramen#2947 merge description, added risk"
+
+  - id: "6.9"
+    chapter: The fix that did not work
+    visual: What the real fix must do
+    narration: "The maintainers' conclusion is that the real fix must avoid creating the failed placeholder at all, so Velero can import the real Completed archive in a scoped way, and then restore from that."
+    evidence: "RamenDR/ramen#2947 merge description, real fix paragraph"
+    pause_after: 1.4
+
+  - id: "6.10"
+    chapter: The fix that did not work
+    visual: No fix exists
+    narration: "That fix does not exist yet. The defect is open and new."
+    evidence: "DFBUGS-12505 status New, priority Major"
+
+  - id: "6.11"
+    chapter: The fix that did not work
+    visual: No happy ending
+    narration: "So this video cannot end with, and then it was fixed. It ends with a mechanism, a rejected fix, and a direction."
+    evidence: "DFBUGS-12505 and RamenDR/ramen#2947"
+
+  - id: "6.12"
+    chapter: The fix that did not work
+    visual: The lesson in the rejected fix
+    narration: "There is a lesson in the rejected fix that is worth more than the fix itself. The obvious repair failed because of how a set difference works, not because of effort. Understanding the mechanism was the only way to see it."
+    evidence: "RamenDR/ramen#2947 merge description"
+    pause_after: 1.8
+
+  # ---------------------------------------------------------------- chapter 7
+  - id: "7.1"
+    chapter: What the record proves
+    t: "2026-11-05T08:05:57Z"
+    visual: Recap on the timeline
+    narration: "Recap the recorded run. Relocate at seven fifty-four. Source machine deleted at eight oh one. Disks bound and cluster data restored by eight oh three. Kube objects restore refused at eight oh three fifty-two, and retried at eight oh five fifty-seven."
+    evidence: "DFBUGS-12505 supplement timeline"
+
+  - id: "7.2"
+    chapter: What the record proves
+    visual: What is proven
+    narration: "What the record proves: the storage half completed. The object half did not. The duplicate Backup was created by Ramen with the archive's name, and Velero failed it. The Restore was refused on phase, and the namespace has no virtual machine."
+    evidence: "attachment, S3, Backup, Restore, VRG and namespace blocks"
+
+  - id: "7.3"
+    chapter: What the record proves
+    visual: What stays open
+    narration: "What stays unverified: which commit built the running controllers, which exactly changed the outcome, whether the image upgrade alone explains the regression, and what the fix will be."
+    evidence: "trace.md, deployed-build provenance and causal claim"
+    unverified: "Deployed commits, the causal effect of the image change, and the fix."
+    pause_after: 1.6
+
+  - id: "7.4"
+    chapter: What the record proves
+    visual: Check one, the condition
+    narration: "If you take one check from this video, take this one. Read Kube Objects Ready and its message, not the completion fields. It is the only condition that answers whether the workload came back."
+    evidence: "attachment, KubeObjectsReady False (Error)"
+
+  - id: "7.5"
+    chapter: What the record proves
+    visual: Check two, the namespace
+    narration: "Then look at the target namespace. A bound claim, a secret, and no virtual machine is a specific shape. Once you have seen it, you will recognise it in one glance."
+    evidence: "attachment, target namespace block"
+
+  - id: "7.6"
+    chapter: What the record proves
+    visual: Check three, the two Velero records
+    narration: "Then read the Backup and Restore records. A Backup in Failed with the name of an existing archive tells you the collision happened. A Restore in Failed Validation tells you Velero refused it."
+    evidence: "attachment, Backup and Restore lines"
+
+  - id: "7.7"
+    chapter: What the record proves
+    visual: The completion fields answer less
+    narration: "None of the three replaces the completion fields. They answer a smaller question than the one you are asking. Relocated means the storage contract was met, and it was."
+    evidence: "DFBUGS-12505 DRPC status"
+
+  - id: "7.8"
+    chapter: What the record proves
+    visual: Where this sits for GA
+    narration: "For the product, this sits on the GA feature. The Dell Power Store feature requires planned and unplanned failover, failback and re-protection to pass qualification, and it requires a return to the original site to leave no stuck resources."
+    evidence: "VIRTDR-361 requirements 2 and 3, acceptance criteria on failback"
+
+  - id: "7.9"
+    chapter: What the record proves
+    visual: The tests that exercise it
+    narration: "The planned relocation test cases for a discovered application, console-driven and A P I-driven, exercise exactly this path. The next manual test run is the one that would catch it again."
+    evidence: "VIRTDR-424 and VIRTDR-425 Draft test cases, VIRTDR-411 execute manual test run"
+
+  - id: "7.10"
+    chapter: What the record proves
+    visual: What a fix must do
+    narration: "A fix would have to stop creating a failed record. Import the real archive in a scoped way, or create the record only after the archive is visible, and never restore from a record you know is failed."
+    evidence: "RamenDR/ramen#2947 merge description, real fix paragraph"
+
+  - id: "7.11"
+    chapter: What the record proves
+    visual: The operational answer
+    narration: "Until then, the operational answer is to check both halves before believing a move. Disks, definitions, guest."
+    evidence: "DFBUGS-12505, three recorded checks"
+    pause_after: 1.2
+
+  - id: "7.12"
+    chapter: What the record proves
+    visual: Closing line
+    narration: "The backup was already there. The machine was not."
+    evidence: "DFBUGS-12505 summary"
+    pause_after: 2.2
