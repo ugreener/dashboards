@@ -1,0 +1,449 @@
+{
+ "0.1": {
+  "chapter": "Cold open",
+  "t": "2026-11-05T07:54:07Z"
+ },
+ "0.2": {
+  "chapter": "Cold open"
+ },
+ "0.3": {
+  "chapter": "Cold open"
+ },
+ "0.4": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "Cast of characters"
+ },
+ "1.2": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPlacementControl",
+   "name": "hammerdb-drpc",
+   "role": "the hub instruction for one protected application"
+  },
+  "def": {
+   "what": "The object that names the application, the policy, the placement and the action to perform now.",
+   "creator": "The operator or the console, once per protected application.",
+   "reader": "The Ramen hub controller, which turns it into work for each site.",
+   "where": "Hub cluster, namespace openshift-dr-ops.",
+   "analogy": "A work order on the office board: it states the job and the current instruction, not the tools."
+  }
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPolicy",
+   "name": "dr-policy-15m",
+   "role": "two sites and a fifteen-minute data-loss budget"
+  },
+  "def": {
+   "what": "A cluster-scoped object that pairs two sites and sets the replication interval.",
+   "creator": "An administrator, once per pair of sites.",
+   "reader": "Every DRPC that references it, and every site manager that applies its interval.",
+   "where": "Hub cluster, cluster scope.",
+   "analogy": "A service contract between two offices: both addresses, and how fresh the copy must be."
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationGroup",
+   "name": "hammerdb-drpc",
+   "role": "the site manager that reports one readiness answer"
+  },
+  "def": {
+   "what": "A per-site object that owns the disk work and reports one summary answer for the application.",
+   "creator": "The hub controller, delivered to each site.",
+   "reader": "The hub controller, which reads it to decide whether the application is ready.",
+   "where": "Each spoke, in the application's control namespace.",
+   "analogy": "A site foreman who reports one line for the whole job, not one line per worker."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Controller",
+   "name": "velero",
+   "role": "restores workload definitions, packaged as OADP"
+  },
+  "def": {
+   "what": "The component that copies Kubernetes objects and can put them back on another cluster.",
+   "creator": "The platform, installed as the OADP operator with its own namespace.",
+   "reader": "Ramen, which asks it for backups and restores, and the operator reading its records.",
+   "where": "Each cluster, namespace openshift-adp in this run.",
+   "analogy": "A moving company for paperwork: it packs the forms and delivers them to the new address."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Backup",
+   "name": "openshift-dr-ops--hammerdb-drpc--0----minio-on-hub",
+   "role": "a record about one archive, with a phase"
+  },
+  "def": {
+   "what": "A Kubernetes object describing one backup: where it lives and whether Velero considers it usable.",
+   "creator": "Velero when it imports an archive, or whatever creates the record directly.",
+   "reader": "The restore path, which validates this record before reading anything.",
+   "where": "Target cluster, namespace openshift-adp.",
+   "analogy": "A library catalogue card. It describes the book and where it sits, and it is not the book."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Restore",
+   "name": "hammerdb-drpc",
+   "role": "the request to read one Backup, with its own phase"
+  },
+  "def": {
+   "what": "A Kubernetes object that asks Velero to rebuild objects from a named Backup.",
+   "creator": "Ramen, during the recover step of a move.",
+   "reader": "Velero, which validates it and then executes or refuses it.",
+   "where": "Target cluster, namespace openshift-adp.",
+   "analogy": "A request slip at the archive desk: which catalogue card, which folders, and then a stamp."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "BackupStorageLocation",
+   "name": "openshift-dr-ops--hammerdb-drpc--0----minio-on-hub",
+   "role": "which bucket to read, and how often to refresh it"
+  },
+  "def": {
+   "what": "The Velero setting that points at a bucket and controls how often its archives are imported.",
+   "creator": "Ramen, when it prepares the recover path for this application.",
+   "reader": "Velero, on every backup and restore it runs.",
+   "where": "Target cluster, namespace openshift-adp.",
+   "analogy": "The address of a warehouse, plus how often someone walks over to check what is on the shelves."
+  }
+ },
+ "1.9": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Bucket",
+   "name": "ramen-metadata",
+   "role": "disk records and object archives, side by side"
+  },
+  "def": {
+   "what": "An object store bucket that both Ramen and Velero write to.",
+   "creator": "The platform, configured once with its own credentials.",
+   "reader": "The site manager for disk records, and Velero for workload definitions.",
+   "where": "The hub failure domain, on MinIO in this lab.",
+   "analogy": "A shared safe: two different departments keep their documents in it, under different prefixes."
+  }
+ },
+ "1.10": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "PersistentVolumeClaim",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "the request for one disk, now bound on the target"
+  },
+  "def": {
+   "what": "A namespaced request for storage that binds to one specific volume.",
+   "creator": "The workload, or the platform rebuilding records from the metadata store.",
+   "reader": "The guest, which mounts it as a disk.",
+   "where": "Target cluster, namespace hammerdb.",
+   "analogy": "A claim ticket for a coat: the ticket is bound to one coat, and the ticket is not the coat."
+  }
+ },
+ "1.11": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VirtualMachine",
+   "name": "hammerdb-rhel9",
+   "role": "the blueprint that was never delivered"
+  },
+  "def": {
+   "what": "The object that describes a guest: its disks, its memory, its network, and how it should run.",
+   "creator": "An administrator for a discovered application, or GitOps for a managed one.",
+   "reader": "Open Shift Virtualization, which starts the running instance from it.",
+   "where": "Target cluster, namespace hammerdb, when the restore works.",
+   "analogy": "A machine specification on paper. Without the paper, the parts on the bench are just parts."
+  }
+ },
+ "1.12": {
+  "chapter": "Cast of characters"
+ },
+ "2.1": {
+  "chapter": "The two halves"
+ },
+ "2.2": {
+  "chapter": "The two halves",
+  "t": "2026-11-05T07:54:07Z"
+ },
+ "2.3": {
+  "chapter": "The two halves",
+  "t": "2026-11-05T08:01:13Z"
+ },
+ "2.4": {
+  "chapter": "The two halves",
+  "t": "2026-11-05T08:03:00Z"
+ },
+ "2.5": {
+  "chapter": "The two halves"
+ },
+ "2.6": {
+  "chapter": "The two halves"
+ },
+ "2.7": {
+  "chapter": "The two halves"
+ },
+ "2.8": {
+  "chapter": "The two halves"
+ },
+ "2.9": {
+  "chapter": "The two halves",
+  "t": "2026-11-05T08:10:00Z",
+  "screenshot": "02-failure-popover.png",
+  "focus": {
+   "x": 900,
+   "y": 182,
+   "w": 388,
+   "h": 380
+  },
+  "caption": "Application volumes 08:10, Kubernetes resources 07:49, both on 5 November"
+ },
+ "2.10": {
+  "chapter": "The two halves"
+ },
+ "2.11": {
+  "chapter": "The two halves"
+ },
+ "2.12": {
+  "chapter": "The two halves"
+ },
+ "3.1": {
+  "chapter": "The archive and the placeholder",
+  "t": "2026-11-05T08:03:00Z"
+ },
+ "3.2": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.3": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.4": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.5": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.6": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.7": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.8": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.9": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.10": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.11": {
+  "chapter": "The archive and the placeholder",
+  "screenshot": "03-failed-placeholder-backup.png",
+  "focus": {
+   "x": 976,
+   "y": 128,
+   "w": 872,
+   "h": 54
+  },
+  "caption": "Backup phase Failed: backup already exists in object storage"
+ },
+ "3.12": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.13": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.14": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.15": {
+  "chapter": "The archive and the placeholder"
+ },
+ "3.16": {
+  "chapter": "The archive and the placeholder"
+ },
+ "4.1": {
+  "chapter": "The refusal",
+  "t": "2026-11-05T08:03:52Z"
+ },
+ "4.2": {
+  "chapter": "The refusal"
+ },
+ "4.3": {
+  "chapter": "The refusal"
+ },
+ "4.4": {
+  "chapter": "The refusal",
+  "t": "2026-11-05T08:03:52Z"
+ },
+ "4.5": {
+  "chapter": "The refusal",
+  "t": "2026-11-05T08:05:57Z",
+  "screenshot": "03-failed-placeholder-backup.png",
+  "focus": {
+   "x": 38,
+   "y": 128,
+   "w": 872,
+   "h": 242
+  },
+  "caption": "Relocated/Completed while KubeObjectsReady reads Error"
+ },
+ "4.6": {
+  "chapter": "The refusal"
+ },
+ "4.7": {
+  "chapter": "The refusal",
+  "t": "2026-11-05T08:06:10Z"
+ },
+ "4.8": {
+  "chapter": "The refusal",
+  "t": "2026-11-05T08:03:40Z"
+ },
+ "4.9": {
+  "chapter": "The refusal"
+ },
+ "4.10": {
+  "chapter": "The refusal"
+ },
+ "4.11": {
+  "chapter": "The refusal",
+  "t": "2026-11-05T08:10:00Z",
+  "screenshot": "01-drpc-relocated-protected-false.png",
+  "focus": {
+   "x": 370,
+   "y": 490,
+   "w": 1180,
+   "h": 210
+  },
+  "caption": "hammerdb-drpc marked critical while the other four rows are healthy"
+ },
+ "4.12": {
+  "chapter": "The refusal",
+  "unverified": "The upstream pull request number and date come from the maintainer revert text, not from a direct read of that pull request."
+ },
+ "4.13": {
+  "chapter": "The refusal"
+ },
+ "4.14": {
+  "chapter": "The refusal"
+ },
+ "5.1": {
+  "chapter": "The earlier success"
+ },
+ "5.2": {
+  "chapter": "The earlier success"
+ },
+ "5.3": {
+  "chapter": "The earlier success"
+ },
+ "5.4": {
+  "chapter": "The earlier success"
+ },
+ "5.5": {
+  "chapter": "The earlier success"
+ },
+ "5.6": {
+  "chapter": "The earlier success"
+ },
+ "5.7": {
+  "chapter": "The earlier success"
+ },
+ "5.8": {
+  "chapter": "The earlier success",
+  "unverified": "Whether the image change alone caused the regression."
+ },
+ "5.9": {
+  "chapter": "The earlier success"
+ },
+ "5.10": {
+  "chapter": "The earlier success"
+ },
+ "5.11": {
+  "chapter": "The earlier success"
+ },
+ "6.1": {
+  "chapter": "The fix that did not work"
+ },
+ "6.2": {
+  "chapter": "The fix that did not work"
+ },
+ "6.3": {
+  "chapter": "The fix that did not work"
+ },
+ "6.4": {
+  "chapter": "The fix that did not work"
+ },
+ "6.5": {
+  "chapter": "The fix that did not work"
+ },
+ "6.6": {
+  "chapter": "The fix that did not work"
+ },
+ "6.7": {
+  "chapter": "The fix that did not work"
+ },
+ "6.8": {
+  "chapter": "The fix that did not work"
+ },
+ "6.9": {
+  "chapter": "The fix that did not work"
+ },
+ "6.10": {
+  "chapter": "The fix that did not work"
+ },
+ "6.11": {
+  "chapter": "The fix that did not work"
+ },
+ "6.12": {
+  "chapter": "The fix that did not work"
+ },
+ "7.1": {
+  "chapter": "What the record proves",
+  "t": "2026-11-05T08:05:57Z"
+ },
+ "7.2": {
+  "chapter": "What the record proves"
+ },
+ "7.3": {
+  "chapter": "What the record proves",
+  "unverified": "Deployed commits, the causal effect of the image change, and the fix."
+ },
+ "7.4": {
+  "chapter": "What the record proves"
+ },
+ "7.5": {
+  "chapter": "What the record proves"
+ },
+ "7.6": {
+  "chapter": "What the record proves"
+ },
+ "7.7": {
+  "chapter": "What the record proves"
+ },
+ "7.8": {
+  "chapter": "What the record proves"
+ },
+ "7.9": {
+  "chapter": "What the record proves"
+ },
+ "7.10": {
+  "chapter": "What the record proves"
+ },
+ "7.11": {
+  "chapter": "What the record proves"
+ },
+ "7.12": {
+  "chapter": "What the record proves"
+ }
+}
