@@ -249,12 +249,12 @@
  },
  "3.11": {
   "chapter": "The archive and the placeholder",
-  "screenshot": "03-failed-placeholder-backup.png",
+  "screenshot": "03-log-lines.png",
   "focus": {
-   "x": 976,
-   "y": 128,
-   "w": 872,
-   "h": 54
+   "x": 0,
+   "y": 0,
+   "w": 960,
+   "h": 320
   },
   "caption": "Backup phase Failed: backup already exists in object storage"
  },
@@ -290,12 +290,12 @@
  "4.5": {
   "chapter": "The refusal",
   "t": "2026-11-05T08:05:57Z",
-  "screenshot": "03-failed-placeholder-backup.png",
+  "screenshot": "03-conditions.png",
   "focus": {
-   "x": 38,
-   "y": 128,
-   "w": 872,
-   "h": 242
+   "x": 0,
+   "y": 0,
+   "w": 900,
+   "h": 320
   },
   "caption": "Relocated/Completed while KubeObjectsReady reads Error"
  },
@@ -321,10 +321,10 @@
   "t": "2026-11-05T08:10:00Z",
   "screenshot": "01-drpc-relocated-protected-false.png",
   "focus": {
-   "x": 370,
-   "y": 490,
-   "w": 1180,
-   "h": 210
+   "x": 300,
+   "y": 420,
+   "w": 1520,
+   "h": 300
   },
   "caption": "hammerdb-drpc marked critical while the other four rows are healthy"
  },

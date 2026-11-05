@@ -358,8 +358,10 @@ beats:
     visual: The two recorded log lines
     narration: "Here is the recorded message. Backup phase Failed, failure, backup execution failed, backup already exists in object storage. The archive itself is untouched and still Completed."
     evidence: "DFBUGS-12505 attachment 1275834, Backup and Restore lines"
-    screenshot: 03-failed-placeholder-backup.png
-    focus: {x: 976, y: 128, w: 872, h: 54}
+    screenshot: 03-log-lines.png
+    focus: {x: 0, y: 0, w: 960, h: 320}
+    iw: 960
+    ih: 320
     caption: "Backup phase Failed: backup already exists in object storage"
     pause_after: 1.8
 
@@ -430,8 +432,10 @@ beats:
     visual: Four conditions on the target
     narration: "The target site manager kept its own verdict. Kube Objects Ready false, reason Error, message, failed to restore kube objects, will retry. Will retry is honest, and it is also a loop."
     evidence: "DFBUGS-12505 attachment 1275834, DRPC and VRG condition blocks"
-    screenshot: 03-failed-placeholder-backup.png
-    focus: {x: 38, y: 128, w: 872, h: 242}
+    screenshot: 03-conditions.png
+    focus: {x: 0, y: 0, w: 900, h: 320}
+    iw: 900
+    ih: 320
     caption: "Relocated/Completed while KubeObjectsReady reads Error"
     pause_after: 1.8
 
@@ -475,7 +479,7 @@ beats:
     narration: "In the console the row for hammerdb-drpc is marked critical, and the other four applications are healthy. The information was there. The completion fields simply do not summarise it."
     evidence: "DFBUGS-12505 attachment 1294726, Protected applications table"
     screenshot: 01-drpc-relocated-protected-false.png
-    focus: {x: 370, y: 490, w: 1180, h: 210}
+    focus: {x: 300, y: 420, w: 1520, h: 300}
     caption: "hammerdb-drpc marked critical while the other four rows are healthy"
     pause_after: 1.6
 
