@@ -297,11 +297,11 @@
    "x": 0,
    "y": 0,
    "w": 900,
-   "h": 320
+   "h": 280
   },
   "caption": "Relocated/Completed while KubeObjectsReady reads Error",
   "iw": 900,
-  "ih": 320
+  "ih": 280
  },
  "4.6": {
   "chapter": "The refusal"

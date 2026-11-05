@@ -57,6 +57,10 @@ export const FOCUS: Record<string, string[]> = {
 
 export type Ctx = {id: string; f: number; dur: number; zoom: number};
 const phase = (id: string) => Number(id.split('.')[0]);
+const atLeast = (id: string, other: string) => {
+  const [a, b] = id.split('.').map(Number); const [c, d] = other.split('.').map(Number);
+  return a > c || (a === c && b >= d);
+};
 const reached = (id: string, other: string) => {
   const [a, b] = id.split('.').map(Number); const [c, d] = other.split('.').map(Number);
   return a > c || (a === c && b >= d);
@@ -163,13 +167,13 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       </g> : null}
 
       {/* empty source-site space becomes the notes canvas */}
-      {chapter === 3 && c.id >= '3.15' ? <g opacity={prog(c.f, 0, 24)}>
+      {chapter === 3 && atLeast(c.id, '3.15') ? <g opacity={prog(c.f, 0, 24)}>
         {[['one good archive', C.green], ['one self-made duplicate', C.amber], ['one failed record', C.red], ['one Restore pointing at it', C.purple]].map(([t, col], i) =>
           <g key={t}><rect x={150} y={960 + i * 74} width={700} height={56} rx={12} fill={C.panel} stroke={col} strokeWidth={2}/>
             <text x={178} y={997 + i * 74} fill={col} fontFamily={sans} fontSize={24}>{i + 1}. {t}</text></g>)}
       </g> : null}
 
-      {chapter === 6 && c.id >= '6.4' && c.id <= '6.6' ? <g opacity={prog(c.f, c.dur * .1, c.dur * .1 + 25)}>
+      {chapter === 6 && atLeast(c.id, '6.4') && !atLeast(c.id, '6.7') ? <g opacity={prog(c.f, c.dur * .1, c.dur * .1 + 25)}>
         <rect x={150} y={960} width={1000} height={330} rx={16} fill={C.panel} stroke={C.border} strokeWidth={2}/>
         <text x={180} y={1005} fill={C.dim} fontFamily={sans} fontSize={22}>import takes only the difference</text>
         <rect x={180} y={1030} width={420} height={92} rx={12} fill={`${C.s3}22`} stroke={C.s3} strokeWidth={2}/>

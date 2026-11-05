@@ -433,9 +433,9 @@ beats:
     narration: "The target site manager kept its own verdict. Kube Objects Ready false, reason Error, message, failed to restore kube objects, will retry. Will retry is honest, and it is also a loop."
     evidence: "DFBUGS-12505 attachment 1275834, DRPC and VRG condition blocks"
     screenshot: 03-conditions.png
-    focus: {x: 0, y: 0, w: 900, h: 320}
+    focus: {x: 0, y: 0, w: 900, h: 280}
     iw: 900
-    ih: 320
+    ih: 280
     caption: "Relocated/Completed while KubeObjectsReady reads Error"
     pause_after: 1.8
 
