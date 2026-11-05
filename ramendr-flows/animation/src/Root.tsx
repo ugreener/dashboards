@@ -27,8 +27,11 @@ import {ReprotectWindow} from './virtdr-334/Video';
 import {buildTimeline as buildTimeline334} from './virtdr-334/timeline';
 import {PeerArrayGate} from './peer-array-gate/Video';
 import {buildTimeline as buildTimelinePAG} from './peer-array-gate/timeline';
+import {PlaceholderBackupGate} from './placeholder-backup-gate/Video';
+import {buildTimeline as buildTimelinePBG} from './placeholder-backup-gate/timeline';
 
 const ALL_PAG = Array.from({length: 7}, (_, i) => i);
+const ALL_PBG = Array.from({length: 8}, (_, i) => i);
 
 const ALL_291 = Array.from({length: 14}, (_, i) => i);
 const ALL_342 = Array.from({length: 10}, (_, i) => i);
@@ -162,6 +165,15 @@ export const Root: React.FC = () => (
       width={1920}
       height={1080}
       defaultProps={{chapters: ALL_PAG}}
+    />
+    <Composition
+      id="placeholder-backup-gate"
+      component={PlaceholderBackupGate}
+      durationInFrames={Math.max(1, buildTimelinePBG(ALL_PBG).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_PBG}}
     />
   </>
 );
