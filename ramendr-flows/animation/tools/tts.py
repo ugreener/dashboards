@@ -4,14 +4,17 @@
 Usage:
   ~/.local/share/kokoro-venv/bin/python tools/tts.py virtdr-292 [--chapters 0,1,2] [--voice af_heart]
 
-Writes public/audio/<ticket>/<beat-id>.wav (git-ignored, regenerable) and
-src/<ticket>/timing.json (committed) with each beat's audio duration.
+Writes public/audio/<ticket>/<beat-id>.wav (git-ignored, regenerable),
+src/<ticket>/timing.json (committed) with each beat's audio duration, and
+src/<ticket>/tts-env.json (committed) with the exact TTS stack that produced it.
 """
 import argparse
+import hashlib
 import json
 import os
 import re
 import sys
+from importlib.metadata import PackageNotFoundError, version
 
 import soundfile as sf
 import yaml
@@ -20,7 +23,71 @@ from kokoro_onnx import Kokoro
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 MODELS = os.path.expanduser("~/.local/share/kokoro-models")
+PIN_PATH = os.path.join(ROOT, "tools", "tts-pin.json")
 DEFAULT_PAUSE = 0.8  # seconds of silence after a beat unless beats.yaml sets pause_after
+
+
+def sha256_file(path: str) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def package_version() -> str:
+    try:
+        return version("kokoro-onnx")
+    except PackageNotFoundError:
+        return "unknown"
+
+
+def pinned_model_release() -> str:
+    try:
+        with open(PIN_PATH) as f:
+            return str(json.load(f).get("model_release", "unknown"))
+    except (OSError, ValueError):
+        return "unknown"
+
+
+def check_model_against_pin(models_dir: str, release: str) -> None:
+    try:
+        with open(PIN_PATH) as f:
+            pin = json.load(f)
+    except (OSError, ValueError):
+        return
+    if pin.get("model_release") != release:
+        return
+    for key, name in (("model_sha256", "kokoro-v1.0.onnx"), ("voices_sha256", "voices-v1.0.bin")):
+        expected = pin.get(key)
+        path = os.path.join(models_dir, name)
+        if expected and os.path.exists(path) and sha256_file(path) != expected:
+            raise SystemExit(f"{name} in {models_dir} does not match tools/tts-pin.json for {release}")
+
+
+def write_env(path: str, models_dir: str, release: str, voice: str, speed: float, lang: str, rate: int) -> None:
+    model_file = os.path.join(models_dir, "kokoro-v1.0.onnx")
+    voices_file = os.path.join(models_dir, "voices-v1.0.bin")
+    env = {
+        "package": package_version(),
+        "model_release": release,
+        "model_file": "kokoro-v1.0.onnx",
+        "model_bytes": os.path.getsize(model_file),
+        "model_sha256": sha256_file(model_file),
+        "voices_file": "voices-v1.0.bin",
+        "voices_bytes": os.path.getsize(voices_file),
+        "voices_sha256": sha256_file(voices_file),
+        "voice": voice,
+        "speed": speed,
+        "lang": lang,
+        "sample_rate": rate,
+    }
+    directory = os.path.dirname(path)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(env, f, indent=2)
+        f.write("\n")
 
 # Exact-token replacements applied before generic rules (order matters: longest first).
 SPOKEN = {
@@ -317,6 +384,13 @@ def main() -> int:
     ap.add_argument("--beats", default="", help="comma-separated beat ids to (re)generate only")
     ap.add_argument("--voice", default="af_heart")
     ap.add_argument("--speed", type=float, default=1.0)
+    ap.add_argument("--lang", default="en-us")
+    ap.add_argument("--models-dir", default=MODELS, help="directory holding kokoro-v1.0.onnx and voices-v1.0.bin")
+    ap.add_argument("--out-dir", default="", help="WAV output directory (default public/audio/<ticket>)")
+    ap.add_argument("--timing-out", default="", help="timing JSON path (default src/<ticket>/timing.json)")
+    ap.add_argument("--env-out", default="", help="TTS environment JSON path (default src/<ticket>/tts-env.json)")
+    ap.add_argument("--phonemes-out", default="", help="optional JSON with speakable text and phonemes per beat")
+    ap.add_argument("--model-release", default="", help="model release tag (default from tools/tts-pin.json)")
     ap.add_argument("--dry-run", action="store_true", help="print speakable text only")
     ap.add_argument("--timing-only", action="store_true", help="refresh pause_after values without regenerating audio")
     ap.add_argument("--prune", action="store_true", help="drop timing.json entries whose beat id is no longer in beats.yaml")
@@ -336,11 +410,18 @@ def main() -> int:
             print(f"[{b['id']}] {speakable(b['narration'])}\n")
         return 0
 
-    kokoro = Kokoro(os.path.join(MODELS, "kokoro-v1.0.onnx"), os.path.join(MODELS, "voices-v1.0.bin"))
-    out_dir = os.path.join(ROOT, "public", "audio", a.ticket)
+    models_dir = os.path.abspath(os.path.expanduser(a.models_dir))
+    out_dir = a.out_dir or os.path.join(ROOT, "public", "audio", a.ticket)
+    timing_path = a.timing_out or os.path.join(ROOT, "src", a.ticket, "timing.json")
+    env_out = a.env_out or os.path.join(ROOT, "src", a.ticket, "tts-env.json")
+    release = a.model_release or pinned_model_release()
+    check_model_against_pin(models_dir, release)
+
+    kokoro = Kokoro(os.path.join(models_dir, "kokoro-v1.0.onnx"), os.path.join(models_dir, "voices-v1.0.bin"))
     os.makedirs(out_dir, exist_ok=True)
-    timing_path = os.path.join(ROOT, "src", a.ticket, "timing.json")
     timing = json.load(open(timing_path)) if os.path.exists(timing_path) else {}
+    phonemes = {}
+    rate = 24000
 
     if a.prune:
         for k in [k for k in timing if k not in all_ids]:
@@ -357,14 +438,24 @@ def main() -> int:
 
     for b in beats:
         bid = str(b["id"])
-        samples, rate = kokoro.create(speakable(b["narration"]), voice=a.voice, speed=a.speed, lang="en-us")
+        text = speakable(b["narration"])
+        samples, rate = kokoro.create(text, voice=a.voice, speed=a.speed, lang=a.lang)
         sf.write(os.path.join(out_dir, f"{bid}.wav"), samples, rate)
         timing[bid] = {"seconds": round(len(samples) / rate, 3), "voice": a.voice, "pause": float(b.get("pause_after", DEFAULT_PAUSE))}
+        if a.phonemes_out:
+            phonemes[bid] = {"speakable": text, "phonemes": kokoro.tokenizer.phonemize(text, a.lang)}
         print(f"{bid}: {timing[bid]['seconds']}s", flush=True)
 
-    os.makedirs(os.path.dirname(timing_path), exist_ok=True)
+    directory = os.path.dirname(timing_path)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
     with open(timing_path, "w") as f:
         json.dump(dict(sorted(timing.items(), key=lambda kv: [int(x) for x in kv[0].split(".")])), f, indent=2)
+    if a.phonemes_out:
+        with open(a.phonemes_out, "w") as f:
+            json.dump(phonemes, f, indent=2)
+            f.write("\n")
+    write_env(env_out, models_dir, release, a.voice, a.speed, a.lang, rate)
     return 0
 
 
