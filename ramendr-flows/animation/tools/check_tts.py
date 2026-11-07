@@ -18,9 +18,12 @@ tools/tts-pin.json and is not retested until the package, model release or
 model asset size changes.
 """
 import argparse
+import contextlib
+import fcntl
 import hashlib
 import json
 import math
+import os
 import re
 import shutil
 import subprocess
@@ -69,6 +72,17 @@ def save_pin(pin):
     with open(PIN_PATH, "w") as f:
         json.dump(pin, f, indent=2)
         f.write("\n")
+
+
+@contextlib.contextmanager
+def pin_lock():
+    CACHE.mkdir(parents=True, exist_ok=True)
+    with open(CACHE / "pin.lock", "w") as handle:
+        fcntl.flock(handle, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle, fcntl.LOCK_UN)
 
 
 def http_json(url, timeout):
@@ -221,6 +235,7 @@ def run_tts(python, ticket, beats, models_dir, out_dir, timing_out, env_out, pho
         str(phonemes_out),
         "--model-release",
         release,
+        "--allow-stack-change",
     ]
     return run(cmd, check=False)
 
@@ -348,6 +363,9 @@ def canary(ticket, pin, candidate, timeout):
             hard.append(f"{beat_id}: near-silent output")
         if cand["clipped"] > 0.001:
             hard.append(f"{beat_id}: clipped samples above 0.1 percent")
+        if base["seconds"] <= 0:
+            hard.append(f"{beat_id}: baseline has zero duration")
+            continue
         if not 0.5 <= cand["seconds"] / base["seconds"] <= 2.0:
             hard.append(f"{beat_id}: duration ratio {cand['seconds'] / base['seconds']:.2f} outside 0.5 to 2.0")
 
@@ -425,78 +443,109 @@ def candidate_hashes(candidate, pin):
 def record(pin, result):
     candidate = candidate_hashes(result["candidate"], pin)
     result["candidate"] = candidate
-    if result.get("kind") == "model":
-        key = f"{candidate['model_release']}|{candidate['model_bytes']}"
-    else:
-        key = f"{candidate['package']}|{candidate['model_release']}|{candidate['model_bytes']}"
-    current = load_pin()
-    current.setdefault("decisions", {})[key] = {
-        "result": result["verdict"].lower(),
-        "reason": result["reason"],
-        "date": utc_now(),
-    }
-    current["last_check"] = {
-        "package": candidate["package"],
-        "model_release": candidate["model_release"],
-        "result": result["verdict"].lower(),
-        "reason": result["reason"],
-        "date": utc_now(),
-    }
-    if result["verdict"] == "PASS":
+    key = f"{candidate['package']}|{candidate['model_release']}|{candidate['model_bytes']}"
+    with pin_lock():
+        current = load_pin()
+        current.setdefault("decisions", {})[key] = {
+            "result": result["verdict"].lower(),
+            "reason": result["reason"],
+            "date": utc_now(),
+        }
+        current["last_check"] = {
+            "package": candidate["package"],
+            "model_release": candidate["model_release"],
+            "result": result["verdict"].lower(),
+            "reason": result["reason"],
+            "date": utc_now(),
+        }
         current["last_canary"] = {
+            "kind": result.get("kind", "package"),
             "candidate": candidate,
+            "beats": result.get("beats", []),
             "verdict": result["verdict"],
             "reason": result["reason"],
             "date": utc_now(),
             "run_dir": result["run_dir"],
         }
-    save_pin(current)
+        save_pin(current)
     pin.clear()
     pin.update(current)
 
 
 def adopt(pin, force=False):
-    last = pin.get("last_canary")
-    if not last:
-        raise RuntimeError("no passing canary recorded; run --canary first")
-    if last.get("verdict") != "PASS" and not force:
-        raise RuntimeError("the last canary did not pass; use --force to adopt anyway")
-    candidate = last["candidate"]
-    if candidate["package"] != pin["package"]:
-        run(
-            ["uv", "pip", "install", "--python", str(BASE_PY),
-             f"kokoro-onnx=={candidate['package']}", "soundfile", "pyyaml"],
-            timeout=600,
-        )
-        installed = run(
-            [str(BASE_PY), "-c", "import importlib.metadata as m; print(m.version('kokoro-onnx'))"]
-        ).stdout.strip()
-        if installed != candidate["package"]:
-            raise RuntimeError(f"base venv installed {installed}, expected {candidate['package']}")
-        print(f"INSTALLED PACKAGE: {candidate['package']}")
-    if candidate["model_release"] != pin["model_release"]:
-        source = CACHE / "models" / candidate["model_release"]
-        backup = CACHE / "models" / f"previous-{pin['model_release']}"
-        backup.mkdir(parents=True, exist_ok=True)
-        BASE_MODELS.mkdir(parents=True, exist_ok=True)
-        for name in (MODEL_FILE, VOICES_FILE):
-            target = BASE_MODELS / name
-            if target.exists():
-                shutil.copy2(target, backup / name)
-            shutil.copy2(source / name, target)
-        for key, path in (("model_sha256", BASE_MODELS / MODEL_FILE), ("voices_sha256", BASE_MODELS / VOICES_FILE)):
-            if sha256_file(path) != candidate[key]:
-                raise RuntimeError(f"installed {path.name} does not match the adopted hash")
-        print(f"INSTALLED MODEL: {candidate['model_release']} (previous kept at {backup})")
-    for key in (
-        "package", "model_release", "model_file", "model_bytes", "model_sha256",
-        "voices_file", "voices_bytes", "voices_sha256", "voice", "speed", "lang", "sample_rate",
-    ):
-        if key in candidate:
-            pin[key] = candidate[key]
-    pin["adopted_utc"] = utc_now()
-    pin["last_adopted"] = last
-    save_pin(pin)
+    with pin_lock():
+        current = load_pin()
+        last = current.get("last_canary")
+        if not last:
+            raise RuntimeError("no canary recorded; run --canary first")
+        if last.get("adopted") and not force:
+            raise RuntimeError("the last canary was already adopted; run a new canary")
+        if last.get("verdict") != "PASS" and not force:
+            raise RuntimeError("the last canary did not pass; use --force to adopt anyway")
+        candidate = last["candidate"]
+        kind = last.get("kind", "package")
+
+        if kind == "model":
+            if candidate["package"] != current["package"] and not force:
+                raise RuntimeError(
+                    f"model was canaried under kokoro-onnx {candidate['package']}, "
+                    f"pin is {current['package']}; retest before adopting"
+                )
+        else:
+            if candidate["model_release"] != current["model_release"] and not force:
+                raise RuntimeError(
+                    f"package was canaried with {candidate['model_release']}, "
+                    f"pin is {current['model_release']}; retest before adopting"
+                )
+
+        if kind == "package" and candidate["package"] != current["package"]:
+            run(
+                ["uv", "pip", "install", "--python", str(BASE_PY),
+                 f"kokoro-onnx=={candidate['package']}", "soundfile", "pyyaml"],
+                timeout=600,
+            )
+            installed = run(
+                [str(BASE_PY), "-c", "import importlib.metadata as m; print(m.version('kokoro-onnx'))"]
+            ).stdout.strip()
+            if installed != candidate["package"]:
+                raise RuntimeError(f"base venv installed {installed}, expected {candidate['package']}")
+            print(f"INSTALLED PACKAGE: {candidate['package']}")
+
+        if kind == "model" and candidate["model_release"] != current["model_release"]:
+            source = CACHE / "models" / candidate["model_release"]
+            backup = CACHE / "models" / f"previous-{current['model_release']}"
+            backup.mkdir(parents=True, exist_ok=True)
+            BASE_MODELS.mkdir(parents=True, exist_ok=True)
+            staged = []
+            for name in (MODEL_FILE, VOICES_FILE):
+                target = BASE_MODELS / name
+                temp = target.with_suffix(target.suffix + ".new")
+                shutil.copy2(source / name, temp)
+                staged.append((name, temp))
+            for key, (_, temp) in zip(("model_sha256", "voices_sha256"), staged):
+                if sha256_file(temp) != candidate[key]:
+                    for _, item in staged:
+                        item.unlink(missing_ok=True)
+                    raise RuntimeError(f"staged {temp.name} does not match the adopted hash")
+            for name, temp in staged:
+                target = BASE_MODELS / name
+                if target.exists() and not (backup / name).exists():
+                    shutil.copy2(target, backup / name)
+                os.replace(temp, target)
+            print(f"INSTALLED MODEL: {candidate['model_release']} (previous kept at {backup})")
+
+        if kind == "model":
+            for key in ("model_release", "model_file", "model_bytes", "model_sha256",
+                        "voices_file", "voices_bytes", "voices_sha256"):
+                current[key] = candidate[key]
+        else:
+            current["package"] = candidate["package"]
+        current["adopted_utc"] = utc_now()
+        current["last_adopted"] = last
+        current["last_canary"] = dict(last, adopted=True, adopted_utc=utc_now())
+        save_pin(current)
+    pin.clear()
+    pin.update(current)
     return candidate
 
 
@@ -561,10 +610,10 @@ def verify(ticket, models_dir=BASE_MODELS, pin=None):
             problems.append(f"{beat_id}: missing WAV")
             continue
         info = sf.info(str(wav))
-        wav_frames = math.ceil(info.frames / info.samplerate * 60)
-        timing_frames = math.ceil(float(entry["seconds"]) * 60)
-        if abs(wav_frames - timing_frames) > 1:
-            problems.append(f"{beat_id}: WAV {wav_frames} frames vs timing {timing_frames}")
+        wav_seconds = info.frames / info.samplerate
+        timing_seconds = float(entry["seconds"])
+        if abs(wav_seconds - timing_seconds) > 1.5 / 60:
+            problems.append(f"{beat_id}: WAV {wav_seconds:.3f}s vs timing {timing_seconds:.3f}s")
     return problems
 
 
@@ -584,20 +633,27 @@ def print_report(result):
 
 
 def launch_background(ticket):
+    status = CACHE / "background.pid"
+    if status.exists():
+        try:
+            pid = int(status.read_text().strip())
+            os.kill(pid, 0)
+            print(f"MODEL_CANARY_BACKGROUND: already running (pid {pid})")
+            return
+        except (OSError, ValueError):
+            pass
     log = CACHE / f"background-{datetime.now().strftime('%Y%m%d-%H%M%S')}.log"
     log.parent.mkdir(parents=True, exist_ok=True)
     cmd = [sys.executable, str(HERE / "check_tts.py"), "--ticket", ticket,
            "--canary", "--download-model", "--model-only"]
     with open(log, "w") as out:
-        subprocess.Popen(cmd, cwd=str(ROOT), stdout=out, stderr=subprocess.STDOUT, start_new_session=True)
-    print(f"MODEL_CANARY_BACKGROUND: {log}")
+        proc = subprocess.Popen(cmd, cwd=str(ROOT), stdout=out, stderr=subprocess.STDOUT, start_new_session=True)
+    status.write_text(str(proc.pid))
+    print(f"MODEL_CANARY_BACKGROUND: {log} (pid {proc.pid})")
 
 
 def handle(kind, pin, candidate, args):
-    if kind == "model":
-        key = f"{candidate['model_release']}|{candidate['model_bytes']}"
-    else:
-        key = f"{candidate['package']}|{candidate['model_release']}|{candidate['model_bytes']}"
+    key = f"{candidate['package']}|{candidate['model_release']}|{candidate['model_bytes']}"
     cached = pin.get("decisions", {}).get(key)
     if cached:
         suffix = " (run --adopt to use it)" if cached["result"] == "pass" else ""

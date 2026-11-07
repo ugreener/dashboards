@@ -65,6 +65,34 @@ def check_model_against_pin(models_dir: str, release: str) -> None:
             raise SystemExit(f"{name} in {models_dir} does not match tools/tts-pin.json for {release}")
 
 
+def check_ticket_stack(env_path: str, models_dir: str, release: str) -> None:
+    if not os.path.exists(env_path):
+        return
+    try:
+        with open(env_path) as f:
+            env = json.load(f)
+    except (OSError, ValueError):
+        return
+    if env.get("model_release") != release:
+        raise SystemExit(
+            f"{env_path} records {env.get('model_release')}, run uses {release}; "
+            "use --allow-stack-change only for a deliberate re-stack"
+        )
+    if env.get("package") != package_version():
+        raise SystemExit(
+            f"{env_path} records kokoro-onnx {env.get('package')}, installed {package_version()}; "
+            "install the recorded version or use --allow-stack-change"
+        )
+    for key, name in (("model_sha256", "kokoro-v1.0.onnx"), ("voices_sha256", "voices-v1.0.bin")):
+        expected = env.get(key)
+        path = os.path.join(models_dir, name)
+        if expected and os.path.exists(path) and sha256_file(path) != expected:
+            raise SystemExit(
+                f"{name} in {models_dir} does not match {env_path}; "
+                "use the recorded model or --allow-stack-change"
+            )
+
+
 def write_env(path: str, models_dir: str, release: str, voice: str, speed: float, lang: str, rate: int) -> None:
     model_file = os.path.join(models_dir, "kokoro-v1.0.onnx")
     voices_file = os.path.join(models_dir, "voices-v1.0.bin")
@@ -391,6 +419,7 @@ def main() -> int:
     ap.add_argument("--env-out", default="", help="TTS environment JSON path (default src/<ticket>/tts-env.json)")
     ap.add_argument("--phonemes-out", default="", help="optional JSON with speakable text and phonemes per beat")
     ap.add_argument("--model-release", default="", help="model release tag (default from tools/tts-pin.json)")
+    ap.add_argument("--allow-stack-change", action="store_true", help="permit a stack different from the ticket's tts-env.json")
     ap.add_argument("--dry-run", action="store_true", help="print speakable text only")
     ap.add_argument("--timing-only", action="store_true", help="refresh pause_after values without regenerating audio")
     ap.add_argument("--prune", action="store_true", help="drop timing.json entries whose beat id is no longer in beats.yaml")
@@ -416,6 +445,8 @@ def main() -> int:
     env_out = a.env_out or os.path.join(ROOT, "src", a.ticket, "tts-env.json")
     release = a.model_release or pinned_model_release()
     check_model_against_pin(models_dir, release)
+    if not a.allow_stack_change:
+        check_ticket_stack(env_out, models_dir, release)
 
     kokoro = Kokoro(os.path.join(models_dir, "kokoro-v1.0.onnx"), os.path.join(models_dir, "voices-v1.0.bin"))
     os.makedirs(out_dir, exist_ok=True)
