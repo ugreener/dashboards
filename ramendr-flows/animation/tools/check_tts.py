@@ -565,8 +565,9 @@ def adopt(pin, force=False):
             raise RuntimeError("no canary recorded; run --canary first")
         if last.get("adopted") and not force:
             raise RuntimeError("the last canary was already adopted; run a new canary")
-        if last.get("verdict") != "PASS" and not force:
-            raise RuntimeError("the last canary did not pass; use --force to adopt anyway")
+        preferred = current.get("prefer_latest") and last.get("verdict") == "REVIEW"
+        if last.get("verdict") != "PASS" and not preferred and not force:
+            raise RuntimeError("the last canary needs review; set prefer_latest or use --force to adopt anyway")
         candidate = last["candidate"]
         kind = last.get("kind", "package")
 
@@ -742,7 +743,8 @@ def handle(kind, pin, candidate, args):
     key = f"{candidate['package']}|{candidate['model_release']}|{candidate['model_bytes']}"
     cached = pin.get("decisions", {}).get(key)
     if cached:
-        suffix = " (run --adopt to use it)" if cached["result"] == "pass" else ""
+        adoptable = cached["result"] == "pass" or (cached["result"] == "review" and pin.get("prefer_latest"))
+        suffix = " (run --adopt to use it)" if adoptable else ""
         print(f"{kind.upper()}_CACHED_DECISION: {cached['result']} for {key} ({cached['reason']}){suffix}")
         return pin
     changes = []
@@ -759,11 +761,12 @@ def handle(kind, pin, candidate, args):
         print(json.dumps(result, indent=2))
     else:
         print_report(result)
-    if result["verdict"] == "PASS" and args.adopt:
+    preferred = pin.get("prefer_latest") and result["verdict"] == "REVIEW"
+    if (result["verdict"] == "PASS" or preferred) and args.adopt:
         adopted = adopt(pin)
         print(f"ADOPTED: kokoro-onnx {adopted['package']}, {adopted['model_release']}")
         return load_pin()
-    if result["verdict"] == "PASS":
+    if result["verdict"] == "PASS" or preferred:
         print("Run with --adopt to use this version for the new video.")
     else:
         print(f"KEPT: kokoro-onnx {pin['package']}, {pin['model_release']}")
@@ -870,7 +873,8 @@ def main():
         model_key = f"{pin['package']}|{latest_tag}|{assets.get(MODEL_FILE, 0)}"
         cached = pin.get("decisions", {}).get(model_key)
         if cached:
-            suffix = " (run --adopt to use it)" if cached["result"] == "pass" else ""
+            adoptable = cached["result"] == "pass" or (cached["result"] == "review" and pin.get("prefer_latest"))
+            suffix = " (run --adopt to use it)" if adoptable else ""
             print(f"MODEL_CACHED_DECISION: {cached['result']} for {model_key} ({cached['reason']}){suffix}")
             return 0
         if not args.download_model:
