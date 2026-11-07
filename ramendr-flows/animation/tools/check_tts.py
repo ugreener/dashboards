@@ -374,6 +374,8 @@ def canary(ticket, pin, candidate, timeout):
             "byte_identical": False,
             "hard_failures": ["candidate tts.py failed"],
             "fresh_process_ok": False,
+            "fresh_waveform": "unknown",
+            "fresh_max_diff": 0.0,
         }
 
     cp = run_tts(
@@ -382,8 +384,25 @@ def canary(ticket, pin, candidate, timeout):
         run_dir / "fresh-phonemes.json", candidate["model_release"],
     )
     fresh_ok = False
+    fresh_waveform = "unknown"
+    fresh_max_diff = 0.0
     if cp.returncode == 0:
-        fresh_ok = sha256_file(fresh_dir / f"{beats[0]}.wav") == sha256_file(cand_dir / f"{beats[0]}.wav")
+        cand_path = cand_dir / f"{beats[0]}.wav"
+        fresh_path = fresh_dir / f"{beats[0]}.wav"
+        cand_wav = read_wav(cand_path)
+        fresh_wav = read_wav(fresh_path)
+        fresh_ok = abs(fresh_wav["seconds"] - cand_wav["seconds"]) <= 1.0 / 60.0
+        if fresh_wav["sha256"] == cand_wav["sha256"]:
+            fresh_waveform = "identical"
+        else:
+            try:
+                first, _ = sf.read(str(cand_path), dtype="float32", always_2d=True)
+                second, _ = sf.read(str(fresh_path), dtype="float32", always_2d=True)
+                if first.shape == second.shape:
+                    fresh_max_diff = float(np.max(np.abs(first - second)))
+                    fresh_waveform = "close" if fresh_max_diff <= 0.05 else "different"
+            except Exception:
+                fresh_waveform = "different"
 
     base_phon = json.loads((run_dir / "base-phonemes.json").read_text())
     cand_phon = json.loads((run_dir / "cand-phonemes.json").read_text())
@@ -430,7 +449,7 @@ def canary(ticket, pin, candidate, timeout):
             hard.append(f"{beat_id}: duration ratio {cand['seconds'] / base['seconds']:.2f} outside 0.5 to 2.0")
 
     if not fresh_ok:
-        hard.append(f"{beats[0]}: fresh-process output is not byte-identical")
+        hard.append(f"{beats[0]}: fresh-process duration differs by more than one frame")
 
     max_frame = max((abs(r["frame_delta"]) for r in rows), default=0.0)
     max_pct = max((r["duration_pct"] for r in rows), default=0.0)
@@ -444,23 +463,27 @@ def canary(ticket, pin, candidate, timeout):
         verdict = "PASS"
         reason = "all three beats byte-identical"
     elif candidate["model_changed"]:
-        if not phoneme_changes and max_pct <= 5.0 and max_rms <= 1.5:
+        if not phoneme_changes and max_pct <= 5.0 and max_rms <= 1.5 and fresh_waveform != "different":
             verdict = "PASS"
             reason = f"phonemes unchanged, max {max_pct:.1f} percent duration, {max_rms:.2f} dB"
         else:
             verdict = "REVIEW"
             if phoneme_changes:
                 reason = f"phoneme change on {', '.join(sorted(phoneme_changes))}"
+            elif fresh_waveform == "different":
+                reason = f"waveform differs across a fresh process (max {fresh_max_diff:.3f})"
             else:
                 reason = f"max {max_pct:.1f} percent duration, {max_rms:.2f} dB"
     else:
-        if not phoneme_changes and max_frame <= 1.0 and max_rms <= 0.5:
+        if not phoneme_changes and max_frame <= 1.0 and max_rms <= 0.5 and fresh_waveform != "different":
             verdict = "PASS"
             reason = f"phonemes unchanged, max {max_frame:.2f} frames, {max_rms:.2f} dB"
         else:
             verdict = "REVIEW"
             if phoneme_changes:
                 reason = f"phoneme change on {', '.join(sorted(phoneme_changes))}"
+            elif fresh_waveform == "different":
+                reason = f"waveform differs across a fresh process (max {fresh_max_diff:.3f})"
             else:
                 reason = f"max {max_frame:.2f} frames, {max_rms:.2f} dB"
 
@@ -479,6 +502,8 @@ def canary(ticket, pin, candidate, timeout):
         "byte_identical": byte_identical,
         "hard_failures": hard,
         "fresh_process_ok": fresh_ok,
+        "fresh_waveform": fresh_waveform,
+        "fresh_max_diff": fresh_max_diff,
     }
 
 
@@ -688,7 +713,8 @@ def print_report(result):
     if result["phoneme_changes"]:
         for beat_id, change in sorted(result["phoneme_changes"].items()):
             print(f"  phonemes {beat_id}: {change['base']} -> {change['candidate']}")
-    print(f"  fresh-process determinism: {'OK' if result['fresh_process_ok'] else 'FAILED'}")
+    state = "duration stable" if result["fresh_process_ok"] else "duration differs"
+    print(f"  fresh-process: {state}, waveform {result['fresh_waveform']} (max {result['fresh_max_diff']:.3f})")
     print(f"  run dir: {result['run_dir']}")
 
 

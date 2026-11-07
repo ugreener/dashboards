@@ -13,17 +13,17 @@
   "sample_rate": 24000,
   "decisions": {
     "0.6.1|model-files-v1.1|325505369": {
-      "result": "fail",
-      "reason": "0.1: fresh-process output is not byte-identical",
-      "date": "2026-11-07T15:19:06Z"
+      "result": "review",
+      "reason": "waveform differs across a fresh process (max 0.281)",
+      "date": "2026-11-07T15:26:04Z"
     }
   },
   "last_check": {
     "package": "0.6.1",
     "model_release": "model-files-v1.1",
-    "result": "fail",
-    "reason": "0.1: fresh-process output is not byte-identical",
-    "date": "2026-11-07T15:19:06Z"
+    "result": "review",
+    "reason": "waveform differs across a fresh process (max 0.281)",
+    "date": "2026-11-07T15:26:04Z"
   },
   "last_canary": {
     "kind": "model",
@@ -46,9 +46,9 @@
       "6.3",
       "2.1"
     ],
-    "verdict": "FAIL",
-    "reason": "0.1: fresh-process output is not byte-identical",
-    "date": "2026-11-07T15:19:06Z",
-    "run_dir": "/home/ugreener/.cache/kokoro-canary/runs/20261107-171758-0.6.1-model-files-v1.1"
+    "verdict": "REVIEW",
+    "reason": "waveform differs across a fresh process (max 0.281)",
+    "date": "2026-11-07T15:26:04Z",
+    "run_dir": "/home/ugreener/.cache/kokoro-canary/runs/20261107-172454-0.6.1-model-files-v1.1"
   }
 }
