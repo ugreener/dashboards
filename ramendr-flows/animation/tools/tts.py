@@ -390,6 +390,7 @@ def speakable(text: str) -> str:
     t = re.sub(r"\b(\d{1,2}):(\d{2})(?::(\d{2}))?\b", time_words, t)
     for k in sorted(SPOKEN, key=len, reverse=True):
         t = re.sub(r"(?<![\w-])" + re.escape(k) + r"(?![\w-])", SPOKEN[k], t)
+    t = re.sub(r"(?<![\w-])rhel9(?!\w)", "R H E L nine", t)
     words = []
     for w in re.split(r"(\s+)", t):
         core = w.strip(".,;:!?")
@@ -421,6 +422,7 @@ def main() -> int:
     ap.add_argument("--model-release", default="", help="model release tag (default from tools/tts-pin.json)")
     ap.add_argument("--allow-stack-change", action="store_true", help="permit a stack different from the ticket's tts-env.json")
     ap.add_argument("--dry-run", action="store_true", help="print speakable text only")
+    ap.add_argument("--phonemes", action="store_true", help="with --dry-run, print phonemes for mixed letter-digit tokens")
     ap.add_argument("--timing-only", action="store_true", help="refresh pause_after values without regenerating audio")
     ap.add_argument("--prune", action="store_true", help="drop timing.json entries whose beat id is no longer in beats.yaml")
     a = ap.parse_args()
@@ -435,8 +437,22 @@ def main() -> int:
         beats = [b for b in beats if str(b["id"]) in only]
 
     if a.dry_run:
+        kokoro = None
+        if a.phonemes:
+            models_dir = os.path.abspath(os.path.expanduser(a.models_dir))
+            kokoro = Kokoro(os.path.join(models_dir, "kokoro-v1.0.onnx"), os.path.join(models_dir, "voices-v1.0.bin"))
         for b in beats:
-            print(f"[{b['id']}] {speakable(b['narration'])}\n")
+            text = speakable(b["narration"])
+            print(f"[{b['id']}] {text}\n")
+            if kokoro:
+                tokens = sorted({
+                    token
+                    for token in re.findall(r"[A-Za-z0-9][A-Za-z0-9./_-]*", str(b["narration"]))
+                    if re.search(r"\d", token) and re.search(r"[A-Za-z]", token)
+                })
+                for token in tokens:
+                    spoken = speakable(token)
+                    print(f"  {token} -> {spoken} -> {kokoro.tokenizer.phonemize(spoken, a.lang)}")
         return 0
 
     models_dir = os.path.abspath(os.path.expanduser(a.models_dir))
