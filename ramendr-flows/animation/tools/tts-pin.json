@@ -11,5 +11,44 @@
   "speed": 1.0,
   "lang": "en-us",
   "sample_rate": 24000,
-  "decisions": {}
+  "decisions": {
+    "0.6.1|model-files-v1.1|325505369": {
+      "result": "fail",
+      "reason": "0.1: fresh-process output is not byte-identical",
+      "date": "2026-11-07T15:19:06Z"
+    }
+  },
+  "last_check": {
+    "package": "0.6.1",
+    "model_release": "model-files-v1.1",
+    "result": "fail",
+    "reason": "0.1: fresh-process output is not byte-identical",
+    "date": "2026-11-07T15:19:06Z"
+  },
+  "last_canary": {
+    "kind": "model",
+    "candidate": {
+      "package": "0.6.1",
+      "model_release": "model-files-v1.1",
+      "model_file": "kokoro-v1.0.onnx",
+      "model_bytes": 325505369,
+      "model_sha256": "beb0d1848dee9a49da392cc3df26958d46cfa35d321edf434f52949153f0df3a",
+      "voices_file": "voices-v1.0.bin",
+      "voices_bytes": 28214398,
+      "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+      "voice": "af_heart",
+      "speed": 1.0,
+      "lang": "en-us",
+      "sample_rate": 24000
+    },
+    "beats": [
+      "0.1",
+      "6.3",
+      "2.1"
+    ],
+    "verdict": "FAIL",
+    "reason": "0.1: fresh-process output is not byte-identical",
+    "date": "2026-11-07T15:19:06Z",
+    "run_dir": "/home/ugreener/.cache/kokoro-canary/runs/20261107-171758-0.6.1-model-files-v1.1"
+  }
 }

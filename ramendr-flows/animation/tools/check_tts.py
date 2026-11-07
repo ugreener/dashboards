@@ -29,6 +29,7 @@ import shutil
 import subprocess
 import sys
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -49,6 +50,8 @@ MODEL_FILE = "kokoro-v1.0.onnx"
 VOICES_FILE = "voices-v1.0.bin"
 USER_AGENT = "flow-animation-tts-check"
 SAMPLE_RATE = 24000
+DOWNLOAD_WORKERS = 8
+PART_MIN_BYTES = 8 * 1024 * 1024
 
 
 def utc_now():
@@ -130,8 +133,65 @@ def run(cmd, timeout=600, check=True, cwd=ROOT):
     return cp
 
 
+def _download_range(url, start, end, path, timeout):
+    headers = {"User-Agent": USER_AGENT, "Range": f"bytes={start}-{end}"}
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=timeout) as response:
+        if response.status != 206:
+            raise RuntimeError(f"range request returned {response.status}")
+        with open(path, "wb") as out:
+            while True:
+                chunk = response.read(1024 * 1024)
+                if not chunk:
+                    break
+                out.write(chunk)
+    expected = end - start + 1
+    if path.stat().st_size != expected:
+        raise RuntimeError(f"{path.name} size {path.stat().st_size} != {expected}")
+
+
+def download_parallel(url, dest, expected_size, timeout):
+    legacy = dest.with_suffix(dest.suffix + ".part")
+    if legacy.exists() and not dest.exists():
+        legacy.unlink()
+    workers = min(DOWNLOAD_WORKERS, max(1, expected_size // PART_MIN_BYTES))
+    span = math.ceil(expected_size / workers)
+    chunks = []
+    for index in range(workers):
+        start = index * span
+        end = min(start + span - 1, expected_size - 1)
+        if start > end:
+            break
+        path = dest.with_suffix(dest.suffix + f".part{index}")
+        chunks.append((index, start, end, path))
+    print(f"downloading {dest.name} in {len(chunks)} parallel ranges", flush=True)
+    with ThreadPoolExecutor(max_workers=len(chunks)) as pool:
+        pending = []
+        for _, start, end, path in chunks:
+            expected = end - start + 1
+            if path.exists() and path.stat().st_size == expected:
+                continue
+            pending.append(pool.submit(_download_range, url, start, end, path, timeout))
+        for done, future in enumerate(as_completed(pending), 1):
+            future.result()
+            print(f"  {dest.name}: {done}/{len(pending)} ranges", flush=True)
+    temp = dest.with_suffix(dest.suffix + ".part")
+    with open(temp, "wb") as out:
+        for _, _, _, path in chunks:
+            with open(path, "rb") as part:
+                shutil.copyfileobj(part, out)
+    if temp.stat().st_size != expected_size:
+        raise RuntimeError(f"{dest.name} size {temp.stat().st_size} != expected {expected_size}")
+    temp.replace(dest)
+    for _, _, _, path in chunks:
+        path.unlink(missing_ok=True)
+
+
 def download(url, dest, expected_size=None, timeout=900):
     dest.parent.mkdir(parents=True, exist_ok=True)
+    if expected_size and expected_size > PART_MIN_BYTES * 2:
+        download_parallel(url, dest, expected_size, timeout)
+        return
     partial = dest.with_suffix(dest.suffix + ".part")
     existing = partial.stat().st_size if partial.exists() else 0
     headers = {"User-Agent": USER_AGENT}
@@ -781,6 +841,12 @@ def main():
             return 0
 
     if model_changed:
+        model_key = f"{pin['package']}|{latest_tag}|{assets.get(MODEL_FILE, 0)}"
+        cached = pin.get("decisions", {}).get(model_key)
+        if cached:
+            suffix = " (run --adopt to use it)" if cached["result"] == "pass" else ""
+            print(f"MODEL_CACHED_DECISION: {cached['result']} for {model_key} ({cached['reason']}){suffix}")
+            return 0
         if not args.download_model:
             print(f"MODEL_UPDATE_DEFERRED: {pin['model_release']} -> {latest_tag} needs a 326 MB download")
             if args.background_model and args.ticket:
