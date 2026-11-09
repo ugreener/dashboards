@@ -6,7 +6,7 @@ import {prog} from '../lib/anim';
 
 export const PHASES_EF = ['Start', 'Cast', 'Policy', 'Enroll', 'Handoff', 'Array', 'Protected', 'Evidence'];
 
-export const PANEL_ONLY = new Set(['2.2', '6.3', '7.1', '7.3']);
+export const PANEL_ONLY = new Set(['2.2', '6.3', '7.1', '7.2', '7.3', '7.5']);
 
 export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: string}> = {
   '2.2': {
@@ -40,6 +40,17 @@ export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: 
     ],
     color: C.purple,
   },
+  '7.2': {
+    title: 'What would tighten the record',
+    rows: [
+      'One recorded enrollment session.',
+      'Form screenshots for each step.',
+      'A timestamp for every object that appears.',
+      'The first-copy progress from the array.',
+      'The moment each condition turns true.',
+    ],
+    color: C.purple,
+  },
   '7.3': {
     title: 'Before you trust the word Protected',
     rows: [
@@ -50,6 +61,17 @@ export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: 
       'The array job history shows a recent completed copy.',
     ],
     color: C.green,
+  },
+  '7.5': {
+    title: 'The four fields to get right',
+    rows: [
+      'The DRPC and Placement are in openshift-dr-ops.',
+      'protectedNamespaces names the application namespace.',
+      'The policy reference carries apiVersion, kind and name.',
+      'The claims are selected by the drprotection label.',
+      'Those four fields are what the chain builds on.',
+    ],
+    color: C.cyan,
   },
 };
 export const PANEL_BEATS = new Set(Object.keys(PANEL_DATA));

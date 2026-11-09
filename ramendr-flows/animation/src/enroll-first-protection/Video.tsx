@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame} from 'remotion';
-import {C} from '../theme';
+import {C, mono, sans} from '../theme';
 import {lerp, prog, progIO, sec} from '../lib/anim';
 import {ChapterCard, Hud} from '../components/overlays';
 import {Def, DefinitionPanel, PhaseTracker} from '../components/newcomer';
@@ -125,6 +125,27 @@ export const EnrollFirstProtection: React.FC<{chapters: number[]}> = ({chapters}
       {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={null} ticket="DR ENROLLMENT" /> : null}
       {seg.type === 'beat' && ch >= 1 ? <PhaseTracker current={ch} phases={PHASES_EF} /> : null}
       {seg.type === 'beat' && legendFrom ? <LegendEF appear={win(0.04, 0.96)} /> : null}
+      {seg.type === 'beat' && b.id === '7.6' ? (
+        <div
+          style={{
+            position: 'absolute',
+            left: 560,
+            bottom: 40,
+            width: 800,
+            padding: '18px 26px',
+            border: `3px solid ${C.green}`,
+            borderRadius: 16,
+            background: `${C.bg}f2`,
+            boxShadow: `0 0 60px ${C.green}66`,
+            textAlign: 'center',
+            opacity: prog(f, b.audio * 0.55, b.audio * 0.55 + 22),
+            transform: `scale(${0.92 + 0.08 * prog(f, b.audio * 0.55, b.audio * 0.55 + 22)})`,
+          }}
+        >
+          <div style={{fontFamily: mono, fontSize: 34, color: C.green, fontWeight: 700, letterSpacing: 2}}>PROTECTED = TRUE</div>
+          <div style={{fontFamily: sans, fontSize: 21, color: C.dim, marginTop: 6}}>the chain is complete</div>
+        </div>
+      ) : null}
       {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
       {seg.type === 'beat' && m.define ? <DefinitionPanel term={m.define.term} text={m.define.text} a={win(0.05, 0.97)} bottom={150} /> : null}
       {seg.type === 'chapter' ? <ChapterCard n={seg.chapter.n} title={seg.chapter.title} sub={seg.chapter.sub} p={prog(frame - seg.from, 0, 30)} out={prog(frame - seg.from, seg.dur - 30, seg.dur)} /> : null}

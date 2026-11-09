@@ -148,10 +148,12 @@ export const CH: [string, number, string, string][] = [
   ['6.1', 0.2, 'vr0', 'Replicating=true'],
   ['6.1', 0.35, 'vr1', 'Replicating=true'],
   ['6.1', 0.55, 'vrg0', 'DataReady=true'],
-  ['6.2', 0.3, 'drpc', 'Protected=true'],
-  ['6.4', 0.3, 'drpc', 'console row: last synced'],
+  ['6.2', 0.3, 'drpc', 'Protected=true · PeerReady=true · Available=true'],
+  ['6.4', 0.3, 'drpc', 'console row: last synced = driver time'],
   ['6.5', 0.3, 'drpc', 'not a data measurement'],
   ['6.6', 0.3, 'session', 'needs 2 scheduled syncs'],
+  ['7.6', 0.55, 'drpc', 'Protected=true'],
+  ['7.6', 0.65, 'vrg0', 'DataReady=true'],
 ];
 
 const base = (key: string) => {
@@ -289,8 +291,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
             <path d="M870,495 L870,686" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#eeTipG)" />
             <text x={880} y={600} fill={C.green} fontSize={17} fontFamily={sans}>role call</text>
             <path d="M870,655 L870,686" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#eeTipG)" />
-            <path d="M335,800 L335,926" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#eeTipC)" />
-            <text x={345} y={868} fill={C.cyan} fontSize={17} fontFamily={sans}>CSI call</text>
+            <path d="M480,800 L480,926" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#eeTipC)" />
+            <text x={490} y={868} fill={C.cyan} fontSize={17} fontFamily={sans}>CSI call</text>
           </g>
         ) : null}
 
