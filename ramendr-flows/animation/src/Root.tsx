@@ -29,6 +29,8 @@ import {PeerArrayGate} from './peer-array-gate/Video';
 import {buildTimeline as buildTimelinePAG} from './peer-array-gate/timeline';
 import {PlaceholderBackupGate} from './placeholder-backup-gate/Video';
 import {buildTimeline as buildTimelinePBG} from './placeholder-backup-gate/timeline';
+import {EnrollFirstProtection} from './enroll-first-protection/Video';
+import {buildTimeline as buildTimelineEF} from './enroll-first-protection/timeline';
 
 const ALL_PAG = Array.from({length: 7}, (_, i) => i);
 const ALL_PBG = Array.from({length: 8}, (_, i) => i);
@@ -39,6 +41,7 @@ const ALL_307 = Array.from({length: 9}, (_, i) => i);
 const ALL_337 = Array.from({length: 8}, (_, i) => i);
 const ALL_SP = Array.from({length: 8}, (_, i) => i);
 const ALL_334 = Array.from({length: 8}, (_, i) => i);
+const ALL_EF = Array.from({length: 8}, (_, i) => i);
 
 const ALL = Array.from({length: 16}, (_, i) => i);
 const ALL_CL = Array.from({length: 8}, (_, i) => i);
@@ -174,6 +177,15 @@ export const Root: React.FC = () => (
       width={1920}
       height={1080}
       defaultProps={{chapters: ALL_PBG}}
+    />
+    <Composition
+      id="enroll-first-protection"
+      component={EnrollFirstProtection}
+      durationInFrames={Math.max(1, buildTimelineEF(ALL_EF).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_EF}}
     />
   </>
 );

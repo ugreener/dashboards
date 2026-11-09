@@ -1,0 +1,245 @@
+{
+ "0.1": {
+  "chapter": "Cold open"
+ },
+ "0.2": {
+  "chapter": "Cold open"
+ },
+ "0.3": {
+  "chapter": "Cold open"
+ },
+ "0.4": {
+  "chapter": "Cold open"
+ },
+ "0.5": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "Cast of characters"
+ },
+ "1.2": {
+  "chapter": "Cast of characters"
+ },
+ "1.3": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPolicy",
+   "name": "dr-policy-15m",
+   "role": "pairs two clusters and sets the copy interval"
+  },
+  "def": {
+   "what": "The rule that says which two clusters may hold an application and how often its data is copied.",
+   "creator": "The DR administrator.",
+   "reader": "Ramen on the hub, and the console.",
+   "where": "On the hub.",
+   "analogy": "A marriage license for two sites, with a schedule attached."
+  }
+ },
+ "1.4": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "DRPlacementControl",
+   "name": "hammerdb-drpc",
+   "role": "records one protected application"
+  },
+  "def": {
+   "what": "The hub record for one application's disaster recovery.",
+   "creator": "The console enrollment, or an apply of the manifest.",
+   "reader": "Ramen on the hub, and the console.",
+   "where": "On the hub, in the DR operations namespace.",
+   "analogy": "A job ticket that names the policy, the application and the requested action."
+  }
+ },
+ "1.5": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Placement",
+   "name": "hammerdb-placement",
+   "role": "asks which cluster should run the application"
+  },
+  "def": {
+   "what": "The scheduler question that produces the placement decision.",
+   "creator": "The enrollment, or the administrator.",
+   "reader": "Ramen and the ACM scheduler.",
+   "where": "On the hub, beside the DRPC.",
+   "analogy": "A request for a seat, not the seat assignment."
+  }
+ },
+ "1.6": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationGroup",
+   "name": "hammerdb-drpc",
+   "role": "manages one site's disks and objects"
+  },
+  "def": {
+   "what": "The per-site manager for a protected application's disks and Kubernetes objects.",
+   "creator": "Ramen creates it from the DRPC, through a ManifestWork.",
+   "reader": "Ramen, csi-addons and the console.",
+   "where": "On each spoke, in the DR operations namespace.",
+   "analogy": "A site foreman who turns one ticket into work orders."
+  }
+ },
+ "1.7": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplication",
+   "name": "hammerdb-rhel9-rootdisk",
+   "role": "gives one disk its replication role"
+  },
+  "def": {
+   "what": "The request that gives one disk its replication role and reports its status.",
+   "creator": "The VRG, for each selected claim.",
+   "reader": "csi-addons, then the CSI driver.",
+   "where": "On the spoke, beside the VRG.",
+   "analogy": "One line item on the foreman's list."
+  }
+ },
+ "1.8": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "VolumeReplicationClass",
+   "name": "powerstore-vrc-15m",
+   "role": "names the driver and the schedule"
+  },
+  "def": {
+   "what": "The cluster-wide template that binds a replication request to a driver and a schedule.",
+   "creator": "The storage administrator.",
+   "reader": "Ramen, when it matches a policy to a class.",
+   "where": "Cluster scope on each spoke.",
+   "analogy": "The timetable every work order points at."
+  }
+ },
+ "1.9": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "Controller",
+   "name": "csi-addons \u00b7 csi-powerstore",
+   "role": "translate objects into array calls"
+  },
+  "def": {
+   "what": "The two halves between a Kubernetes request and a storage array call.",
+   "creator": "Installed with the DR stack on each spoke.",
+   "reader": "Each other, and the array.",
+   "where": "On each spoke.",
+   "analogy": "A translator and a clerk at the storage desk."
+  }
+ },
+ "1.10": {
+  "chapter": "Cast of characters",
+  "card": {
+   "kind": "ReplicationSession",
+   "name": "repl-to-vsab-15m",
+   "role": "carries the copies between the arrays"
+  },
+  "def": {
+   "what": "The array object that copies one disk from the source array to the peer.",
+   "creator": "The driver, from the replication rule.",
+   "reader": "The driver, and anyone checking the array.",
+   "where": "On both PowerStore arrays.",
+   "analogy": "A delivery route with one parcel and a schedule."
+  }
+ },
+ "2.1": {
+  "chapter": "The policy pairs the sites"
+ },
+ "2.2": {
+  "chapter": "The policy pairs the sites"
+ },
+ "2.3": {
+  "chapter": "The policy pairs the sites"
+ },
+ "2.4": {
+  "chapter": "The policy pairs the sites"
+ },
+ "2.5": {
+  "chapter": "The policy pairs the sites"
+ },
+ "3.1": {
+  "chapter": "Enrollment"
+ },
+ "3.2": {
+  "chapter": "Enrollment"
+ },
+ "3.3": {
+  "chapter": "Enrollment"
+ },
+ "3.4": {
+  "chapter": "Enrollment"
+ },
+ "3.5": {
+  "chapter": "Enrollment"
+ },
+ "3.6": {
+  "chapter": "Enrollment"
+ },
+ "3.7": {
+  "chapter": "Enrollment"
+ },
+ "4.1": {
+  "chapter": "The hub hands over"
+ },
+ "4.2": {
+  "chapter": "The hub hands over"
+ },
+ "4.3": {
+  "chapter": "The hub hands over"
+ },
+ "4.4": {
+  "chapter": "The hub hands over"
+ },
+ "4.5": {
+  "chapter": "The hub hands over"
+ },
+ "5.1": {
+  "chapter": "The array takes the order"
+ },
+ "5.2": {
+  "chapter": "The array takes the order"
+ },
+ "5.3": {
+  "chapter": "The array takes the order"
+ },
+ "5.4": {
+  "chapter": "The array takes the order"
+ },
+ "5.5": {
+  "chapter": "The array takes the order"
+ },
+ "6.1": {
+  "chapter": "First Protected"
+ },
+ "6.2": {
+  "chapter": "First Protected"
+ },
+ "6.3": {
+  "chapter": "First Protected"
+ },
+ "6.4": {
+  "chapter": "First Protected"
+ },
+ "6.5": {
+  "chapter": "First Protected"
+ },
+ "6.6": {
+  "chapter": "First Protected"
+ },
+ "7.1": {
+  "chapter": "What the record proves"
+ },
+ "7.2": {
+  "chapter": "What the record proves"
+ },
+ "7.3": {
+  "chapter": "What the record proves"
+ },
+ "7.4": {
+  "chapter": "What the record proves"
+ },
+ "7.5": {
+  "chapter": "What the record proves"
+ },
+ "7.6": {
+  "chapter": "What the record proves"
+ }
+}

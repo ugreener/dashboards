@@ -1,0 +1,470 @@
+# yamllint disable rule:line-length
+ticket: enroll-first-protection
+direction: conceptual. Enrollment is taught from the recorded object chain and conditions in the Dell lab setup document, the current console namespace rule and the pinned upstream source path. No enrollment form or first-copy timeline was recorded.
+beats:
+  - id: '0.1'
+    chapter: Cold open
+    visual: A wall of the series titles, each opening on a green Protected badge, then the badge dims.
+    narration: >-
+      Every video in this series begins at the same place. An application that
+      is already protected. Failover, relocate, cleanup, reprotection, the
+      failures. All of them start after the first step. This video is that first
+      step.
+    evidence: [inventory, virt342]
+    pause_after: 1.8
+  - id: '0.2'
+    chapter: Cold open
+    visual: A running virtual machine, then four empty slots around it, then the word enrollment.
+    narration: >-
+      A running virtual machine is not a protected application. Something has to
+      pair two sites, record the application, copy its disks, and report that
+      the copy is ready. In Ramen, that work is called enrollment.
+    evidence: [virt361, setup-doc]
+    pause_after: 1.4
+  - id: '0.3'
+    chapter: Cold open
+    visual: The recorded result panel, two minutes on a small clock, then a missing-film icon where the form should be.
+    narration: >-
+      On the Dell lab, one enrollment reached Protected in about two minutes.
+      The setup document gives us the object names and the conditions. It does
+      not record the console form, and it does not record the first copy.
+    evidence: [setup-doc]
+    pause_after: 1.6
+  - id: '0.4'
+    chapter: Cold open
+    visual: Five numbered steps appear, then fold into a single chain.
+    narration: >-
+      What you will see. The policy that pairs the sites. The enrollment that
+      records the application. The handoff to the spoke. The array order and the
+      first copy. And what the first Protected condition actually proves.
+    evidence: [setup-doc, virt361]
+    pause_after: 1.8
+  - id: '0.5'
+    chapter: Cold open
+    visual: Three evidence pills, observed, documented, unverified, with the middle one lit.
+    narration: >-
+      One note about evidence. The object chain, the conditions and the array
+      sessions were recorded in the lab. The console form steps and the
+      first-copy timing are documented, not recorded, and the video says so
+      where they appear.
+    evidence: [setup-doc]
+    pause_after: 2
+
+  - id: '1.1'
+    chapter: Cast of characters
+    visual: Four questions stack on the left, one per object group.
+    narration: >-
+      Meet the objects. Each one answers a different question. Which sites may
+      hold this application. Which application is protected. Which site runs it
+      now. Which disk has a copy. Keep those questions in mind and the chain
+      will make sense.
+    evidence: [source-trace]
+  - id: '1.2'
+    chapter: Cast of characters
+    visual: The topology appears, hub above, two spokes below, one array under each spoke.
+    narration: >-
+      Start with the lab. The hub is edge36 and it runs the control objects.
+      Spoke-0 is edge95 with array VSA-A. Spoke-1 is edge97 with array VSA-B.
+      The application is hammerdb-rhel9, a database virtual machine with two
+      disks.
+    evidence: [setup-doc, virt342]
+  - id: '1.3'
+    chapter: Cast of characters
+    visual: One DRPolicy card and its definition panel.
+    card: {kind: DRPolicy, name: dr-policy-15m, role: 'pairs two clusters and sets the copy interval'}
+    def: {what: 'The rule that says which two clusters may hold an application and how often its data is copied.', creator: 'The DR administrator.', reader: 'Ramen on the hub, and the console.', where: 'On the hub.', analogy: 'A marriage license for two sites, with a schedule attached.'}
+    narration: >-
+      The DRPolicy is that rule. This one is dr-policy-15m. It names spoke-0 and
+      spoke-1 and sets a fifteen-minute interval, which is nine hundred seconds.
+      It does not name the application yet.
+    evidence: [setup-doc, virt334]
+  - id: '1.4'
+    chapter: Cast of characters
+    visual: One DRPC card and its definition panel.
+    card: {kind: DRPlacementControl, name: hammerdb-drpc, role: 'records one protected application'}
+    def: {what: "The hub record for one application's disaster recovery.", creator: 'The console enrollment, or an apply of the manifest.', reader: 'Ramen on the hub, and the console.', where: 'On the hub, in the DR operations namespace.', analogy: 'A job ticket that names the policy, the application and the requested action.'}
+    narration: >-
+      The DRPlacementControl, or DRPC, is the job ticket. It points at the
+      policy, selects the claims, and records the requested action and how far
+      it got. This one is hammerdb-drpc.
+    evidence: [setup-doc, virt342]
+  - id: '1.5'
+    chapter: Cast of characters
+    visual: One Placement card, then a small PlacementDecision card beside it.
+    card: {kind: Placement, name: hammerdb-placement, role: 'asks which cluster should run the application'}
+    def: {what: 'The scheduler question that produces the placement decision.', creator: 'The enrollment, or the administrator.', reader: 'Ramen and the ACM scheduler.', where: 'On the hub, beside the DRPC.', analogy: 'A request for a seat, not the seat assignment.'}
+    narration: >-
+      The Placement asks which cluster should run the application. Its answer is
+      a PlacementDecision, a small object that names the selected cluster. For
+      DR, automatic scheduling is switched off, so Ramen writes the answer.
+    evidence: [setup-doc, virt291]
+  - id: '1.6'
+    chapter: Cast of characters
+    visual: Two VRG cards, one on each spoke, with different roles.
+    card: {kind: VolumeReplicationGroup, name: hammerdb-drpc, role: "manages one site's disks and objects"}
+    def: {what: "The per-site manager for a protected application's disks and Kubernetes objects.", creator: 'Ramen creates it from the DRPC, through a ManifestWork.', reader: 'Ramen, csi-addons and the console.', where: 'On each spoke, in the DR operations namespace.', analogy: 'A site foreman who turns one ticket into work orders.'}
+    narration: >-
+      On each spoke, the VolumeReplicationGroup is the site foreman. On the
+      primary it finds the selected claims and creates one work order per disk.
+      On the peer it stands ready to receive them.
+    evidence: [virt342, virt291, source-trace]
+  - id: '1.7'
+    chapter: Cast of characters
+    visual: One VolumeReplication card per disk, both under the primary VRG.
+    card: {kind: VolumeReplication, name: hammerdb-rhel9-rootdisk, role: 'gives one disk its replication role'}
+    def: {what: 'The request that gives one disk its replication role and reports its status.', creator: 'The VRG, for each selected claim.', reader: 'csi-addons, then the CSI driver.', where: 'On the spoke, beside the VRG.', analogy: "One line item on the foreman's list."}
+    narration: >-
+      A VolumeReplication is the work order for one disk. Its desired role is
+      primary, secondary or resync. Here there are two, one for the root disk and
+      one for the data disk.
+    evidence: [setup-doc, virt343, source-trace]
+  - id: '1.8'
+    chapter: Cast of characters
+    visual: One VolumeReplicationClass card, shared by both work orders.
+    card: {kind: VolumeReplicationClass, name: powerstore-vrc-15m, role: 'names the driver and the schedule'}
+    def: {what: 'The cluster-wide template that binds a replication request to a driver and a schedule.', creator: 'The storage administrator.', reader: 'Ramen, when it matches a policy to a class.', where: 'Cluster scope on each spoke.', analogy: 'The timetable every work order points at.'}
+    narration: >-
+      The VolumeReplicationClass is the timetable. This one is
+      powerstore-vrc-15m. It names the Dell driver and the fifteen-minute
+      schedule. It copies nothing by itself. A policy with the same interval
+      selects it.
+    evidence: [virt343, setup-doc, source-trace]
+  - id: '1.9'
+    chapter: Cast of characters
+    visual: A translator card and a driver card, between the spoke and the array.
+    card: {kind: Controller, name: csi-addons · csi-powerstore, role: 'translate objects into array calls'}
+    def: {what: 'The two halves between a Kubernetes request and a storage array call.', creator: 'Installed with the DR stack on each spoke.', reader: 'Each other, and the array.', where: 'On each spoke.', analogy: 'A translator and a clerk at the storage desk.'}
+    narration: >-
+      csi-addons reads the work order and translates it into a CSI call. The
+      Dell driver, csi-powerstore, turns that call into a PowerStore API
+      request. Neither one decides what should be protected. They execute the
+      record.
+    evidence: [source-trace]
+  - id: '1.10'
+    chapter: Cast of characters
+    visual: A replication rule and one session card, with a link to VSA-B.
+    card: {kind: ReplicationSession, name: repl-to-vsab-15m, role: 'carries the copies between the arrays'}
+    def: {what: 'The array object that copies one disk from the source array to the peer.', creator: 'The driver, from the replication rule.', reader: 'The driver, and anyone checking the array.', where: 'On both PowerStore arrays.', analogy: 'A delivery route with one parcel and a schedule.'}
+    narration: >-
+      On the array, a replication rule sets the schedule and a session does the
+      copying. The session has a role, a state, a last sync time and a job
+      history. It is the only object that proves data actually moved.
+    evidence: [setup-doc, virt334, dell-rpo]
+    pause_after: 1.6
+
+  - id: '2.1'
+    chapter: The policy pairs the sites
+    visual: Two sites join under one policy, with the interval on the link.
+    narration: >-
+      Enrollment starts with a policy, because a record needs somewhere to
+      point. dr-policy-15m says spoke-0 and spoke-1 may hold this application,
+      and the copy interval is nine hundred seconds. That is the promise the
+      rest of the chain has to keep.
+    evidence: [setup-doc, virt334]
+  - id: '2.2'
+    chapter: The policy pairs the sites
+    visual: The interval reaches a class on each spoke, and one spoke shows no match.
+    narration: >-
+      The interval is not just a number in the policy. Ramen matches it against
+      a VolumeReplicationClass on each spoke. The class must have the same
+      interval and the right driver. If nothing matches, the policy can still
+      look valid while no disk is copied.
+    evidence: [source-trace, virt138]
+    pause_after: 1.4
+  - id: '2.3'
+    chapter: The policy pairs the sites
+    visual: A Validated badge separates from a copy icon, with the gap labeled not the same.
+    narration: >-
+      Validation is narrower than protection. Validated true means the policy is
+      structurally usable. It does not mean a class matched, and it does not
+      mean recent writes reached a copy. One existing video states the same rule
+      for a run's preflight.
+    evidence: [virt342, source-trace]
+  - id: '2.4'
+    chapter: The policy pairs the sites
+    visual: Two class cards on the spokes, and a computed status field on the policy.
+    narration: >-
+      The class lives on each spoke, not on the hub. The same driver and the same
+      schedule must exist on both sides. The policy status reports the peer
+      classes it found. That status is computed, not something you set in the
+      manifest.
+    evidence: [source-trace, kb-vgr]
+  - id: '2.5'
+    chapter: The policy pairs the sites
+    visual: Three crossed-out actions under the policy, with the one real action lit.
+    narration: >-
+      What the policy does not do. It does not choose the application. It does
+      not create a copy. It does not decide which site runs the workload. It
+      only makes the pairing and the interval legal.
+    evidence: [setup-doc, source-trace]
+    pause_after: 1.6
+
+  - id: '3.1'
+    chapter: Enrollment
+    visual: The DRPC and Placement cards appear together under the policy.
+    narration: >-
+      Enrollment is the act that puts one application under one policy. It
+      produces a DRPC and a Placement. From that moment the application has a DR
+      record, even before any disk has copied.
+    evidence: [setup-doc, virt430, virt432]
+  - id: '3.2'
+    chapter: Enrollment
+    visual: The DRPC lands in openshift-dr-ops with protectedNamespaces hammerdb.
+    narration: >-
+      For a discovered application, the console writes the DRPC and the
+      Placement into openshift-dr-ops, the DR operations namespace. The DRPC
+      carries protectedNamespaces with the application namespace, here hammerdb.
+      That is how the console counts it under the policy.
+    evidence: [setup-doc, kb-enroll, virt342]
+  - id: '3.3'
+    chapter: Enrollment
+    visual: The policy reference field expands into apiVersion, kind and name.
+    narration: >-
+      The DRPC's policy reference needs all three parts. apiVersion, kind and
+      name. A name alone can protect the workload, but the console will not
+      associate the row with the policy. This is a small field with a visible
+      consequence.
+    evidence: [setup-doc, kb-enroll]
+  - id: '3.4'
+    chapter: Enrollment
+    visual: Two claims carry the label drprotection true, a third temporary claim does not.
+    narration: >-
+      The DRPC selects claims by label. Both workload disks carry drprotection
+      true. The selector is deliberate. A temporary claim from an image import
+      must not join the protected set. Selection is by label, not by namespace
+      membership.
+    evidence: [setup-doc, virt342]
+  - id: '3.5'
+    chapter: Enrollment
+    visual: The Placement annotation switches the scheduler off, and Ramen holds the pen.
+    narration: >-
+      The Placement asks which cluster should run the application. Its
+      annotation switches the ACM scheduler off, so Ramen is the only writer of
+      the decision. Without that, the ordinary scheduler could move the workload
+      on its own.
+    evidence: [virt291, setup-doc]
+  - id: '3.6'
+    chapter: Enrollment
+    visual: A managed branch in openshift-gitops, one contrast beat, then back to the main path.
+    narration: >-
+      A managed application takes the other layout. Its DRPC and Placement live
+      in openshift-gitops, it sets no protectedNamespaces, and an ApplicationSet
+      follows the placement decision. The storage chain below is the same. The
+      difference is who deploys the workload.
+    evidence: [virt292, virt343]
+  - id: '3.7'
+    chapter: Enrollment
+    visual: A historical namespace tag on the recorded objects, and the current namespace beside it.
+    narration: >-
+      One correction from the record. The enrollment captured in the setup
+      document used the application namespace, because it predates the console
+      pattern. The objects and conditions were real. The namespace is not the
+      one current UI enrollment uses.
+    evidence: [setup-doc]
+    pause_after: 1.8
+
+  - id: '4.1'
+    chapter: The hub hands over
+    visual: A ManifestWork envelope leaves the DRPC and lands on the spoke.
+    narration: >-
+      The DRPC does not touch the array. It asks Ramen to create a VRG on the
+      selected spoke, and delivers it as a ManifestWork. The hub writes the
+      request, the spoke agent applies it locally, and the local controllers
+      take over.
+    evidence: [virt342, source-trace]
+  - id: '4.2'
+    chapter: The hub hands over
+    visual: Two VRGs appear, primary on spoke-0 and secondary on spoke-1.
+    narration: >-
+      Ramen creates a VRG on the primary and a VRG on the peer. The primary is
+      told to protect the running application. The peer is told to stand by as
+      the secondary. Both are created from the same DRPC, with different roles.
+    evidence: [virt291, source-trace]
+  - id: '4.3'
+    chapter: The hub hands over
+    visual: The primary VRG selects two claims and creates two work orders.
+    narration: >-
+      The primary VRG selects the claims and creates one VolumeReplication per
+      claim. In the recorded enrollment there were two, rootdisk and datadisk,
+      both using powerstore-vrc-15m. The VRG is the object that turns one
+      application into per-disk work.
+    evidence: [setup-doc, virt343]
+  - id: '4.4'
+    chapter: The hub hands over
+    visual: The class match runs on both driver and schedule, and a mismatch leaves an empty work order.
+    narration: >-
+      The class must match on both the driver and the schedule. Ramen reads the
+      class and builds the work order from it. A mismatch does not produce a
+      copy. It produces a record that cannot find a class, which is a different
+      and much quieter failure.
+    evidence: [source-trace, virt138]
+    pause_after: 1.4
+  - id: '4.5'
+    chapter: The hub hands over
+    visual: The work order shows its role field, and csi-addons picks it up.
+    narration: >-
+      The VolumeReplication is a role request. Primary means this disk serves
+      reads and writes here. Secondary means the copy is a standby. Resync means
+      repair the relationship. csi-addons reads the request and calls the
+      driver.
+    evidence: [source-trace]
+    pause_after: 1.6
+
+  - id: '5.1'
+    chapter: The array takes the order
+    visual: csi-addons calls the driver, and the call is labeled EnableVolumeReplication.
+    narration: >-
+      csi-addons takes the work order and calls the CSI driver. For a new
+      protection the driver enables replication for that volume against the peer
+      array. The exact RPC is EnableVolumeReplication.
+    evidence: [source-trace]
+  - id: '5.2'
+    chapter: The array takes the order
+    visual: The driver links the volume to repl-to-vsab-15m on VSA-A.
+    narration: >-
+      The driver does not invent a schedule. It uses the replication rule the
+      class points at. On this lab the rule is repl-to-vsab-15m, fifteen
+      minutes. The driver associates the volume with that rule on the source
+      array.
+    evidence: [setup-doc, virt334, source-trace]
+  - id: '5.3'
+    chapter: The array takes the order
+    visual: A full copy bar, then a repeating schedule at eighty percent of the interval.
+    narration: >-
+      The first copy is a full copy of the volume. The later copies are
+      scheduled. Dell documents that from PowerStoreOS 4.0 the asynchronous
+      scheduler runs at eighty percent of the RPO, so a fifteen-minute rule
+      copies about every twelve minutes. The lab's recorded cadence matches.
+    evidence: [dell-rpo, virt343]
+    pause_after: 1.6
+  - id: '5.4'
+    chapter: The array takes the order
+    visual: A two-minute policy meets a five-minute floor and stops.
+    narration: >-
+      PowerStore accepts RPO values from five minutes to twenty-four hours. A
+      policy that asks for two minutes cannot be honored by the array. That is
+      documented behavior, not a driver defect, and it is why the supported
+      combination matters before enrollment.
+    evidence: [dell-rpo, virt136]
+  - id: '5.5'
+    chapter: The array takes the order
+    visual: The session on VSA-A reports source and OK, and a replica appears on VSA-B.
+    narration: >-
+      On the destination array the replica volumes appear. The session has a
+      role and a state. On VSA-A it is the source, on VSA-B the destination, and
+      a healthy session reports state OK with a last sync time and a job
+      history.
+    evidence: [setup-doc, virt334]
+    pause_after: 1.8
+
+  - id: '6.1'
+    chapter: First Protected
+    visual: Status climbs from the VolumeReplication to the VRG to the DRPC.
+    narration: >-
+      Readiness climbs the same chain in reverse. The VolumeReplication reports
+      its state and whether it is replicating. The VRG aggregates those per-disk
+      reports into DataReady and DataProtected. The DRPC aggregates the VRG into
+      Protected.
+    evidence: [source-trace, virt307]
+  - id: '6.2'
+    chapter: First Protected
+    visual: Three DRPC conditions light up with their reasons.
+    narration: >-
+      Three DRPC conditions matter at the start. Available true means the
+      initial deployment completed. PeerReady true means the peer is ready.
+      Protected true means the VRG on the active cluster is protecting the
+      required resources and data.
+    evidence: [setup-doc]
+  - id: '6.3'
+    chapter: First Protected
+    visual: The recorded result panel, two minutes, two work orders, four array sessions.
+    narration: >-
+      In the recorded enrollment, all three were true within about two minutes.
+      The spoke VRG was Primary with DataReady, DataProtected and
+      ClusterDataProtected true. Two VolumeReplications existed, and VSA-A
+      showed the sessions in state OK as source.
+    evidence: [setup-doc]
+    pause_after: 1.6
+  - id: '6.4'
+    chapter: First Protected
+    visual: The console row appears, then its last-synced value is traced back to the driver.
+    narration: >-
+      The console then shows the row. It carries the policy, the current cluster
+      and a last synced time. That time comes from the driver, not from the
+      array's job history. A green row is a status report, not a data
+      measurement.
+    evidence: [virt334, virt343]
+  - id: '6.5'
+    chapter: First Protected
+    visual: Three claims fail against Protected, each crossed out.
+    narration: >-
+      What Protected does not prove. It does not prove recent writes reached the
+      copy. It does not prove zero loss. It does not prove the RPO was met over
+      time. Those are separate checks, and two existing videos show how a green
+      status can be wrong.
+    evidence: [virt342, virt334]
+    pause_after: 1.4
+  - id: '6.6'
+    chapter: First Protected
+    visual: The first copy sits alone, then two scheduled copies complete and the gate opens.
+    narration: >-
+      The first copy is also not a sync history. Until a disk has completed
+      scheduled copies, its cadence is unproven. The setup document's own gate
+      requires two completed scheduled syncs before a failover. Protected is the
+      start of the measurement, not the end.
+    evidence: [setup-doc, virt342]
+    pause_after: 1.8
+
+  - id: '7.1'
+    chapter: What the record proves
+    visual: Three columns, observed, documented, unverified, with one item per column.
+    narration: >-
+      Here is the boundary. Observed in the lab, the object chain, the
+      conditions and the array sessions. Documented, the console namespace rule,
+      the field requirements and the driver path. Unverified, the form steps and
+      the first-copy timing.
+    evidence: [setup-doc, source-trace]
+  - id: '7.2'
+    chapter: What the record proves
+    visual: A re-run checklist appears item by item.
+    narration: >-
+      What would tighten it. One recorded enrollment with the form screenshots,
+      a timestamp for each object, the first-copy progress from the array, and
+      the moment each condition turned true. That turns this explainer into a
+      recording.
+    evidence: [setup-doc, virt430, virt432]
+  - id: '7.3'
+    chapter: What the record proves
+    visual: A five-item checklist with the two status traps marked.
+    narration: >-
+      A checklist before you trust the word Protected. The policy is validated
+      and a class matched on both spokes. The DRPC reports Protected. The VRG
+      reports DataReady and ClusterDataReady. Each disk has a VolumeReplication.
+      Each session is OK with a recent job in the array history.
+    evidence: [setup-doc, source-trace]
+  - id: '7.4'
+    chapter: What the record proves
+    visual: Two badges, validated and last synced, both labeled not proof.
+    narration: >-
+      Two traps worth repeating. Policy validation is not protection. A console
+      last-sync value is not the array's job history. Both can look right while
+      the copy is stale or absent.
+    evidence: [virt342, virt334]
+  - id: '7.5'
+    chapter: What the record proves
+    visual: The four enrollment fields assemble into one DRPC card.
+    narration: >-
+      The rule to remember. A discovered application is enrolled with its DRPC
+      and Placement in openshift-dr-ops, protectedNamespaces set to the
+      application namespace, a complete policy reference, and labeled claims.
+      Get those four right and the chain has something to build on.
+    evidence: [setup-doc, kb-enroll]
+  - id: '7.6'
+    chapter: What the record proves
+    visual: The full chain appears one last time, and the Protected badge lights at the end.
+    narration: >-
+      That is the first step. A policy, a record, a placement, a site manager, a
+      work order, a class, a rule and a session. When they line up, the
+      application is Protected. Everything else in this series starts here.
+    evidence: [setup-doc, source-trace]
+    pause_after: 2.4
