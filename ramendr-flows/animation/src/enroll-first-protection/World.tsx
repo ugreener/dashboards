@@ -261,9 +261,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
             <path d="M900,170 L946,170" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#eeTipG)" />
             <text x={905} y={150} fill={C.green} fontSize={16} fontFamily={sans}>writes</text>
             <path d="M1400,170 L1446,170" fill="none" stroke={C.blue} strokeWidth={3} strokeDasharray="7 6" markerEnd="url(#eeTipB)" />
-            <text x={1404} y={150} fill={C.blue} fontSize={15} fontFamily={sans}>placementRef</text>
             <path d="M1830,170 L1871,170" fill="none" stroke={C.blue} strokeWidth={3} strokeDasharray="7 6" markerEnd="url(#eeTipB)" />
-            <text x={1833} y={150} fill={C.blue} fontSize={15} fontFamily={sans}>selects</text>
           </g>
         ) : null}
 
