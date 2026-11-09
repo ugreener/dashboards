@@ -264,10 +264,10 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
         {chapter >= 4 ? (
           <g opacity={prog(c.f, 0, 24) * regionOn('hub') * (chapter >= 6 ? 0.22 : 1)}>
-            <path d="M1175,245 L1175,290 L325,290 L325,351" fill="none" stroke={C.cyan} strokeWidth={4} strokeDasharray="10 8" markerEnd="url(#eeTipC)" />
-            <path d="M1175,290 L1485,290 L1485,351" fill="none" stroke={C.cyan} strokeWidth={4} strokeDasharray="10 8" markerEnd="url(#eeTipC)" />
-            <text x={610} y={282} fill={C.cyan} fontSize={17} fontFamily={sans}>ManifestWork</text>
-            <text x={1300} y={282} fill={C.cyan} fontSize={17} fontFamily={sans}>ManifestWork</text>
+            <path d="M1175,245 L1175,290 L500,290 L500,351" fill="none" stroke={C.cyan} strokeWidth={4} strokeDasharray="10 8" markerEnd="url(#eeTipC)" />
+            <path d="M1175,290 L1620,290 L1620,351" fill="none" stroke={C.cyan} strokeWidth={4} strokeDasharray="10 8" markerEnd="url(#eeTipC)" />
+            <text x={640} y={282} fill={C.cyan} fontSize={17} fontFamily={sans}>ManifestWork</text>
+            <text x={1340} y={282} fill={C.cyan} fontSize={17} fontFamily={sans}>ManifestWork</text>
           </g>
         ) : null}
 
