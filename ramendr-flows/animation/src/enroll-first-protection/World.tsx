@@ -224,8 +224,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
             w={n.box[2]}
             kind={n.kind}
             name={n.name}
-            role={n.role}
-            lines={[n.scope, st]}
+            role={key === 'csi' ? undefined : n.role}
+            lines={key === 'csi' ? [st] : [n.scope, st]}
             appear={show ? prog(c.f, -15, 30) : 0}
             focus={focus(key)}
             hl={keys.includes(key) ? 0.3 : 0}
