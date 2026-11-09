@@ -70,13 +70,13 @@
   "card": {
    "kind": "VolumeReplicationGroup",
    "name": "hammerdb-drpc",
-   "role": "manages one site's disks and objects"
+   "role": "manages the preferred site's disks and objects"
   },
   "def": {
    "what": "The per-site manager for a protected application's disks and Kubernetes objects.",
    "creator": "Ramen creates it from the DRPC, through a ManifestWork.",
    "reader": "Ramen, csi-addons and the console.",
-   "where": "On each spoke, in the DR operations namespace.",
+   "where": "On the preferred spoke, in the DR operations namespace.",
    "analogy": "A site foreman who turns one ticket into work orders."
   }
  },
