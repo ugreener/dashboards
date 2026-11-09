@@ -189,7 +189,10 @@ const tone = (status: string, fallback: string) => {
 export const World: React.FC<{c: Ctx}> = ({c}) => {
   const keys = FOCUS[c.id] ?? [];
   const activeRegions = new Set(keys.map((k) => REGION_OF[k]).filter(Boolean));
-  const regionOn = (k: string) => (c.panel && !activeRegions.has(k) ? 0 : 1);
+  // A single-region focus hides the other bands so a bright region pill cannot be
+  // sliced at the frame edge. Multi-region beats keep the rest of the world dim.
+  const singleRegion = activeRegions.size <= 1;
+  const regionOn = (k: string) => (activeRegions.has(k) ? 1 : singleRegion ? 0 : 0.22);
   const status = (key: string) => {
     let v = base(key);
     for (const [beat, frac, k, value] of CH) {
