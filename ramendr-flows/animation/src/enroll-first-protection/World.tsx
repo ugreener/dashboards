@@ -31,8 +31,8 @@ export const REGIONS: {key: string; b: {x: number; y: number; w: number; h: numb
   {key: 'hub', b: {x: 60, y: 30, w: 2280, h: 240}, title: 'HUB · edge36', color: C.blue},
   {key: 's0', b: {x: 60, y: 300, w: 1120, h: 520}, title: 'SPOKE-0 · edge95', color: C.spoke0},
   {key: 's1', b: {x: 1220, y: 300, w: 1120, h: 520}, title: 'SPOKE-1 · edge97', color: C.spoke1},
-  {key: 'a', b: {x: 60, y: 860, w: 1120, h: 660}, title: 'VSA-A', sub: 'PS3b37452a6e0f', color: C.array},
-  {key: 'b', b: {x: 1220, y: 860, w: 1120, h: 660}, title: 'VSA-B', sub: 'PSff392f423bd6', color: C.array},
+  {key: 'a', b: {x: 60, y: 860, w: 1120, h: 520}, title: 'VSA-A', sub: 'PS3b37452a6e0f', color: C.array},
+  {key: 'b', b: {x: 1220, y: 860, w: 1120, h: 520}, title: 'VSA-B', sub: 'PSff392f423bd6', color: C.array},
 ];
 export const REGION_OF: Record<string, string> = {
   policy: 'hub',

@@ -112,7 +112,7 @@ export const ColdOpen: React.FC<{id: string; f: number; dur: number}> = ({id, f,
     const titles = [
       'VIRTDR-291 discovered failover',
       'VIRTDR-292 managed failover',
-      'VIRTDR-307 the count that never reaches eight',
+      'VIRTDR-307 the stalled VGR failover',
       'VIRTDR-334 the reprotection window',
       'VIRTDR-337 the 72-hour cascade',
       'VIRTDR-342 site-down failover',
