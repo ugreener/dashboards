@@ -17,8 +17,9 @@ const GLOSSARY_IDS = new Set(['1.3', '1.4', '1.5', '1.6', '1.7', '1.8', '1.9', '
 type Cam = {x: number; y: number; z: number; sx: number; sy: number};
 const CAMS: Record<string, Partial<Cam>> = {
   // The class beat sits on the spoke cards. Push the hub row out of frame
-  // instead of leaving sliced status lines at the top edge.
-  '2.4': {z: 1.35, y: 520, sy: 555},
+  // instead of leaving sliced status lines at the top edge, and keep both work
+  // orders inside the right edge.
+  '2.4': {z: 1.2, y: 560, sy: 555},
 };
 
 const fit = (id: string): Cam => {

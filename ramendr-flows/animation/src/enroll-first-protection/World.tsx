@@ -69,9 +69,9 @@ export const FOCUS: Record<string, string[]> = {
   '2.1': ['policy', 'drpc'],
   '2.2': ['policy', 'vrc'],
   '2.3': ['policy', 'drpc'],
-  '2.4': ['vrc', 'vrg0'],
+  '2.4': ['vrc', 'vrg0', 'vr0', 'vr1'],
   '2.5': ['policy', 'drpc'],
-  '3.1': ['enroll', 'drpc', 'placement'],
+  '3.1': ['enroll', 'drpc', 'placement', 'decision'],
   '3.2': ['drpc', 'placement', 'enroll'],
   '3.3': ['drpc', 'policy'],
   '3.4': ['drpc', 'vrg0', 'vr0', 'vr1'],
@@ -259,7 +259,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         {chapter >= 3 ? (
           <g opacity={prog(c.f, 0, 22) * Math.min(regionOn('hub'), 1)}>
             <path d="M900,170 L946,170" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#eeTipG)" />
-            <text x={905} y={150} fill={C.green} fontSize={16} fontFamily={sans}>writes</text>
+            <text x={902} y={138} fill={C.green} fontSize={16} fontFamily={sans}>writes</text>
             <path d="M1400,170 L1446,170" fill="none" stroke={C.blue} strokeWidth={3} strokeDasharray="7 6" markerEnd="url(#eeTipB)" />
             <path d="M1830,170 L1871,170" fill="none" stroke={C.blue} strokeWidth={3} strokeDasharray="7 6" markerEnd="url(#eeTipB)" />
           </g>
@@ -286,8 +286,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
         {chapter >= 5 ? (
           <g opacity={prog(c.f, 0, 22) * Math.min(regionOn('s0'), 1)}>
-            <path d="M870,495 L870,686" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#eeTipG)" />
-            <text x={880} y={600} fill={C.green} fontSize={17} fontFamily={sans}>role call</text>
+            <path d="M1140,430 L1170,430 L1170,745 L1142,745" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#eeTipG)" />
+            <text x={920} y={678} fill={C.green} fontSize={17} fontFamily={sans}>role call</text>
             <path d="M870,655 L870,686" fill="none" stroke={C.green} strokeWidth={4} markerEnd="url(#eeTipG)" />
             <path d="M480,800 L480,926" fill="none" stroke={C.cyan} strokeWidth={4} markerEnd="url(#eeTipC)" />
             <text x={490} y={868} fill={C.cyan} fontSize={17} fontFamily={sans}>CSI call</text>
