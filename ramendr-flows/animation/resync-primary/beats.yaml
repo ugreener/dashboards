@@ -178,7 +178,7 @@ beats:
     narration: >-
       For Ceph, that is enough. The demoted old site is the side that can start
       receiving again, so the secondary branch is the correct place for the
-      call. The same code path has worked for Ceph for years.
+      call. That is the path Ceph is built around.
     evidence: [csi-addons-1200, vr-controller-source]
 
   - id: '3.3'
@@ -246,7 +246,9 @@ beats:
       VolumeReplication first becomes primary. If the session is not yet
       Failed_Over at that instant, the call returns already synchronized or in
       progress. The steady primary branch never asks again. A cleanup that
-      arrives after that gap can wedge the failover. That is DFBUGS-12498.
+      arrives after that gap can wedge the failover. The logs are consistent
+      with this, and the exact stop point is still unverified. That is
+      DFBUGS-12498.
     evidence: [rhdr-patch, dfbugs-12498]
     unverified: true
     pause_after: 1.8

@@ -198,16 +198,6 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         <text x={1510} y={355} textAnchor="middle" fill={C.cyan} fontSize={19} fontFamily={sans}>copied to the VRG</text>
       </> : null}
 
-      {signal ? <>
-        <rect x={1870} y={660} width={490} height={34} rx={8} fill={`${C.amber}22`} stroke={C.amber} strokeWidth={2} />
-        <text x={2115} y={684} textAnchor="middle" fill={C.amber} fontSize={19} fontFamily={mono}>Replicating=False</text>
-      </> : null}
-
-      {resyncing ? <>
-        <rect x={1870} y={660} width={490} height={34} rx={8} fill={`${C.purple}22`} stroke={C.purple} strokeWidth={2} />
-        <text x={2115} y={684} textAnchor="middle" fill={C.purple} fontSize={19} fontFamily={mono}>replicationState: resync</text>
-      </> : null}
-
       {missed ? <g transform="translate(1250,1365)"><circle r={30} fill={C.bg} stroke={C.red} strokeWidth={4} /><path d="M-12,-12 L12,12 M12,-12 L-12,12" stroke={C.red} strokeWidth={7} strokeLinecap="round" /></g> : null}
     </svg>
   </div>;

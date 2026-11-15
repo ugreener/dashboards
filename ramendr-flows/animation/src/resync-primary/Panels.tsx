@@ -188,6 +188,7 @@ const BugPanel: React.FC<{f: number; dur: number; mode: 'race' | 'peer'}> = ({f,
       'DFBUGS-12519. Re-protection gates recovery.',
     ];
   return <Box style={{borderColor: race ? C.amber : C.red}}>
+    {race ? <div style={{fontFamily: mono, fontSize: 15, color: C.amber, letterSpacing: 1.5, marginBottom: 8}}>INFERRED FROM THE CODE AND LOGS</div> : null}
     <div style={{fontSize: 30, fontWeight: 700, color: race ? C.amber : C.red, marginBottom: 4}}>{title}</div>
     {rows.map((r, i) => <Row key={r} text={r} i={i} f={f} dur={dur} color={i === rows.length - 1 ? (race ? C.amber : C.red) : C.text} size={23} />)}
   </Box>;
