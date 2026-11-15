@@ -1,0 +1,375 @@
+# yamllint disable rule:line-length
+ticket: resync-primary
+run: conceptual explainer, no recorded run
+direction: failover from site A to site B, reverse copy back to site A
+beats:
+  - id: '0.1'
+    chapter: Cold open
+    visual: Two sites, a workload on B, and a replication pair frozen in Failed_Over.
+    narration: >-
+      The application is running on the surviving site. The old site is back,
+      but it is not a standby. The two arrays are still in a failed-over state,
+      and nothing is copying between them. Something has to tell the storage to
+      start copying back. The question is which side gets that command.
+    evidence: [csi-addons-1200, driver-source]
+    pause_after: 2
+
+  - id: '0.2'
+    chapter: Cold open
+    visual: Ceph and PowerStore split into two columns, each with a different arrow.
+    narration: >-
+      Ceph and Dell PowerStore answer that question differently. Ceph expects
+      the resync on the secondary side, the demoted old site. PowerStore expects
+      it on the primary side, the site that is now active, where the array calls
+      the action Reprotect. The controller currently does only the secondary
+      call. On PowerStore, nothing restarts the reverse copy.
+    evidence: [csi-addons-1200, driver-source]
+    pause_after: 1.8
+
+  - id: '0.3'
+    chapter: Cold open
+    visual: A scope card separates the architecture from a recorded run.
+    narration: >-
+      This is a conceptual explainer, not a recorded failover. It is built from
+      the open csi-addons design issue, the downstream RHDR controller patch,
+      the Dell driver source, and two failure modes filed from this lab. Where a
+      cause is inferred rather than proven, the video says so.
+    evidence: [csi-addons-1200, trace]
+    pause_after: 1.5
+
+  - id: '1.1'
+    chapter: Primer
+    visual: Two site panels, one active copy and one receiving copy.
+    narration: >-
+      Start with the physical picture. Two sites each hold a copy of every
+      protected disk. The primary site serves input and output. The secondary
+      site receives changes and stays ready. The labels primary and secondary
+      describe the current job, not the permanent owner of the site.
+    evidence: [source-trace]
+
+  - id: '1.2'
+    chapter: Primer
+    visual: One DRPC card and its definition.
+    card: {kind: DRPlacementControl, name: hammerdb-drpc, role: 'the hub record that asks for the move'}
+    def: {what: The hub control record for one protected application., creator: The DR administrator enrolls the application., reader: Ramen on the hub and the console., where: openshift-dr-ops on the hub., analogy: A job ticket that records the requested move and how far it got.}
+    narration: >-
+      The DRPlacementControl, or DRPC, is the hub control record for one
+      application. This example uses hammerdb-drpc in openshift-dr-ops. It
+      records the requested action and the progression. When the console shows
+      a step, it is reading this object.
+    evidence: [source-trace]
+
+  - id: '1.3'
+    chapter: Primer
+    visual: One VRG card and its definition.
+    card: {kind: VolumeReplicationGroup, name: hammerdb-drpc, role: 'coordinates every protected disk on one site'}
+    def: {what: The per-cluster coordinator for a group of protected disks., creator: Ramen delivers it from the hub., reader: Ramen's spoke controller reads it., where: openshift-dr-ops on both spokes., analogy: A foreman who tracks every disk job on one site.}
+    narration: >-
+      On each site, a VolumeReplicationGroup, or VRG, coordinates the protected
+      disks. Ramen creates it from the hub and the spoke controller reads it.
+      The VRG is where a site records whether its disks are primary, secondary,
+      or resyncing.
+    evidence: [source-trace]
+
+  - id: '1.4'
+    chapter: Primer
+    visual: One VolumeReplication card and its definition.
+    card: {kind: VolumeReplication, name: hammerdb-rhel9-rootdisk, role: 'one disk, one requested replication role'}
+    def: {what: The per-disk request that names the role the disk should have., creator: The VRG creates one for each protected PVC., reader: The csi-addons controller reads it., where: The workload namespace on the spoke., analogy: 'A work order for one disk, not for the whole application.'}
+    narration: >-
+      A VolumeReplication is the per-disk work order. It names one PVC and the
+      role that disk should have. The VRG creates one VolumeReplication for each
+      protected disk, so a two-disk application has two of these objects on each
+      site.
+    evidence: [source-trace]
+
+  - id: '1.5'
+    chapter: Primer
+    visual: One csi-addons controller card and its definition.
+    card: {kind: Controller, name: csi-addons-controller-manager, role: 'turns a VolumeReplication into CSI driver calls'}
+    def: {what: The controller that watches VolumeReplication objects and calls the CSI driver., creator: It is installed as a bare Deployment in this lab., reader: It reads VolumeReplication and its class., where: csi-addons-system on each spoke., analogy: A translator between the Kubernetes work order and the storage machine.}
+    narration: >-
+      csi-addons is the translator. Its controller watches VolumeReplication
+      objects and calls the CSI driver: enable, promote, demote, resync or
+      disable. It is a bare Deployment in csi-addons-system in this lab, not an
+      OLM-managed operator.
+    evidence: [source-trace, baseline]
+
+  - id: '1.6'
+    chapter: Primer
+    visual: One PowerStore driver card and its definition.
+    card: {kind: Controller, name: powerstore-controller, role: 'executes the CSI calls against the PowerStore array'}
+    def: {what: Dell's CSI driver and its csi-addons sidecar., creator: It is installed by the Dell Helm chart., reader: It receives the csi-addons requests and calls the array., where: powerstore on each spoke., analogy: The machine operator who presses the buttons on the array.}
+    narration: >-
+      The Dell driver is the machine operator. Its powerstore-controller
+      Deployment receives the csi-addons requests and turns them into PowerStore
+      API actions. For replication, the important calls are Promote, Demote,
+      Resync, and Disable.
+    evidence: [source-trace, baseline]
+
+  - id: '1.7'
+    chapter: Primer
+    visual: The full chain from hub record to array session, top to bottom.
+    narration: >-
+      Follow the chain once. The DRPC asks for a move. The VRG on each site
+      turns that into per-disk work. The VolumeReplication carries one disk's
+      role. csi-addons translates it. The Dell driver acts on the array. The
+      array session is the only place where data actually moves. The console
+      shows the top of this chain, not the bottom.
+    evidence: [source-trace]
+    pause_after: 1.5
+
+  - id: '2.1'
+    chapter: The reverse copy
+    visual: Site A is primary, site B is secondary, and the array copies A to B.
+    narration: >-
+      Before the failure, site A is primary and site B is secondary. On the
+      array, the session role on A is Source and the role on B is Destination.
+      The array copies changed blocks from A to B on the policy schedule. The
+      job of B is to receive and stay ready.
+    evidence: [driver-source]
+
+  - id: '2.2'
+    chapter: The reverse copy
+    visual: Site A goes dark, the DRPC moves the workload, and B promotes its disks.
+    narration: >-
+      Site A fails. The DRPC moves the application to site B. Ramen flips the
+      target VolumeReplications to primary, and csi-addons promotes the arrays'
+      local copies. Site B can now serve input and output. The application is
+      recovered, and the disks are writable.
+    evidence: [driver-source]
+
+  - id: '2.3'
+    chapter: The reverse copy
+    visual: Both array sessions turn red and read Failed_Over.
+    narration: >-
+      The array sessions do not become healthy again. They enter Failed_Over,
+      the state left by an unplanned failover. Site B is writable, but the pair
+      is no longer copying. Site A is stale. If site B is lost now, there is no
+      current second copy.
+    evidence: [driver-source, dfbugs-12498]
+    define: {term: Failed_Over, text: 'The array pair was split by an unplanned failover. The promoted side can serve I/O, but the two sides are not copying.'}
+
+  - id: '2.4'
+    chapter: The reverse copy
+    visual: A reverse arrow from B to A appears, marked as not started.
+    narration: >-
+      To make site A a standby again, the pair must copy from B back to A. That
+      is a new resync in the opposite direction. The controller has to ask for
+      it after the promotion. The rest of this video is about which side it asks,
+      and why the answer is not the same for every storage vendor.
+    evidence: [csi-addons-1200]
+    pause_after: 1.5
+
+  - id: '3.1'
+    chapter: The asymmetry
+    visual: A code panel shows the three replication states in the upstream reconciler.
+    narration: >-
+      In upstream csi-addons, the VolumeReplication reconciler switches on the
+      requested state. Primary enables and promotes. Secondary demotes and then
+      calls ResyncVolume. The Resync state also calls ResyncVolume, with force
+      set to true. Nothing in the steady primary branch calls resync.
+    evidence: [vr-controller-source]
+    pause_after: 1.5
+
+  - id: '3.2'
+    chapter: The asymmetry
+    visual: A Ceph column shows the demoted secondary side starting the reverse copy.
+    narration: >-
+      For Ceph, that is enough. The demoted old site is the side that can start
+      receiving again, so the secondary branch is the correct place for the
+      call. The same code path has worked for Ceph for years.
+    evidence: [csi-addons-1200, vr-controller-source]
+
+  - id: '3.3'
+    chapter: The asymmetry
+    visual: A driver code panel highlights the Failed_Over case and its two roles.
+    narration: >-
+      PowerStore is different. When the driver receives ResyncVolume on a
+      Failed_Over session, it checks the local role. If the local role is
+      Source, it executes the array action Reprotect. If the local role is
+      Destination, it returns OutOfRange and waits for the source side. Only the
+      Source side can reverse the pair.
+    evidence: [driver-source]
+    define: {term: Reprotect, text: 'The PowerStore array action that reverses a failed-over pair so the new primary becomes the source and the old site receives again.'}
+    pause_after: 2
+
+  - id: '3.4'
+    chapter: The asymmetry
+    visual: The secondary call reaches the old site and is rejected; the primary call never leaves.
+    narration: >-
+      After the failover, the old site is the Destination. The secondary branch
+      does call ResyncVolume there, but the driver rejects it with OutOfRange.
+      The new primary is the Source, and it is the side that could execute
+      Reprotect, but its steady primary branch never asks. The pair stays
+      Failed_Over.
+    evidence: [driver-source, dfbugs-12498]
+    pause_after: 2
+
+  - id: '3.5'
+    chapter: The asymmetry
+    visual: A role table maps the Kubernetes role to the array role on each site.
+    narration: >-
+      The mismatch is easier to see in a table. Site B has the primary
+      VolumeReplication and the Source array role. Site A has the secondary
+      VolumeReplication and the Destination array role. The call must go to B,
+      because B holds the side that can reverse the session.
+    evidence: [driver-source]
+
+  - id: '4.1'
+    chapter: First fix and its edges
+    visual: The RHDR patch is shown next to the upstream primary branch.
+    narration: >-
+      The first fix, tracked in VIRTDR-167, was direct. Patch the controller to
+      call ResyncVolume after a successful promote, and ignore an OutOfRange
+      reply. The Dell driver returns OutOfRange on the secondary, so the
+      controller can call both sides without knowing the vendor. This patch is
+      in the RHDR csi-addons build used by this lab.
+    evidence: [rhdr-patch, virtDR-167]
+
+  - id: '4.2'
+    chapter: First fix and its edges
+    visual: The primary call reaches the driver, Reprotect runs, and the reverse arrow turns green.
+    narration: >-
+      When the timing is right, this works. Site B promotes, the session is
+      already Failed_Over, the driver executes Reprotect, and site A starts
+      receiving. The pair returns to a normal source and destination state. The
+      old site is a standby again.
+    evidence: [rhdr-patch, driver-source]
+    pause_after: 1.5
+
+  - id: '4.3'
+    chapter: First fix and its edges
+    visual: A timeline shows the one-shot call missing the Failed_Over moment.
+    narration: >-
+      The first edge is timing. The patch calls resync only when the
+      VolumeReplication first becomes primary. If the session is not yet
+      Failed_Over at that instant, the call returns already synchronized or in
+      progress. The steady primary branch never asks again. A cleanup that
+      arrives after that gap can wedge the failover. That is DFBUGS-12498.
+    evidence: [rhdr-patch, dfbugs-12498]
+    unverified: true
+    pause_after: 1.8
+
+  - id: '4.4'
+    chapter: First fix and its edges
+    visual: The primary Reprotect fails because the peer array is powered off; DataReady turns false.
+    narration: >-
+      The second edge is the peer. On the primary, ResyncVolume immediately
+      executes Reprotect. If the other array is powered off, Reprotect fails.
+      csi-addons reports FailedToResync, Ramen sets DataReady to false, and the
+      object restore never recreates the virtual machine. That is DFBUGS-12519.
+      Re-protection is gating recovery.
+    evidence: [driver-source, dfbugs-12519]
+    pause_after: 2
+
+  - id: '4.5'
+    chapter: First fix and its edges
+    visual: 'Two requirements land side by side: trigger from the primary, do not gate recovery.'
+    narration: >-
+      So the fix needs both properties. Trigger the resync from the primary,
+      because that is the side that can reverse the pair. And keep the
+      peer-dependent Reprotect out of the readiness gate, so a lost peer cannot
+      stop the workload from starting. The next design is built around those two
+      rules.
+    evidence: [csi-addons-1200, dfbugs-12519]
+    pause_after: 1.5
+
+  - id: '5.1'
+    chapter: The redesign
+    visual: Two design options are compared, then option two is selected.
+    narration: >-
+      The open issue, csi-addons number twelve hundred, lays out two options.
+      One is to always call resync on the primary and ignore OutOfRange. The
+      other is to use the existing Resync state and make the primary-side
+      resync opt-in. The second option was chosen, so Ceph keeps its current
+      behaviour.
+    evidence: [csi-addons-1200]
+
+  - id: '5.2'
+    chapter: The redesign
+    visual: An annotation chip appears on the DRPC and is copied to the VRG.
+    narration: >-
+      The switch is an annotation on the DRPC:
+      drplacementcontrol.ramendr.openshift.io/resync-on-primary. Ramen copies
+      it to the VRG. When the annotation is absent, nothing changes. That is
+      how the design keeps Ceph on the old path while enabling PowerStore.
+    evidence: [ramen-branch]
+
+  - id: '5.3'
+    chapter: The redesign
+    visual: The primary VolumeReplication reports Replicating=False.
+    narration: >-
+      On a primary VRG, Ramen now looks at the VolumeReplication's Replicating
+      condition. Replicating false means the volume is primary but is not
+      copying to a secondary. That is the level-triggered signal. It is checked
+      on every reconcile, not once at promotion.
+    evidence: [ramen-branch]
+
+  - id: '5.4'
+    chapter: The redesign
+    visual: The state moves Primary to Resync, then back to Primary after the conditions clear.
+    narration: >-
+      When that signal appears, Ramen sets the VolumeReplication to resync.
+      csi-addons calls ResyncVolume with force true, which is the existing
+      Resync state. Ramen keeps the state until Degraded is false and Resyncing
+      is false, then returns it to primary so the volume is promoted again.
+    evidence: [ramen-branch, vr-controller-source]
+
+  - id: '5.5'
+    chapter: The redesign
+    visual: The PVC conditions separate local readiness from remote protection.
+    narration: >-
+      While the resync runs, DataReady stays true. DataProtected moves to
+      progressing, and ReplicationHealthy becomes false. The workload can start
+      and serve traffic, while the screen tells the truth about protection.
+      Local readiness and remote protection are separate answers.
+    evidence: [ramen-branch]
+    pause_after: 1.8
+
+  - id: '5.6'
+    chapter: The redesign
+    visual: A later branch moves the trigger from Ramen to csi-addons; the consumer is marked absent.
+    narration: >-
+      A later branch moves the trigger one layer down. Ramen copies the
+      annotation to the VolumeReplication as
+      replication.storage.openshift.io/resync-on-primary, and csi-addons is
+      expected to act on it. That annotation is defined locally in Ramen until
+      csi-addons defines it. No consumer is published yet, so this is an
+      intended split, not a shipped one.
+    evidence: [ramen-branch]
+    unverified: true
+
+  - id: '6.1'
+    chapter: Where it stands
+    visual: A status board lists the ticket and branch state.
+    narration: >-
+      The pieces are at different stages. VIRTDR-167 is closed: the driver and
+      the RHDR csi-addons build have the primary-side call. VIRTDR-478 is in
+      progress in Ramen. VIRTDR-477 is the upstream work. DFBUGS-6801 is the
+      product request. The csi-addons issue is still open.
+    evidence: [virtDR-167, virtDR-478, virtDR-477, dfbugs-6801]
+
+  - id: '6.2'
+    chapter: Where it stands
+    visual: The maintainer caveat and the manual workaround sit side by side.
+    narration: >-
+      The maintainer position is not a rejection of the need. Some backends do
+      require the primary side. The open questions are when to trigger it, what
+      it does to health reporting, and how the change is split across the spec,
+      the drivers and csi-addons. Until the Ramen side is merged, a failover can
+      still end with sessions failed over. The lab workaround is an array-side
+      Reprotect.
+    evidence: [csi-addons-1200, dfbugs-12498]
+
+  - id: '6.3'
+    chapter: Where it stands
+    visual: The one-sentence summary and the chain recap.
+    narration: >-
+      The sentence to remember: ask the side that can actually reverse the
+      copy, and do not let the reverse copy gate recovery. Ceph reverses on the
+      secondary. PowerStore reverses on the primary. The first patch called the
+      primary once. The redesign calls it while the volume reports not
+      replicating, and keeps the workload ready while protection catches up.
+    evidence: [csi-addons-1200, ramen-branch, driver-source]
+    pause_after: 2.2
