@@ -49,7 +49,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .corp-bg{position:absolute;top:20px;left:20px;right:20px;bottom:20px;border:2px dashed var(--border);border-radius:12px}
 .corp-label{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#0a0e14;padding:0 10px;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px}
 .site{position:absolute;border:2px dashed;border-radius:12px;padding:20px}
-.site-label{position:absolute;top:-12px;left:16px;background:#0a0e14;padding:0 8px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.site-label{position:absolute;top:-12px;left:16px;background:#0a0e14;padding:0 8px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;z-index:12}
 .nat-line{position:absolute;left:20px;right:20px;border-top:2px dotted rgba(210,153,34,.4);text-align:center}
 .nat-line span{position:relative;top:-9px;font-size:10px;color:rgba(210,153,34,.7);background:#0a0e14;padding:0 8px;border-radius:4px}
 .hyper-bar{position:absolute;left:20px;right:20px;height:72px;border:2px solid var(--yellow);border-radius:6px;background:rgba(210,153,34,.05);padding:8px 12px}
@@ -116,6 +116,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="leg"><div class="lrect" style="background:var(--green)"></div>Deployed</div>
 <div class="leg"><div class="lrect" style="background:#484f58"></div>Planned</div>
 <div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--red)" stroke-width="2"/></svg> Storage replication (Dell array)</div>
+<div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--orange)" stroke-width="2"/></svg> NVMe-TCP host paths (both arrays)</div>
 <div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--blue)" stroke-width="2" stroke-dasharray="4,3"/></svg> Control / metadata (logical)</div>
 </div>
 
@@ -197,12 +198,12 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke1comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="Recorded spoke-0 driver install: Helm/non-OLM, local VSA-A endpoint. VRC references VSA-B for async replication (15m workload schedule). Inspect the live powerstore-config array list before inferring any additional connections. CNV/OADP/csi-addons, RHDR v4.22.0-86 and OpenShift GitOps v1.22.3 readiness are recorded snapshots.">i</span>
+<span class="info-icon" data-tip="Recorded spoke-0 driver install: Helm/non-OLM. The powerstore-config array list holds both VSA-A and VSA-B (VSA-A is the default), and every worker holds two live NVMe-TCP paths to each array. The powerstore-sc classes select the local array (VSA-A for spoke-0), and Ramen replicates those volumes to VSA-B. CNV/OADP/csi-addons, RHDR v4.22.0-86 and OpenShift GitOps v1.22.3 readiness are recorded snapshots.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 1 DR Components</div>
 <div class="detail">
 <div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
-<div class="row"><span class="k">Dell CSI &#8594; local VSA-A</span><span class="badge done" style="font-size:9px">Recorded ready</span></div>
+<div class="row"><span class="k">Dell CSI &#8594; VSA-A + VSA-B</span><span class="badge done" style="font-size:9px">Recorded ready</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
 <div class="row"><span class="k">RHDR cluster operator</span><span class="badge done" style="font-size:9px">v4.22.0-86</span></div>
@@ -233,12 +234,12 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke2comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="Recorded spoke-1 driver install: Helm/non-OLM, local VSA-B endpoint. Mirrored VRC references VSA-A. Inspect the live powerstore-config array list before inferring additional connections. CNV/OADP/csi-addons, RHDR v4.22.0-86 and OpenShift GitOps v1.22.3 readiness are recorded snapshots.">i</span>
+<span class="info-icon" data-tip="Recorded spoke-1 driver install: Helm/non-OLM. The powerstore-config array list holds both VSA-B and VSA-A (VSA-B is the default), and every worker holds two live NVMe-TCP paths to each array. The powerstore-sc classes select the local array (VSA-B for spoke-1), and Ramen replicates those volumes to VSA-A. CNV/OADP/csi-addons, RHDR v4.22.0-86 and OpenShift GitOps v1.22.3 readiness are recorded snapshots.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 2 DR Components</div>
 <div class="detail">
 <div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
-<div class="row"><span class="k">Dell CSI &#8594; local VSA-B</span><span class="badge done" style="font-size:9px">Recorded ready</span></div>
+<div class="row"><span class="k">Dell CSI &#8594; VSA-B + VSA-A</span><span class="badge done" style="font-size:9px">Recorded ready</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
 <div class="row"><span class="k">RHDR cluster operator</span><span class="badge done" style="font-size:9px">v4.22.0-86</span></div>
@@ -270,14 +271,14 @@ spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submarine
 
 <!-- ===== STORAGE: eco-vCenter VSAs (visual grouping box) ===== -->
 <div class="site" style="top:1080px;left:520px;width:1620px;height:320px;border-color:var(--orange)">
-<div class="site-label" style="color:var(--orange)">STORAGE: Dell PowerStore VSAs on eco-vCenter (shared, reached over NVMe-TCP)</div>
+<div class="site-label" style="color:var(--orange)">STORAGE: Dell PowerStore VSAs on eco-vCenter (shared, both spokes hold NVMe-TCP paths to both arrays)</div>
 </div>
 
 <div class="card" id="vsaa" style="top:1120px;left:600px;width:300px;border-color:var(--orange)">
 <span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter, two-node HA pair. Setup Doc records remote-system and replication sessions OK, with two active Major detached-port alerts per array. This is a recorded snapshot; inspect UI alerts and current path/replication evidence before a health verdict.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--orange)">Dell PowerStore VSA-A</div>
-<div class="sub">Mgmt 10.46.48.20 | primary for Spoke 1, secondary for Spoke 2</div>
+<div class="sub">Mgmt 10.46.48.20 | local array for Spoke 1, peer for Spoke 2</div>
 <div class="detail">
 <div class="row"><span class="k">HA</span><span class="v">2 nodes (Node A + Node B)</span></div>
 <div class="row"><span class="k">Node A storage IP</span><span class="v" style="font-family:monospace">10.46.49.1</span></div>
@@ -286,7 +287,7 @@ spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submarine
 <div class="row"><span class="k">Per-node disks</span><span class="v">1173 GB (6x170 + 120/32/1)</span></div>
 <div class="row"><span class="k">ESXi host</span><span class="v" style="font-family:monospace">10.46.29.208</span></div>
 <div class="row"><span class="k">Global ID</span><span class="v" style="font-family:monospace">PS3b37452a6e0f</span></div>
-<div class="row"><span class="k">Replication</span><span class="v" style="color:var(--orange)">Source - paired to VSA-B</span></div>
+<div class="row"><span class="k">Replication</span><span class="v" style="color:var(--orange)">Paired with VSA-B</span></div>
 </div>
 </div>
 
@@ -294,7 +295,7 @@ spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submarine
 <span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter, two-node HA pair. Setup Doc records remote-system and replication sessions OK, with two active Major detached-port alerts per array. This is a recorded snapshot, not live array health; verify alerts, connectivity and replica syncs before operations.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--orange)">Dell PowerStore VSA-B</div>
-<div class="sub">Mgmt 10.46.48.30 | primary for Spoke 2, secondary for Spoke 1</div>
+<div class="sub">Mgmt 10.46.48.30 | local array for Spoke 2, peer for Spoke 1</div>
 <div class="detail">
 <div class="row"><span class="k">HA</span><span class="v">2 nodes (Node A + Node B)</span></div>
 <div class="row"><span class="k">Node A storage IP</span><span class="v" style="font-family:monospace">10.46.49.4</span></div>
@@ -303,7 +304,7 @@ spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submarine
 <div class="row"><span class="k">Per-node disks</span><span class="v">1173 GB (6x170 + 120/32/1)</span></div>
 <div class="row"><span class="k">ESXi host</span><span class="v" style="font-family:monospace">10.46.29.131</span></div>
 <div class="row"><span class="k">Global ID</span><span class="v" style="font-family:monospace">PSff392f423bd6</span></div>
-<div class="row"><span class="k">Replication</span><span class="v" style="color:var(--orange)">Target - paired to VSA-A</span></div>
+<div class="row"><span class="k">Replication</span><span class="v" style="color:var(--orange)">Paired with VSA-A</span></div>
 </div>
 </div>
 
@@ -366,10 +367,11 @@ setTimeout(function(){
   arrow(S2.l, S2.t+14, H.r, H.t+14, purple, 'ACM pull: klusterlet -> hub API 6443 (DNAT)', true);
   // Hub -> S3 metadata store (vertical, hub down to S3)
   arrow(H.cx, H.b, S3.cx, S3.t, blue, 'DR metadata (S3)', true);
-  // Spoke 1 DR components -> VSA-A (primary, NVMe-TCP)
-  arrow(S1C.cx, S1C.b, VA.cx, VA.t, orange, 'NVMe-TCP primary (Dell CSI)', false);
-  // Spoke 2 DR components -> VSA-B (primary, NVMe-TCP)
-  arrow(S2C.cx, S2C.b, VB.cx, VB.t, orange, 'NVMe-TCP primary (Dell CSI)', false);
+  // Both arrays appear in each spoke powerstore-config, so every spoke holds NVMe-TCP paths to both VSAs
+  arrow(S1C.cx-60, S1C.b, VA.cx-50, VA.t, orange, '', false);
+  arrow(S1C.cx+60, S1C.b, VB.cx-50, VB.t, orange, '', false);
+  arrow(S2C.cx-60, S2C.b, VA.cx+50, VA.t, orange, '', false);
+  arrow(S2C.cx+60, S2C.b, VB.cx+50, VB.t, orange, '', false);
   // VSA-A -> VSA-B array replication (Dell native)
   arrow(VA.r, VA.cy, VB.l, VB.cy, red, 'Dell array replication (workload schedule 15m)', false);
 },120);
