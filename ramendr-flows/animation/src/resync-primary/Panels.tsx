@@ -5,7 +5,7 @@ import {Def, GlossaryPanel} from '../components/newcomer';
 import {prog} from '../lib/anim';
 
 const Box: React.FC<{children: React.ReactNode; style?: React.CSSProperties}> = ({children, style}) => (
-  <div style={{position: 'absolute', left: 990, top: 200, width: 890, padding: '24px 28px', border: `2px solid ${C.blue}`, borderRadius: 18, background: `${C.bg}f4`, fontFamily: sans, boxShadow: '0 20px 60px #000c', ...style}}>{children}</div>
+  <div style={{position: 'absolute', left: 990, top: 200, width: 890, padding: '24px 28px', border: `2px solid ${C.blue}`, borderRadius: 18, background: C.bg, fontFamily: sans, boxShadow: '0 20px 60px #000c', ...style}}>{children}</div>
 );
 
 const Row: React.FC<{text: React.ReactNode; i: number; f: number; dur: number; color?: string; mono?: boolean; size?: number}> = ({text, i, f, dur, color = C.text, mono: isMono, size = 24}) => {
@@ -28,7 +28,7 @@ const CodePanel: React.FC<{title: string; lines: string[]; hl?: number[]; f: num
       return <span key={i}>{p}</span>;
     });
   };
-  return <div style={{position: 'absolute', left: x, top: y, width: w, opacity: a, transform: `translateX(${(1 - a) * 50}px)`, background: `${C.bg}f7`, border: `1.5px solid ${C.border}`, borderRadius: 14, overflow: 'hidden', boxShadow: '0 24px 70px #000d', height: h}}>
+  return <div style={{position: 'absolute', left: x, top: y, width: w, opacity: a, transform: `translateX(${(1 - a) * 50}px)`, background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 14, overflow: 'hidden', boxShadow: '0 24px 70px #000d', height: h}}>
     <div style={{padding: '10px 16px', background: C.panel, borderBottom: `1px solid ${C.border}`, fontFamily: mono, fontSize: 15, color: C.dim, display: 'flex', gap: 8, alignItems: 'center'}}>
       <span style={{width: 11, height: 11, borderRadius: 6, background: C.red}} />
       <span style={{width: 11, height: 11, borderRadius: 6, background: C.amber}} />

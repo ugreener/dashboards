@@ -119,7 +119,7 @@ const BASE: Record<string, string> = {
   sessionB: 'Destination · OK',
 };
 
-export const World: React.FC<{c: Ctx}> = ({c}) => {
+export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
   const keys = FOCUS[c.id] ?? [];
   const chapter = phase(c.id);
   const status = (key: string) => {
@@ -146,11 +146,11 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
     </g>
   );
   return <div style={{position: 'absolute', width: 2480, height: 1600}}>
-    <Region b={{x: 70, y: 45, w: 2340, h: 280}} title="HUB · edge36" sub="the control record and the switch" color={C.blue} />
-    <Region b={{x: 70, y: 390, w: 1170, h: 790}} title="SPOKE-0 · edge95 · OLD SITE" sub={failedOver ? 'returned, demoted, waiting' : 'the primary before the failure'} color={C.spoke1} />
-    <Region b={{x: 1235, y: 390, w: 1175, h: 790}} title="SPOKE-1 · edge97 · ACTIVE SITE" sub="serves the workload after failover" color={C.spoke0} />
-    <Region b={{x: 70, y: 1205, w: 1170, h: 320}} title="VSA-A · OLD SITE ARRAY" color={C.array} />
-    <Region b={{x: 1235, y: 1205, w: 1175, h: 320}} title="VSA-B · ACTIVE SITE ARRAY" color={C.array} />
+    <Region b={{x: 70, y: 45, w: 2340, h: 280}} title="HUB · edge36" sub="the control record and the switch" color={C.blue} hideTitle={panel} />
+    <Region b={{x: 70, y: 390, w: 1170, h: 790}} title="SPOKE-0 · edge95 · OLD SITE" sub={failedOver ? 'returned, demoted, waiting' : 'the primary before the failure'} color={C.spoke1} hideTitle={panel} />
+    <Region b={{x: 1235, y: 390, w: 1175, h: 790}} title="SPOKE-1 · edge97 · ACTIVE SITE" sub="serves the workload after failover" color={C.spoke0} hideTitle={panel} />
+    <Region b={{x: 70, y: 1205, w: 1170, h: 320}} title="VSA-A · OLD SITE ARRAY" color={C.array} hideTitle={panel} />
+    <Region b={{x: 1235, y: 1205, w: 1175, h: 320}} title="VSA-B · ACTIVE SITE ARRAY" color={C.array} hideTitle={panel} />
 
     {Object.entries(NODES).map(([key, n]) => {
       const col = failed && (key === 'driver1' || key === 'vr1' || key === 'status') ? C.red
