@@ -120,7 +120,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 
 <div class="callout"><b>Recorded configuration, not live monitoring.</b> Diagram placement shows the home/preferred baseline on spoke-0, not a current-state observation. Workloads move between spokes with every failover and relocate, so the diagram never shows the current cluster; see the <a href="https://docs.google.com/document/d/1npumTvaf2SRj2wdEUoBBuYLZXwqXxJNUvY3SNqrLfe0/edit">Setup Doc</a> for recorded test runs. Verify live placement and protection before operations. GitOps-managed end-to-end recovery and Relocate/failback remain unverified in the doc. Version/readiness badges below are recorded snapshots.</div>
-<div class="callout"><b>Configuration snapshot: 2026-10-06.</b> Discovered DRPCs (<code>hammerdb-drpc</code>, <code>hammerdb-win-drpc</code>) and their ProtectedApplicationViews are in <code>openshift-dr-ops</code>, with VRGs in <code>openshift-dr-ops</code> on both spokes. The GitOps-managed RHEL app follows the ODF ApplicationSet layout in Git (upstream commit <code>e6237ef</code>): pull-model ApplicationSet <code>dell-vm-workload</code>, Placement <code>dell-vm-placement</code> and DRPC <code>dell-vm-drpc</code> all in <code>openshift-gitops</code>, VRG in <code>gitops-vms</code>, no Namespace manifest in the workload. The managed app was redeployed from that commit on 2026-10-06 after the stuck fork-based first attempt was removed; DRPC <code>dell-vm-drpc</code> is Deployed and Protected with both disks replicating, and HammerDB writes are active. OpenShift GitOps 1.22.0 runs on the hub and both spokes. Windows managed workload (2026-10-08): DRPC <code>openshift-gitops/dell-win-drpc</code>, VM <code>windows-hammerdb</code> in <code>gitops-vms-win</code> on spoke-0, Protected=True. The active cluster of each workload changes with DR operations and is not shown here; check the live PlacementDecision.</div>
+<div class="callout"><b>Configuration snapshot: 2026-10-06.</b> Discovered DRPCs (<code>hammerdb-drpc</code>, <code>hammerdb-win-drpc</code>) and their ProtectedApplicationViews are in <code>openshift-dr-ops</code>, with VRGs in <code>openshift-dr-ops</code> on both spokes. The GitOps-managed RHEL app follows the ODF ApplicationSet layout in Git (upstream commit <code>e6237ef</code>): pull-model ApplicationSet <code>dell-vm-workload</code>, Placement <code>dell-vm-placement</code> and DRPC <code>dell-vm-drpc</code> all in <code>openshift-gitops</code>, VRG in <code>gitops-vms</code>, no Namespace manifest in the workload. The managed app was redeployed from that commit on 2026-10-06 after the stuck fork-based first attempt was removed; DRPC <code>dell-vm-drpc</code> is Deployed and Protected with both disks replicating, and HammerDB writes are active. OpenShift GitOps 1.22.3 runs on the hub and both spokes. Windows managed workload (2026-10-08): DRPC <code>openshift-gitops/dell-win-drpc</code>, VM <code>windows-hammerdb</code> in <code>gitops-vms-win</code> on spoke-0, Protected=True. The active cluster of each workload changes with DR operations and is not shown here; check the live PlacementDecision.</div>
 <p class="scroll-hint">Scroll or use the zoom controls to see the full architecture. Hover over cards and connecting lines for details.</p>
 
 <div class="zoom-toolbar" role="toolbar" aria-label="Diagram zoom">
@@ -161,7 +161,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="links"><a href="https://console-openshift-console.apps.ocp3m0w-ic4s22.qe.lab.redhat.com" target="_blank" rel="noopener noreferrer">Console</a></div>
 </div>
 <div class="card" id="hubops" style="top:146px;left:334px;width:290px;border-color:var(--purple)">
-<span class="info-icon" data-tip="Hub operators. ACM/MCE + MinIO S3 deployed. RHDR hub operator (rhdr-hub-operator v4.22.0-86.stable, from rhdr-staging-catalog) installed and running; DRClusters + DRPolicy created and Validated=True. DF Multicluster Orchestrator (rhdr-multicluster-operator v4.22.0-87.keytype) provides the Data Services DR console. OpenShift GitOps (v1.21.4) installed as a prerequisite for the multicluster operator. No Submariner on the Dell path.">i</span>
+<span class="info-icon" data-tip="Hub operators. ACM/MCE + MinIO S3 deployed. RHDR hub operator (rhdr-hub-operator v4.22.0-86.stable, from rhdr-staging-catalog) installed and running. DF Multicluster Orchestrator (rhdr-multicluster-operator v4.22.0-87.keytype) provides the Data Services DR console. OpenShift GitOps v1.22.3 runs on the hub and both spokes, installed as a prerequisite for the multicluster operator. No Submariner on the Dell path.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--purple)">Hub Operators</div>
 <div class="detail">
@@ -170,17 +170,13 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="row"><span class="k">S3 / MinIO (metadata)</span><span class="badge done" style="font-size:9px">Deployed</span></div>
 <div class="row"><span class="k">RHDR hub operator</span><span class="badge done" style="font-size:9px">v4.22.0-86</span></div>
 <div class="row"><span class="k">DF Multicluster Orch.</span><span class="badge done" style="font-size:9px">v4.22.0-87</span></div>
-<div class="row"><span class="k">OpenShift GitOps</span><span class="badge done" style="font-size:9px">v1.22.0</span></div>
-<div class="row"><span class="k">DRPolicy validated</span><span class="badge done" style="font-size:9px">True</span></div>
-<div class="row"><span class="k">DRPC protects hammerdb</span><span class="badge done" style="font-size:9px">Recorded</span></div>
-<div class="row"><span class="k">DRPC protects hammerdb-win</span><span class="badge done" style="font-size:9px">Recorded</span></div>
-<div class="sub">Enrollment: discovered DRPC + Placement in openshift-dr-ops; managed ApplicationSet DRPC + Placement in openshift-gitops.</div>
+<div class="row"><span class="k">OpenShift GitOps</span><span class="badge done" style="font-size:9px">v1.22.3</span></div>
 </div>
 </div>
 </div>
 
 <!-- ===== SITE B: SPOKE 1 (edge95) ===== -->
-<div class="site" style="top:56px;left:760px;width:660px;height:960px;border-color:var(--cyan)">
+<div class="site" style="top:56px;left:760px;width:660px;height:480px;border-color:var(--cyan)">
 <div class="site-label" style="color:var(--cyan)">SITE B: ocp-edge95 (10.46.46.74) - SPOKE 1</div>
 <div class="hyper-bar" style="top:38px">
 <div class="step-badge dep">Deployed</div>
@@ -201,50 +197,18 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke1comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="Recorded spoke-0 driver install: Helm/non-OLM, local VSA-A endpoint. VRC references VSA-B for async replication (15m workload schedule). Inspect the live powerstore-config array list before inferring any additional connections. CNV/OADP/csi-addons and RHDR v4.22.0-86 readiness are recorded snapshots; VRG roles shown are home-baseline roles.">i</span>
+<span class="info-icon" data-tip="Recorded spoke-0 driver install: Helm/non-OLM, local VSA-A endpoint. VRC references VSA-B for async replication (15m workload schedule). Inspect the live powerstore-config array list before inferring any additional connections. CNV/OADP/csi-addons, RHDR v4.22.0-86 and OpenShift GitOps v1.22.3 readiness are recorded snapshots.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 1 DR Components</div>
 <div class="detail">
 <div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
 <div class="row"><span class="k">Dell CSI &#8594; local VSA-A</span><span class="badge done" style="font-size:9px">Recorded ready</span></div>
-<div class="row"><span class="k">VolumeReplicationClass</span><span class="badge done" style="font-size:9px">15m RPO</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
 <div class="row"><span class="k">RHDR cluster operator</span><span class="badge done" style="font-size:9px">v4.22.0-86</span></div>
-<div class="row"><span class="k">VRG (hammerdb)</span><span class="badge done" style="font-size:9px">Protected</span></div>
-<div class="row"><span class="k">VRG (hammerdb-win)</span><span class="badge done" style="font-size:9px">Protected</span></div>
+<div class="row"><span class="k">OpenShift GitOps</span><span class="badge done" style="font-size:9px">v1.22.3</span></div>
 </div>
     </div>
-<div class="card" id="hammerdb" style="top:440px;left:24px;width:420px;border-color:var(--green);z-index:15">
-<span class="info-icon" data-tip="RHEL 9.8 VM running HammerDB TPC-C workload + PostgreSQL 16. Root disk (35Gi) and data disk (20Gi) both on powerstore-sc. DRPC hammerdb-drpc protects the namespace. Home is spoke-0; the active cluster changes with failover and relocate, so check the live PlacementDecision. Both disks replicate between VSA-A and VSA-B.">i</span>
-<div class="step-badge dep">Deployed</div>
-<div class="icon">&#128187;</div>
-<div class="title" style="color:var(--green)">HammerDB RHEL VM</div>
-<div class="sub">RHEL 9.8 | 2 vCPU / 8 GiB | home: spoke-0</div>
-<div class="detail">
-<div class="row"><span class="k">Root disk</span><span class="v">35 GiB</span></div>
-<div class="row"><span class="k">Data disk</span><span class="v">20 GiB</span></div>
-<div class="row"><span class="k">PostgreSQL</span><span class="badge done" style="font-size:9px">Percona 16.15</span></div>
-<div class="row"><span class="k">HammerDB TPC-C</span><span class="badge done" style="font-size:9px">v4.12</span></div>
-<div class="row"><span class="k">DRPC</span><span class="badge done" style="font-size:9px">Deployed/Protected</span></div>
-<div class="row"><span class="k">Replication</span><span class="badge done" style="font-size:9px">Both &#8596; VSA-A / VSA-B</span></div>
-</div>
-</div>
-<div class="card" id="hammerdb-win" style="top:700px;left:24px;width:420px;border-color:var(--green);z-index:15">
-<span class="info-icon" data-tip="Windows Server 2022 VM running HammerDB 5.0 TPC-C + SQL Server Express. Root disk (45Gi) and data disk (10Gi) on powerstore-sc. DRPC hammerdb-win-drpc protects the namespace. Home: spoke-0. VIRTDR-293.">i</span>
-<div class="step-badge dep">Deployed</div>
-<div class="icon">&#128187;</div>
-<div class="title" style="color:var(--green)">HammerDB Windows VM</div>
-<div class="sub">Win 2022 | 2 vCPU / 8 GiB | home: spoke-0</div>
-<div class="detail">
-<div class="row"><span class="k">Root disk</span><span class="v">45 GiB</span></div>
-<div class="row"><span class="k">Data disk</span><span class="v">10 GiB</span></div>
-<div class="row"><span class="k">SQL Server</span><span class="badge done" style="font-size:9px">Express 2022</span></div>
-<div class="row"><span class="k">HammerDB TPC-C</span><span class="badge done" style="font-size:9px">v5.0</span></div>
-<div class="row"><span class="k">DRPC</span><span class="badge done" style="font-size:9px">Deployed/Protected</span></div>
-<div class="row"><span class="k">Replication</span><span class="badge done" style="font-size:9px">Both &#8596; VSA-A / VSA-B</span></div>
-</div>
-</div>
 </div>
 
 <!-- ===== SITE C: SPOKE 2 (edge97) ===== -->
@@ -269,16 +233,16 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke2comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="Recorded spoke-1 driver install: Helm/non-OLM, local VSA-B endpoint. Mirrored VRC references VSA-A. Inspect the live powerstore-config array list before inferring additional connections. CNV/OADP/csi-addons and RHDR v4.22.0-86 readiness are recorded snapshots. Latest recorded RHEL failover had target VRG Primary here; this diagram is not a live inventory.">i</span>
+<span class="info-icon" data-tip="Recorded spoke-1 driver install: Helm/non-OLM, local VSA-B endpoint. Mirrored VRC references VSA-A. Inspect the live powerstore-config array list before inferring additional connections. CNV/OADP/csi-addons, RHDR v4.22.0-86 and OpenShift GitOps v1.22.3 readiness are recorded snapshots.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 2 DR Components</div>
 <div class="detail">
 <div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
 <div class="row"><span class="k">Dell CSI &#8594; local VSA-B</span><span class="badge done" style="font-size:9px">Recorded ready</span></div>
-<div class="row"><span class="k">VolumeReplicationClass</span><span class="badge done" style="font-size:9px">15m RPO</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
 <div class="row"><span class="k">RHDR cluster operator</span><span class="badge done" style="font-size:9px">v4.22.0-86</span></div>
+<div class="row"><span class="k">OpenShift GitOps</span><span class="badge done" style="font-size:9px">v1.22.3</span></div>
 </div>
 </div>
 </div>
@@ -291,7 +255,6 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="line">Hosted on the Hub; reached by all 3 clusters</div>
 <div class="line">over the hub apps route (443 DNAT)</div>
 <div class="line" style="margin-top:4px"><span class="badge done" style="font-size:9px">Deployed (r/w verified from all 3)</span></div>
-<div class="line" style="color:var(--green);margin-top:3px">DRPolicy Validated=True (CA trust resolved)</div>
 </div>
 
 <!-- ===== DR note ===== -->
@@ -382,7 +345,7 @@ g.appendChild(text);
 }
 svg.appendChild(g);
 }
-var green='#3fb950',blue='#58a6ff',orange='#d18616',red='#f85149',purple='#bc8cff',gray='#8b949e';
+var blue='#58a6ff',orange='#d18616',red='#f85149',purple='#bc8cff',gray='#8b949e';
 // Each .site is position:absolute, so cards inside report offsets relative to their site.
 var sA={x:40,y:56}, sB={x:760,y:56}, sC={x:1480,y:56};
 setTimeout(function(){
@@ -394,7 +357,6 @@ setTimeout(function(){
   }
   var H=box('hub','A'), HO=box('hubops','A'),
       S1=box('spoke1','B'), S1C=box('spoke1comp','B'),
-      HDB=box('hammerdb','B'), HDBW=box('hammerdb-win','B'),
       S2=box('spoke2','C'), S2C=box('spoke2comp','C'),
       S3=box('s3',''), VA=box('vsaa',''), VB=box('vsab','');
 
@@ -408,10 +370,6 @@ setTimeout(function(){
   arrow(S1C.cx, S1C.b, VA.cx, VA.t, orange, 'NVMe-TCP primary (Dell CSI)', false);
   // Spoke 2 DR components -> VSA-B (primary, NVMe-TCP)
   arrow(S2C.cx, S2C.b, VB.cx, VB.t, orange, 'NVMe-TCP primary (Dell CSI)', false);
-  // HammerDB RHEL -> Spoke 1 DR components (home placement; live placement follows DR operations)
-    arrow(HDB.cx, HDB.t, S1C.l+60, S1C.b, green, 'RHEL VM disks on powerstore-sc', true);
-    // HammerDB Win -> Spoke 1 DR components
-    arrow(HDBW.cx, HDBW.t, S1C.r-60, S1C.b, green, 'Win VM disks on powerstore-sc', true);
   // VSA-A -> VSA-B array replication (Dell native)
   arrow(VA.r, VA.cy, VB.l, VB.cy, red, 'Dell array replication (workload schedule 15m)', false);
 },120);
@@ -561,7 +519,7 @@ was removed; the alternative CSM + ACM + GitOps design is historical, not the cu
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">OADP + csi-addons (RamenDR prerequisites)</span><span style="color:var(--muted);margin-left:auto">Velero DPA Ready + csi-addons controller Running + VolumeReplication CRDs</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Dell CSI with csi-addons VolumeReplication (Helm)</span><span style="color:var(--muted);margin-left:auto">VolumeReplicationClass present (5m+15m RPO), test PVCs bind on VSA-A/VSA-B</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">RHDR operators + DR config (DRPolicy Validated)</span><span style="color:var(--muted);margin-left:auto">Hub + spoke operators (RHDR staging v4.22.0-86, spokes on the rebuilt VIRTDR-267/268 fix); no CRD WA</span></div>
-<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">DF Multicluster Orchestrator + OpenShift GitOps</span><span style="color:var(--muted);margin-left:auto">v4.22.0-87.keytype + GitOps v1.21.4; Data Services DR console enabled</span></div>
+<div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">DF Multicluster Orchestrator + OpenShift GitOps</span><span style="color:var(--muted);margin-left:auto">v4.22.0-87.keytype + GitOps v1.22.3; Data Services DR console enabled</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">VolumeReplication + DRPC end-to-end test</span><span style="color:var(--muted);margin-left:auto">Dell driver drives replication via RamenDR API; DRPC Protected=True</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">HammerDB VM deployed (RHEL 9.8 + PostgreSQL + TPC-C)</span><span style="color:var(--muted);margin-left:auto">Recorded 2 vCPU / 8 GiB, root+data disks on powerstore-sc</span></div>
 <div class="check"><div class="ci done">&#10003;</div><span style="font-weight:600">Recorded RHEL UI failover (spoke-0 -&gt; spoke-1)</span><span style="color:var(--green);margin-left:auto">Sep 27, 9m24s; VM auto-restored, writes resumed; exact loss unverified</span></div>
