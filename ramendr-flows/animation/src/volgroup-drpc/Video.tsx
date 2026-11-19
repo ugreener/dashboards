@@ -13,9 +13,7 @@ type Meta = {define?: {term: string; text: string}; card?: {kind: string; name: 
 const META = BEATS as Record<string, Meta>;
 type Cam = {x: number; y: number; z: number; sx: number; sy: number};
 const CAMS: Record<string, Partial<Cam>> = {
-  '2.1': {z: 0.55, sy: 600},
   '2.5': {z: 0.95},
-  '4.5': {z: 0.9, sy: 610},
 };
 
 const fit = (id: string): Cam => {
@@ -93,9 +91,10 @@ export const VolGroupDrpc: React.FC<{chapters: number[]}> = ({chapters}) => {
     }
   }
   const showWorld = ch >= 2 && ch <= 5;
+  const cast = !!m.card || ch === 1;
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
-    {showWorld ? <div style={{position: 'absolute', inset: 0, clipPath: 'inset(210px 0 0 0)'}}><div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} panel={PANEL_BEATS.has(b.id) || !!m.define} /></div></div> : null}
-    {seg.type === 'beat' && ch === 1 ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
+    {showWorld && !cast ? <div style={{position: 'absolute', inset: 0, clipPath: 'inset(210px 0 0 0)'}}><div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} panel={PANEL_BEATS.has(b.id) || !!m.define} /></div></div> : null}
+    {seg.type === 'beat' && cast ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
     {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={null} ticket="volgroup-drpc" /> : null}
     {seg.type === 'beat' ? <Badge /> : null}

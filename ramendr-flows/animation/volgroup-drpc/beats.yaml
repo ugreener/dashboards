@@ -128,7 +128,7 @@ beats:
     narration: >-
       Each site has a VolumeReplicationGroup with the same name as the DRPC.
       Ramen delivers it from the hub. The VRG finds the claims that match the
-      selector, creates the group objects, and reports whether this site is
+      selector, creates the group object, and reports whether this site is
       primary, secondary, or cleaning up.
     evidence: [live-vrg, source-trace]
     pause_after: 1.2
@@ -191,7 +191,6 @@ beats:
       One session joins them, with one role on each side. That is the difference
       from per-disk replication: one session, not one per claim.
     evidence: [live-arrays, live-vgrcontent]
-    define: {term: replication session, text: 'The array object that copies one volume or one volume group from a source to a destination.'}
     pause_after: 1.2
 
   - id: '3.2'
@@ -209,10 +208,10 @@ beats:
     chapter: The forward copy
     visual: 'The VGR conditions table: Primary, Replicating true, Healthy.'
     narration: >-
-      The group reports its own state. Primary means this side serves the
-      workload. Replicating true means the copy is synchronized. Those answers
-      describe the container, and they are separate from the DRPC's Protected
-      condition, which is why the last chapter needs both.
+      The group's status is the companion's status. Primary means this side
+      serves the workload. Replicating true means the copy is synchronized.
+      Those answers describe the container, and they are separate from the DRPC's
+      Protected condition, which is why the last chapter needs both.
     evidence: [live-vgr]
     pause_after: 1.2
 
@@ -287,8 +286,8 @@ beats:
     narration: >-
       At this point the target is primary. The old site still holds an older
       copy, and nothing is copying to it. Making it a standby again is a
-      separate step, and the next chapter shows the two settings that decide
-      whether that step can happen.
+      separate step, and the next chapter shows two conditions that can decide
+      whether that step happens.
     evidence: [source-trace, kb-autoresync]
     pause_after: 1.2
 
@@ -297,11 +296,10 @@ beats:
     chapter: What can block it
     visual: The restored claim with a stale group annotation, then the group stuck Unknown.
     narration: >-
-      The first blocker lives on the restored claim. It carries an annotation
-      naming the group object that owns it. If that name points at an older
-      group, csi-addons refuses to change ownership. The group stays Unknown and
-      the DRPC waits in WaitForReadiness. Correct the annotation and the next
-      reconcile promotes.
+      In this lab's group failover, the restored claim carried an annotation
+      that still named an older group. csi-addons will not change an existing
+      owner. The group stayed Unknown and the DRPC waited in WaitForReadiness.
+      Point the annotation at the new group and the next reconcile promotes.
     evidence: [kb-stale-annotation, source-trace]
     pause_after: 1.8
 
@@ -309,11 +307,11 @@ beats:
     chapter: What can block it
     visual: The group with autoResync false, state Failed_Over, and no reverse session.
     narration: >-
-      The second blocker is the group's autoResync setting. With it false,
-      csi-addons promotes the target and then stops. The group reports
-      Failed_Over with reprotect required, and no reverse copy starts. The DRPC
-      can still report Protected true and PeerReady true, even though no copy is
-      reaching the other array.
+      The second blocker is autoResync on the old site's group. In this lab, with
+      autoResync false after the move, the group stayed Failed_Over with
+      reprotect required, and no reverse copy started. The DRPC could still
+      report Protected true and PeerReady true, even though no copy was reaching
+      the other array.
     evidence: [kb-autoresync, live-vgr]
     pause_after: 1.8
 

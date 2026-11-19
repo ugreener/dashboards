@@ -97,11 +97,7 @@
   "chapter": "The group objects"
  },
  "3.1": {
-  "chapter": "The forward copy",
-  "define": {
-   "term": "replication session",
-   "text": "The array object that copies one volume or one volume group from a source to a destination."
-  }
+  "chapter": "The forward copy"
  },
  "3.2": {
   "chapter": "The forward copy"

@@ -217,10 +217,13 @@ const ClockPanel: React.FC<{f: number; dur: number}> = ({f, dur}) => (
   <Box style={{borderColor: C.amber}}>
     <div style={{fontSize: 30, fontWeight: 700, color: C.amber}}>The sync is the recovery point</div>
     <div style={{marginTop: 18}}>
-      {[0, 1, 2].map((i) => <div key={i} style={{display: 'flex', alignItems: 'center', gap: 18, marginTop: 18, opacity: prog(f, dur * (0.1 + i * 0.16), dur * (0.1 + i * 0.16) + 22)}}>
-        <div style={{fontFamily: mono, fontSize: 18, color: C.faint, width: 120}}>{['10:46', '10:51', '10:56'][i]}</div>
-        <div style={{flex: 1, height: 16, borderRadius: 8, background: `${C.amber}33`, border: `1px solid ${C.amber}`}} />
-        <div style={{width: 190}}><Chip t={i === 2 ? 'last sync' : 'completed'} c={i === 2 ? C.green : C.amber} /></div>
+      {[
+        ['10:56:36', 'last completed sync', C.green],
+        ['11:01:18', 'next scheduled sync', C.amber],
+      ].map(([t, label, col], i) => <div key={t} style={{display: 'flex', alignItems: 'center', gap: 18, marginTop: 20, opacity: prog(f, dur * (0.12 + i * 0.2), dur * (0.12 + i * 0.2) + 22)}}>
+        <div style={{fontFamily: mono, fontSize: 22, color: C.text, width: 140}}>{t}</div>
+        <div style={{flex: 1, height: 16, borderRadius: 8, background: `${col}33`, border: `1px solid ${col}`}} />
+        <div style={{width: 250}}><Chip t={label as string} c={col as string} /></div>
       </div>)}
     </div>
     <Row text="Every completed sync becomes a point the application can return to." i={0} f={f} dur={dur} />
@@ -260,7 +263,8 @@ const AnnotationPanel: React.FC<{f: number; dur: number}> = ({f, dur}) => (
     </div>
     <Row text="csi-addons will not change an existing owner." i={0} f={f} dur={dur} size={22} />
     <div style={{marginTop: 14, padding: '14px 18px', borderLeft: `5px solid ${C.red}`, background: `${C.red}0e`, opacity: prog(f, dur * 0.4, dur * 0.4 + 22)}}>
-      <div style={{fontFamily: mono, fontSize: 17, color: C.text, lineHeight: 1.5}}>PVC (test-478-vgr-resync/test-478-vgr-resync-pvc) not owned by correct VolumeReplication/VolumeGroupReplication</div>
+      <div style={{fontFamily: mono, fontSize: 13, color: C.faint, letterSpacing: 1}}>MESSAGE FORMAT</div>
+      <div style={{fontFamily: mono, fontSize: 17, color: C.text, lineHeight: 1.5, marginTop: 4}}>PVC (test-478-vgr-resync/test-478-vgr-resync-pvc) not owned by correct VolumeReplication/VolumeGroupReplication</div>
     </div>
     <Row text="The group stays Unknown and the DRPC waits in WaitForReadiness." i={1} f={f} dur={dur} size={22} color={C.amber} />
     <Row text="Set the annotation to the new group name; the next reconcile promotes." i={2} f={f} dur={dur} size={22} color={C.green} />
@@ -269,23 +273,23 @@ const AnnotationPanel: React.FC<{f: number; dur: number}> = ({f, dur}) => (
 
 const AutoResyncPanel: React.FC<{f: number; dur: number}> = ({f, dur}) => (
   <Box style={{borderColor: C.amber}}>
-    <div style={{fontFamily: mono, fontSize: 15, color: C.amber, letterSpacing: 1.5, marginBottom: 8}}>BLOCKER TWO · NO AUTOMATIC REVERSE COPY</div>
-    <div style={{fontSize: 29, fontWeight: 700, color: C.amber, lineHeight: 1.25}}>The target promotes, then stops.</div>
+    <div style={{fontFamily: mono, fontSize: 15, color: C.amber, letterSpacing: 1.5, marginBottom: 8}}>BLOCKER TWO · THE OLD SITE NEVER BECOMES A STANDBY</div>
+    <div style={{fontSize: 29, fontWeight: 700, color: C.amber, lineHeight: 1.25}}>The target promotes. The reverse copy never starts.</div>
     <div style={{display: 'flex', gap: 16, marginTop: 18}}>
       <div style={{flex: 1, padding: '14px 16px', border: `1.5px solid ${C.border}`, borderRadius: 12, background: `${C.panel}aa`, opacity: prog(f, dur * 0.08, dur * 0.08 + 22)}}>
-        <div style={{fontFamily: mono, fontSize: 15, color: C.faint}}>VGR spec</div>
+        <div style={{fontFamily: mono, fontSize: 15, color: C.faint}}>VGR spec · old site</div>
         <div style={{fontFamily: mono, fontSize: 21, color: C.text, marginTop: 6}}>autoResync: false</div>
       </div>
       <div style={{flex: 1, padding: '14px 16px', border: `1.5px solid ${C.border}`, borderRadius: 12, background: `${C.panel}aa`, opacity: prog(f, dur * 0.14, dur * 0.14 + 22)}}>
-        <div style={{fontFamily: mono, fontSize: 15, color: C.faint}}>VGR status</div>
+        <div style={{fontFamily: mono, fontSize: 15, color: C.faint}}>VGR status · old site</div>
         <div style={{fontFamily: mono, fontSize: 21, color: C.amber, marginTop: 6}}>Failed_Over</div>
       </div>
     </div>
     <div style={{marginTop: 16, padding: '14px 18px', borderLeft: `5px solid ${C.amber}`, background: `${C.amber}0e`, opacity: prog(f, dur * 0.3, dur * 0.3 + 22)}}>
       <div style={{fontFamily: mono, fontSize: 17, color: C.text, lineHeight: 1.5}}>replication has failed over, reprotect required</div>
     </div>
-    <Row text="No Reprotect and no Resync call is sent, so no reverse copy starts." i={0} f={f} dur={dur} size={22} />
-    <Row text="The DRPC can still read Protected true and PeerReady true." i={1} f={f} dur={dur} size={22} color={C.red} />
+    <Row text="In the lab run, no reverse copy started." i={0} f={f} dur={dur} size={22} />
+    <Row text="The DRPC still reported Protected true and PeerReady true." i={1} f={f} dur={dur} size={22} color={C.red} />
     <div style={{marginTop: 16, fontSize: 20, color: C.dim, lineHeight: 1.4, opacity: prog(f, dur * 0.62, dur * 0.62 + 22)}}>Protected is not a check for a new standby. It can be true while no copy is reaching the other array.</div>
   </Box>
 );
@@ -389,10 +393,10 @@ const ScopeCard: React.FC<{f: number; dur: number}> = ({f, dur}) => (
       <div style={{fontFamily: mono, fontSize: 21, color: C.amber, letterSpacing: 2}}>SCOPE · WHAT THIS IS BUILT FROM</div>
       <div style={{fontSize: 48, fontWeight: 800, color: C.text, marginTop: 18, lineHeight: 1.2}}>A mechanism, explained from source and live objects.</div>
       {[
-        ['The pinned source', 'csi-addons, Ramen and the Dell PowerStorage driver', C.blue],
+        ['The pinned source', 'csi-addons, Ramen and the Dell PowerStore driver', C.blue],
         ['The lab classes', 'powerstore-sc-group, powerstore-vgrc-5m, powerstore-vrc-group-5m', C.amber],
         ['The live chain', 'test-478-vgr-resync-drpc and its group objects', C.green],
-        ['What is not here', 'no recorded run, no screenshots, no failover initiated', C.red],
+        ['What is not here', 'no recorded run, no screenshots, this video starts no failover', C.red],
       ].map(([k, v, col], i) => <div key={k as string} style={{display: 'flex', gap: 24, marginTop: 26, opacity: prog(f, dur * (0.12 + i * 0.1), dur * (0.12 + i * 0.1) + 22)}}>
         <div style={{width: 330, fontSize: 22, color: col as string, fontWeight: 700}}>{k}</div>
         <div style={{fontFamily: mono, fontSize: 21, color: C.dim, maxWidth: 1200, overflowWrap: 'anywhere'}}>{v}</div>
