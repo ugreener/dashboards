@@ -166,8 +166,8 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
     <Region b={{x: 70, y: 45, w: 2340, h: 280}} title="HUB · edge36" sub="the control record and the decision" color={C.blue} opacity={bandOpacity('hub')} hideTitle={bandHide('hub')} />
     <Region b={{x: 70, y: 390, w: 1170, h: 790}} title="SPOKE-0 · edge95 · HOME SITE" sub="prefers the workload, holds VSA-A" color={C.spoke1} opacity={bandOpacity('spoke0')} hideTitle={bandHide('spoke0')} />
     <Region b={{x: 1235, y: 390, w: 1175, h: 790}} title="SPOKE-1 · edge97 · TARGET SITE" sub="the copy that becomes primary" color={C.spoke0} opacity={bandOpacity('spoke1')} hideTitle={bandHide('spoke1')} />
-    <Region b={{x: 70, y: 1205, w: 1170, h: 320}} title="VSA-A · HOME ARRAY" sub="source of the copy" color={C.array} opacity={bandOpacity('arrayA')} hideTitle={bandHide('arrayA')} />
-    <Region b={{x: 1235, y: 1205, w: 1175, h: 320}} title="VSA-B · TARGET ARRAY" sub="destination of the copy" color={C.array} opacity={bandOpacity('arrayB')} hideTitle={bandHide('arrayB')} />
+    <Region b={{x: 70, y: 1205, w: 1170, h: 320}} title="VSA-A · HOME ARRAY" color={C.array} opacity={bandOpacity('arrayA')} hideTitle={bandHide('arrayA')} />
+    <Region b={{x: 1235, y: 1205, w: 1175, h: 320}} title="VSA-B · TARGET ARRAY" color={C.array} opacity={bandOpacity('arrayB')} hideTitle={bandHide('arrayB')} />
 
     {Object.keys(NODES).map((key) => {
       if ((key === 'vgr1' || key === 'content1') && !moved) return null;
