@@ -32,6 +32,8 @@ import {buildTimeline as buildTimelinePBG} from './placeholder-backup-gate/timel
 import {EnrollFirstProtection} from './enroll-first-protection/Video';
 import {ResyncPrimary} from './resync-primary/Video';
 import {buildTimeline as buildTimelineRP} from './resync-primary/timeline';
+import {VolGroupDrpc} from './volgroup-drpc/Video';
+import {buildTimeline as buildTimelineVG} from './volgroup-drpc/timeline';
 import {buildTimeline as buildTimelineEF} from './enroll-first-protection/timeline';
 
 const ALL_PAG = Array.from({length: 7}, (_, i) => i);
@@ -45,6 +47,7 @@ const ALL_SP = Array.from({length: 8}, (_, i) => i);
 const ALL_334 = Array.from({length: 8}, (_, i) => i);
 const ALL_EF = Array.from({length: 8}, (_, i) => i);
 const ALL_RP = Array.from({length: 7}, (_, i) => i);
+const ALL_VG = Array.from({length: 7}, (_, i) => i);
 
 const ALL = Array.from({length: 16}, (_, i) => i);
 const ALL_CL = Array.from({length: 8}, (_, i) => i);
@@ -198,6 +201,15 @@ export const Root: React.FC = () => (
       width={1920}
       height={1080}
       defaultProps={{chapters: ALL_RP}}
+    />
+    <Composition
+      id="volgroup-drpc"
+      component={VolGroupDrpc}
+      durationInFrames={Math.max(1, buildTimelineVG(ALL_VG).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_VG}}
     />
   </>
 );

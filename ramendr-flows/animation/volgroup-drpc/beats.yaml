@@ -1,0 +1,351 @@
+# yamllint disable rule:line-length
+ticket: volgroup-drpc
+run: conceptual explainer, no recorded run
+direction: conceptual. Failover from the home site spoke-0 to spoke-1, drawn at the home cluster only.
+beats:
+  # ---------------------------------------------------------------- chapter 0
+  - id: '0.1'
+    chapter: Cold open
+    visual: Two disks on one timeline. One copy at 10:52, one at 10:47, and a database write spanning both.
+    narration: >-
+      Two disks. One application. If the storage promotes each disk on its own
+      schedule, one copy can come from ten fifty-two and the other from ten
+      forty-seven. A database writing across both then sees a moment that never
+      existed. Volume groups exist to prevent exactly that.
+    evidence: [source-trace, setup-doc]
+    pause_after: 1.8
+
+  - id: '0.2'
+    chapter: Cold open
+    visual: The two disks sit inside one container. A crane lifts the container once.
+    narration: >-
+      A volume group tells the array to copy those disks as one unit, and to
+      change their role in one step. This video explains how RamenDR asks for
+      that, which objects carry the request, and what a disaster recovery
+      failover does with them.
+    evidence: [source-trace]
+    pause_after: 1.5
+
+  - id: '0.3'
+    chapter: Cold open
+    visual: Scope card listing the pinned source and the live object chain, with the architectural-example badge.
+    narration: >-
+      This is an architectural example, not a recorded run. It is built from the
+      pinned csi-addons, Ramen and Dell driver source, and from the live object
+      chain of a group-protected application in this lab. Where a point is
+      inferred rather than proven, the video says so.
+    evidence: [source-trace, live-drpc, live-vgrcontent]
+    pause_after: 1.5
+
+  # ---------------------------------------------------------------- chapter 1
+  - id: '1.1'
+    chapter: Primer
+    visual: Two site panels, each with an array, one live copy and one receiving copy.
+    narration: >-
+      Start with the physical picture. Two sites, each with one storage array and
+      one copy of every protected disk. The home site serves input and output.
+      The other array receives copies and stays ready. Primary and secondary
+      describe the current job, not a permanent owner.
+    evidence: [setup-doc]
+    pause_after: 1.2
+
+  - id: '1.2'
+    chapter: Primer
+    visual: A claim ticket, a ledger entry and a serial number, then the same three as PVC, PV and volume handle.
+    narration: >-
+      The application asks for storage with a PersistentVolumeClaim. Kubernetes
+      binds it to a PersistentVolume, and that record carries a volume handle,
+      the array's own identifier for the disk. The array moves the data.
+      Kubernetes only records which disk belongs to whom.
+    evidence: [source-trace, live-vgrcontent]
+    define: {term: volume handle, text: 'The array identifier for one disk, stored on the PersistentVolume.'}
+    pause_after: 1.2
+
+  - id: '1.3'
+    chapter: Primer
+    visual: Five claims, five VolumeReplication objects, five separate array sessions on independent clocks.
+    narration: >-
+      By default Ramen protects each claim with its own replication request, a
+      VolumeReplication, and the driver creates one array session per volume.
+      Five disks mean five independent schedules. Each disk has its own recovery
+      point, and nothing makes those points agree.
+    evidence: [source-trace, kb-group-replication]
+    pause_after: 1.2
+
+  - id: '1.4'
+    chapter: Primer
+    visual: The five claims fall into one group box, with one session and one clock.
+    narration: >-
+      A volume group replaces that fan-out with one container. One group
+      object, a VolumeGroupReplication, covers every claim that matches its
+      selector, and the array runs one replication session for the whole group.
+      Every disk inside shares one recovery point.
+    evidence: [source-trace, live-vgr]
+    pause_after: 1.5
+
+  - id: '1.5'
+    chapter: Primer
+    visual: One chain, top to bottom, from the hub record to the array group.
+    narration: >-
+      The chain has six steps. The DRPlacementControl on the hub asks for the
+      move. The VolumeReplicationGroup on each site coordinates it. The
+      VolumeGroupReplication carries the group, a companion VolumeReplication
+      tracks its state, and the Dell driver turns that into array calls. Only
+      the array moves data.
+    evidence: [source-trace, live-vgr]
+    pause_after: 1.5
+
+  # ---------------------------------------------------------------- chapter 2
+  - id: '2.1'
+    chapter: The group objects
+    visual: Card and definition for the DRPC, using the lab's group-protected application.
+    card: {kind: DRPlacementControl, name: test-478-vgr-resync-drpc, role: 'records the requested move and its progression'}
+    def: {what: 'The hub record for one protected application. It names the preferred cluster, the failover target and the policy.', creator: 'The DR administrator enrolls the application, or the console does it.', reader: 'Ramen on the hub, the console, and anyone debugging a recovery.', where: 'Hub cluster, namespace openshift-dr-ops.', analogy: 'A job ticket that records where the job should run and how far it got.'}
+    narration: >-
+      The DRPlacementControl is the hub record. This lab's group example is
+      test-478-vgr-resync-drpc in openshift-dr-ops. It names spoke-0 as the
+      preferred cluster, spoke-1 as the failover target, the policy dr-policy-5m,
+      and a selector that picks the protected claim.
+    evidence: [live-drpc]
+    pause_after: 1.2
+
+  - id: '2.2'
+    chapter: The group objects
+    visual: Placement and PlacementDecision cards under the hub.
+    narration: >-
+      A Placement decides which cluster should run the application, and a
+      PlacementDecision records the answer. For a discovered application Ramen
+      disables normal scheduling so it, not ACM, moves the application. The
+      decision is still the object the console and the controllers read.
+    evidence: [live-placement, setup-doc]
+    pause_after: 1
+
+  - id: '2.3'
+    chapter: The group objects
+    visual: Card and definition for the VRG, one on each site.
+    card: {kind: VolumeReplicationGroup, name: test-478-vgr-resync-drpc, role: 'coordinates the group on one site'}
+    def: {what: 'The per-site coordinator for one protected application. It finds the claims and asks for replication, restore and cleanup.', creator: 'The Ramen hub operator delivers it to each site.', reader: 'The Ramen controller on that site and the hub.', where: 'Both spokes, namespace openshift-dr-ops.', analogy: 'The site foreman who carries out the job ticket on one site.'}
+    narration: >-
+      Each site has a VolumeReplicationGroup with the same name as the DRPC.
+      Ramen delivers it from the hub. The VRG finds the claims that match the
+      selector, creates the group objects, and reports whether this site is
+      primary, secondary, or cleaning up.
+    evidence: [live-vrg, source-trace]
+    pause_after: 1.2
+
+  - id: '2.4'
+    chapter: The group objects
+    visual: Card and definition for the VolumeGroupReplication.
+    card: {kind: VolumeGroupReplication, name: vgr-4251c970ec7af885d6ec79c1d2c40661-test-478-vgr-resync-drpc, role: 'one replication group for every matching claim'}
+    def: {what: 'The csi-addons object that asks the storage driver to replicate a set of volumes as one group.', creator: 'The VRG creates it on the site that owns the primary copy.', reader: 'The csi-addons controller, which calls the CSI driver.', where: 'Workload namespace test-478-vgr-resync, on the spoke.', analogy: 'The shipping container that holds several parcels.'}
+    narration: >-
+      The VolumeGroupReplication is the csi-addons object for the group. Its name
+      is derived from the consistency group identifier and the DRPC. It selects
+      claims by label, names the group class, and reports one state for the whole
+      container.
+    evidence: [live-vgr]
+    pause_after: 1.2
+
+  - id: '2.5'
+    chapter: The group objects
+    visual: Card and definition for the VolumeGroupReplicationContent, with the live handles.
+    card: {kind: VolumeGroupReplicationContent, name: vgrcontent-87f1d6c5-3b5c-4c35-9c25-8b5dee56b03a, role: 'holds the array group handle and every disk handle'}
+    def: {what: 'The cluster-scoped record of what the driver actually created on the array: one group handle and the disk handles inside it.', creator: 'The csi-addons controller, after the driver creates the group.', reader: 'The controller and Ramen, including during restore on the other site.', where: 'Cluster scope, not a namespace.', analogy: 'The container manifest: one container number plus the list of parcels inside.'}
+    narration: >-
+      The content object is the manifest. It holds the array's group handle, the
+      source disk handles, and after a restore the destination group and the
+      mapping from each source disk to its destination copy. This is the object
+      Ramen archives and rewrites on the other site.
+    evidence: [live-vgrcontent, kb-group-replication]
+    pause_after: 1.5
+
+  - id: '2.6'
+    chapter: The group objects
+    visual: YAML panels for the group class and the paired per-volume class, with source and target arrays highlighted.
+    narration: >-
+      Two classes complete the request. powerstore-vgrc-5m names the source array
+      PS3b37452a6e0f, the target array PSff392f423bd6, the remote system VSA-B,
+      and a five minute recovery point. powerstore-vrc-group-5m is the paired
+      class the companion VolumeReplication uses.
+    evidence: [live-classes, setup-doc]
+    pause_after: 1.2
+
+  - id: '2.7'
+    chapter: The group objects
+    visual: StorageClass labels flow into the DRPolicy peer class entry with grouping true.
+    narration: >-
+      Ramen does not guess which classes are group-capable. The StorageClass
+      carries a group replication identifier, and the DRPolicy reports a peer
+      class for powerstore-sc-group with grouping true. Only that kind of peer
+      class allows the group path.
+    evidence: [live-drpolicy, setup-doc]
+    pause_after: 1.2
+
+  # ---------------------------------------------------------------- chapter 3
+  - id: '3.1'
+    chapter: The forward copy
+    visual: One volume group and one session on each array, with the two roles.
+    narration: >-
+      On the arrays the group has one name and one handle on each side. VSA-A
+      holds the source copy, VSA-B holds the destination. One session joins them,
+      with one role on each side. That is the difference from per-disk
+      replication: one session, not one per claim.
+    evidence: [live-arrays, live-vgrcontent]
+    define: {term: replication session, text: 'The array object that copies one volume or one volume group from a source to a destination.'}
+    pause_after: 1.2
+
+  - id: '3.2'
+    chapter: The forward copy
+    visual: A five minute clock, a completed sync, and the array timestamps.
+    narration: >-
+      The class asks for a five minute recovery point objective. The array copies
+      the group on that schedule, and each completed sync becomes the newest
+      point the application can recover to. The timestamps come from the array
+      session record, not from the console.
+    evidence: [live-arrays, live-classes]
+    pause_after: 1.2
+
+  - id: '3.3'
+    chapter: The forward copy
+    visual: 'The VGR conditions table: Primary, Replicating true, Healthy.'
+    narration: >-
+      The group reports its own state. Primary means this side serves the
+      workload. Replicating true means the copy is synchronized. Those answers
+      describe the container, and they are separate from the DRPC's Protected
+      condition, which is why the last chapter needs both.
+    evidence: [live-vgr]
+    pause_after: 1.2
+
+  # ---------------------------------------------------------------- chapter 4
+  - id: '4.1'
+    chapter: Failover
+    visual: The DRPC action field changes to Failover with target spoke-1. The arrays are untouched.
+    narration: >-
+      A failover starts as one field on the DRPlacementControl: action Failover,
+      with the target cluster. The console writes the same field. At this point
+      nothing on either array has changed. The request exists only on the hub.
+    evidence: [live-drpc, setup-doc]
+    pause_after: 1.5
+
+  - id: '4.2'
+    chapter: Failover
+    visual: The hub delivers the target VRG and the placement decision moves.
+    narration: >-
+      The hub delivers the target site's VolumeReplicationGroup and points the
+      placement at the target. The target VRG is the only component that will ask
+      its local array to promote anything. The old site is not asked to do it,
+      and on a real outage it could not answer.
+    evidence: [source-trace, live-vrg]
+    pause_after: 1.2
+
+  - id: '4.3'
+    chapter: Failover
+    visual: The content object on the target, with the archived destination group and the per-disk mapping.
+    narration: >-
+      The target creates its group object from the archived metadata. Ramen
+      rewrites the group handle from the recorded destination volume group, and
+      each disk handle from the recorded mapping. That is how the target names
+      the copy that already exists on its array.
+    evidence: [live-vgrcontent, kb-group-replication]
+    pause_after: 1.5
+
+  - id: '4.4'
+    chapter: Failover
+    visual: csi-addons calls PromoteVolume once, on the group.
+    narration: >-
+      The group object asks for primary. The csi-addons controller calls the
+      driver's PromoteVolume once, for the group, rather than once per disk. One
+      call carries every disk in the container.
+    evidence: [source-trace]
+    pause_after: 1.2
+
+  - id: '4.5'
+    chapter: Failover
+    visual: The driver issues the array failover; the VSA-B group becomes writable and the session roles flip.
+    narration: >-
+      The Dell driver issues the array's failover action for the group. The
+      target copy becomes writable and the session roles flip. Every volume
+      inside the group changes role in the same array operation, so the
+      application cannot see one disk promoted before another.
+    evidence: [source-trace, live-arrays]
+    pause_after: 1.5
+
+  - id: '4.6'
+    chapter: Failover
+    visual: The claim binds to the promoted handle, the pod starts, and the DRPC reports phase FailedOver, progression Completed.
+    narration: >-
+      On the target, the claim binds to the promoted volume handle and the pod
+      starts. The DRPC reports phase FailedOver and progression Completed. The
+      application sees every disk from the same completed sync, which is the
+      whole point of the container.
+    evidence: [live-drpc, live-vgr]
+    pause_after: 1.8
+
+  - id: '4.7'
+    chapter: Failover
+    visual: The target is primary; the old site has no current copy until a reverse copy starts.
+    narration: >-
+      At this point the target is primary. The old site still holds an older
+      copy, and nothing is copying to it. Making it a standby again is a
+      separate step, and the next chapter shows the two settings that decide
+      whether that step can happen.
+    evidence: [source-trace, kb-autoresync]
+    pause_after: 1.2
+
+  # ---------------------------------------------------------------- chapter 5
+  - id: '5.1'
+    chapter: What can block it
+    visual: The restored claim with a stale group annotation, then the group stuck Unknown.
+    narration: >-
+      The first blocker lives on the restored claim. It carries an annotation
+      naming the group object that owns it. If that name points at an older
+      group, csi-addons refuses to change ownership. The group stays Unknown and
+      the DRPC waits in WaitForReadiness. Correct the annotation and the next
+      reconcile promotes.
+    evidence: [kb-stale-annotation, source-trace]
+    pause_after: 1.8
+
+  - id: '5.2'
+    chapter: What can block it
+    visual: The group with autoResync false, state Failed_Over, and no reverse session.
+    narration: >-
+      The second blocker is the group's autoResync setting. With it false,
+      csi-addons promotes the target and then stops. The group reports
+      Failed_Over with reprotect required, and no reverse copy starts. The DRPC
+      can still show Protected true, because that condition describes the
+      metadata and the forward copy from before the failover.
+    evidence: [kb-autoresync, live-vgr]
+    pause_after: 1.8
+
+  - id: '5.3'
+    chapter: What can block it
+    visual: 'Two answers side by side: DRPC Protected true, group Replicating false.'
+    narration: >-
+      So read the group after the move. Primary and Completed describe this site.
+      Replicating, the array session and its last sync describe whether a standby
+      exists. A green DRPC on its own does not prove the application is protected
+      again.
+    evidence: [kb-autoresync, live-vgr, live-arrays]
+    pause_after: 1.5
+
+  # ---------------------------------------------------------------- chapter 6
+  - id: '6.1'
+    chapter: Recap
+    visual: The chain in four lines, then the full diagram at wide zoom.
+    narration: >-
+      So far: one claim, one container. One session carries the group. One
+      promote call changes every disk, and one archived mapping lets the other
+      site name its copy. Read the group and the session, not only the DRPC.
+    evidence: [source-trace, live-vgrcontent]
+    pause_after: 1.2
+
+  - id: '6.2'
+    chapter: Recap
+    visual: The measured lab result and the single sentence to remember.
+    narration: >-
+      In this lab, the group-protected application's return move completed in two
+      minutes and three seconds, and its session carried a newer sync. The
+      container moved as one. That is what a volume-grouped DRPC buys: one
+      recovery point for every disk.
+    evidence: [live-drpc, live-arrays]
+    pause_after: 2
