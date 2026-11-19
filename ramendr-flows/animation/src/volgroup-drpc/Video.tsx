@@ -31,6 +31,8 @@ const fit = (id: string): Cam => {
   if (!Number.isFinite(x0)) {
     x0 = 0; y0 = 0; x1 = 2480; y1 = 1600;
   }
+  if (keys.includes('groupA')) x0 = Math.min(x0, 70);
+  if (keys.includes('groupB')) x1 = Math.max(x1, 2410);
   if (y0 >= 1100) y0 = 1060;
   else if (y0 >= 850) y0 = y0 - 40;
   else if (y0 >= 450) y0 = 385;
