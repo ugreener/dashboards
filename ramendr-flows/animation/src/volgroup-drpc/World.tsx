@@ -145,7 +145,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
   const failover = reached(c.id, '4.1');
   const moved = reached(c.id, '4.3');
   const promoted = reached(c.id, '4.5');
-  const staleCopy = reached(c.id, '4.7');
+  const staleCopy = phase(c.id) === 4 && reached(c.id, '4.7');
   const arrow = (d: string, color: string, dashed: boolean, label: string | null, lx: number, ly: number, opacity = 1, lw = 420) => (
     <g opacity={opacity}>
       <path d={d} fill="none" stroke={color} strokeWidth={5} strokeDasharray={dashed ? '14 11' : undefined} markerEnd="url(#tipVG)" />
@@ -189,7 +189,6 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
 
       {!failover && chapter >= 3 ? arrow('M840,1365 L1560,1365', C.orange, false, 'one replication session · A to B', 1200, 1322) : null}
 
-      {failover && !promoted ? arrow('M470,295 C470,360 1545,350 1545,455', C.cyan, true, 'moves the application', 1010, 350, prog(c.f, c.dur * 0.08, c.dur * 0.08 + 24), 420) : null}
       {moved ? <>
         {arrow('M1545,625 L1545,665', C.green, false, null, 0, 0)}
         {arrow('M1805,760 L1845,760', C.cyan, false, null, 0, 0)}
