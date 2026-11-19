@@ -31,7 +31,7 @@ export const RECT = Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k,
 
 export const FOCUS: Record<string, string[]> = {
   '2.1': ['drpc', 'vrg0', 'vrg1'],
-  '2.2': ['placement', 'decision', 'drpc'],
+  '2.2': ['placement', 'decision', 'drpc', 'policy'],
   '2.3': ['vrg0', 'vrg1'],
   '2.4': ['vgr0', 'vrg0'],
   '2.5': ['content0', 'vgr0'],
@@ -45,14 +45,15 @@ export const FOCUS: Record<string, string[]> = {
   '4.3': ['vrg1', 'vgr1', 'content1'],
   '4.4': ['vgr1', 'csi1'],
   '4.5': ['csi1', 'driver1', 'groupB', 'groupA'],
-  '4.6': ['drpc', 'vrg1', 'groupB'],
-  '4.7': ['groupA', 'groupB', 'vrg1'],
+  '4.6': ['drpc', 'vrg1'],
+  '4.7': ['groupA', 'groupB'],
   '5.1': ['vgr1', 'content1'],
   '5.2': ['vgr1', 'groupB'],
   '5.3': ['drpc', 'vgr1'],
 };
 
 export type Ctx = {id: string; f: number; dur: number; zoom: number};
+const DETAIL_FORCE = new Set(['4.5', '4.6', '4.7']);
 const phase = (id: string) => Number(id.split('.')[0]);
 const reached = (id: string, other: string) => {
   const [a, b] = id.split('.').map(Number);
@@ -159,7 +160,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
     const col = n.color;
     return <Card key={key} x={n.box[0]} y={n.box[1]} w={n.box[2]} kind={n.kind} name={n.name} role={n.role}
       lines={n.lines(status(key))} appear={appear} focus={focus(key)} hl={keys.includes(key) ? 0.26 : 0}
-      color={col} detail={Math.max(0, Math.min(1, (c.zoom - 0.65) / 0.2))} nameSize={n.nameSize ?? 22} />;
+      color={col} detail={DETAIL_FORCE.has(c.id) ? 1 : Math.max(0, Math.min(1, (c.zoom - 0.65) / 0.2))} nameSize={n.nameSize ?? 22} />;
   };
   return <div style={{position: 'absolute', width: 2480, height: 1600}}>
     <Region b={{x: 70, y: 45, w: 2340, h: 280}} title="HUB · edge36" sub="the control record and the decision" color={C.blue} opacity={bandOpacity('hub')} hideTitle={bandHide('hub')} />

@@ -13,7 +13,6 @@ type Meta = {define?: {term: string; text: string}; card?: {kind: string; name: 
 const META = BEATS as Record<string, Meta>;
 type Cam = {x: number; y: number; z: number; sx: number; sy: number};
 const CAMS: Record<string, Partial<Cam>> = {
-  '2.2': {z: 0.9, sy: 470},
   '2.5': {z: 0.95},
 };
 
@@ -33,6 +32,7 @@ const fit = (id: string): Cam => {
     x0 = 0; y0 = 0; x1 = 2480; y1 = 1600;
   }
   if (y0 >= 1100) y0 = 1060;
+  else if (y0 >= 850) y0 = y0 - 40;
   else if (y0 >= 450) y0 = 385;
   else y0 = 0;
   x0 -= 40;
