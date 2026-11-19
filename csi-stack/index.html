@@ -47,7 +47,12 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .band{position:absolute;border:2px dashed rgba(139,148,158,.35);border-radius:14px}
 .band-h{position:absolute;top:-12px;left:56px;background:#0a0e14;padding:0 9px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
 
-.blk{position:absolute;background:var(--card);border:2px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;transition:box-shadow .15s,border-color .15s;outline:none}
+.blk{position:absolute;background:var(--card);border:2px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;transition:box-shadow .15s,border-color .15s,opacity .15s;outline:none}
+#dia.dim > .blk:not(.on){opacity:.22}
+#dia.dim > .blk.on{opacity:1}
+#dia.dim > .pod{opacity:.45}
+#dia.dim > .band{opacity:.5}
+#dia.dim > svg{opacity:.3}
 .blk:hover,.blk:focus-visible{box-shadow:0 0 16px rgba(88,166,255,.35)}
 .blk:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 .blk .k{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
@@ -55,17 +60,17 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .blk .o{font-size:11px;color:var(--muted);line-height:1.45;margin-top:4px}
 .blk .mini{font-size:10px;color:var(--text);line-height:1.5;margin-top:6px;padding-top:5px;border-top:1px solid #232a33}
 .blk .mini b{color:var(--muted);font-weight:600}
-.blk .hintx{position:absolute;top:7px;right:9px;font-size:9px;color:var(--muted);opacity:.55;letter-spacing:.03em}
 
 .pod{position:absolute;border:2px solid rgba(139,148,158,.4);border-radius:12px;background:rgba(22,27,34,.5)}
 .pod-tag{position:absolute;top:-10px;left:14px;background:#0a0e14;padding:0 7px;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.03em;white-space:nowrap}
 
+.dcap{font-size:11px;color:var(--muted);line-height:1.65;margin:0 0 18px;padding:0 2px}
 .flow{margin:22px 0 6px}
 .flow h2{font-size:15px;color:#fff;margin-bottom:4px}
 .flow .lead{font-size:12px;color:var(--muted);margin-bottom:12px}
 .flow-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .fstep{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;position:relative}
-.fstep .n{position:absolute;top:10px;right:12px;font-size:20px;font-weight:800;color:#21262d;line-height:1}
+.fstep .n{position:absolute;top:10px;right:12px;font-size:20px;font-weight:800;color:#6e7681;line-height:1}
 .fstep h3{font-size:12px;color:var(--blue);margin-bottom:4px;padding-right:26px}
 .fstep p{font-size:12px;color:var(--text);line-height:1.6}
 
@@ -131,7 +136,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="leg"><span class="ldot" style="background:var(--cyan)"></span>CSI-Addons sidecar</div>
 <div class="leg"><span class="ldot" style="background:var(--orange)"></span>Dell / PowerStore</div>
 <div class="leg"><span class="ldot" style="background:var(--green)"></span>Red Hat / Ceph</div>
-<div class="leg"><span class="ldot" style="background:#6e7681"></span>Alternative, not used here</div>
+<div class="leg"><span class="ldot" style="background:#6e7681"></span>Alternative route, not on this path</div>
 <div class="leg"><span class="lline"></span>Call or request</div>
 <div class="leg"><span class="lline dash" style="border-top-color:var(--purple)"></span>Contract relationship</div>
 <div class="leg"><span class="lline dot"></span>Related only</div>
@@ -157,14 +162,12 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="band" style="left:20px;top:20px;width:1280px;height:185px"><span class="band-h">1 &middot; The two contracts</span></div>
 
 <div class="blk" id="csiSpec" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:60px;top:70px;width:520px;height:110px;border-color:var(--purple);border-left-width:5px">
-<span class="hintx">hover</span>
 <div class="k">Contract &middot; open industry standard</div>
 <div class="t" style="color:var(--purple)">CSI specification</div>
 <div class="o">The agreed list of calls between Kubernetes and any storage system: create, attach, mount, snapshot, delete.</div>
 </div>
 
 <div class="blk" id="addonsSpec" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:740px;top:70px;width:520px;height:110px;border-color:var(--purple);border-left-width:5px">
-<span class="hintx">hover</span>
 <div class="k">Contract &middot; separate community project</div>
 <div class="t" style="color:var(--purple)">CSI-Addons specification</div>
 <div class="o">The second contract. It adds what CSI never defined: replication, volume groups, reclaim space, network fencing, key rotation.</div>
@@ -174,7 +177,6 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="band" style="left:20px;top:230px;width:1280px;height:250px"><span class="band-h">2 &middot; What Kubernetes runs</span></div>
 
 <div class="blk" id="ramen" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:60px;top:275px;width:280px;height:175px;border-color:var(--blue);border-left-width:5px">
-<span class="hintx">hover</span>
 <div class="k">Kubernetes operator &middot; DR orchestration</div>
 <div class="t" style="color:var(--blue)">RamenDR (Ramen)</div>
 <div class="o">Decides what to protect, where it should run, and when to fail over.</div>
@@ -182,14 +184,12 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 </div>
 
 <div class="blk" id="cr" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:430px;top:320px;width:300px;height:95px;border-color:var(--blue)">
-<span class="hintx">hover</span>
 <div class="k">The request</div>
 <div class="t" style="color:var(--blue);font-size:12px">VolumeReplication</div>
 <div class="o">or VolumeGroupReplication: one object per disk, or one for a group that must move together.</div>
 </div>
 
 <div class="blk" id="controller" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:810px;top:270px;width:460px;height:180px;border-color:var(--blue);border-left-width:5px">
-<span class="hintx">hover</span>
 <div class="k">Kubernetes implementation &middot; cluster-wide</div>
 <div class="t" style="color:var(--blue)">csi-addons controller</div>
 <div class="o">Turns the request object into a call to the right driver, then writes the answer back into the object.</div>
@@ -200,8 +200,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="band" style="left:20px;top:505px;width:1280px;height:420px"><span class="band-h">3 &middot; Driver pods and sidecars</span></div>
 
 <div class="blk" id="csm" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:60px;top:545px;width:300px;height:90px;border-color:#6e7681">
-<span class="hintx">hover</span>
-<div class="k">Dell &middot; alternative, not used here</div>
+<div class="k">Dell &middot; alternative, not on this path</div>
 <div class="t" style="color:#8b949e;font-size:12px">Dell CSM Replication</div>
 <div class="o">Dell's own replication module. This lab uses csi-addons instead.</div>
 </div>
@@ -222,7 +221,6 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 </div>
 
 <div class="blk" id="rook" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:700px;top:545px;width:300px;height:90px;border-color:var(--green)">
-<span class="hintx">hover</span>
 <div class="k">Ceph &middot; operator</div>
 <div class="t" style="color:var(--green);font-size:12px">Rook operator</div>
 <div class="o">Installs and runs the Ceph cluster itself.</div>
@@ -247,24 +245,24 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="band" style="left:20px;top:950px;width:1280px;height:200px"><span class="band-h">4 &middot; The storage systems</span></div>
 
 <div class="blk" id="powerstore" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:60px;top:975px;width:560px;height:150px;border-color:var(--orange);border-left-width:5px">
-<span class="hintx">hover</span>
 <div class="k">Dell &middot; storage system</div>
 <div class="t" style="color:var(--orange)">PowerStore arrays (VSA pair)</div>
 <div class="o">Hold the volumes and run the replication sessions that copy changes between the two sites.</div>
-<div class="mini"><b>Here:</b> VSA-A on spoke-0, VSA-B on spoke-1. The last completed copy is the recovery point.</div>
+<div class="mini"><b>Here:</b> VSA-A on spoke-0, VSA-B on spoke-1. A failover recovers the last copy that finished.</div>
 </div>
 
 <div class="blk" id="ceph" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:700px;top:975px;width:560px;height:150px;border-color:var(--green);border-left-width:5px">
-<span class="hintx">hover</span>
 <div class="k">Ceph &middot; storage system</div>
 <div class="t" style="color:var(--green)">Ceph cluster (RBD / CephFS)</div>
 <div class="o">Stores data on the cluster's own disks and serves it as block volumes or shared filesystems.</div>
-<div class="mini"><b>Here:</b> the other track in this lab. The Dell DR scenarios do not use it.</div>
+<div class="mini"><b>Here:</b> shown for comparison. This lab's Dell DR path does not use it.</div>
 </div>
 
 </div>
 </div>
 </div>
+
+<p class="dcap">The board's first diagram also names NetApp Trident as an example of a CSI driver. This page draws the two stacks the board compares, and the lab runs the Dell one. Any other CSI driver plugs into the same contracts, and support for CSI-Addons varies by driver.</p>
 
 <section class="flow" aria-labelledby="flowH">
 <h2 id="flowH">Follow one request</h2>
@@ -273,7 +271,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="fstep"><span class="n">1</span><h3>Ramen writes the request</h3><p>Ramen decides a disk needs protecting or needs to move, and creates a <code>VolumeReplication</code> or <code>VolumeGroupReplication</code> object. It does not call any storage system.</p></div>
 <div class="fstep"><span class="n">2</span><h3>The controller picks the driver</h3><p>The csi-addons controller sees the new object, reads which volume it names, and works out which storage driver owns that volume.</p></div>
 <div class="fstep"><span class="n">3</span><h3>It finds that driver's sidecar</h3><p>Each sidecar publishes a <code>CSIAddonsNode</code> record, so the controller knows how to reach it and which operations the driver supports.</p></div>
-<div class="fstep"><span class="n">4</span><h3>The sidecar forwards the call</h3><p>The controller sends one gRPC call. The sidecar passes it to its own driver over the driver's local socket, inside the same pod.</p></div>
+<div class="fstep"><span class="n">4</span><h3>The sidecar forwards the call</h3><p>The controller sends one gRPC call, a fast remote procedure call of the same kind the CSI standard uses. The sidecar passes it to its own driver over the driver's local socket, inside the same pod.</p></div>
 <div class="fstep"><span class="n">5</span><h3>The driver talks to the array</h3><p>For PowerStore: enable replication, promote the copy, demote the old side, or resync. The array does the actual copying on its own schedule.</p></div>
 <div class="fstep"><span class="n">6</span><h3>The answer goes back up</h3><p>The controller writes the result into the object's status. Ramen reads that status and decides the next step of the recovery.</p></div>
 </div>
@@ -303,16 +301,16 @@ Names, namespaces and products reflect the Dell PowerStore lab; the storage beha
 
 <script>
 var BLOCKS = {
-csiSpec:{tag:"Contract, open industry standard",title:"CSI specification",one:"The agreed list of calls between Kubernetes and any storage system.",what:"A written standard, not software you install. It defines the remote procedure calls a storage product must answer: create a volume, attach it to a node, mount it, snapshot it, delete it. It is maintained in the open and adopted by several orchestrators, including Kubernetes, Mesos and Nomad, so a storage vendor writes one driver instead of one per platform.",here:"Both drivers in this picture implement it. It says nothing about replication, which is why the second contract exists.",not:"Not a driver and not a Kubernetes component. It is the shape of the socket, not the plug."},
+csiSpec:{tag:"Contract, open industry standard",title:"CSI specification",one:"The agreed list of calls between Kubernetes and any storage system.",what:"A written standard, not software you install. It defines the remote procedure calls a storage product must answer: create a volume, attach it to a node, mount it, snapshot it, delete it. It is maintained in the open and adopted by Kubernetes and other container orchestrators, so a storage vendor writes one driver instead of one per platform.",here:"Both drivers in this picture implement it. It says nothing about replication, which is why the second contract exists.",not:"Not a driver and not a Kubernetes component. It is the shape of the socket, not the plug."},
 addonsSpec:{tag:"Contract, separate community project",title:"CSI-Addons specification",one:"A second contract that adds the operations CSI never defined, above all replication for disaster recovery.",what:"CSI covers the normal life of a volume. It has no word for \"copy this volume to another array\", \"make the copy writable\" or \"copy the changes back\". CSI-Addons defines those extra calls: Volume Replication, Volume Group, Reclaim Space, Network Fencing, Encryption Key Rotation and Identity. A driver still implements CSI, and may additionally implement these; the csi-addons controller and its sidecars are how Kubernetes reaches them.",here:"PowerStore implements the replication part, and this page uses only Volume Replication and Volume Group. That is what makes array level disaster recovery possible through Kubernetes at all.",not:"Not part of the CSI specification. It extends CSI rather than replacing it, and a driver that ignores it still works as an ordinary CSI driver."},
 ramen:{tag:"Kubernetes operator, DR orchestration",title:"RamenDR (Ramen)",one:"The disaster recovery brain: it decides what to protect, where it should run, and when to fail over.",what:"An operator that runs on the hub and on each cluster. On the hub it holds the DR policy and the per application DR object. On a cluster it holds the VolumeReplicationGroup, which is the protection record for one application. It also protects the Kubernetes objects themselves (virtual machines, claims, namespace metadata) through the backup tooling.",here:"It never talks to the storage array. It creates and reads the request objects in the middle of this picture, and the controller, sidecar and driver do the storage work.",not:"Not a CSI driver. It moves no data itself. It asks for copies and decides which copy is allowed to serve traffic."},
 cr:{tag:"Kubernetes object, the request",title:"VolumeReplication / VolumeGroupReplication",one:"The written request that connects the DR brain to the storage machinery.",what:"A custom resource. One VolumeReplication covers one disk. A VolumeGroupReplication covers a set of disks that must move together. It names the volume, the class that says how to replicate it, and the desired action. Its status carries the answer: current state, which side is primary, last sync time and errors.",here:"Ramen writes it and reads its status. The csi-addons controller watches it. This object is the handoff point, because it is the only shared state between the two halves of the picture.",not:"Not a command that runs once. It is a desired state that controllers keep reconciling, so editing it changes the outcome."},
 controller:{tag:"Kubernetes implementation, cluster wide",title:"csi-addons controller",one:"The dispatcher: it turns a Kubernetes object into a call to the right storage driver.",what:"A cluster wide deployment. It watches the replication objects, works out which driver owns the volume they name, finds that driver's sidecar through the CSIAddonsNode records the sidecars publish, and sends the operation over gRPC. It then writes the result back into the object's status.",here:"Runs as csi-addons-controller-manager in namespace csi-addons-system on each spoke, installed here as a plain deployment rather than through an operator subscription.",not:"It does not talk to the array and does not schedule pods. It only routes requests and records the answers."},
 dellDriver:{tag:"Dell, CSI driver",title:"csi-powerstore driver",one:"Dell's translator between Kubernetes and a PowerStore array.",what:"Two pieces: a controller deployment that creates, deletes, snapshots and attaches volumes, and a node daemon on every worker that mounts the volume into the pod's file system. It implements CSI, plus the replication calls of CSI-Addons.",here:"Installed with Helm (chart csi-powerstore) rather than through an operator. Workers reach the arrays over NVMe/TCP. The controller pod also carries the csi-addons sidecar.",not:"Not the array and not the DR brain. It can only ask the array for operations the array already supports."},
-dellSidecar:{tag:"csi-addons, one per driver",title:"csi-addons sidecar",one:"A helper container inside the driver's pod that carries the request the last metre.",what:"A sidecar is a second container in the same pod as the driver's controller. It ships with the kubernetes-csi-addons project, not with the storage vendor. It registers itself by creating a CSIAddonsNode record, so the controller can find it and see which operations the driver supports. It receives the controller's gRPC call and forwards it to the driver over the driver's own socket.",here:"It is the csi-addons container in the powerstore-controller pod on each spoke. The driver's node daemon on the workers does not carry one, because the replication calls are handled on the controller side.",not:"Not an implementation of the specification. The driver implements the CSI-Addons services and the sidecar is only the bridge that lets the controller reach them. It holds no state, and removing it leaves ordinary provisioning working but breaks every replication operation."},
-csm:{tag:"Dell, related module family",title:"Dell CSM Replication",one:"Dell's own packaging of replication plus operational add-ons for its drivers.",what:"CSM stands for Container Storage Modules: Replication, Authorization, Resiliency and Observability. Replication ships its own replicator sidecar and its own custom resources. The other modules add access control, node failure handling and metrics.",here:"Not on this lab's DR path. Replication here is driven by the csi-addons objects, and the Dell replicator is not deployed, so nothing in this picture depends on it.",not:"Not a second copy of the same feature running at the same time. It is an alternative route to replication that this environment does not use."},
-powerstore:{tag:"Dell, storage system",title:"PowerStore array (VSA-A / VSA-B)",one:"The disks themselves, and the replication engine that copies them to the other site.",what:"In this lab each array is a virtual appliance: two node virtual machines that together behave as one PowerStore system. The array owns the volumes and runs the replication sessions that copy changed blocks on a schedule. The driver only asks it to enable, promote, demote or resync.",here:"VSA-A is local to spoke-0 and VSA-B to spoke-1. Both arrays are listed in every spoke's configuration, so a cluster can reach either one. The Miro board records the serial numbers PSa97b49e924cd and PSdc7f3064c752.",not:"Not something Kubernetes can invent data for. Recovery can only return what the last completed copy contains, which is why the sync schedule defines the recovery point."},
-cephDriver:{tag:"Ceph, CSI driver",title:"ceph-csi driver",one:"The same kind of translator, for Ceph storage instead of PowerStore.",what:"Exposes Ceph block volumes (RBD) and Ceph file systems (CephFS) to pods. Same shape as the Dell driver: a controller plus a node plugin, and a csi-addons sidecar when replication is needed.",here:"Not part of the Dell track. It is shown because the two vendor columns have identical anatomy and the same csi-addons machinery drives both.",not:"Not interchangeable with the Dell driver at runtime. A volume lives on one storage system, and the driver is chosen by the storage class."},
+dellSidecar:{tag:"csi-addons, one per driver",title:"csi-addons sidecar",one:"A helper container inside the driver's pod that carries the request the last metre.",what:"A sidecar is a second container in the same pod as the driver's controller. Its code comes from the kubernetes-csi-addons project, not from the storage vendor. It registers itself by creating a CSIAddonsNode record, so the controller can find it and see which operations the driver supports. It receives the controller's gRPC call and forwards it to the driver over the driver's own socket.",here:"It is the csi-addons container in the powerstore-controller pod on each spoke. The driver's node daemon on the workers does not carry one, because the replication calls are handled on the controller side.",not:"Not an implementation of the specification. The driver implements the CSI-Addons services and the sidecar is only the bridge that lets the controller reach them. It holds no state, and removing it leaves ordinary provisioning working but breaks every replication operation."},
+csm:{tag:"Dell, alternative, not used here",title:"Dell CSM Replication",one:"Dell's own replication module for its drivers, separate from the csi-addons route.",what:"CSM is Dell's family of Container Storage Modules: Replication, Authorization, Resiliency and Observability. Replication is the one that matters here, and it ships its own replicator sidecar and its own custom resources. The other modules are separate products for access control, node failure handling and metrics, not parts of Replication.",here:"Not on this lab's DR path. Replication here is driven by the csi-addons objects, and the Dell replicator is not deployed, so nothing in this picture depends on it.",not:"Not a second copy of the same feature running at the same time, and not the same thing as the csi-addons sidecar. It is an alternative route to replication that this environment does not use."},
+powerstore:{tag:"Dell, storage system",title:"PowerStore array (VSA-A / VSA-B)",one:"The disks themselves, and the replication engine that copies them to the other site.",what:"In this lab each array is a virtual appliance: two node virtual machines that together behave as one PowerStore system. The array owns the volumes and runs the replication sessions that copy changed blocks on a schedule. The driver only asks it to enable, promote, demote or resync.",here:"VSA-A is local to spoke-0 and VSA-B to spoke-1, and the last completed copy between them is what a failover can recover. Both arrays are listed in every spoke's configuration because the driver checks the pair when a volume group is set up; that is a configuration requirement, not a promise that every worker has a path to both arrays, and per-volume replication does not make that check. The Miro board records the serial numbers PSa97b49e924cd and PSdc7f3064c752 but does not say which belongs to which site, so this page does not assign them.",not:"Not something Kubernetes can invent data for. Recovery can only return what the last completed copy contains, which is why the sync schedule defines the recovery point."},
+cephDriver:{tag:"Ceph, CSI driver",title:"ceph-csi driver",one:"The same kind of translator, for Ceph storage instead of PowerStore.",what:"Exposes Ceph block volumes (RBD) and Ceph file systems (CephFS) to pods. Same shape as the Dell driver: a controller plus a node plugin, and a csi-addons sidecar when replication is needed.",here:"Shown for comparison. It is not part of this lab's Dell track; the two columns have identical anatomy and the same csi-addons machinery drives both.",not:"Not interchangeable with the Dell driver at runtime. A volume lives on one storage system, and the driver is chosen by the storage class."},
 cephSidecar:{tag:"csi-addons, one per driver",title:"csi-addons sidecar (Ceph)",one:"The identical helper, attached to a different driver.",what:"One sidecar per driver. It publishes its own CSIAddonsNode record, so a cluster running two storage systems has two sidecars, and the controller picks the right one from the volume's driver.",here:"Shows why the sidecar is per driver rather than a single cluster wide component: the controller can only reach a driver through that driver's own sidecar.",not:"Not a shared proxy. Two sidecars do not load balance; each serves only its own driver."},
 rook:{tag:"Ceph, operator",title:"Rook operator",one:"The operator that installs and runs Ceph inside Kubernetes.",what:"It watches Ceph custom resources and starts the Ceph daemons: monitors, object storage daemons and metadata servers. It owns the life cycle of the storage cluster itself.",here:"Shown for completeness. It manages Ceph, not the Dell path, because the Dell arrays are appliances outside Kubernetes.",not:"Not a CSI driver. It makes the storage system exist; ceph-csi is what Kubernetes uses to consume it."},
 ceph:{tag:"Ceph, storage system",title:"Ceph cluster (RBD / CephFS)",one:"A storage system that runs as pods on the cluster's own disks.",what:"Stores data across the cluster's disks and serves it two ways: RBD for block volumes and CephFS for shared file systems. Replication and healing happen inside Ceph rather than on a separate appliance.",here:"The other track in this lab. The Dell DR scenarios use PowerStore, so this column is context, not the tested path.",not:"Not a Dell array. Nothing in the PowerStore column depends on it."}
@@ -354,10 +352,10 @@ function arrow(x1,y1,x2,y2,color,label,dashed,lx,ly){
   svg.appendChild(g);
 }
 
-function route(pts,color,label,lx,ly){
+function route(pts,color,label,lx,ly,dashed){
   var g=el('g',{});
   var d='M'+pts.map(function(p){return p[0]+' '+p[1];}).join(' L');
-  g.appendChild(el('path',{d:d,stroke:color,'stroke-width':'2',fill:'none','stroke-linecap':'round','stroke-linejoin':'round','stroke-dasharray':'7 5'}));
+  g.appendChild(el('path',{d:d,stroke:color,'stroke-width':'2',fill:'none','stroke-linecap':'round','stroke-linejoin':'round','stroke-dasharray':dashed===false?'none':'7 5'}));
   g.appendChild(el('circle',{cx:pts[0][0],cy:pts[0][1],r:'3.2',fill:color}));
   var a=pts[pts.length-2], b=pts[pts.length-1];
   head(g,a[0],a[1],b[0],b[1],color);
@@ -384,10 +382,11 @@ setTimeout(function(){
 
   arrow(CSI.r,CSI.cy,ADD.l,ADD.cy,purple,'extends',false);
   route([[CSI.l,CSI.cy],[32,CSI.cy],[32,505]],purple,'implemented by every driver',152,492);
-  route([[ADD.cx,ADD.b],[ADD.cx,CTL.t]],purple,'Kubernetes implementation',ADD.cx,218);
+  route([[ADD.l+460,ADD.b],[1290,ADD.b],[1290,505]],purple,'implemented by supporting drivers',1150,492);
+  route([[ADD.cx,ADD.b],[ADD.cx,CTL.t]],purple,'implemented by the csi-addons software',ADD.cx,218);
   arrow(RAM.r,RAM.cy,CR.l,CR.cy,blue,'creates',false);
   arrow(CR.r,CR.cy,CTL.l,CTL.cy,blue,'watches',false);
-  arrow(CTL.l+60,CTL.b,SC1.cx,SC1.t,blue,'gRPC',false);
+  route([[CTL.l+60,CTL.b],[CTL.l+60,512],[SC1.cx,512],[SC1.cx,SC1.t]],blue,'gRPC',SC1.cx,590,false);
   arrow(CTL.l+400,CTL.b,SC2.cx,SC2.t,blue,'gRPC',false);
   arrow(SC1.l,SC1.cy,DRV1.r,DRV1.cy,cyan,'gRPC',false);
   arrow(SC2.l,SC2.cy,DRV2.r,DRV2.cy,cyan,'gRPC',false);
@@ -431,18 +430,21 @@ function place(card){
 function show(card){
   if(!render(card.id)) return;
   clearTimeout(hideTimer);
+  if(current&&current!==card){ current.setAttribute('aria-expanded','false'); current.classList.remove('on'); }
   current=card;
   place(card);
   card.setAttribute('aria-expanded','true');
-  card.dataset.hover='1';
+  card.classList.add('on');
+  document.getElementById('dia').classList.add('dim');
 }
 
 function hide(){
   clearTimeout(hideTimer);
   if(current){
     current.setAttribute('aria-expanded','false');
-    current.dataset.hover='0';
+    current.classList.remove('on');
   }
+  document.getElementById('dia').classList.remove('dim');
   current=null; pinned=false;
   pop.hidden=true;
 }
@@ -455,12 +457,10 @@ function scheduleHide(){
 function pin(card){
   clearTimeout(hideTimer);
   if(current===card && pinned){ hide(); return; }
-  if(current&&current!==card){ current.setAttribute('aria-expanded','false'); current.dataset.hover='0'; }
+  if(current&&current!==card){ current.setAttribute('aria-expanded','false'); current.classList.remove('on'); }
   pinned=true;
   show(card);
 }
-
-Array.prototype.forEach.call(document.querySelectorAll('.hintx'),function(h){ h.setAttribute('aria-hidden','true'); });
 
 Array.prototype.forEach.call(document.querySelectorAll('.blk'),function(card){
   if(BLOCKS[card.id]) card.setAttribute('aria-label',BLOCKS[card.id].title+'. '+BLOCKS[card.id].one);
