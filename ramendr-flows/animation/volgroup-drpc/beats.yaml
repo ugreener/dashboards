@@ -211,7 +211,8 @@ beats:
       The group's status is the companion's status. Primary means this side
       serves the workload. Replicating true means the copy is synchronized.
       Those answers describe the container, and they are separate from the DRPC's
-      Protected condition, which is why the last chapter needs both.
+      Protected flag, which reports whether Ramen considers the records
+      protected.
     evidence: [live-vgr]
     pause_after: 1.2
 
@@ -341,8 +342,8 @@ beats:
     chapter: Recap
     visual: The measured lab result and the single sentence to remember.
     narration: >-
-      In this lab, the group-protected application's return move completed in two
-      minutes and three seconds, and its session carried a newer sync. The
+      In this lab, the group-protected application's move back home completed in
+      two minutes and three seconds, and its session carried a newer sync. The
       container moved as one. That is what a volume-grouped DRPC buys: one
       recovery point for every disk.
     evidence: [live-drpc, live-arrays]

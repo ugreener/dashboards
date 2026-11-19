@@ -36,9 +36,9 @@ export const FOCUS: Record<string, string[]> = {
   '2.4': ['vgr0', 'vrg0'],
   '2.5': ['content0', 'vgr0'],
   '2.6': ['vgr0', 'content0', 'groupA'],
-  '2.7': ['policy', 'drpc'],
+  '2.7': ['policy'],
   '3.1': ['groupA', 'groupB'],
-  '3.2': ['groupA', 'groupB'],
+  '3.2': ['groupA'],
   '3.3': ['vgr0', 'content0'],
   '4.1': ['drpc', 'vrg1'],
   '4.2': ['drpc', 'vrg1', 'placement', 'decision'],
@@ -186,7 +186,6 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
         {arrow('M2105,855 L2105,895', C.purple, true, null, 0, 0)}
       </> : null}
       {promoted ? <>
-        {arrow('M1805,990 L1845,990', C.green, false, null, 0, 0)}
         {arrow('M2105,1085 L1880,1265', C.orange, false, 'array failover · one group', 2130, 1180, 1, 360)}
       </> : null}
 

@@ -335,7 +335,7 @@ const RememberPanel: React.FC<{f: number; dur: number}> = ({f, dur}) => (
     <div style={{position: 'absolute', left: 110, top: 160, fontSize: 29, letterSpacing: 2, color: C.blue, fontWeight: 700}}>WHAT THE LAB SHOWED</div>
     <div style={{position: 'absolute', left: 110, top: 225, width: 1700, padding: '26px 30px', border: `2px solid ${C.green}`, borderRadius: 18, background: `${C.green}0d`, opacity: prog(f, dur * 0.04, dur * 0.04 + 24)}}>
       <div style={{fontSize: 23, letterSpacing: 2, color: C.green, fontFamily: mono}}>MEASURED, NOT A RECORDED RUN</div>
-      <div style={{fontSize: 32, color: C.text, lineHeight: 1.35, marginTop: 10}}>The group-protected application's return move completed in two minutes and three seconds, and its session carried a newer sync.</div>
+      <div style={{fontSize: 32, color: C.text, lineHeight: 1.35, marginTop: 10}}>The group-protected application's move back home completed in two minutes and three seconds, and its session carried a newer sync.</div>
     </div>
     <div style={{position: 'absolute', left: 110, top: 470, width: 1700, fontSize: 24, color: C.dim, lineHeight: 1.5, opacity: prog(f, dur * 0.35, dur * 0.35 + 24)}}>
       The example protects one claim today. The mechanism is the same for many, and that is where grouping matters: a database that writes across several disks needs all of them from the same completed sync.
