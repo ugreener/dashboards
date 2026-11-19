@@ -152,10 +152,10 @@ beats:
     card: {kind: VolumeGroupReplicationContent, name: vgrcontent-87f1d6c5-3b5c-4c35-9c25-8b5dee56b03a, role: 'holds the array group handle and every disk handle'}
     def: {what: 'The cluster-scoped record of what the driver actually created on the array: one group handle and the disk handles inside it.', creator: 'The csi-addons controller, after the driver creates the group.', reader: 'The controller and Ramen, including during restore on the other site.', where: 'Cluster scope, not a namespace.', analogy: 'The container manifest: one container number plus the list of parcels inside.'}
     narration: >-
-      The content object is the manifest. It holds the array's group handle, the
-      source disk handles, and after a restore the destination group and the
-      mapping from each source disk to its destination copy. This is the object
-      Ramen archives and rewrites on the other site.
+      The content object is the manifest. It holds the array's group handle and
+      the disk handles. It also records the destination group and the mapping
+      from each source disk to its destination copy. This is the object Ramen
+      archives and rewrites on the other site.
     evidence: [live-vgrcontent, kb-group-replication]
     pause_after: 1.5
 
@@ -232,9 +232,8 @@ beats:
     visual: The hub delivers the target VRG and the placement decision moves.
     narration: >-
       The hub delivers the target site's VolumeReplicationGroup and points the
-      placement at the target. The target VRG is the only component that will ask
-      its local array to promote anything. The old site is not asked to do it,
-      and on a real outage it could not answer.
+      placement at the target. Only the target VRG is set to primary. The old
+      site is not asked to do it, and on a real outage it could not answer.
     evidence: [source-trace, live-vrg]
     pause_after: 1.2
 
@@ -253,9 +252,9 @@ beats:
     chapter: Failover
     visual: csi-addons calls PromoteVolume once, on the group.
     narration: >-
-      The group object asks for primary. The csi-addons controller calls the
-      driver's PromoteVolume once, for the group, rather than once per disk. One
-      call carries every disk in the container.
+      The group's companion record asks for primary. The csi-addons controller
+      calls the driver's PromoteVolume once, for the group, rather than once per
+      disk. One call carries every disk in the container.
     evidence: [source-trace]
     pause_after: 1.2
 
