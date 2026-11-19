@@ -190,7 +190,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="o">or VolumeGroupReplication: one object per disk, or one for a group that must move together.</div>
 </div>
 
-<div class="blk" id="controller" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:810px;top:270px;width:460px;height:180px;border-color:var(--blue);border-left-width:5px">
+<div class="blk" id="controller" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:810px;top:275px;width:450px;height:175px;border-color:var(--blue);border-left-width:5px">
 <div class="k">Kubernetes implementation &middot; cluster-wide</div>
 <div class="t" style="color:var(--blue)">csi-addons controller</div>
 <div class="o">Turns the request object into a call to the right driver, then writes the answer back into the object.</div>
@@ -330,7 +330,7 @@ function el(n,attrs){var e=document.createElementNS('http://www.w3.org/2000/svg'
 
 function labelAt(g,label,x,y,color){
   var lw=label.length*6.2+16, lh=18;
-  g.appendChild(el('rect',{x:x-lw/2,y:y-lh/2,width:lw,height:lh,rx:'3',fill:'#0a0e14',opacity:'0.94'}));
+  g.appendChild(el('rect',{x:x-lw/2,y:y-lh/2,width:lw,height:lh,rx:'3',fill:'#0a0e14'}));
   var t=el('text',{x:x,y:y+1,'text-anchor':'middle','dominant-baseline':'middle',fill:color,'font-size':'10','font-weight':'600'});
   t.textContent=label;
   g.appendChild(t);
@@ -367,7 +367,7 @@ function route(pts,color,label,lx,ly,dashed){
 
 function labelRot(g,label,x,y,color){
   var lw=label.length*6.2+16, gr=el('g',{transform:'translate('+x+','+y+') rotate(-90)'});
-  gr.appendChild(el('rect',{x:-lw/2,y:-9,width:lw,height:18,rx:'3',fill:'#0a0e14',opacity:'0.94'}));
+  gr.appendChild(el('rect',{x:-lw/2,y:-9,width:lw,height:18,rx:'3',fill:'#0a0e14'}));
   var t=el('text',{x:0,y:1,'text-anchor':'middle','dominant-baseline':'middle',fill:color,'font-size':'10','font-weight':'600'});
   t.textContent=label;
   gr.appendChild(t);
@@ -402,10 +402,10 @@ setTimeout(function(){
   arrow(CTL.l+400,CTL.b,SC2.cx,SC2.t,blue,'gRPC',false);
   arrow(SC1.l,SC1.cy,DRV1.r,DRV1.cy,cyan,'gRPC',false);
   arrow(SC2.l,SC2.cy,DRV2.r,DRV2.cy,cyan,'gRPC',false);
-  arrow(DRV1.cx,box('dellDriver').b,PS.cx-70,PS.t,orange,'',false);
+  arrow(DRV1.cx,box('dellDriver').b,PS.cx,PS.t,orange,'',false);
   arrow(DRV2.cx,DRV2.b,CEPH.cx-70,CEPH.t,green,'',false);
-  dotLink(CSM.cx,CSM.b,DRV1.cx,DRV1.t-25,gray);
-  dotLink(ROOK.cx,ROOK.b,DRV2.cx,DRV2.t-25,green);
+  dotLink(CSM.cx,CSM.b,DRV1.cx,DRV1.t-42,gray);
+  dotLink(ROOK.cx,ROOK.b,DRV2.cx,DRV2.t-42,green);
 },140);
 })();
 
