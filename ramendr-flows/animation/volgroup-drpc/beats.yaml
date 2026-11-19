@@ -87,11 +87,11 @@ beats:
     chapter: Primer
     visual: One chain, top to bottom, from the hub record to the array group.
     narration: >-
-      The chain has six steps. The DRPlacementControl on the hub asks for the
+      The chain has seven steps. The DRPlacementControl on the hub asks for the
       move. The VolumeReplicationGroup on each site coordinates it. The
       VolumeGroupReplication carries the group, a companion VolumeReplication
-      tracks its state, and the Dell driver turns that into array calls. Only
-      the array moves data.
+      tracks its state, the csi-addons controller translates it, and the Dell
+      driver turns that into array calls. Only the array moves data.
     evidence: [source-trace, live-vgr]
     pause_after: 1.5
 
@@ -163,10 +163,10 @@ beats:
     chapter: The group objects
     visual: YAML panels for the group class and the paired per-volume class, with source and target arrays highlighted.
     narration: >-
-      Two classes complete the request. powerstore-vgrc-5m names the source array
-      PS3b37452a6e0f, the target array PSff392f423bd6, the remote system VSA-B,
-      and a five minute recovery point. powerstore-vrc-group-5m is the paired
-      class the companion VolumeReplication uses.
+      Two classes complete the request. powerstore-vgrc-5m names the source
+      array, the target array, the remote system VSA-B, and a five minute
+      recovery point. powerstore-vrc-group-5m is the paired class the companion
+      VolumeReplication uses.
     evidence: [live-classes, setup-doc]
     pause_after: 1.2
 
@@ -186,10 +186,10 @@ beats:
     chapter: The forward copy
     visual: One volume group and one session on each array, with the two roles.
     narration: >-
-      On the arrays the group has one name and one handle on each side. VSA-A
-      holds the source copy, VSA-B holds the destination. One session joins them,
-      with one role on each side. That is the difference from per-disk
-      replication: one session, not one per claim.
+      On the arrays the group has the same name on both sides, with a different
+      handle on each. VSA-A holds the source copy, VSA-B holds the destination.
+      One session joins them, with one role on each side. That is the difference
+      from per-disk replication: one session, not one per claim.
     evidence: [live-arrays, live-vgrcontent]
     define: {term: replication session, text: 'The array object that copies one volume or one volume group from a source to a destination.'}
     pause_after: 1.2
@@ -312,8 +312,8 @@ beats:
       The second blocker is the group's autoResync setting. With it false,
       csi-addons promotes the target and then stops. The group reports
       Failed_Over with reprotect required, and no reverse copy starts. The DRPC
-      can still show Protected true, because that condition describes the
-      metadata and the forward copy from before the failover.
+      can still report Protected true and PeerReady true, even though no copy is
+      reaching the other array.
     evidence: [kb-autoresync, live-vgr]
     pause_after: 1.8
 

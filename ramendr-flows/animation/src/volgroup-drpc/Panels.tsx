@@ -286,7 +286,7 @@ const AutoResyncPanel: React.FC<{f: number; dur: number}> = ({f, dur}) => (
     </div>
     <Row text="No Reprotect and no Resync call is sent, so no reverse copy starts." i={0} f={f} dur={dur} size={22} />
     <Row text="The DRPC can still read Protected true and PeerReady true." i={1} f={f} dur={dur} size={22} color={C.red} />
-    <div style={{marginTop: 16, fontSize: 20, color: C.dim, lineHeight: 1.4, opacity: prog(f, dur * 0.62, dur * 0.62 + 22)}}>Protected describes the metadata and the forward copy from before the failover. It is not a new standby.</div>
+    <div style={{marginTop: 16, fontSize: 20, color: C.dim, lineHeight: 1.4, opacity: prog(f, dur * 0.62, dur * 0.62 + 22)}}>Protected is not a check for a new standby. It can be true while no copy is reaching the other array.</div>
   </Box>
 );
 
