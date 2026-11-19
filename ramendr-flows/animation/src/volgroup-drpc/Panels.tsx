@@ -190,7 +190,7 @@ const ClassPanel: React.FC<{f: number; dur: number}> = ({f, dur}) => (
       '    replication.storage.dell.com/rpo: Five_Minutes',
       '    schedulingInterval: 5m',
     ]} hl={[6, 7, 8, 9, 10]} h={430} />
-    <div style={{position: 'absolute', left: 1000, top: 650, width: 870, padding: '18px 22px', border: `2px solid ${C.amber}`, borderRadius: 14, background: `${C.amber}10`, fontFamily: sans, opacity: prog(f, dur * 0.5, dur * 0.5 + 22)}}>
+    <div style={{position: 'absolute', left: 1000, top: 650, width: 870, padding: '18px 22px', border: `2px solid ${C.amber}`, borderRadius: 14, background: C.panel, boxShadow: '0 18px 50px #000c', fontFamily: sans, opacity: prog(f, dur * 0.5, dur * 0.5 + 22)}}>
       <div style={{fontFamily: mono, fontSize: 16, color: C.amber, letterSpacing: 1}}>PAIRED CLASS</div>
       <div style={{fontSize: 22, color: C.text, marginTop: 6, lineHeight: 1.35}}>powerstore-vrc-group-5m is the per-volume class the companion VolumeReplication uses. The same source, target and five minute interval.</div>
     </div>
@@ -350,9 +350,9 @@ const RememberPanel: React.FC<{f: number; dur: number}> = ({f, dur}) => (
 const ColdOpen1: React.FC<{f: number; dur: number}> = ({f, dur}) => (
   <div style={{position: 'absolute', inset: 0, fontFamily: sans, background: C.bg}}>
     <div style={{position: 'absolute', left: 90, top: 160, fontSize: 24, letterSpacing: 2, color: C.amber, fontFamily: mono}}>TWO DISKS · ONE APPLICATION</div>
-    <div style={{position: 'absolute', left: 90, top: 205, width: 900, fontSize: 62, fontWeight: 800, color: C.text, lineHeight: 1.12}}>One disk came from ten fifty-two.<br />The other from ten forty-seven.</div>
-    <div style={{position: 'absolute', left: 90, top: 400, width: 820, fontSize: 27, color: C.dim, lineHeight: 1.45, opacity: prog(f, dur * 0.14, dur * 0.14 + 24)}}>Each disk was promoted on its own schedule. The database wrote across both, so it recovered a moment that never existed.</div>
-    <div style={{position: 'absolute', left: 90, top: 600, width: 820, padding: '22px 26px', borderLeft: `6px solid ${C.red}`, background: `${C.panel}cc`, fontSize: 27, color: C.text, lineHeight: 1.4, opacity: prog(f, dur * 0.42, dur * 0.42 + 24)}}>A volume group exists so that <span style={{color: C.red, fontWeight: 700}}>every disk moves as one</span>.</div>
+    <div style={{position: 'absolute', left: 90, top: 200, width: 940, fontSize: 52, fontWeight: 800, color: C.text, lineHeight: 1.14}}>One disk from ten fifty-two.<br />The other from ten forty-seven.</div>
+    <div style={{position: 'absolute', left: 90, top: 370, width: 820, fontSize: 27, color: C.dim, lineHeight: 1.45, opacity: prog(f, dur * 0.14, dur * 0.14 + 24)}}>Each disk was promoted on its own schedule. The database wrote across both, so it recovered a moment that never existed.</div>
+    <div style={{position: 'absolute', left: 90, top: 575, width: 820, padding: '22px 26px', borderLeft: `6px solid ${C.red}`, background: `${C.panel}cc`, fontSize: 27, color: C.text, lineHeight: 1.4, opacity: prog(f, dur * 0.42, dur * 0.42 + 24)}}>A volume group exists so that <span style={{color: C.red, fontWeight: 700}}>every disk moves as one</span>.</div>
     <div style={{position: 'absolute', left: 1010, top: 225, width: 820}}>
       {[['DISK 1', '10:52', C.green, 0.2], ['DISK 2', '10:47', C.red, 0.32]].map(([d, t, col, a], i) => <div key={d as string} style={{marginTop: i ? 20 : 0, padding: '22px 24px', borderRadius: 16, border: `2px solid ${col}`, background: `${col}10`, opacity: prog(f, dur * (a as number), dur * (a as number) + 24)}}>
         <div style={{fontFamily: mono, fontSize: 18, color: col as string}}>{d}</div>
@@ -374,7 +374,7 @@ const ColdOpen2: React.FC<{f: number; dur: number}> = ({f, dur}) => (
     <div style={{position: 'absolute', left: 110, top: 340, width: 1700, padding: '34px 40px', border: `3px solid ${C.green}`, borderRadius: 24, background: `${C.green}0c`, opacity: prog(f, dur * 0.08, dur * 0.08 + 26)}}>
       <div style={{fontFamily: mono, fontSize: 18, color: C.green, letterSpacing: 1.5}}>VOLUME GROUP</div>
       <div style={{display: 'flex', gap: 18, marginTop: 20}}>
-        {['disk 1', 'disk 2', 'disk 3'].map((d, i) => <div key={d} style={{flex: 1, padding: '22px 18px', border: `2px solid ${C.blue}`, borderRadius: 12, background: `${C.blue}12`, opacity: prog(f, dur * (0.18 + i * 0.05), dur * (0.18 + i * 0.05) + 22)}}>
+        {['disk 1', 'disk 2'].map((d, i) => <div key={d} style={{flex: 1, padding: '22px 18px', border: `2px solid ${C.blue}`, borderRadius: 12, background: `${C.blue}12`, opacity: prog(f, dur * (0.18 + i * 0.05), dur * (0.18 + i * 0.05) + 22)}}>
           <div style={{fontFamily: mono, fontSize: 15, color: C.blue}}>inside the container</div>
           <div style={{fontSize: 30, color: C.text, marginTop: 6}}>{d}</div>
         </div>)}

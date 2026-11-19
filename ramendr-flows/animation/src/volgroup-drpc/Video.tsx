@@ -13,6 +13,7 @@ type Meta = {define?: {term: string; text: string}; card?: {kind: string; name: 
 const META = BEATS as Record<string, Meta>;
 type Cam = {x: number; y: number; z: number; sx: number; sy: number};
 const CAMS: Record<string, Partial<Cam>> = {
+  '2.2': {z: 0.9, sy: 470},
   '2.5': {z: 0.95},
 };
 

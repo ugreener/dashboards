@@ -17,7 +17,7 @@ beats:
 
   - id: '0.2'
     chapter: Cold open
-    visual: The two disks sit inside one container. A crane lifts the container once.
+    visual: The two disks sit inside one container, each keeping its own name.
     narration: >-
       A volume group tells the array to copy those disks as one unit, and to
       change their role in one step. This video explains how RamenDR asks for

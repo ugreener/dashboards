@@ -99,6 +99,13 @@ export const CH: [string, number, string, string][] = [
   ['5.3', 0.1, 'vgr1', 'Replicating false'],
 ];
 
+const BAND: Record<string, string> = {
+  drpc: 'hub', placement: 'hub', decision: 'hub', policy: 'hub',
+  vrg0: 'spoke0', vgr0: 'spoke0', content0: 'spoke0', csi0: 'spoke0', driver0: 'spoke0',
+  vrg1: 'spoke1', vgr1: 'spoke1', content1: 'spoke1', csi1: 'spoke1', driver1: 'spoke1',
+  groupA: 'arrayA', groupB: 'arrayB',
+};
+
 const BASE: Record<string, string> = {
   drpc: 'Deployed',
   placement: 'spoke-0',
@@ -129,6 +136,10 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
     return v;
   };
   const focus = (key: string) => (keys.length === 0 || keys.includes(key) ? 1 : 0.08);
+  const active = new Set(keys.map((k) => BAND[k]).filter(Boolean));
+  const bandOn = (b: string) => keys.length === 0 || active.has(b);
+  const bandOpacity = (b: string) => (bandOn(b) ? 1 : 0.16);
+  const bandHide = (b: string) => panel || !bandOn(b);
   const appearAll = chapter === 2 ? prog(c.f, -15, 35) : 1;
   const failover = reached(c.id, '4.1');
   const moved = reached(c.id, '4.3');
@@ -152,11 +163,11 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       color={col} detail={Math.max(0, Math.min(1, (c.zoom - 0.65) / 0.2))} nameSize={n.nameSize ?? 22} />;
   };
   return <div style={{position: 'absolute', width: 2480, height: 1600}}>
-    <Region b={{x: 70, y: 45, w: 2340, h: 280}} title="HUB · edge36" sub="the control record and the decision" color={C.blue} hideTitle={panel} />
-    <Region b={{x: 70, y: 390, w: 1170, h: 790}} title="SPOKE-0 · edge95 · HOME SITE" sub="prefers the workload, holds VSA-A" color={C.spoke1} hideTitle={panel} />
-    <Region b={{x: 1235, y: 390, w: 1175, h: 790}} title="SPOKE-1 · edge97 · TARGET SITE" sub="the copy that becomes primary" color={C.spoke0} hideTitle={panel} />
-    <Region b={{x: 70, y: 1205, w: 1170, h: 320}} title="VSA-A · HOME ARRAY" sub="source of the copy" color={C.array} hideTitle={panel} />
-    <Region b={{x: 1235, y: 1205, w: 1175, h: 320}} title="VSA-B · TARGET ARRAY" sub="destination of the copy" color={C.array} hideTitle={panel} />
+    <Region b={{x: 70, y: 45, w: 2340, h: 280}} title="HUB · edge36" sub="the control record and the decision" color={C.blue} opacity={bandOpacity('hub')} hideTitle={bandHide('hub')} />
+    <Region b={{x: 70, y: 390, w: 1170, h: 790}} title="SPOKE-0 · edge95 · HOME SITE" sub="prefers the workload, holds VSA-A" color={C.spoke1} opacity={bandOpacity('spoke0')} hideTitle={bandHide('spoke0')} />
+    <Region b={{x: 1235, y: 390, w: 1175, h: 790}} title="SPOKE-1 · edge97 · TARGET SITE" sub="the copy that becomes primary" color={C.spoke0} opacity={bandOpacity('spoke1')} hideTitle={bandHide('spoke1')} />
+    <Region b={{x: 70, y: 1205, w: 1170, h: 320}} title="VSA-A · HOME ARRAY" sub="source of the copy" color={C.array} opacity={bandOpacity('arrayA')} hideTitle={bandHide('arrayA')} />
+    <Region b={{x: 1235, y: 1205, w: 1175, h: 320}} title="VSA-B · TARGET ARRAY" sub="destination of the copy" color={C.array} opacity={bandOpacity('arrayB')} hideTitle={bandHide('arrayB')} />
 
     {Object.keys(NODES).map((key) => {
       if ((key === 'vgr1' || key === 'content1') && !moved) return null;
