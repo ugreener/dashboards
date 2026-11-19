@@ -151,7 +151,7 @@ const GroupScene: React.FC<{f: number; dur: number}> = ({f, dur}) => (
       <div style={{fontFamily: mono, fontSize: 16, color: C.green, letterSpacing: 1.4}}>WHAT IT BUYS</div>
       <div style={{fontSize: 30, color: C.text, marginTop: 8, lineHeight: 1.3}}>Every disk shares<br />one recovery point.</div>
     </div>
-    <div style={{position: 'absolute', left: 130, top: 850, fontSize: 23, color: C.dim, opacity: prog(f, dur * 0.6, dur * 0.6 + 22)}}>The lab example protects one claim. The mechanism is the same for many.</div>
+    <div style={{position: 'absolute', left: 130, top: 850, fontSize: 23, color: C.dim, opacity: prog(f, dur * 0.6, dur * 0.6 + 22)}}>Five example claims. The lab example protects one; the mechanism is the same for many.</div>
   </div>
 );
 
@@ -167,6 +167,7 @@ const ChainScene: React.FC<{f: number; dur: number}> = ({f, dur}) => {
   ];
   return <div style={{position: 'absolute', inset: 0, fontFamily: sans}}>
     <div style={{position: 'absolute', left: 110, top: 150, fontSize: 40, color: C.text, fontWeight: 700}}>One chain, top to bottom</div>
+    <div style={{position: 'absolute', left: 92, top: 252, width: 3, height: 610, background: C.border, opacity: prog(f, dur * 0.05, dur * 0.05 + 20)}} />
     {rows.map(([name, role], i) => <div key={name} style={{position: 'absolute', left: 110, top: 245 + i * 100, width: 1680, display: 'flex', gap: 30, alignItems: 'center', opacity: prog(f, dur * (0.04 + i * 0.07), dur * (0.04 + i * 0.07) + 22)}}>
       <div style={{width: 560, fontSize: 30, fontWeight: 700, color: i === rows.length - 1 ? C.array : i === 3 ? C.amber : C.cyan}}>{name}</div>
       <div style={{fontSize: 26, color: C.text}}>{role}</div>
@@ -327,6 +328,21 @@ const RecapPanel: React.FC<{f: number; dur: number}> = ({f, dur}) => (
       <div style={{width: 320, fontSize: 30, fontWeight: 700, color: col as string}}>{k}</div>
       <div style={{fontSize: 29, color: C.text}}>{v}</div>
     </div>)}
+    <div style={{position: 'absolute', left: 110, top: 650, width: 1700, display: 'flex', alignItems: 'stretch', opacity: prog(f, dur * 0.42, dur * 0.42 + 24)}}>
+      {([
+        ['DRPlacementControl', 'asks for the move'],
+        ['VolumeReplicationGroup', 'coordinates the site'],
+        ['VolumeGroupReplication', 'carries the group'],
+        ['VolumeReplication', 'tracks its state'],
+        ['PowerStore volume group', 'moves the data'],
+      ] as [string, string][]).map(([n, role], i) => <React.Fragment key={n}>
+        <div style={{flex: 1, padding: '14px 12px', border: `1.5px solid ${C.border}`, borderRadius: 10, background: `${C.panel}cc`}}>
+          <div style={{fontFamily: mono, fontSize: 15, color: i === 4 ? C.array : C.cyan, lineHeight: 1.2}}>{n}</div>
+          <div style={{fontFamily: sans, fontSize: 16, color: C.dim, marginTop: 6}}>{role}</div>
+        </div>
+        {i < 4 ? <div style={{width: 34, alignSelf: 'center', height: 2, background: C.cyan}} /> : null}
+      </React.Fragment>)}
+    </div>
   </div>
 );
 
@@ -401,7 +417,7 @@ const ScopeCard: React.FC<{f: number; dur: number}> = ({f, dur}) => (
         <div style={{width: 330, fontSize: 22, color: col as string, fontWeight: 700}}>{k}</div>
         <div style={{fontFamily: mono, fontSize: 21, color: C.dim, maxWidth: 1200, overflowWrap: 'anywhere'}}>{v}</div>
       </div>)}
-      <div style={{marginTop: 40, padding: '22px 26px', borderLeft: `6px solid ${C.green}`, background: `${C.panel}cc`, fontSize: 26, color: C.text, lineHeight: 1.4, opacity: prog(f, dur * 0.55, dur * 0.55 + 24)}}>Where a cause is inferred rather than proven, the video says so. The two blockers are shown as examples, not as one timeline.</div>
+      <div style={{marginTop: 40, padding: '22px 26px', borderLeft: `6px solid ${C.green}`, background: `${C.panel}cc`, fontSize: 26, color: C.text, lineHeight: 1.4, opacity: prog(f, dur * 0.55, dur * 0.55 + 24)}}>Where a cause is inferred rather than proven, the video says so. It starts no failover and changes nothing in the lab.</div>
     </div>
   </div>
 );

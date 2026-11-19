@@ -144,7 +144,6 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
   const failover = reached(c.id, '4.1');
   const moved = reached(c.id, '4.3');
   const promoted = reached(c.id, '4.5');
-  const broken = reached(c.id, '5.1');
   const staleCopy = reached(c.id, '4.7');
   const arrow = (d: string, color: string, dashed: boolean, label: string | null, lx: number, ly: number, opacity = 1, lw = 420) => (
     <g opacity={opacity}>
@@ -201,7 +200,6 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       </> : null}
 
       {staleCopy ? <g transform="translate(1200,1365)"><circle r={26} fill={C.bg} stroke={C.red} strokeWidth={4} /><path d="M-10,-10 L10,10 M10,-10 L-10,10" stroke={C.red} strokeWidth={6} strokeLinecap="round" /></g> : null}
-      {broken ? <g transform="translate(1545,640)"><circle r={22} fill={C.bg} stroke={C.red} strokeWidth={4} /><path d="M-8,-8 L8,8 M8,-8 L-8,8" stroke={C.red} strokeWidth={5} strokeLinecap="round" /></g> : null}
     </svg>
   </div>;
 };

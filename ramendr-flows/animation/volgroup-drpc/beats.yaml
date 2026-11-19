@@ -329,7 +329,7 @@ beats:
   # ---------------------------------------------------------------- chapter 6
   - id: '6.1'
     chapter: Recap
-    visual: The chain in four lines, then the full diagram at wide zoom.
+    visual: Four recap lines, then the chain strip and the remember box.
     narration: >-
       So far: one claim, one container. One session carries the group. One
       promote call changes every disk, and one archived mapping lets the other
