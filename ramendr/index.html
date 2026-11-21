@@ -115,7 +115,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 <div class="leg"><div class="lrect" style="background:var(--green)"></div>Deployed</div>
 <div class="leg"><div class="lrect" style="background:#484f58"></div>Planned</div>
 <div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--red)" stroke-width="2"/></svg> Storage replication (Dell array)</div>
-<div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--orange)" stroke-width="2"/></svg> NVMe-TCP host paths (both arrays)</div>
+<div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--orange)" stroke-width="2"/></svg> NVMe-TCP host paths (local array only)</div>
 <div class="leg"><svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="var(--blue)" stroke-width="2" stroke-dasharray="4,3"/></svg> Control / metadata (logical)</div>
 </div>
 
@@ -197,12 +197,12 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke1comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="Recorded spoke-0 driver install: Helm/non-OLM. The powerstore-config array list holds both VSA-A and VSA-B (VSA-A is the default), and every worker logs in to both arrays over NVMe-TCP. VSA-A currently has two live paths per worker. VSA-B currently has one live path and one connecting path per worker because VSA-B Node A storage port is down. The powerstore-sc classes select the local array (VSA-A for spoke-0), and Ramen replicates those volumes to VSA-B. CNV/OADP/csi-addons, RHDR v4.22.0-86 and OpenShift GitOps v1.22.3 readiness are recorded snapshots.">i</span>
+<span class="info-icon" data-tip="Recorded spoke-0 driver install: Helm/non-OLM. The powerstore-config array list holds only VSA-A, the local default, and each worker holds an NVMe-TCP path only to VSA-A. VSA-B is the replication target reached through the array remote system, not a CSI host path. The powerstore-sc classes select VSA-A, and Ramen replicates those volumes to VSA-B. CNV/OADP/csi-addons, RHDR v4.22.0-86 and OpenShift GitOps v1.22.3 readiness are recorded snapshots.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 1 DR Components</div>
 <div class="detail">
 <div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
-<div class="row"><span class="k">Dell CSI &#8594; VSA-A + VSA-B</span><span class="badge done" style="font-size:9px">Recorded ready</span></div>
+<div class="row"><span class="k">Dell CSI &#8594; VSA-A only</span><span class="badge done" style="font-size:9px">Recorded ready</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
 <div class="row"><span class="k">RHDR cluster operator</span><span class="badge done" style="font-size:9px">v4.22.0-86</span></div>
@@ -233,12 +233,12 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 </div>
 </div>
 <div class="card" id="spoke2comp" style="top:146px;left:334px;width:290px;border-color:var(--cyan)">
-<span class="info-icon" data-tip="Recorded spoke-1 driver install: Helm/non-OLM. The powerstore-config array list holds both VSA-B and VSA-A (VSA-B is the default), and every worker logs in to both arrays over NVMe-TCP. VSA-A currently has two live paths per worker. VSA-B currently has one live path and one connecting path per worker because VSA-B Node A storage port is down. The powerstore-sc classes select the local array (VSA-B for spoke-1), and Ramen replicates those volumes to VSA-A. CNV/OADP/csi-addons, RHDR v4.22.0-86 and OpenShift GitOps v1.22.3 readiness are recorded snapshots.">i</span>
+<span class="info-icon" data-tip="Recorded spoke-1 driver install: Helm/non-OLM. The powerstore-config array list holds only VSA-B, the local default, and each worker holds an NVMe-TCP path only to VSA-B. VSA-A is the replication target reached through the array remote system, not a CSI host path. The powerstore-sc classes select VSA-B, and Ramen replicates those volumes to VSA-A. CNV/OADP/csi-addons, RHDR v4.22.0-86 and OpenShift GitOps v1.22.3 readiness are recorded snapshots.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--cyan)">Spoke 2 DR Components</div>
 <div class="detail">
 <div class="row"><span class="k">Klusterlet &#8594; hub 6443</span><span class="badge done" style="font-size:9px">Active</span></div>
-<div class="row"><span class="k">Dell CSI &#8594; VSA-B + VSA-A</span><span class="badge done" style="font-size:9px">Recorded ready</span></div>
+<div class="row"><span class="k">Dell CSI &#8594; VSA-B only</span><span class="badge done" style="font-size:9px">Recorded ready</span></div>
 <div class="row"><span class="k">OpenShift Virtualization</span><span class="badge done" style="font-size:9px">Available</span></div>
 <div class="row"><span class="k">OADP + csi-addons ctrl</span><span class="badge done" style="font-size:9px">Ready</span></div>
 <div class="row"><span class="k">RHDR cluster operator</span><span class="badge done" style="font-size:9px">v4.22.0-86</span></div>
@@ -270,14 +270,14 @@ spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submarine
 
 <!-- ===== STORAGE: eco-vCenter VSAs (visual grouping box) ===== -->
 <div class="site" style="top:1080px;left:520px;width:1620px;height:320px;border-color:var(--orange)">
-<div class="site-label" style="color:var(--orange)">STORAGE: Dell PowerStore VSAs on eco-vCenter (shared, both spokes hold NVMe-TCP paths to both arrays)</div>
+<div class="site-label" style="color:var(--orange)">STORAGE: Dell PowerStore VSAs on eco-vCenter (each spoke connects only to its local array; array-to-array replication between them)</div>
 </div>
 
 <div class="card" id="vsaa" style="top:1120px;left:600px;width:300px;border-color:var(--orange)">
 <span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter, two-node HA pair. Setup Doc records remote-system and replication sessions OK, with two active Major detached-port alerts per array. This is a recorded snapshot; inspect UI alerts and current path/replication evidence before a health verdict.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--orange)">Dell PowerStore VSA-A</div>
-<div class="sub">Mgmt 10.46.48.20 | local array for Spoke 1, peer for Spoke 2</div>
+<div class="sub">Mgmt 10.46.48.20 | local array for Spoke 1 | replication peer of VSA-B</div>
 <div class="detail">
 <div class="row"><span class="k">HA</span><span class="v">2 nodes (Node A + Node B)</span></div>
 <div class="row"><span class="k">Node A storage IP</span><span class="v" style="font-family:monospace">10.46.49.1</span></div>
@@ -294,7 +294,7 @@ spoke-to-spoke pod networking is used - so <b style="color:var(--red)">Submarine
 <span class="info-icon" data-tip="Dell PowerStore VSA-SE on eco-vCenter, two-node HA pair. Setup Doc records remote-system and replication sessions OK, with two active Major detached-port alerts per array. This is a recorded snapshot, not live array health; verify alerts, connectivity and replica syncs before operations.">i</span>
 <div class="step-badge dep">Deployed</div>
 <div class="title" style="color:var(--orange)">Dell PowerStore VSA-B</div>
-<div class="sub">Mgmt 10.46.48.30 | local array for Spoke 2, peer for Spoke 1</div>
+<div class="sub">Mgmt 10.46.48.30 | local array for Spoke 2 | replication peer of VSA-A</div>
 <div class="detail">
 <div class="row"><span class="k">HA</span><span class="v">2 nodes (Node A + Node B)</span></div>
 <div class="row"><span class="k">Node A storage IP</span><span class="v" style="font-family:monospace">10.46.49.4</span></div>
@@ -366,11 +366,9 @@ setTimeout(function(){
   arrow(S2.l, S2.t+14, H.r, H.t+14, purple, 'ACM pull: klusterlet -> hub API 6443 (DNAT)', true);
   // Hub -> S3 metadata store (vertical, hub down to S3)
   arrow(H.cx, H.b, S3.cx, S3.t, blue, 'DR metadata (S3)', true);
-  // Both arrays appear in each spoke powerstore-config, so every spoke holds NVMe-TCP paths to both VSAs
-  arrow(S1C.cx-60, S1C.b, VA.cx-50, VA.t, orange, '', false);
-  arrow(S1C.cx+60, S1C.b, VB.cx-50, VB.t, orange, '', false);
-  arrow(S2C.cx-60, S2C.b, VA.cx+50, VA.t, orange, '', false);
-  arrow(S2C.cx+60, S2C.b, VB.cx+50, VB.t, orange, '', false);
+  // Each spoke powerstore-config lists only its local array, so each spoke holds NVMe-TCP paths to its own VSA only
+  arrow(S1C.cx, S1C.b, VA.cx, VA.t, orange, '', false);
+  arrow(S2C.cx, S2C.b, VB.cx, VB.t, orange, '', false);
   // VSA-A -> VSA-B array replication (Dell native)
   arrow(VA.r, VA.cy, VB.l, VB.cy, red, 'Dell array replication (workload schedule 15m)', false);
 },120);
@@ -497,7 +495,7 @@ was removed; the alternative CSM + ACM + GitOps design is historical, not the cu
 <div class="flow-card" style="border-left:3px solid var(--orange)">
 <h3>Storage / Replication Plane</h3>
 <div class="steps">
-<div class="step"><span class="sn">1.</span>Each spoke lists both arrays in powerstore-config and logs in to both over NVMe-TCP, per Dell's requirement that both arrays be accessible from each cluster</div>
+<div class="step"><span class="sn">1.</span>Each spoke lists only its local array in powerstore-config and logs in to it over NVMe-TCP; the peer array is reached through the array remote system for replication, not as a CSI host path</div>
 <div class="step"><span class="sn">2.</span>VSA-A replicates async to VSA-B (Dell native, RPO 15m)</div>
 <div class="step"><span class="sn">3.</span>Replication runs on the storage network, not the pod network</div>
 <div class="step"><span class="sn">4.</span>VRG reconciles selected PVCs and per-disk VolumeReplication, which drives the Dell provider</div>
