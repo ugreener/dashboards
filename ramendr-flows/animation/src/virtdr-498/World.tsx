@@ -175,7 +175,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
     }
     return v;
   };
-  const focus = (key: string) => (keys.length === 0 || keys.includes(key) ? 1 : 0.08);
+  const focus = (key: string) => (keys.length === 0 || keys.includes(key) ? 1 : panel ? 0 : 0.08);
   const active = new Set(keys.map((k) => BAND[k]).filter(Boolean));
   const bandOn = (b: string) => keys.length === 0 || active.has(b);
   const bandOpacity = (b: string) => (panel && !bandOn(b) ? 0 : bandOn(b) ? 1 : 0.16);
