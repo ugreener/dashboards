@@ -1,0 +1,86 @@
+[
+ {
+  "file": "01-protected-apps-expanded.png",
+  "id": "1320076",
+  "size": 147131,
+  "created": "2026-11-22T07:46:21.627+0000",
+  "step": "protected-apps-expanded"
+ },
+ {
+  "file": "02-dr-status-popover.png",
+  "id": "1320077",
+  "size": 162194,
+  "created": "2026-11-22T07:46:23.989+0000",
+  "step": "dr-status-popover"
+ },
+ {
+  "file": "03-policy-15m.png",
+  "id": "1320078",
+  "size": 96453,
+  "created": "2026-11-22T07:46:25.887+0000",
+  "step": "policy-15m"
+ },
+ {
+  "file": "04-vsa-b-replication.png",
+  "id": "1320079",
+  "size": 89007,
+  "created": "2026-11-22T07:46:27.917+0000",
+  "step": "vsa-b-replication"
+ },
+ {
+  "file": "05-vsa-a-replication.png",
+  "id": "1320080",
+  "size": 94367,
+  "created": "2026-11-22T07:46:30.212+0000",
+  "step": "vsa-a-replication"
+ },
+ {
+  "file": "06-failover-dialog.png",
+  "id": "1320081",
+  "size": 140929,
+  "created": "2026-11-22T07:46:32.101+0000",
+  "step": "failover-dialog"
+ },
+ {
+  "file": "07-failing-over.png",
+  "id": "1320082",
+  "size": 138163,
+  "created": "2026-11-22T07:46:34.210+0000",
+  "step": "failing-over"
+ },
+ {
+  "file": "08-failedover-cleaningup.png",
+  "id": "1320083",
+  "size": 187261,
+  "created": "2026-11-22T07:46:37.059+0000",
+  "step": "failedover-cleaningup"
+ },
+ {
+  "file": "09-failedover-popover.png",
+  "id": "1320084",
+  "size": 187287,
+  "created": "2026-11-22T07:46:39.536+0000",
+  "step": "failedover-popover"
+ },
+ {
+  "file": "10-completed-expanded.png",
+  "id": "1320085",
+  "size": 162862,
+  "created": "2026-11-22T07:46:41.424+0000",
+  "step": "completed-expanded"
+ },
+ {
+  "file": "11-vsa-a-post-failover.png",
+  "id": "1320086",
+  "size": 156113,
+  "created": "2026-11-22T07:46:43.519+0000",
+  "step": "vsa-a-post-failover"
+ },
+ {
+  "file": "12-vsa-b-post-failover.png",
+  "id": "1320087",
+  "size": 146444,
+  "created": "2026-11-22T07:46:45.890+0000",
+  "step": "vsa-b-post-failover"
+ }
+]
