@@ -88,6 +88,7 @@ export const CH: [string, number, string, string][] = [
   ['3.4', 0.3, 'drpc', 'FailedOver · Cleaning Up'],
   ['3.4', 0.7, 'drpc', 'FailedOver · Completed'],
   ['4.2', 0.3, 'vrg0', 'Primary requested'],
+  ['4.3', 0.3, 'driver0', 'PromoteVolume · one group'],
   ['4.3', 0.4, 'groupA', 'Local role: Source → VSA-B'],
   ['4.3', 0.5, 'groupB', 'Local role: Destination → VSA-A'],
   ['4.4', 0.02, 'pvcRoot0', 'Bound · promoted'],

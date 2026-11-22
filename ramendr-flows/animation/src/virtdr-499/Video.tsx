@@ -22,6 +22,7 @@ type Meta = {
 const META = BEATS as Record<string, Meta>;
 type Cam = {x: number; y: number; z: number; sx: number; sy: number};
 const CAMS: Record<string, Partial<Cam>> = {
+  '4.3': {y: 1230},
   '5.3': {y: 435},
 };
 

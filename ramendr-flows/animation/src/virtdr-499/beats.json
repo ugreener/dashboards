@@ -59,9 +59,9 @@
   "chapter": "Protection",
   "screenshot": "02-baseline-drpc-details.png",
   "focus": {
-   "x": 314,
+   "x": 380,
    "y": 723,
-   "w": 1450,
+   "w": 1050,
    "h": 154
   },
   "caption": "Expanded row, 10:38 UTC \u00b7 ApplicationSet, gitops-vms, one consistency group"
