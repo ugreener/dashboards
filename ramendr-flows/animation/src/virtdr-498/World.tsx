@@ -199,7 +199,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
   const node = (key: string, appear = appearAll) => {
     const n = NODES[key];
     return <Card key={key} x={n.box[0]} y={n.box[1]} w={n.box[2]} kind={n.kind} name={n.name} role={n.role}
-      lines={n.lines(status(key))} appear={appear} focus={focus(key)} hl={keys.includes(key) ? 0.26 : 0}
+      lines={n.lines(status(key))} appear={appear} focus={focus(key)} hl={keys.includes(key) ? 0.26 : 0} exit={panel && !keys.includes(key) ? 1 : 0}
       color={n.color} detail={Math.max(0, Math.min(1, (c.zoom - 0.6) / 0.2))} nameSize={n.nameSize ?? 22} />;
   };
 
