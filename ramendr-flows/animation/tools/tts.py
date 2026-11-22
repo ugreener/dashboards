@@ -221,6 +221,7 @@ SPOKEN = {
     "VIRTDR-477": "VIRT D R four seventy-seven",
     "VIRTDR-478": "VIRT D R four seventy-eight",
     "DFBUGS-12498": "D F bugs one two four nine eight",
+    "DFBUGS-12487": "D F bugs twelve four eight seven",
     "DFBUGS-6801": "D F bugs six eight oh one",
     "powerstore-controller": "power store controller",
     "csi-addons-controller-manager": "C S I add ons controller manager",

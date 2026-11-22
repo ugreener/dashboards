@@ -217,21 +217,20 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       </defs>
 
       {arrow('M670,195 L720,195', C.cyan, false, null, 0, 0)}
-      {arrow('M1420,195 L1470,195', C.purple, true, 'generator reads', 1600, 300)}
-      {arrow('M490,285 L490,320', C.cyan, false, null, 0, 0)}
+      {arrow('M1420,195 L1470,195', C.purple, true, null, 0, 0)}
       {arrow('M870,410 L910,410', C.purple, true, null, 0, 0)}
 
       {!pruned ? arrow('M370,790 L370,850', C.green, false, null, 0, 0) : null}
-      {!pruned ? arrow('M630,1150 L550,1150', C.cyan, true, null, 0, 0) : null}
+      {!pruned ? arrow('M530,1150 L550,1150', C.cyan, true, null, 0, 0) : null}
       {!pruned ? arrow('M630,800 L660,800', C.purple, true, null, 0, 0) : null}
 
       {appPlane ? arrow('M1535,790 L1535,850', C.green, false, null, 0, 0) : null}
-      {appPlane ? arrow('M1795,1150 L1715,1150', C.cyan, true, null, 0, 0) : null}
+      {appPlane ? arrow('M1695,1150 L1715,1150', C.cyan, true, null, 0, 0) : null}
       {appPlane ? arrow('M1795,800 L1825,800', C.purple, true, null, 0, 0) : null}
 
       {reached(c.id, '4.3') ? arrow('M1170,1780 L1305,1780', C.orange, false, null, 0, 0) : null}
       {reached(c.id, '7.2') ? arrow('M1305,1808 L1170,1808', C.green, false, null, 0, 0) : null}
-      {reached(c.id, '5.4') ? arrow('M370,790 C250,860 250,980 250,1060', C.red, true, 'Argo prunes the source', 470, 960, 0.9) : null}
+      {reached(c.id, '5.4') ? arrow('M120,790 C80,900 80,980 120,1060', C.red, true, null, 0, 0) : null}
     </svg>
   </div>;
 };

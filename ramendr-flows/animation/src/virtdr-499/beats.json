@@ -141,7 +141,8 @@
   "chapter": "Promotion"
  },
  "4.2": {
-  "chapter": "Promotion"
+  "chapter": "Promotion",
+  "unverified": true
  },
  "4.3": {
   "chapter": "Promotion"

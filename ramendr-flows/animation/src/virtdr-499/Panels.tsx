@@ -21,8 +21,9 @@ export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: 
   '2.6': {title: 'Two checks exist only for a managed app', rows: ['A Succeeded DataVolume per protected disk', 'Argo tracks each disk in Git', 'No clone source in the workload namespace', 'DOCUMENTED LAB RULE: a claim outside Git survives the move and stalls the old site', 'This run meets the rule; it does not exercise the failure.'], color: C.amber},
   '3.3': {title: 'Two fields on the hub record', rows: ['spec.action: Failover', 'spec.failoverCluster: spoke-0', 'DRPC phase: FailingOver', 'Target VRG: Primary requested', 'Nothing changed on either array yet']},
   '3.5': {title: 'Reachable-source scope', rows: ['No node suspension', 'No array power-off', 'No lost-heartbeat wait', 'Both sites reachable throughout', 'Not the site-down variant (VIRTDR-368)'], color: C.amber},
+  '4.2': {title: 'From request to driver call', rows: ['Companion VolumeReplication: carries the group state', 'csi-addons: Promote RPC for the group', 'Dell PromoteVolume: volume-group source', 'One array failover, not one per disk', 'MECHANISM FROM SOURCE · the run records the result'], color: C.amber},
   '4.4': {title: 'Both target claims bound', rows: ['Root claim → 7ef2772a-9bd1-4985-bfa4-42585ea463ad/PS3b37452a6e0f/scsi', 'Data claim → 201b3d01-7e13-42c2-a6e3-fb0a00c4252c/PS3b37452a6e0f/scsi', 'Both promoted copies on array PS3b37452a6e0f', 'Protocol: scsi', 'Old copies remain on VSA-B'], color: C.green},
-  '4.5': {title: 'The two site records', rows: ['VRG spoke-0: Primary', 'VRG spoke-1: Secondary', 'DRPC ReplicationHealthy at 10:56:59', 'First reverse sync 11:09:17', 'Protected=True at 11:12:00'], color: C.green},
+  '4.5': {title: 'The two site records', rows: ['VRG spoke-0: Primary', 'VRG spoke-1: Secondary', 'Replication health at 10:56:59', 'First reverse sync 11:09:17', 'Protected=True at 11:12:00'], color: C.green},
   '6.1': {title: 'The loss window', rows: ['Last completed sync 10:49:50', 'Initiate 10:55:55', 'Not in the copy: 365 s', 'Policy: 900 s', 'Failover issues no final sync'], color: C.amber},
   '6.2': {title: 'Two different measurements', rows: ['Last source row 10:49:50', 'First target row 11:00:10', 'Recovery gap: 620 s', 'The loss window was 365 s', 'Neither number replaces the other'], color: C.amber},
   '6.3': {title: 'What the check walked', rows: ['47 complete source minutes before the last sync', 'Missing minutes: none', 'Last interval rows: 41,243', 'Writer stopped, database left running', 'Count 9,858,036 → 9,858,036'], color: C.green},
@@ -30,7 +31,7 @@ export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: 
   '7.4': {title: 'What stays on the old site', rows: ['csivol-5a803ae045', 'csivol-1bdcd8b387', 'Released, reclaim policy Retain', 'They point at live reverse-copy targets', 'Removal is a separate authorized cleanup'], color: C.amber},
   '7.5': {title: 'What this run does not prove', rows: ['Not zero loss', 'Not a source-site-down failover', 'Not a move back', 'Relocate needs the old site clean and protected first']},
   '8.1': {title: 'The chain in order', rows: ['Prove the copy carried writes.', 'Ask for Failover with a target.', 'Restore the storage records and the group map.', 'Promote the group once.', 'Move the placement decision.', 'GitOps prunes the old site and deploys the new one.', 'CDI adopts the promoted disks.', 'Start the guest, then measure the gap.']},
-  '8.2': {title: 'What the run established', rows: ['Reachable-source failover of a managed RHEL app', 'One group promotion for both disks', 'GitOps cleanup with no manual deletion', '365 s lost inside a 900 s policy', '47 source minutes checked, none missing', '17 of 17 checks passed', 'No product defect found'], color: C.green},
+  '8.2': {title: 'What the run established', rows: ['Reachable-source failover of a managed RHEL app', 'One group promotion for both disks', 'GitOps cleanup with no manual deletion', '365 s lost inside a 900 s policy', '47 source minutes checked, none missing', '17 of 17 checks passed', 'No new product defect found'], color: C.green},
 };
 export const PANEL_BEATS = new Set(Object.keys(PANEL_DATA));
 
@@ -119,7 +120,7 @@ const ManagedLayout: React.FC<{f: number; dur: number}> = ({f, dur}) => (
       DR record to live together. So all three control objects share openshift-gitops.
     </div>
     <div style={{position: 'absolute', left: 110, top: 780, width: 1700, fontSize: 26, color: C.amber, lineHeight: 1.4, opacity: prog(f, dur * 0.56, dur * 0.56 + 24)}}>
-      The workload namespace holds no DR record at all. Its VRGs are delivered by Ramen under the same name as the DRPC.
+      The DRPC and the Placement stay on the hub. The workload namespace holds the workload, and the VRGs Ramen delivers to it.
     </div>
   </div>
 );
@@ -270,7 +271,7 @@ export const BeatPanel: React.FC<{id: string; f: number; dur: number}> = ({id, f
     <div style={{fontSize: cold ? 44 : 29, fontWeight: 700, color: d.color ?? C.blue, marginBottom: 20}}>{d.title}</div>
     {d.rows.map((r, i) => {
       const aa = prog(f, dur * (0.03 + i * 0.05), dur * (0.03 + i * 0.05) + 22);
-      const warn = r.startsWith('DOCUMENTED');
+      const warn = r.startsWith('DOCUMENTED') || r.startsWith('MECHANISM');
       return <div key={r} style={{marginTop: 15, fontSize: cold ? 30 : 23, lineHeight: 1.35, color: warn ? C.amber : C.text, fontWeight: warn ? 700 : 400, opacity: aa, transform: `translateX(${(1 - aa) * 22}px)`, fontFamily: UUID.test(r) ? mono : sans, overflowWrap: 'anywhere'}}>{r}</div>;
     })}
   </div>;
