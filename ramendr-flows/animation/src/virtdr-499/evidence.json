@@ -1,0 +1,128 @@
+[
+ {
+  "file": "01-baseline-protected-applications.png",
+  "id": "1320140",
+  "size": 101808,
+  "created": "2026-11-22T11:24:08.945+0000",
+  "step": "baseline-protected-applications"
+ },
+ {
+  "file": "02-baseline-drpc-details.png",
+  "id": "1320141",
+  "size": 110555,
+  "created": "2026-11-22T11:24:10.926+0000",
+  "step": "baseline-drpc-details"
+ },
+ {
+  "file": "03-baseline-dr-status-popover.png",
+  "id": "1320142",
+  "size": 120187,
+  "created": "2026-11-22T11:24:12.894+0000",
+  "step": "baseline-dr-status-popover"
+ },
+ {
+  "file": "04-baseline-drpolicy-row.png",
+  "id": "1320143",
+  "size": 64082,
+  "created": "2026-11-22T11:24:14.674+0000",
+  "step": "baseline-drpolicy-row"
+ },
+ {
+  "file": "05-baseline-generated-application.png",
+  "id": "1320144",
+  "size": 139377,
+  "created": "2026-11-22T11:24:16.656+0000",
+  "step": "baseline-generated-application"
+ },
+ {
+  "file": "06-baseline-vsa-a-replication.png",
+  "id": "1320145",
+  "size": 109779,
+  "created": "2026-11-22T11:24:18.409+0000",
+  "step": "baseline-vsa-a-replication"
+ },
+ {
+  "file": "06-baseline-vsa-b-replication.png",
+  "id": "1320146",
+  "size": 100555,
+  "created": "2026-11-22T11:24:20.325+0000",
+  "step": "baseline-vsa-b-replication"
+ },
+ {
+  "file": "07-initiate-row-action-menu.png",
+  "id": "1320147",
+  "size": 115461,
+  "created": "2026-11-22T11:24:22.170+0000",
+  "step": "initiate-row-action-menu"
+ },
+ {
+  "file": "08-initiate-failover-dialog.png",
+  "id": "1320148",
+  "size": 117512,
+  "created": "2026-11-22T11:24:23.880+0000",
+  "step": "initiate-failover-dialog"
+ },
+ {
+  "file": "09-initiate-accepted.png",
+  "id": "1320149",
+  "size": 110283,
+  "created": "2026-11-22T11:24:25.528+0000",
+  "step": "initiate-accepted"
+ },
+ {
+  "file": "10-completion-drpc-completed.png",
+  "id": "1320150",
+  "size": 110702,
+  "created": "2026-11-22T11:24:27.905+0000",
+  "step": "completion-drpc-completed"
+ },
+ {
+  "file": "11-completion-dr-status-popover.png",
+  "id": "1320151",
+  "size": 120110,
+  "created": "2026-11-22T11:24:29.777+0000",
+  "step": "completion-dr-status-popover"
+ },
+ {
+  "file": "12-completion-placementdecision.png",
+  "id": "1320197",
+  "size": 126903,
+  "created": "2026-11-22T12:04:52.903+0000",
+  "step": "completion-placementdecision"
+ },
+ {
+  "file": "13-completion-target-application.png",
+  "id": "1320152",
+  "size": 140293,
+  "created": "2026-11-22T11:24:31.675+0000",
+  "step": "completion-target-application"
+ },
+ {
+  "file": "14-completion-vsa-a-replication.png",
+  "id": "1320153",
+  "size": 108268,
+  "created": "2026-11-22T11:24:33.378+0000",
+  "step": "completion-vsa-a-replication"
+ },
+ {
+  "file": "14-completion-vsa-b-replication.png",
+  "id": "1320154",
+  "size": 99703,
+  "created": "2026-11-22T11:24:35.140+0000",
+  "step": "completion-vsa-b-replication"
+ },
+ {
+  "file": "15-completion-target-vrg-primary.png",
+  "id": "1320198",
+  "size": 116034,
+  "created": "2026-11-22T12:04:54.937+0000",
+  "step": "completion-target-vrg-primary"
+ },
+ {
+  "file": "16-completion-source-vrg-secondary.png",
+  "id": "1320199",
+  "size": 117180,
+  "created": "2026-11-22T12:04:57.057+0000",
+  "step": "completion-source-vrg-secondary"
+ }
+]
