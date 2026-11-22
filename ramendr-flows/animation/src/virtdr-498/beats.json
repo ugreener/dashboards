@@ -196,12 +196,12 @@
   "chapter": "Promotion",
   "screenshot": "08-failedover-cleaningup.png",
   "focus": {
-   "x": 960,
+   "x": 900,
    "y": 160,
-   "w": 345,
-   "h": 460
+   "w": 520,
+   "h": 520
   },
-  "caption": "FailedOver, 3 of 4 steps, cleanup pending, captured 07:46 UTC"
+  "caption": "FailedOver, 3 of 4 steps, cleanup pending; step labels wrap in this console capture"
  },
  "4.8": {
   "chapter": "Promotion"

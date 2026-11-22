@@ -422,8 +422,8 @@ beats:
       capture still showed the fourth step, cleanup, as pending.
     evidence: run index final state; 08-failedover-cleaningup.png
     screenshot: 08-failedover-cleaningup.png
-    focus: {x: 960, y: 160, w: 345, h: 460}
-    caption: FailedOver, 3 of 4 steps, cleanup pending, captured 07:46 UTC
+    focus: {x: 900, y: 160, w: 520, h: 520}
+    caption: FailedOver, 3 of 4 steps, cleanup pending; step labels wrap in this console capture
     pause_after: 1.2
 
   - id: "4.8"

@@ -241,7 +241,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       {promoted ? arrow('M1170,1475 L1305,1475', C.orange, false, null, 0, 0) : null}
 
       {promoted ? <>
-        {arrow('M1775,950 C1900,980 2380,1100 2380,1385', C.purple, true, 'PromoteVolume · one group', 2010, 1210)}
+        {arrow('M1275,950 C1235,1100 1235,1250 1305,1385', C.purple, true, 'PromoteVolume · one group', 1450, 1300)}
         {arrow('M390,1090 C390,1200 250,1200 250,1385', C.purple, true, 'role + state', 620, 1270, 0.9)}
       </> : null}
 
