@@ -235,7 +235,7 @@ beats:
       namespace hammerdb and the group count.
     evidence: 01-protected-apps-expanded.png, captured 2026-11-22T07:46Z
     screenshot: 01-protected-apps-expanded.png
-    focus: {x: 310, y: 440, w: 1200, h: 300}
+    focus: {x: 310, y: 440, w: 1200, h: 260}
     caption: Protected applications, before the failover, group count 1
     pause_after: 1.0
 
