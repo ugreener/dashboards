@@ -160,6 +160,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="leg"><span class="lline"></span>Call or handoff</div>
 <div class="leg"><span class="lline dash" style="border-top-color:var(--blue)"></span>Custom-resource delivery</div>
 <div class="leg"><span class="lline dash" style="border-top-color:var(--orange)"></span>Array-to-array replication</div>
+<div class="leg"><span class="lline dash" style="border-top-color:#6e7681"></span>Object archive traffic</div>
 <div class="leg"><span class="lline dot"></span>Same component, second pod</div>
 <div class="leg" style="border-left:1px solid var(--border);padding-left:14px">Dashed box = one site</div>
 </div>
@@ -221,7 +222,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="o">Turns the request into a call to whichever driver owns that volume.</div>
 </div>
 
-<div class="pod" id="pod0" style="left:36px;top:681px;width:448px;height:150px"><span class="pod-tag">controller pod &middot; powerstore-controller &middot; one per cluster</span></div>
+<div class="pod" id="pod0" style="left:36px;top:681px;width:448px;height:150px"><span class="pod-tag">controller pod &middot; one per cluster</span></div>
 
 <div class="blk" id="dellDriver" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:52px;top:701px;width:200px;height:110px;border-color:var(--orange);border-left-width:5px">
 <div class="k">Dell &middot; CSI driver</div>
@@ -241,10 +242,10 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="o">Mounts each volume on the worker and holds its NVMe/TCP paths to the array.</div>
 </div>
 
-<div class="blk" id="array0" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:36px;top:959px;width:448px;height:100px;border-color:var(--orange);border-left-width:5px">
+<div class="blk" id="array0" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:36px;top:959px;width:448px;height:112px;border-color:var(--orange);border-left-width:5px">
 <div class="k">Dell &middot; storage system</div>
 <div class="t" style="color:var(--orange)">VSA-A</div>
-<div class="o">The array local to spoke-0. Holds the volumes and runs the replication sessions.</div>
+<div class="o">A VM appliance outside OpenShift, local to this site. The controller pod uses its REST API; the workers use NVMe/TCP.</div>
 </div>
 
 <!-- ============ SITE: HUB ============ -->
@@ -277,10 +278,10 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="blk" id="minio" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:536px;top:711px;width:328px;height:90px;border-color:var(--blue)">
 <div class="k">S3 store &middot; hub only</div>
 <div class="t" style="color:var(--blue)">MinIO</div>
-<div class="o">Keeps the kube-object backup archive that Ramen restores on the other site.</div>
+<div class="o">Keeps the object archive that OADP on the spokes writes, and the target site reads back.</div>
 </div>
 
-<div class="site-note" style="left:536px;top:825px;width:328px"><b>Why the hub box is empty below this line:</b> no CSI driver, no csi-addons controller and no array agent run here. The hub decides, records and coordinates; every storage action happens inside a spoke box.</div>
+<div class="site-note" style="left:536px;top:825px;width:328px"><b>Why the hub box is empty below this line:</b> no storage driver, no csi-addons controller, no OADP and no array run here. The hub decides, records and coordinates; every storage action happens inside a spoke box.</div>
 
 <!-- ============ SITE: SPOKE-1 ============ -->
 <div class="site" style="left:900px;top:215px;width:480px;height:870px"><span class="site-h">spoke-1<span class="where">edge97 &middot; cluster + VSA-B</span></span></div>
@@ -309,7 +310,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="o">Turns the request into a call to whichever driver owns that volume.</div>
 </div>
 
-<div class="pod" id="pod1" style="left:916px;top:681px;width:448px;height:150px"><span class="pod-tag">controller pod &middot; powerstore-controller &middot; one per cluster</span></div>
+<div class="pod" id="pod1" style="left:916px;top:681px;width:448px;height:150px"><span class="pod-tag">controller pod &middot; one per cluster</span></div>
 
 <div class="blk" id="dellDriver-s1" data-pop="dellDriver" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:932px;top:701px;width:200px;height:110px;border-color:var(--orange);border-left-width:5px">
 <div class="k">Dell &middot; CSI driver</div>
@@ -329,14 +330,14 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="o">Mounts each volume on the worker and holds its NVMe/TCP paths to the array.</div>
 </div>
 
-<div class="blk" id="array1" data-pop="array0" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:916px;top:959px;width:448px;height:100px;border-color:var(--orange);border-left-width:5px">
+<div class="blk" id="array1" data-pop="array0" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:916px;top:959px;width:448px;height:112px;border-color:var(--orange);border-left-width:5px">
 <div class="k">Dell &middot; storage system</div>
 <div class="t" style="color:var(--orange)">VSA-B</div>
-<div class="o">The array local to spoke-1. Holds the volumes and runs the replication sessions.</div>
+<div class="o">A VM appliance outside OpenShift, local to this site. The controller pod uses its REST API; the workers use NVMe/TCP.</div>
 </div>
 
 <!-- ============ COMPARISON STRIP ============ -->
-<div class="band" style="left:20px;top:1135px;width:1360px;height:245px"><span class="band-h">For comparison, not deployed here</span></div>
+<div class="band" style="left:20px;top:1135px;width:1360px;height:245px"><span class="band-h">For comparison only &middot; neither runs in this lab</span></div>
 
 <div class="blk" id="csm" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:50px;top:1170px;width:240px;height:100px;border-color:#6e7681">
 <div class="k">Dell &middot; alternative route</div>
@@ -383,7 +384,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <thead><tr><th>Piece</th><th>Where it runs</th><th>What differs there</th></tr></thead>
 <tbody>
 <tr><td>CSI and CSI-Addons specifications</td><td class="none">No site</td><td>Written agreements, not programs. Both spoke drivers answer them; the hub runs no driver, so it answers neither.</td></tr>
-<tr><td>Ramen hub operator</td><td class="hub">Hub only, <code>openshift-operators</code></td><td>The decision-maker. Chooses the site, starts Failover and Relocate, and records the outcome. It never contacts an array.</td></tr>
+<tr><td>Ramen hub operator</td><td class="hub">Hub only, <code>openshift-operators</code></td><td>The decision-maker. Chooses the site, starts Failover and Relocate, and records the outcome. Runs next to the RHDR multicluster operator, and never contacts an array.</td></tr>
 <tr><td>Ramen cluster operator</td><td class="spk">Both spokes, <code>openshift-dr-system</code></td><td>The worker. Protects that site's own disks and objects and reports upward. It does not choose placement.</td></tr>
 <tr><td>DRPC</td><td class="hub">Hub only: <code>openshift-gitops</code> for managed apps, <code>openshift-dr-ops</code> for discovered apps</td><td>One per application. Carries the preferred site, the requested action and its result.</td></tr>
 <tr><td>VRG</td><td class="spk">Both spokes, one per app per site</td><td>Same kind of object, different job: the site holding the writable copy reports what it protects, the other reports what it received.</td></tr>
@@ -392,6 +393,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <tr><td>csi-addons sidecar</td><td class="spk">Both spokes, inside <code>powerstore-controller</code></td><td>One per driver, one per cluster. The hub has none, which is why nothing on the hub can issue a replication call.</td></tr>
 <tr><td>csi-powerstore controller and <code>powerstore-node</code></td><td class="spk">Both spokes, namespace <code>powerstore</code></td><td>One controller pod per cluster, one node pod on every worker. Workers carry the data over NVMe/TCP to the array beside them.</td></tr>
 <tr><td>VSA-A and VSA-B</td><td class="spk">One array per site</td><td>VSA-A is local to spoke-0, VSA-B to spoke-1. They replicate to each other directly; the hub has no storage at all.</td></tr>
+<tr><td>OADP (Velero)</td><td class="spk">Both spokes, <code>openshift-adp</code></td><td>The backup engine for Kubernetes objects. It writes the archive to the hub MinIO on the live site and reads it back on the target during recovery.</td></tr>
 <tr><td>MinIO</td><td class="hub">Hub only, namespace <code>minio</code></td><td>Holds the kube-object backup archive. The spokes write it and the hub reads it, so it must survive a spoke loss.</td></tr>
 <tr><td>Data Services DR console</td><td class="hub">Hub only, <code>openshift-operators</code></td><td>The UI that creates the DRPC and offers the actions. It reads the DRPC, so it shows one application across both sites.</td></tr>
 <tr><td>Placement and PlacementDecision</td><td class="hub">Hub only</td><td>Names the site the application should run on. Ramen follows that decision instead of scheduling by itself.</td></tr>
@@ -453,7 +455,7 @@ csiAddons:{tag:"Controller, spoke only",title:"csi-addons controller",one:"The d
 dellDriver:{tag:"Dell, CSI driver",title:"csi-powerstore controller",one:"Dell's translator between Kubernetes and a PowerStore array, control half.",what:"The controller deployment creates, deletes, snapshots and attaches volumes, and implements the replication calls of CSI-Addons. Provisioning decisions and array-level operations happen here; the mounting happens in the node pods.",here:"Installed with Helm (chart csi-powerstore) rather than through an operator, in namespace powerstore. One pod per cluster. It reaches the array over its REST API and also carries the csi-addons sidecar.",not:"Not the node half. This pod never mounts a volume on a worker; powerstore-node does that."},
 dellSidecar:{tag:"csi-addons, one per driver",title:"csi-addons sidecar",one:"A helper container inside the driver's pod that carries the request the last metre.",what:"A sidecar is a second container in the same pod as the driver's controller. Its code comes from the kubernetes-csi-addons project, not from the storage vendor. It registers itself by creating a CSIAddonsNode record, so the controller can find it and see which operations the driver supports. It receives the controller's gRPC call and forwards it to the driver over the driver's own socket.",here:"It is the csi-addons container in the powerstore-controller pod on each spoke. The driver's node daemon on the workers does not carry one, because the replication calls are handled on the controller side.",not:"Not an implementation of the specification. The driver implements the CSI-Addons services and the sidecar is only the bridge that lets the controller reach them. It holds no state, and removing it leaves ordinary provisioning working but breaks every replication operation."},
 nodeDS:{tag:"Dell, one pod on every worker",title:"powerstore-node",one:"The half of the driver that runs on every worker and touches the disk.",what:"A DaemonSet pod on each worker. It logs in to the array over NVMe/TCP, creates the device for a volume, mounts it into the pod and unmounts it later. The controller pod never mounts anything.",here:"Three pods per spoke, one per worker, in namespace powerstore. Each worker normally holds two live paths to its array, one per array node, so a missing path is a worker-level problem rather than a cluster-wide one.",not:"Not the same pod as the controller. Provisioning decisions happen in the controller pod; the mount and the data path happen here."},
-array0:{tag:"Dell, storage system",title:"PowerStore array (VSA-A or VSA-B)",one:"The disks themselves, and the replication engine that copies them to the other site.",what:"In this lab each array is a virtual appliance: two node virtual machines that together behave as one PowerStore system. The array owns the volumes and runs the replication sessions that copy changed blocks on a schedule. The driver only asks it to enable, promote, demote or resync.",here:"VSA-A is local to spoke-0 and VSA-B to spoke-1, and the last completed copy between them is what a failover can recover. Both arrays are listed in each spoke's configuration because driver builds before v26.11.10 checked the pair when a volume group is set up; from v26.11.10 only the local array is required. That is a configuration rule, not a promise that every worker has a path to both arrays.",not:"Not something Kubernetes can invent data for. Recovery can only return what the last completed copy contains, which is why the sync schedule defines the recovery point."},
+array0:{tag:"Dell, storage system",title:"PowerStore array (one per site)",one:"The disks themselves, and the replication engine that copies them to the other site.",what:"In this lab each array is a virtual appliance: two node virtual machines that together behave as one PowerStore system. The array owns the volumes and runs the replication sessions that copy changed blocks on a schedule. The driver only asks it to enable, promote, demote or resync.",here:"VSA-A is local to spoke-0 and VSA-B to spoke-1, and the last completed copy between them is what a failover can recover. Both arrays are listed in each spoke's configuration because driver builds before v26.11.10 checked the pair when a volume group is set up; from v26.11.10 only the local array is required. That is a configuration rule, not a promise that every worker has a path to both arrays.",not:"Not something Kubernetes can invent data for. Recovery can only return what the last completed copy contains, which is why the sync schedule defines the recovery point."},
 csm:{tag:"Dell, alternative, not on this path",title:"Dell CSM Replication",one:"Dell's own replication module for its drivers, separate from the csi-addons route.",what:"CSM is Dell's family of Container Storage Modules: Replication, Authorization, Resiliency and Observability. Replication is the one that matters here, and it ships its own replicator sidecar and its own custom resources. The other modules are separate products for access control, node failure handling and metrics, not parts of Replication.",here:"Not on this lab's csi-addons path. Replication here is driven by the csi-addons objects, and the Dell replicator is not part of that path, so nothing in this picture depends on it.",not:"Not a second copy of the same feature running at the same time, and not the same thing as the csi-addons sidecar. It is an alternative route to replication that this environment does not use."},
 cephDriver:{tag:"Ceph, CSI driver",title:"ceph-csi driver",one:"The same kind of translator, for Ceph storage instead of PowerStore.",what:"Exposes Ceph block volumes (RBD) and Ceph file systems (CephFS) to pods. Same shape as the Dell driver: a controller plus a node plugin, and a csi-addons sidecar when replication is needed.",here:"Shown for comparison. It is not part of this lab's Dell track; the two stacks have identical anatomy and the same csi-addons machinery drives both.",not:"Not interchangeable with the Dell driver at runtime. A volume lives on one storage system, and the driver is chosen by the storage class."},
 cephSidecar:{tag:"csi-addons, one per driver",title:"csi-addons sidecar (Ceph)",one:"The identical helper, attached to a different driver.",what:"One sidecar per driver. It publishes its own CSIAddonsNode record, so a cluster running two storage systems has two sidecars, and the controller picks the right one from the volume's driver.",here:"Shows why the sidecar is per driver rather than a single cluster wide component: the controller can only reach a driver through that driver's own sidecar. This pair sits in the comparison strip; the sidecar deployed in this lab is the Dell one.",not:"Not a shared proxy. Two sidecars do not load balance; each serves only its own driver."},
@@ -509,6 +511,18 @@ function route(pts,color,label,lx,ly,dashed){
   return g;
 }
 
+function routeLink(pts,color,label,lx,ly){
+  var g=el('g',{});
+  var d='M'+pts.map(function(p){return p[0]+' '+p[1];}).join(' L');
+  g.appendChild(el('path',{d:d,stroke:color,'stroke-width':'2',fill:'none','stroke-linecap':'round','stroke-linejoin':'round','stroke-dasharray':'7 5'}));
+  g.appendChild(el('circle',{cx:pts[0][0],cy:pts[0][1],r:'3.2',fill:color}));
+  var last=pts[pts.length-1];
+  g.appendChild(el('circle',{cx:last[0],cy:last[1],r:'3.2',fill:color}));
+  if(label)labelAt(g,label,lx,ly,color);
+  svg.appendChild(g);
+  return g;
+}
+
 function labelRot(g,label,x,y,color){
   var lw=label.length*6.2+16, gr=el('g',{transform:'translate('+x+','+y+') rotate(-90)'});
   gr.appendChild(el('rect',{x:-lw/2,y:-9,width:lw,height:18,rx:'3',fill:'#0a0e14'}));
@@ -542,33 +556,32 @@ setTimeout(function(){
   arrow(CO.cx,CO.t,DR.cx,DR.b,blue,'failover / relocate',false);
 
   // --- hub delivers one protection record to each site ---
-  route([[HR.r,HR.cy],[890,HR.cy],[890,198],[R0.cx,198],[R0.cx,R0.t]],blue,'Ramen delivers one VRG to each site',545,198,true);
+  route([[HR.r,HR.cy],[890,HR.cy],[890,198],[R0.cx,198],[R0.cx,R0.t]],blue,'Ramen delivers one VRG per app, per site (a ManifestWork)',480,198,true);
   route([[890,198],[R1.cx,198],[R1.cx,R1.t]],blue,null,0,0,true);
 
   // --- spoke-0 chain: record, request, controller, driver, node, array ---
-  arrow(R0.cx,R0.b,G0.cx,G0.t,blue,'writes',false);
+  arrow(R0.cx,R0.b,G0.cx,G0.t,blue,'reconciles',false);
   arrow(G0.cx,G0.b,V0.cx,V0.t,blue,'creates',false);
-  arrow(V0.cx,V0.b,C0.cx,C0.t,blue,'watches',false);
+  arrow(C0.cx,C0.t,V0.cx,V0.b,blue,'watches',false);
   arrow(C0.cx,C0.b,P0.cx,P0.t,blue,'gRPC',false);
   dotLink(430,P0.b,430,N0.t,gray);
   arrow(N0.cx,N0.b,A0.cx,A0.t,orange,'NVMe/TCP, per worker',false);
 
   // --- spoke-1 chain: identical handoffs, different array ---
-  arrow(R1.cx,R1.b,G1.cx,G1.t,blue,'writes',false);
+  arrow(R1.cx,R1.b,G1.cx,G1.t,blue,'reconciles',false);
   arrow(G1.cx,G1.b,V1.cx,V1.t,blue,'creates',false);
-  arrow(V1.cx,V1.b,C1.cx,C1.t,blue,'watches',false);
+  arrow(C1.cx,C1.t,V1.cx,V1.b,blue,'watches',false);
   arrow(C1.cx,C1.b,P1.cx,P1.t,blue,'gRPC',false);
   dotLink(1310,P1.b,1310,N1.t,gray);
   arrow(N1.cx,N1.b,A1.cx,A1.t,orange,'NVMe/TCP, per worker',false);
 
   // --- object backups: each site's Ramen writes the archive on the hub ---
-  var bk0=route([[MI.l,MI.cy],[510,MI.cy],[510,G0.cy],[G0.r,G0.cy]],gray,null,0,0,true);
-  labelRot(bk0,'kube-object backups',510,600,gray);
-  route([[MI.r,MI.cy],[910,MI.cy],[910,G1.cy],[G1.l,G1.cy]],gray,null,0,0,true);
+  routeLink([[MI.l,MI.cy],[510,MI.cy],[510,G0.cy],[G0.r,G0.cy]],gray,null,0,0);
+  routeLink([[MI.r,MI.cy],[910,MI.cy],[910,G1.cy],[G1.l,G1.cy]],gray,null,0,0);
 
   // --- arrays replicate directly, never through the hub ---
   var rep=route([[A0.cx,A0.b],[A0.cx,1105],[A1.cx,1105],[A1.cx,A1.b]],orange,null,0,0,true);
-  head(rep,A1.cx,1105,A0.cx,1105,orange);
+  head(rep,A0.cx,1140,A0.cx,A0.b,orange);
   labelAt(rep,'asynchronous replication, one direction at a time',700,1105,orange);
 
   // --- comparison strip ---
