@@ -4,15 +4,15 @@ import {FPS, sec} from '../lib/anim';
 export type Chapter = {n: number; title: string; sub?: string};
 
 export const CHAPTERS: Chapter[] = [
-  {n: 0, title: 'A grouped handover', sub: 'Two disks, one database, both sites still up'},
-  {n: 1, title: 'The pieces', sub: 'From the sites and arrays to the group and its session'},
-  {n: 2, title: 'Protection', sub: 'What had to be true before the operator clicked Initiate'},
-  {n: 3, title: 'The request', sub: 'One console action, two fields on the hub record'},
-  {n: 4, title: 'Promotion', sub: 'Restore the objects, promote the group once, start the guest'},
-  {n: 5, title: 'Data', sub: 'A completed job is not the recovery point'},
-  {n: 6, title: 'Reverse copy', sub: 'Storage health and peer readiness are different milestones'},
-  {n: 7, title: 'Cleanup', sub: 'The documented cleanup that left two PVs deleting'},
-  {n: 8, title: 'Recap', sub: 'What the run established, and what it did not'},
+  {n: 0, title: 'Two planes, one handover', sub: 'A managed application, a group of two disks, both sites up'},
+  {n: 1, title: 'The pieces', sub: 'Sites, template, claims and the group'},
+  {n: 2, title: 'Protection', sub: 'What had to be true before the click'},
+  {n: 3, title: 'The request', sub: 'One console action writes two fields'},
+  {n: 4, title: 'Promotion', sub: 'One array action for both disks'},
+  {n: 5, title: 'The application plane', sub: 'Argo prunes, Git deploys, CDI adopts'},
+  {n: 6, title: 'Data', sub: 'What the copy held, and what it did not'},
+  {n: 7, title: 'Reverse copy', sub: 'Protection again, and what stays behind'},
+  {n: 8, title: 'Recap', sub: 'What the run established'},
 ];
 
 export type Segment =

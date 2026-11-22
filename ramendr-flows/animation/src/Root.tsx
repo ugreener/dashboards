@@ -36,6 +36,8 @@ import {VolGroupDrpc} from './volgroup-drpc/Video';
 import {buildTimeline as buildTimelineVG} from './volgroup-drpc/timeline';
 import {VirtDr498} from './virtdr-498/Video';
 import {buildTimeline as buildTimeline498} from './virtdr-498/timeline';
+import {VirtDr499} from './virtdr-499/Video';
+import {buildTimeline as buildTimeline499} from './virtdr-499/timeline';
 import {buildTimeline as buildTimelineEF} from './enroll-first-protection/timeline';
 
 const ALL_PAG = Array.from({length: 7}, (_, i) => i);
@@ -51,6 +53,7 @@ const ALL_EF = Array.from({length: 8}, (_, i) => i);
 const ALL_RP = Array.from({length: 7}, (_, i) => i);
 const ALL_VG = Array.from({length: 7}, (_, i) => i);
 const ALL_498 = Array.from({length: 9}, (_, i) => i);
+const ALL_499 = Array.from({length: 9}, (_, i) => i);
 
 const ALL = Array.from({length: 16}, (_, i) => i);
 const ALL_CL = Array.from({length: 8}, (_, i) => i);
@@ -61,6 +64,15 @@ const ALL_343R = Array.from({length: 8}, (_, i) => i);
 
 export const Root: React.FC = () => (
   <>
+    <Composition
+      id="virtdr-499"
+      component={VirtDr499}
+      durationInFrames={Math.max(1, buildTimeline499(ALL_499).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_499}}
+    />
     <Composition
       id="virtdr-498"
       component={VirtDr498}

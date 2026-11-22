@@ -1,0 +1,241 @@
+{
+ "0.1": {
+  "chapter": "Cold open"
+ },
+ "0.2": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "The pieces"
+ },
+ "1.2": {
+  "chapter": "The pieces"
+ },
+ "1.3": {
+  "chapter": "The pieces"
+ },
+ "1.4": {
+  "chapter": "The pieces"
+ },
+ "1.5": {
+  "chapter": "The pieces",
+  "card": {
+   "kind": "DataVolume",
+   "name": "hammerdb-rhel9-rootdisk-mgd-grp",
+   "role": "prepares the root disk from the rhel9 image"
+  },
+  "def": {
+   "what": "A request that builds or reuses a disk before a claim binds to it",
+   "creator": "CDI, the Kubernetes add-on that manages virtual machine disks",
+   "reader": "Argo CD, Kubernetes, and anyone checking why a disk exists",
+   "where": "in the workload namespace, next to the claim it serves",
+   "analogy": "an order that has the storage ready before the clerk hands you the key"
+  }
+ },
+ "1.6": {
+  "chapter": "The pieces"
+ },
+ "1.7": {
+  "chapter": "The pieces"
+ },
+ "1.8": {
+  "chapter": "The pieces"
+ },
+ "1.9": {
+  "chapter": "The pieces"
+ },
+ "2.1": {
+  "chapter": "Protection",
+  "screenshot": "01-baseline-protected-applications.png",
+  "focus": {
+   "x": 300,
+   "y": 715,
+   "w": 1180,
+   "h": 52
+  },
+  "caption": "Protected applications, 10:38 UTC \u00b7 the row is the ApplicationSet name"
+ },
+ "2.2": {
+  "chapter": "Protection",
+  "screenshot": "02-baseline-drpc-details.png",
+  "focus": {
+   "x": 340,
+   "y": 720,
+   "w": 900,
+   "h": 145
+  },
+  "caption": "Expanded row, 10:38 UTC \u00b7 ApplicationSet, gitops-vms, one consistency group"
+ },
+ "2.3": {
+  "chapter": "Protection",
+  "screenshot": "05-baseline-generated-application.png",
+  "focus": {
+   "x": 430,
+   "y": 120,
+   "w": 1180,
+   "h": 430
+  },
+  "caption": "Argo CD, spoke-side Application, 10:52 UTC \u00b7 Healthy, Synced"
+ },
+ "2.4": {
+  "chapter": "Protection",
+  "screenshot": "03-baseline-dr-status-popover.png",
+  "focus": {
+   "x": 962,
+   "y": 496,
+   "w": 342,
+   "h": 216
+  },
+  "caption": "DR status popover, 10:38 UTC \u00b7 last synced 10:25 UTC"
+ },
+ "2.5": {
+  "chapter": "Protection"
+ },
+ "2.6": {
+  "chapter": "Protection",
+  "unverified": true
+ },
+ "2.7": {
+  "chapter": "Protection"
+ },
+ "3.1": {
+  "chapter": "The request",
+  "screenshot": "07-initiate-row-action-menu.png",
+  "focus": {
+   "x": 1555,
+   "y": 735,
+   "w": 300,
+   "h": 265
+  },
+  "caption": "Row actions, 10:55 UTC \u00b7 Failover chosen, not Relocate"
+ },
+ "3.2": {
+  "chapter": "The request",
+  "screenshot": "08-initiate-failover-dialog.png",
+  "focus": {
+   "x": 632,
+   "y": 390,
+   "w": 670,
+   "h": 280
+  },
+  "caption": "Failover dialog, 10:55 UTC \u00b7 stale Last available is DFBUGS-12487"
+ },
+ "3.3": {
+  "chapter": "The request"
+ },
+ "3.4": {
+  "chapter": "The request",
+  "screenshot": "09-initiate-accepted.png",
+  "focus": {
+   "x": 520,
+   "y": 338,
+   "w": 880,
+   "h": 92
+  },
+  "caption": "After Initiate, 10:56 UTC \u00b7 banner names the DRPC, not the row"
+ },
+ "3.5": {
+  "chapter": "The request"
+ },
+ "4.1": {
+  "chapter": "Promotion"
+ },
+ "4.2": {
+  "chapter": "Promotion"
+ },
+ "4.3": {
+  "chapter": "Promotion"
+ },
+ "4.4": {
+  "chapter": "Promotion"
+ },
+ "4.5": {
+  "chapter": "Promotion"
+ },
+ "5.1": {
+  "chapter": "The application plane"
+ },
+ "5.2": {
+  "chapter": "The application plane"
+ },
+ "5.3": {
+  "chapter": "The application plane"
+ },
+ "5.4": {
+  "chapter": "The application plane"
+ },
+ "5.5": {
+  "chapter": "The application plane",
+  "screenshot": "13-completion-target-application.png",
+  "focus": {
+   "x": 430,
+   "y": 120,
+   "w": 1180,
+   "h": 300
+  },
+  "caption": "Argo CD, target Application, 11:15 UTC \u00b7 Healthy, Synced"
+ },
+ "5.6": {
+  "chapter": "The application plane"
+ },
+ "5.7": {
+  "chapter": "The application plane"
+ },
+ "6.1": {
+  "chapter": "Data"
+ },
+ "6.2": {
+  "chapter": "Data"
+ },
+ "6.3": {
+  "chapter": "Data"
+ },
+ "6.4": {
+  "chapter": "Data"
+ },
+ "7.1": {
+  "chapter": "Reverse copy",
+  "screenshot": "11-completion-dr-status-popover.png",
+  "focus": {
+   "x": 962,
+   "y": 496,
+   "w": 342,
+   "h": 216
+  },
+  "caption": "DR status popover, 11:14 UTC \u00b7 last synced 11:09 UTC"
+ },
+ "7.2": {
+  "chapter": "Reverse copy",
+  "screenshot": "14-completion-vsa-a-replication.png",
+  "focus": {
+   "x": 18,
+   "y": 205,
+   "w": 1000,
+   "h": 265
+  },
+  "caption": "VSA-A replication, 11:16 UTC \u00b7 local role Source toward VSA-B"
+ },
+ "7.3": {
+  "chapter": "Reverse copy",
+  "screenshot": "14-completion-vsa-b-replication.png",
+  "focus": {
+   "x": 18,
+   "y": 205,
+   "w": 620,
+   "h": 265
+  },
+  "caption": "VSA-B replication, 11:16 UTC \u00b7 local role Destination from VSA-A"
+ },
+ "7.4": {
+  "chapter": "Reverse copy"
+ },
+ "7.5": {
+  "chapter": "Reverse copy"
+ },
+ "8.1": {
+  "chapter": "Recap"
+ },
+ "8.2": {
+  "chapter": "Recap"
+ }
+}

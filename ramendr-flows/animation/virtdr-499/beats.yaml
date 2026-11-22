@@ -1,0 +1,562 @@
+# yamllint disable rule:line-length
+ticket: VIRTDR-499
+run: 2026-11-22
+direction: spoke-1 to spoke-0 failover, VSA-B to VSA-A, both sites reachable
+beats:
+  - id: "0.1"
+    chapter: Cold open
+    visual: Wide dark frame. Two site bands, one writing database, a Git branch above. The title "Two planes, one handover" fades in.
+    narration: >-
+      Two sites, one database, writing. The operator asks the other site to take over
+      while both sites are still healthy. This time the application is managed: its
+      virtual machine is defined in Git, and its two disks are one replication group.
+      The handover has to move the disks and the definition.
+    evidence: VIRTDR-499 description, scope and environment
+    pause_after: 1.6
+
+  - id: "0.2"
+    chapter: Cold open
+    visual: Outcome card. "365 s outside the copy" and "900 s policy" appear, then "47 minutes recovered, none missing" and "17 of 17 checks".
+    narration: >-
+      It worked. The database came back on the recovery site with three hundred
+      sixty-five seconds of writes missing, inside a nine-hundred-second policy.
+      Forty-seven complete minutes of source data were recovered, and none was missing.
+      All seventeen checks passed and the run found no defect. This video follows the
+      run, and the two planes it had to move.
+    evidence: VIRTDR-499 postcheck-20261122T112406Z.json, 17 of 17 checks; lost writes 365 s; 47 source minutes checked
+    pause_after: 1.6
+
+  - id: "1.1"
+    chapter: The pieces
+    visual: Two site cards, a hub card, and two array strips. The workload sits on the run's source site.
+    narration: >-
+      Start with the floor plan. Two OpenShift clusters, called spokes, each on its own
+      machine. spoke-1 on ocp-edge97 is the source of this run. spoke-0 on ocp-edge95 is
+      the recovery site, and the preferred cluster in the policy. A third cluster, the
+      hub on ocp-edge36, holds the control records. Each spoke has one PowerStore array:
+      VSA-B at the source, VSA-A at the recovery site.
+    evidence: VIRTDR-499 description, Environment; DRPC preferredCluster spoke-0 in hub-dr/drpc.yaml
+    pause_after: 1.4
+
+  - id: "1.2"
+    chapter: The pieces
+    visual: Hub band with three cards in one namespace, workload band with the VM and disks in another.
+    narration: >-
+      This application is managed, which means Git defines it. The ApplicationSet, the
+      Placement and the disaster recovery record, the DRPlacementControl, all live in one
+      namespace on the hub, openshift-gitops. The virtual machine and its two disks live in
+      gitops-vms. That split is a rule, not a choice: the Argo generator reads decisions
+      only in its own namespace, and Ramen needs the placement and its DR record together.
+    evidence: hub-dr/applicationset.yaml and drpc.yaml comments; VIRTDR-499 description, scope
+    pause_after: 1.4
+
+  - id: "1.3"
+    chapter: The pieces
+    visual: ApplicationSet card, generator arrow to PlacementDecision, then an Application envelope to each spoke.
+    narration: >-
+      The ApplicationSet is a template with a generator. The generator watches the
+      placement decision: the record that names the cluster the application should run on.
+      For each cluster in that decision it creates an Application named
+      dell-vm-workload-spoke-0 or dell-vm-workload-spoke-1. The hub does not run the
+      workload. It hands the Application to that spoke through the management plane, and
+      the spoke's Argo CD pulls the manifests from Git.
+    evidence: hub-dr/applicationset.yaml (clusterDecisionResource, template name, pull-model labels); screenshots 05 and 13
+    pause_after: 1.4
+
+  - id: "1.4"
+    chapter: The pieces
+    visual: The VM card, two claim cards, and a PersistentVolume record with a volume handle.
+    narration: >-
+      The workload is one RHEL 9 virtual machine, hammerdb-rhel9. PostgreSQL holds a
+      TPC-C database, and a HammerDB writer keeps it busy. The guest sees two disks, and
+      Kubernetes sees two requests for storage, called claims: hammerdb-rhel9-rootdisk-mgd-grp
+      and hammerdb-rhel9-datadisk-mgd-grp. A claim is a request. It becomes usable when
+      Kubernetes binds it to a PersistentVolume, the record that names the real disk.
+    evidence: runs log Configuration; workflows/virtualmachine.yaml claims; postcheck target handles
+    pause_after: 1.2
+
+  - id: "1.5"
+    chapter: The pieces
+    visual: Definition scene. A DataVolume card and a plain-language panel.
+    narration: >-
+      Each disk also has a DataVolume with the same name. A DataVolume is the object that
+      prepares a disk: it clones a golden image, or creates an empty disk, and then hands
+      the claim a ready volume. Here the root disk clones the rhel9 image, and the data
+      disk starts blank. Both DataVolumes are defined in Git, so Argo CD owns them and can
+      remove them later.
+    evidence: workloads/datavolumes.yaml at 8a94cd637d22; preflight check 6
+    card:
+      kind: DataVolume
+      name: hammerdb-rhel9-rootdisk-mgd-grp
+      role: prepares the root disk from the rhel9 image
+    def:
+      what: A request that builds or reuses a disk before a claim binds to it
+      creator: CDI, the Kubernetes add-on that manages virtual machine disks
+      reader: Argo CD, Kubernetes, and anyone checking why a disk exists
+      where: in the workload namespace, next to the claim it serves
+      analogy: an order that has the storage ready before the clerk hands you the key
+    pause_after: 1.4
+
+  - id: "1.6"
+    chapter: The pieces
+    visual: Two arrays, one session between them, and a group class card naming source, peer and schedule.
+    narration: >-
+      The two claims are protected as one group. The policy dr-policy-15m advertises
+      powerstore-sc-group as a grouped peer class, and the group class powerstore-vgrc-15m
+      names the source array, the peer array and the fifteen-minute schedule. On each array
+      the two disks are one replication session, so they share one recovery point. One disk
+      cannot be promoted without the other.
+    evidence: VIRTDR-499 description, Scope (grouping true, powerstore-vgrc-15m, powerstore-vrc-group-15m); preflight sessions (one session id for both claims)
+    pause_after: 1.4
+
+  - id: "1.7"
+    chapter: The pieces
+    visual: DRPC card on the hub, one VRG card on each spoke, selector chip.
+    narration: >-
+      Ramen's record for the application is the DRPlacementControl dell-vm-placement-drpc,
+      and it selects the claims by label: appname equals hammerdb-rhel9-mgd-grp. Each site
+      has a VolumeReplicationGroup with the same name, in gitops-vms, reporting whether that
+      site is primary or secondary. The DR record does not set protectedNamespaces, because
+      that field belongs to the discovered path, where Ramen also copies Kubernetes objects.
+      Here Git is the copy.
+    evidence: hub-dr/drpc.yaml (pvcSelector, no protectedNamespaces); postcheck VRG results
+    pause_after: 1.4
+
+  - id: "1.8"
+    chapter: The pieces
+    visual: Two columns, Failover and Relocate, then the policy card with 900 s highlighted.
+    narration: >-
+      Two actions, two promises. Failover is crash-consistent: it stops at the last
+      completed copy, and writes after it are lost. Relocate is the planned move: it flushes
+      first and is designed to avoid that loss. The policy sets a recovery point objective
+      of nine hundred seconds, which is the most data the business accepts losing. It is a
+      limit, not a promise that the copy is fresh.
+    evidence: VIRTDR-499 description, Scope (Failover, crash-consistent, not Relocate); DRPolicy 900 s
+    pause_after: 1.4
+
+  - id: "1.9"
+    chapter: The pieces
+    visual: Recap panel. The two planes drawn as two lanes.
+    narration: >-
+      So far: two sites, one managed application, two claims in one group, and one array
+      session. Two planes have to move. The storage plane moves the disks and decides which
+      copy is writable. The application plane moves the virtual machine and its disks
+      between clusters. The next chapters follow both.
+    evidence: Recap of the recorded chain; no new claim
+    pause_after: 1.2
+
+  - id: "2.1"
+    chapter: Protection
+    visual: Screenshot 01, the protected applications row, highlighted.
+    narration: >-
+      The console lists the protected application as dell-vm-workload, healthy, on policy
+      dr-policy-15m, running on spoke-1. The name in this row is the ApplicationSet, not the
+      disaster recovery record. The record behind it is dell-vm-placement-drpc, and the
+      success banner later names it.
+    evidence: 01-baseline-protected-applications.png, 10:38:17; comment 1 note on row and banner names
+    screenshot: 01-baseline-protected-applications.png
+    focus: {x: 300, y: 715, w: 1180, h: 52}
+    caption: Protected applications, 10:38 UTC · the row is the ApplicationSet name
+    pause_after: 1.2
+
+  - id: "2.2"
+    chapter: Protection
+    visual: Screenshot 02, expanded row, ApplicationSet and one consistency group highlighted.
+    narration: >-
+      Expand the row and the console states the application type: ApplicationSet,
+      destination namespace gitops-vms, and one volume consistency group. One group is the
+      point: both claims are protected as a unit, so the recovery point is shared.
+    evidence: 02-baseline-drpc-details.png, 10:38:20
+    screenshot: 02-baseline-drpc-details.png
+    focus: {x: 340, y: 720, w: 900, h: 145}
+    caption: Expanded row, 10:38 UTC · ApplicationSet, gitops-vms, one consistency group
+    pause_after: 1.2
+
+  - id: "2.3"
+    chapter: Protection
+    visual: Screenshot 05, the spoke-side Argo CD Application, sync and health.
+    narration: >-
+      The application is not only protected, it is delivered. The spoke-side Argo view
+      shows dell-vm-workload-spoke-1 healthy and synced to the authoritative branch, from
+      the workload path in the starter kit. The same branch is the source of truth for the
+      recovery site, so both sites deploy the same definition.
+    evidence: 05-baseline-generated-application.png, 10:52:26; ApplicationSet syncPolicy prune and selfHeal
+    screenshot: 05-baseline-generated-application.png
+    focus: {x: 430, y: 120, w: 1180, h: 430}
+    caption: Argo CD, spoke-side Application, 10:52 UTC · Healthy, Synced
+    pause_after: 1.2
+
+  - id: "2.4"
+    chapter: Protection
+    visual: Screenshot 03, the DR status popover, last synced highlighted.
+    narration: >-
+      The console also offers a quick check: all volumes are synced, last synced at ten
+      twenty-five. Treat that as a hint. At ten fifty-five that stamp was thirty minutes
+      old, two full policy intervals. The gate is not a label. It is the array's job
+      history, together with the writes that each interval carried.
+    evidence: 03-baseline-dr-status-popover.png, 10:38:23 (last synced 10:25 UTC); preflight array job history
+    screenshot: 03-baseline-dr-status-popover.png
+    focus: {x: 962, y: 496, w: 342, h: 216}
+    caption: DR status popover, 10:38 UTC · last synced 10:25 UTC
+    pause_after: 1.2
+
+  - id: "2.5"
+    chapter: Protection
+    visual: Panel with the seven preflight checks and their values.
+    narration: >-
+      At ten fifty-three thirty the preflight passed seven checks. The record was FailedOver
+      and Completed, with PeerReady and Protected true. The decision named spoke-1. The group
+      session was healthy, with completed syncs at ten thirty-seven fifty and ten forty-nine
+      fifty, a maximum gap of seven hundred twenty seconds. The writer was advancing, and
+      both intervals carried real rows. The deadline was eleven oh three fifty.
+    evidence: preflight-20261122T105337Z.json, 7 checks 10 of 10 rows PASS, finished 10:53:30
+    pause_after: 1.4
+
+  - id: "2.6"
+    chapter: Protection
+    visual: Panel. Two managed-only checks. A Git path with a DataVolume per disk.
+    narration: >-
+      Two of those checks exist only for a managed application. Each protected disk must
+      have a Succeeded DataVolume that Argo tracks, and the target must not need a clone
+      source in the workload namespace. The reason is ownership: Argo can only remove what
+      Git defines. A claim created outside Git would survive the move and hold the old
+      site's cleanup open. This run meets the rule but does not exercise the failure.
+    evidence: preflight check 6 and 7; workflows/datavolumes.yaml; documented lab constraint, not an observed failure
+    unverified: true
+    pause_after: 1.2
+
+  - id: "2.7"
+    chapter: Protection
+    visual: Timeline with the last sync, the preflight, the Initiate click and the deadline.
+    narration: >-
+      Initiate was clicked at ten fifty-five fifty-five, about eight minutes before the
+      deadline. The gate held at the click, not only at the preflight: the last completed
+      sync was ten forty-nine fifty, three hundred sixty-five seconds earlier, inside the
+      nine-hundred-second policy.
+    evidence: preflight deadline 11:03:50; Initiate 10:55:55; postcheck age 364 s
+    pause_after: 1.4
+
+  - id: "3.1"
+    chapter: The request
+    visual: Screenshot 07, the row menu with Failover and Relocate.
+    narration: >-
+      The row menu offers Failover, Relocate and configuration. This run uses Failover, the
+      crash-consistent action, with both sites reachable. Nothing about the target is
+      written by hand.
+    evidence: 07-initiate-row-action-menu.png, 10:55:51
+    screenshot: 07-initiate-row-action-menu.png
+    focus: {x: 1555, y: 735, w: 300, h: 265}
+    caption: Row actions, 10:55 UTC · Failover chosen, not Relocate
+    pause_after: 1.0
+
+  - id: "3.2"
+    chapter: The request
+    visual: Screenshot 08, the Failover dialog, target cluster and readiness.
+    narration: >-
+      The dialog names target cluster spoke-0 and reports failover readiness Ready, with the
+      volume last synced at ten forty-nine. The field Last available reads November
+      nineteenth, three days earlier. That is a stale value, the symptom tracked in
+      DFBUGS-12487, and not evidence about this run. There is no warning to clean up the old
+      application by hand.
+    evidence: 08-initiate-failover-dialog.png, 10:55:55; DFBUGS-12487 (moved from VIRTDR-308), open Major
+    screenshot: 08-initiate-failover-dialog.png
+    focus: {x: 632, y: 390, w: 670, h: 280}
+    caption: Failover dialog, 10:55 UTC · stale Last available is DFBUGS-12487
+    pause_after: 1.4
+
+  - id: "3.3"
+    chapter: The request
+    visual: DRPC card with two fields filled, then the target VRG asked for Primary.
+    narration: >-
+      Clicking Initiate writes two fields on the hub record: action Failover, and failover
+      cluster spoke-0. The console is only the front door. Ramen's controller validates the
+      target, keeps the current decision for the duration of the move, and asks the target
+      site's coordinator to become primary. Nothing has changed on either array yet.
+    evidence: VIRTDR-499 description (Failover, failoverCluster); observed actionStartTime 10:55:55
+    pause_after: 1.2
+
+  - id: "3.4"
+    chapter: The request
+    visual: Screenshot 09, the success banner and the row on spoke-0.
+    narration: >-
+      The run recorded the phases. At ten fifty-six fourteen the record was FailedOver,
+      waiting for resources. At ten fifty-six twenty-nine it was cleaning up. At eleven oh
+      one oh three it was complete. The success banner names dell-vm-placement-drpc and says
+      the application is now deployed on spoke-0.
+    evidence: 09-initiate-accepted.png, 10:56:00; run log timeline 10:56:14, 10:56:29, 11:01:03
+    screenshot: 09-initiate-accepted.png
+    focus: {x: 520, y: 338, w: 880, h: 92}
+    caption: After Initiate, 10:56 UTC · banner names the DRPC, not the row
+    pause_after: 1.4
+
+  - id: "3.5"
+    chapter: The request
+    visual: Scope panel. Both sites drawn healthy, no dead-site icon.
+    narration: >-
+      One scope note. Both sites stayed up for the whole run. No node was suspended, no
+      array was powered off, and no heartbeat was lost. So this proves a handover with a
+      live source. It does not prove what a dead site would do.
+    evidence: VIRTDR-499 description, Scope (both sites reachable, not site-down)
+    pause_after: 1.2
+
+  - id: "4.1"
+    chapter: Promotion
+    visual: Target site. PV and claim records restored from the archive, then the group map read.
+    narration: >-
+      On the target, Ramen restores the storage records: a PersistentVolume and a claim for
+      each disk, from the archive it keeps on the hub. The group manifest it archived is the
+      map. It records the group handle and each disk's destination copy, so the target can
+      name the copies that already exist on its array.
+    evidence: VIRTDR-499 description (VGR content mapping); 292 upstream trace restore path; postcheck target handles
+    pause_after: 1.2
+
+  - id: "4.2"
+    chapter: Promotion
+    visual: Companion VolumeReplication card asking for Primary, an arrow into the csi-addons chip.
+    narration: >-
+      The restored group record asks for primary, and its companion VolumeReplication
+      carries that request to csi-addons. csi-addons is the Kubernetes side of the storage
+      driver: it turns a replication request into a driver call. Here it calls PromoteVolume
+      once, for the group, not once per disk.
+    evidence: VIRTDR-499 description (companion VolumeReplication, dataSource.kind); upstream csi-addons source (trace)
+    pause_after: 1.2
+
+  - id: "4.3"
+    chapter: Promotion
+    visual: The Dell driver chip and the array pair, one arrow flipping.
+    narration: >-
+      The Dell driver issues the array's failover for the volume group. The target copy
+      becomes writable, and the session roles flip together. Both disks change role in one
+      array operation, so the guest can never see one disk promoted before the other. That
+      is the guarantee a group buys.
+    evidence: VIRTDR-499 description (one group promotion); upstream csi-powerstore source (trace)
+    pause_after: 1.4
+
+  - id: "4.4"
+    chapter: Promotion
+    visual: Panel with the two target handles and the arrays.
+    narration: >-
+      Both target claims bound to promoted disks on VSA-A. The panel shows the exact volume
+      handles from the postcheck, and the old copies stayed on VSA-B. The claims now point at
+      the same two disks the group promoted, which is what the group was for.
+    evidence: postcheck results, target handles 7ef2772a-9bd1-4985-bfa4-42585ea463ad and 201b3d01-7e13-42c2-a6e3-fb0a00c4252c on PS3b37452a6e0f
+    pause_after: 1.4
+
+  - id: "4.5"
+    chapter: Promotion
+    visual: Panel with the two site records and the DRPC conditions.
+    narration: >-
+      The target coordinator reports primary, and the old site's coordinator reports secondary once
+      its role change finishes. Neither record alone says the copy is flowing. For that, read the
+      arrays in the next chapters, and the DRPC's replication health condition.
+    evidence: postcheck VRG spoke-0 Primary, VRG spoke-1 Secondary, ReplicationHealthy 10:56:59, Protected 11:12:00
+    pause_after: 1.4
+
+  - id: "5.1"
+    chapter: The application plane
+    visual: Two lanes, storage and application. The application lane is empty.
+    narration: >-
+      Now the second plane. The storage records say which disk is writable. They do not
+      create a virtual machine. The VM, its DataVolumes and the Application are Kubernetes
+      objects, and someone has to remove them from the old site and create them on the new
+      one. For a managed application, that someone is GitOps.
+    evidence: VIRTDR-499 description, Scope (ApplicationSet prune and redeploy)
+    pause_after: 1.2
+
+  - id: "5.2"
+    chapter: The application plane
+    visual: PlacementDecision card with spoke-1 changing to spoke-0.
+    narration: >-
+      The placement decision is the switch. After the target was ready, Ramen moved the
+      decision to spoke-0, and the decision record now names spoke-0. The ApplicationSet
+      generator reads that record every three minutes, so the next pass generates an
+      Application for the new cluster.
+    evidence: postcheck PlacementDecision on target ['spoke-0']; ApplicationSet requeueAfterSeconds 180
+    pause_after: 1.2
+
+  - id: "5.3"
+    chapter: The application plane
+    visual: ApplicationSet generating the spoke-0 Application, the spoke-1 Application fading out.
+    narration: >-
+      The generator creates dell-vm-workload-spoke-0 and removes the entry for spoke-1. The
+      old Application disappears, and with automated sync, prune and self-heal, Argo CD
+      deletes what that Application owned on the old site: the virtual machine and its two
+      DataVolumes. Nothing is deleted by hand.
+    evidence: ApplicationSet syncPolicy automated prune selfHeal; postcheck source VM/VMI/DV/PVC removed
+    pause_after: 1.4
+
+  - id: "5.4"
+    chapter: The application plane
+    visual: Source site cards fading out, source VRG turning Secondary.
+    narration: >-
+      The postcheck confirms it. On spoke-1 there is no virtual machine, no instance, no
+      DataVolume and no claim left, and the source coordinator has become secondary. That is
+      the managed cleanup: GitOps removed the objects, not an operator.
+    evidence: postcheck source VM/VMI/DV/PVC removed none; VRG spoke-1 Secondary
+    pause_after: 1.2
+
+  - id: "5.5"
+    chapter: The application plane
+    visual: Screenshot 13, the target Argo CD Application.
+    narration: >-
+      On the target, the same generator created dell-vm-workload-spoke-0. The Argo view
+      shows it healthy and synced to the same branch head, into namespace gitops-vms, with
+      create-namespace and prune-last as sync options. Prune-last matters: the new objects
+      are created before the old ones are removed.
+    evidence: 13-completion-target-application.png, 11:15:45; ApplicationSet syncOptions CreateNamespace, PruneLast
+    screenshot: 13-completion-target-application.png
+    focus: {x: 430, y: 120, w: 1180, h: 300}
+    caption: Argo CD, target Application, 11:15 UTC · Healthy, Synced
+    pause_after: 1.2
+
+  - id: "5.6"
+    chapter: The application plane
+    visual: DataVolume card and claim card joining, CDI chip adopting, golden image crossed out.
+    narration: >-
+      Here is the join between the two planes. Argo creates a DataVolume for each disk, but
+      a claim with that name already exists, bound to the promoted disk. CDI, with the
+      DataVolumeClaimAdoption gate enabled on both spokes, adopts that claim instead of
+      cloning the golden image. The check that matters is the handle: both target claims
+      point at the promoted disks, not at fresh clones.
+    evidence: preflight check 6 and 7; setup doc feature gates; postcheck target handles use promoted replica
+    pause_after: 1.6
+
+  - id: "5.7"
+    chapter: The application plane
+    visual: The guest starting, PostgreSQL and the writer coming alive.
+    narration: >-
+      Then the guest. The target instance is running, PostgreSQL comes up, and the HammerDB
+      writer starts on its own. The postcheck found both guest services active, and the first
+      target row was written at eleven hundred ten. The application was serving from the
+      recovery site while the old site was still being cleaned up.
+    evidence: postcheck target VMI Running, guest services ['active','active'], first target row 11:00:10
+    pause_after: 1.4
+
+  - id: "6.1"
+    chapter: Data
+    visual: A number line from the last sync to Initiate, the lost window shaded.
+    narration: >-
+      Back to the copy. The last completed sync was ten forty-nine fifty. Initiate was ten
+      fifty-five fifty-five. The writes in those three hundred sixty-five seconds were not in
+      the copy, and failover does not ask for a final sync. The policy allows nine hundred
+      seconds, so the loss was inside it.
+    evidence: postcheck "data loss within RPO ... 365s (RPO 900s)"
+    pause_after: 1.4
+
+  - id: "6.2"
+    chapter: Data
+    visual: A second number line, from the last source row to the first target row.
+    narration: >-
+      Those are two different measurements. The lost window is what never reached the copy.
+      The recovery gap is how long the database was down: last source row at ten forty-nine
+      fifty, first target row at eleven hundred ten, six hundred twenty seconds.
+    evidence: postcheck gap_start 10:49:50, gap_end 11:00:10, 620 s
+    pause_after: 1.4
+
+  - id: "6.3"
+    chapter: Data
+    visual: Panel with the walked minutes and the writer counts.
+    narration: >-
+      The check then walked the copy itself. It found forty-seven complete source minutes
+      before the last sync, and no missing minute. The last interval carried forty-one
+      thousand two hundred forty-three rows. After validation the writer was stopped and the
+      database left running, so the count stopped at nine million eight hundred
+      fifty-eight thousand thirty-six.
+    evidence: postcheck 47 complete source minutes, missing none; 41,243 rows; writer count 9,858,036 to 9,858,036
+    pause_after: 1.4
+
+  - id: "6.4"
+    chapter: Data
+    visual: Verdict panel with three lines showing complete to the sync, 365 s lost, inside 900 s.
+    narration: >-
+      So the verdict is narrow and honest. The recovered data is complete up to the last
+      sync, and three hundred sixty-five seconds of later writes are lost. That is inside the
+      nine-hundred-second objective. It is not zero loss, and it is not a claim about every
+      transaction.
+    evidence: postcheck verdict; VIRTDR-499 description, data integrity requirement
+    pause_after: 1.6
+
+  - id: "7.1"
+    chapter: Reverse copy
+    visual: Three milestone chips in time order, then the console popover confirming the reverse sync.
+    narration: >-
+      Three milestones are easy to confuse. Storage health turned true at ten fifty-six
+      fifty-nine, minutes before the old site was ready. Peer readiness turned true at eleven
+      hundred fifty-five. Protected turned true at eleven twelve, after the first reverse
+      sync at eleven oh nine seventeen. The console popover agrees: all volumes synced, last
+      synced at eleven oh nine.
+    evidence: postcheck conditions Available 10:56:29, ReplicationHealthy 10:56:59, PeerReady 11:00:55, Protected 11:12:00; 11-completion-dr-status-popover.png, 11:14:54
+    screenshot: 11-completion-dr-status-popover.png
+    focus: {x: 962, y: 496, w: 342, h: 216}
+    caption: DR status popover, 11:14 UTC · last synced 11:09 UTC
+    pause_after: 1.4
+
+  - id: "7.2"
+    chapter: Reverse copy
+    visual: Screenshot 14 VSA-A, local role and remote system columns.
+    narration: >-
+      The arrays show the reversal. On VSA-A every session now reads source, pointing at
+      VSA-B. The workload's group is one of those sessions, and the newest sync across the
+      seven is eleven fifteen UTC.
+    evidence: 14-completion-vsa-a-replication.png, 11:16:23 (array clock UTC+02:00)
+    screenshot: 14-completion-vsa-a-replication.png
+    focus: {x: 18, y: 205, w: 1000, h: 265}
+    caption: VSA-A replication, 11:16 UTC · local role Source toward VSA-B
+    pause_after: 1.2
+
+  - id: "7.3"
+    chapter: Reverse copy
+    visual: Screenshot 14 VSA-B, the mirrored role columns.
+    narration: >-
+      Seen from the other end, VSA-B reads destination, pointing back at VSA-A. The same
+      seven sessions, the same timestamps, one relationship described from both sides. That
+      is a reverse copy running, not a label on a record.
+    evidence: 14-completion-vsa-b-replication.png, 11:16:58 (array clock UTC+02:00)
+    screenshot: 14-completion-vsa-b-replication.png
+    focus: {x: 18, y: 205, w: 620, h: 265}
+    caption: VSA-B replication, 11:16 UTC · local role Destination from VSA-A
+    pause_after: 1.4
+
+  - id: "7.4"
+    chapter: Reverse copy
+    visual: Leftover PV panel with the two names.
+    narration: >-
+      One thing stays behind. The old source volumes csivol-5a803ae045 and
+      csivol-1bdcd8b387 remain on spoke-1, released but kept with a retain policy. That is
+      deliberate: they point at copies the reverse replication is still using. They will
+      collide with the next restore, so removing them is a separate, authorized cleanup.
+    evidence: evidence-index.md, old source PVs Released/Retain; VIRTDR-499 description (do not delete source copies)
+    pause_after: 1.4
+
+  - id: "7.5"
+    chapter: Reverse copy
+    visual: Panel with three closed doors, zero loss, site down, back home.
+    narration: >-
+      What this run does not prove: zero loss, a failover with the source site down, or a
+      move back. Moving back is a Relocate, and it needs the old site cleaned and protected
+      first. Protection is restored. The workload is not back home.
+    evidence: VIRTDR-499 description, scope and site-down variant VIRTDR-368; postcheck no relocate
+    pause_after: 1.4
+
+  - id: "8.1"
+    chapter: Recap
+    visual: Full chain, both planes, in order.
+    narration: >-
+      The chain in order. Prove the copy carries writes. Ask for Failover with a target.
+      Restore the storage records and rewrite the group map. Promote the group once. Move the
+      placement decision. Let GitOps prune the old site and deploy the new one. Let CDI adopt
+      the promoted disks. Start the guest. Measure the gap.
+    evidence: Recap of the recorded chain
+    pause_after: 1.4
+
+  - id: "8.2"
+    chapter: Recap
+    visual: Established panel with the measured numbers.
+    narration: >-
+      What this run established: a recorded, reachable-source failover of a managed RHEL
+      application whose two disks are one group. One promotion for both disks. Cleanup and
+      redeploy by GitOps, with no manual deletion. A loss window of three hundred sixty-five
+      seconds inside a nine-hundred-second policy, and all seventeen checks passed. No
+      product defect was found.
+    evidence: postcheck 17 of 17; VIRTDR-499 run log PASS
+    pause_after: 2.0
