@@ -60,6 +60,30 @@ export const ColdOpen: React.FC<{f: number; dur: number}> = ({f, dur}) => (
   </div>
 );
 
+export const Outcome: React.FC<{f: number; dur: number}> = ({f, dur}) => (
+  <div style={{position: 'absolute', inset: 0, fontFamily: sans}}>
+    <div style={{position: 'absolute', left: 0, right: 0, top: 175, textAlign: 'center', fontSize: 30, letterSpacing: 2, color: C.green, fontWeight: 700, opacity: prog(f, dur * 0.02, dur * 0.02 + 22)}}>WHAT THE RUN MEASURED</div>
+    <div style={{position: 'absolute', left: 0, right: 0, top: 215, textAlign: 'center', fontSize: 52, fontWeight: 800, color: C.text, opacity: prog(f, dur * 0.04, dur * 0.04 + 26)}}>One handover, two planes moved.</div>
+    {([
+      ['365 s', 'of writes outside the copy', C.amber],
+      ['900 s', 'the policy allowed', C.green],
+      ['47 min', 'walked, none missing', C.cyan],
+      ['17 / 17', 'checks passed', C.green],
+    ] as [string, string, string][]).map(([big, small, col], i) => (
+      <div key={big} style={{position: 'absolute', left: 110 + i * 430, top: 360, width: 400, padding: '30px 28px', border: `2px solid ${col}`, borderRadius: 22, background: `${col}12`, textAlign: 'center', opacity: prog(f, dur * (0.12 + i * 0.1), dur * (0.12 + i * 0.1) + 26)}}>
+        <div style={{fontSize: 62, fontWeight: 800, color: col, fontFamily: mono}}>{big}</div>
+        <div style={{fontSize: 25, color: C.text, marginTop: 12}}>{small}</div>
+      </div>
+    ))}
+    <div style={{position: 'absolute', left: 0, right: 0, top: 610, textAlign: 'center', fontSize: 30, color: C.text, opacity: prog(f, dur * 0.55, dur * 0.55 + 26)}}>
+      Both disks came from one recovery point, and Git redeployed the machine that uses them.
+    </div>
+    <div style={{position: 'absolute', left: 0, right: 0, top: 670, textAlign: 'center', fontSize: 25, color: C.dim, opacity: prog(f, dur * 0.68, dur * 0.68 + 24)}}>
+      Not zero loss. Inside the objective. No new product defect on the DR path.
+    </div>
+  </div>
+);
+
 export const GlossaryScene: React.FC<{id: string; f: number; dur: number; card?: {kind: string; name: string; role: string}; def?: Def}> = ({id, f, dur, card, def}) => {
   if (id === '1.1') return <TwoSites f={f} dur={dur} />;
   if (id === '1.2') return <ManagedLayout f={f} dur={dur} />;

@@ -6,7 +6,7 @@ import {ChapterCard, Hud, TimelineBar, TEvent} from '../components/overlays';
 import {PhaseTracker, Screenshot} from '../components/newcomer';
 import {buildTimeline, PAD_BEFORE, Segment} from './timeline';
 import {World, FOCUS, RECT, CH} from './World';
-import {BeatPanel, ColdOpen, GlossaryScene, PANEL_BEATS, PHASES_499} from './Panels';
+import {BeatPanel, ColdOpen, GlossaryScene, Outcome, PANEL_BEATS, PHASES_499} from './Panels';
 import BEATS from './beats.json';
 
 type Meta = {
@@ -54,20 +54,24 @@ const fit = (id: string): Cam => {
     x0 = 0; y0 = 0; x1 = 2480; y1 = 2000;
   }
   const bands = new Set(keys.map((k) => BAND_OF[k]).filter(Boolean));
-  if (bands.size === 1) {
-    const band = BANDS[[...bands][0]];
-    if (band) {
-      x0 = Math.min(x0, band[0]);
-      x1 = Math.max(x1, band[1]);
-      y0 = Math.min(y0, band[2] - 25);
-    }
+  const singleBand = bands.size === 1 ? BANDS[[...bands][0]] : undefined;
+  if (singleBand) {
+    x0 = Math.min(x0, singleBand[0]);
+    y0 = Math.min(y0, singleBand[2] - 25);
   }
   x0 -= 40;
   x1 += 40;
   y1 += 60;
   const left = 35, right = side ? 825 : 1880, top = 215, bottom = 895;
-  const z = Math.min(1.15, (right - left) / (x1 - x0), (bottom - top) / (y1 - y0));
-  return {x: (x0 + x1) / 2, y: (y0 + y1) / 2, z, sx: (left + right) / 2, sy: (top + bottom) / 2, ...CAMS[id]};
+  const z = Math.min(1.35, (right - left) / (x1 - x0), (bottom - top) / (y1 - y0));
+  let cx = (x0 + x1) / 2;
+  if (singleBand) {
+    const vw = (right - left) / z;
+    const lo = singleBand[0] - 20 + vw / 2;
+    const hi = singleBand[1] + 20 - vw / 2;
+    if (lo <= hi) cx = Math.min(hi, Math.max(lo, cx));
+  }
+  return {x: cx, y: (y0 + y1) / 2, z, sx: (left + right) / 2, sy: (top + bottom) / 2, ...CAMS[id]};
 };
 
 const CLOCK: Record<string, string> = {
@@ -155,8 +159,9 @@ export const VirtDr499: React.FC<{chapters: number[]}> = ({chapters}) => {
   const showWorld = ch >= 2;
   const cast = ch === 1;
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
-    {showWorld ? <div style={{position: 'absolute', inset: 0, clipPath: 'inset(210px 0 0 0)'}}><div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} panel={!!m.screenshot || PANEL_BEATS.has(b.id)} /></div></div> : null}
+    {showWorld ? <div style={{position: 'absolute', inset: 0, clipPath: (!!m.screenshot || PANEL_BEATS.has(b.id)) ? 'inset(210px 1095px 175px 0px)' : 'inset(210px 0px 175px 0px)'}}><div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} panel={!!m.screenshot || PANEL_BEATS.has(b.id)} /></div></div> : null}
     {seg.type === 'beat' && b.id === '0.1' ? <ColdOpen f={f} dur={b.audio} /> : null}
+    {seg.type === 'beat' && b.id === '0.2' ? <Outcome f={f} dur={b.audio} /> : null}
     {seg.type === 'beat' && cast ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={ch >= 3 ? CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null : null} ticket="VIRTDR-499" /> : null}
     {seg.type === 'beat' && ch >= 2 ? <PhaseTracker current={Math.max(0, Math.min(PHASES_499.length - 1, ch - 2))} phases={PHASES_499} /> : null}

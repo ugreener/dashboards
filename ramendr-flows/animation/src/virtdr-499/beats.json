@@ -114,9 +114,9 @@
   "screenshot": "08-initiate-failover-dialog.png",
   "focus": {
    "x": 632,
-   "y": 390,
-   "w": 670,
-   "h": 280
+   "y": 385,
+   "w": 690,
+   "h": 305
   },
   "caption": "Failover dialog, 10:55 UTC \u00b7 stale Last available is DFBUGS-12487"
  },
@@ -225,7 +225,7 @@
    "w": 620,
    "h": 265
   },
-  "caption": "VSA-B replication, 11:16 UTC \u00b7 local role Destination from VSA-A"
+  "caption": "PowerStore VSA-B, 11:16 UTC \u00b7 local role Destination"
  },
  "7.4": {
   "chapter": "Reverse copy"

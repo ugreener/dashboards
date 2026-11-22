@@ -264,7 +264,7 @@ beats:
       application by hand.
     evidence: 08-initiate-failover-dialog.png, 10:55:55; DFBUGS-12487 (moved from VIRTDR-308), open Major
     screenshot: 08-initiate-failover-dialog.png
-    focus: {x: 632, y: 390, w: 670, h: 280}
+    focus: {x: 632, y: 385, w: 690, h: 305}
     caption: Failover dialog, 10:55 UTC · stale Last available is DFBUGS-12487
     pause_after: 1.4
 
@@ -523,7 +523,7 @@ beats:
     evidence: 14-completion-vsa-b-replication.png, 11:16:58 (array clock UTC+02:00)
     screenshot: 14-completion-vsa-b-replication.png
     focus: {x: 18, y: 205, w: 620, h: 265}
-    caption: VSA-B replication, 11:16 UTC · local role Destination from VSA-A
+    caption: PowerStore VSA-B, 11:16 UTC · local role Destination
     pause_after: 1.4
 
   - id: "7.4"
