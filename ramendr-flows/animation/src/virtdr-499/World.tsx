@@ -224,12 +224,8 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       {arrow('M870,410 L910,410', C.purple, true, null, 0, 0, ao('hub'))}
 
       {!pruned ? arrow('M370,790 L370,850', C.green, false, null, 0, 0, ao('spoke1')) : null}
-      {!pruned ? arrow('M530,1150 L550,1150', C.cyan, true, null, 0, 0, ao('spoke1')) : null}
-      {!pruned ? arrow('M630,800 L660,800', C.purple, true, null, 0, 0, ao('spoke1')) : null}
 
       {appPlane ? arrow('M1535,790 L1535,850', C.green, false, null, 0, 0, ao('spoke0')) : null}
-      {appPlane ? arrow('M1695,1150 L1715,1150', C.cyan, true, null, 0, 0, ao('spoke0')) : null}
-      {appPlane ? arrow('M1795,800 L1825,800', C.purple, true, null, 0, 0, ao('spoke0')) : null}
 
       {reached(c.id, '4.3') && !reached(c.id, '7.1') ? arrow('M1170,1780 L1305,1780', C.orange, false, null, 0, 0, ab('arrayA', 'arrayB')) : null}
       {reached(c.id, '7.1') ? arrow('M1305,1808 L1170,1808', C.green, false, null, 0, 0, ab('arrayA', 'arrayB')) : null}
