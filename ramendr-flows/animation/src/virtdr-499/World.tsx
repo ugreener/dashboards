@@ -56,7 +56,7 @@ export const FOCUS: Record<string, string[]> = {
   '4.3': ['argo0', 'driver0', 'groupA', 'groupB'],
   '4.4': ['pvcRoot0', 'pvcData0', 'groupA'],
   '4.5': ['vrg0', 'argo0', 'groupA'],
-  '5.1': ['app1', 'app0', 'vm1'],
+  '5.1': ['app1', 'app0', 'vm1', 'pvcRoot0', 'pvcData0'],
   '5.2': ['decision', 'appset'],
   '5.3': ['appset', 'app1', 'app0', 'vm1'],
   '5.4': ['vm1', 'pvcRoot1', 'pvcData1', 'dvRoot1', 'dvData1', 'vrg1'],
