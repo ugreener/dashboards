@@ -58,7 +58,7 @@ export const FOCUS: Record<string, string[]> = {
   '4.5': ['vrg0', 'argo0', 'groupA'],
   '5.1': ['app1', 'app0', 'vm1', 'pvcRoot0', 'pvcData0'],
   '5.2': ['decision', 'appset'],
-  '5.3': ['appset', 'app1', 'app0', 'vm1'],
+  '5.3': ['appset', 'app1', 'app0'],
   '5.4': ['vm1', 'pvcRoot1', 'pvcData1', 'dvRoot1', 'dvData1', 'vrg1'],
   '5.5': ['app0', 'argo0'],
   '5.6': ['dvRoot0', 'dvData0', 'pvcRoot0', 'pvcData0'],
@@ -145,8 +145,8 @@ const BASE: Record<string, string> = {
 
 const GONE = new Set(['vm1', 'pvcRoot1', 'pvcData1', 'dvRoot1', 'dvData1', 'app1']);
 
-const CHIP = (x: number, y: number, w: number, text: string, color: string) => (
-  <div style={{position: 'absolute', left: x, top: y, width: w, padding: '8px 14px', border: `1.5px dashed ${color}99`, borderRadius: 10, background: `${C.bg}d9`, fontFamily: sans, color: C.dim, fontSize: 16}}>
+const CHIP = (x: number, y: number, w: number, text: string, color: string, op = 1) => (
+  <div style={{position: 'absolute', left: x, top: y, width: w, opacity: op, padding: '8px 14px', border: `1.5px dashed ${color}99`, borderRadius: 10, background: `${C.bg}d9`, fontFamily: sans, color: C.dim, fontSize: 16}}>
     <span style={{color, fontWeight: 700}}>{text}</span>
   </div>
 );
@@ -166,6 +166,9 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
   const bandOn = (b: string) => keys.length === 0 || active.has(b);
   const bandOpacity = (b: string) => (panel && !bandOn(b) ? 0 : bandOn(b) ? 1 : 0.08);
   const bandHide = (b: string) => panel || !bandOn(b);
+  const onB = (b: string) => keys.length === 0 || active.has(b);
+  const ao = (b: string) => (onB(b) ? 1 : 0);
+  const ab = (a: string, b: string) => (onB(a) || onB(b) ? 1 : 0);
 
   const failover = reached(c.id, '4.1');
   const appPlane = reached(c.id, '5.3');
@@ -206,31 +209,31 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
     <Region b={{x: 1235, y: 1620, w: 1175, h: 350}} title="VSA-A · ocp-edge95" color={C.array} opacity={bandOpacity('arrayA')} hideTitle={bandHide('arrayA')} />
 
     {Object.keys(NODES).map((key) => node(key))}
-    {CHIP(660, 610, 540, status('argo1'), C.green)}
-    {CHIP(1825, 610, 545, status('argo0'), C.green)}
-    {CHIP(140, 1890, 1030, `csi-addons + Dell CSI · ${status('driver1')}`, C.purple)}
-    {CHIP(1305, 1890, 1035, `csi-addons + Dell CSI · ${status('driver0')}`, C.purple)}
+    {CHIP(660, 610, 540, status('argo1'), C.green, onB('spoke1') ? 1 : 0.07)}
+    {CHIP(1825, 610, 545, status('argo0'), C.green, onB('spoke0') ? 1 : 0.07)}
+    {CHIP(140, 1890, 1030, `csi-addons + Dell CSI · ${status('driver1')}`, C.purple, onB('arrayB') ? 1 : 0.07)}
+    {CHIP(1305, 1890, 1035, `csi-addons + Dell CSI · ${status('driver0')}`, C.purple, onB('arrayA') ? 1 : 0.07)}
 
     <svg width={2480} height={2000} style={{position: 'absolute', left: 0, top: 0, pointerEvents: 'none'}}>
       <defs>
         <marker id="tip499" markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="context-stroke" /></marker>
       </defs>
 
-      {arrow('M670,195 L720,195', C.cyan, false, null, 0, 0)}
-      {arrow('M1420,195 L1470,195', C.purple, true, null, 0, 0)}
-      {arrow('M870,410 L910,410', C.purple, true, null, 0, 0)}
+      {arrow('M670,195 L720,195', C.cyan, false, null, 0, 0, ao('hub'))}
+      {arrow('M1420,195 L1470,195', C.purple, true, null, 0, 0, ao('hub'))}
+      {arrow('M870,410 L910,410', C.purple, true, null, 0, 0, ao('hub'))}
 
-      {!pruned ? arrow('M370,790 L370,850', C.green, false, null, 0, 0) : null}
-      {!pruned ? arrow('M530,1150 L550,1150', C.cyan, true, null, 0, 0) : null}
-      {!pruned ? arrow('M630,800 L660,800', C.purple, true, null, 0, 0) : null}
+      {!pruned ? arrow('M370,790 L370,850', C.green, false, null, 0, 0, ao('spoke1')) : null}
+      {!pruned ? arrow('M530,1150 L550,1150', C.cyan, true, null, 0, 0, ao('spoke1')) : null}
+      {!pruned ? arrow('M630,800 L660,800', C.purple, true, null, 0, 0, ao('spoke1')) : null}
 
-      {appPlane ? arrow('M1535,790 L1535,850', C.green, false, null, 0, 0) : null}
-      {appPlane ? arrow('M1695,1150 L1715,1150', C.cyan, true, null, 0, 0) : null}
-      {appPlane ? arrow('M1795,800 L1825,800', C.purple, true, null, 0, 0) : null}
+      {appPlane ? arrow('M1535,790 L1535,850', C.green, false, null, 0, 0, ao('spoke0')) : null}
+      {appPlane ? arrow('M1695,1150 L1715,1150', C.cyan, true, null, 0, 0, ao('spoke0')) : null}
+      {appPlane ? arrow('M1795,800 L1825,800', C.purple, true, null, 0, 0, ao('spoke0')) : null}
 
-      {reached(c.id, '4.3') ? arrow('M1170,1780 L1305,1780', C.orange, false, null, 0, 0) : null}
-      {reached(c.id, '7.2') ? arrow('M1305,1808 L1170,1808', C.green, false, null, 0, 0) : null}
-      {reached(c.id, '5.4') ? arrow('M120,790 C80,900 80,980 120,1060', C.red, true, null, 0, 0) : null}
+      {reached(c.id, '4.3') ? arrow('M1170,1780 L1305,1780', C.orange, false, null, 0, 0, ab('arrayA', 'arrayB')) : null}
+      {reached(c.id, '7.2') ? arrow('M1305,1808 L1170,1808', C.green, false, null, 0, 0, ab('arrayA', 'arrayB')) : null}
+      {reached(c.id, '5.4') ? arrow('M120,790 C80,900 80,980 120,1060', C.red, true, null, 0, 0, ao('spoke1')) : null}
     </svg>
   </div>;
 };
