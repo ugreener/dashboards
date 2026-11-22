@@ -39,30 +39,57 @@ beats:
 
   - id: "1.2"
     chapter: The pieces
-    visual: A claim card, a volume record card, and a disk identifier. The two claims sit beside the guest.
+    visual: The guest card on the old site, with its two disks and the VMI beside it.
     narration: >-
       The application is one RHEL 9 virtual machine named hammerdb-rhel9, in namespace
-      hammerdb. PostgreSQL holds a TPC-C database, and a HammerDB writer keeps it busy.
-      It is a discovered application: an existing workload selected for protection, not
-      an Argo CD ApplicationSet. OpenShift Virtualization runs it as a
-      VirtualMachineInstance, or VMI. Each disk is prepared by a DataVolume. The guest
-      sees two disks, and Kubernetes sees two requests for storage, called
-      PersistentVolumeClaims, or claims. The root claim is hammerdb-rhel9-rootdisk-grp.
-      The data claim is hammerdb-rhel9-datadisk-grp.
-    evidence: hub-state.txt spec.pvcSelector; run log configuration
-    pause_after: 1.2
+      hammerdb. PostgreSQL holds a TPC-C database, and a HammerDB writer keeps it busy. It
+      is a discovered application: an existing workload selected for protection, not an
+      Argo CD ApplicationSet. OpenShift Virtualization runs it as a VirtualMachineInstance,
+      or VMI. Each disk is prepared by a DataVolume.
+    evidence: VIRTDR-498 ticket environment; run log configuration
+    pause_after: 1.0
 
   - id: "1.3"
     chapter: The pieces
-    visual: Glossary card for the DRPC, with the hub scope and the requested action.
+    visual: Two claim cards beside the guest, one for the root disk and one for the data disk.
     narration: >-
-      A claim does not point at a disk directly. Kubernetes binds it to a PersistentVolume,
-      the record that names the real disk. That record carries a volume handle, the array's
-      own disk identifier. Keeping those records correct is as important as copying the
-      bytes. The hub record for the application is the DRPlacementControl, or DRPC,
-      named hammerdb-drpc. It points at a Placement named hammerdb-placement, and a
-      PlacementDecision named hammerdb-placement-decision-1 records the chosen cluster.
-    evidence: spoke-1 PV list, reclaim evidence; hub-state.txt
+      The guest sees two disks, and Kubernetes sees two requests for storage, called
+      PersistentVolumeClaims, or claims. The root claim is hammerdb-rhel9-rootdisk-grp.
+      The data claim is hammerdb-rhel9-datadisk-grp. A claim does not point at a disk
+      directly. Kubernetes binds it to a PersistentVolume.
+    evidence: hub-state.txt spec.pvcSelector; run log configuration
+    pause_after: 1.0
+
+  - id: "1.4"
+    chapter: The pieces
+    visual: Glossary card for the root PV, with the volume handle and the array identity.
+    narration: >-
+      The PersistentVolume is the record that names the real disk. It carries a volume
+      handle, the array's disk identifier plus its array and protocol. Keeping that record
+      correct is as important as copying the bytes. The target root PV is
+      csivol-31136f5c90, and the data PV is csivol-2a761d921f.
+    evidence: spoke-0 PV list; spoke-1 PV list, reclaim evidence
+    card:
+      kind: PersistentVolume
+      name: csivol-31136f5c90
+      role: the record that binds the claim to the real disk
+    def:
+      what: The cluster record for one bound disk.
+      creator: The CSI provisioner creates it when the claim binds.
+      reader: The claim, the CSI driver, and Ramen's restore path.
+      where: Cluster scope on the spoke.
+      analogy: The deed that names the actual storage behind the request.
+    pause_after: 1.0
+
+  - id: "1.5"
+    chapter: The pieces
+    visual: Glossary card for the DRPC, with the Placement and PlacementDecision beside it.
+    narration: >-
+      The hub record for the application is the DRPlacementControl, or DRPC, named
+      hammerdb-drpc. It names the policy, the claims, and the namespaces it protects. It
+      points at a Placement named hammerdb-placement, and a PlacementDecision named
+      hammerdb-placement-decision-1 records the chosen cluster.
+    evidence: hub-state.txt spec; spoke-0 DRPC object
     card:
       kind: DRPlacementControl
       name: hammerdb-drpc
@@ -75,7 +102,7 @@ beats:
       analogy: The work order that says which site should run the application.
     pause_after: 1.0
 
-  - id: "1.4"
+  - id: "1.6"
     chapter: The pieces
     visual: Glossary card for the DRPolicy, with the two clusters and the 900-second objective.
     narration: >-
@@ -96,7 +123,7 @@ beats:
       analogy: The contract that says how much data the business accepts losing.
     pause_after: 1.2
 
-  - id: "1.5"
+  - id: "1.7"
     chapter: The pieces
     visual: Glossary card for the VRG, with one card on each spoke.
     narration: >-
@@ -118,7 +145,7 @@ beats:
       analogy: The site foreman who knows which disks are protected.
     pause_after: 1.0
 
-  - id: "1.6"
+  - id: "1.8"
     chapter: The pieces
     visual: Glossary card for the VGR, with the two claims inside one outline.
     narration: >-
@@ -133,14 +160,14 @@ beats:
       name: vgr-4251c970ec7af885d6ec79c1d2c40661-hammerdb-drpc
       role: one request for the whole group
     def:
-      what: One replication request for every claim that carries the group label.
+      what: One replication request for every claim that carries the group labels.
       creator: The VRG on the site that is primary.
       reader: csi-addons, which creates the group content and companion record.
       where: Namespace hammerdb on each spoke.
       analogy: One shipping container instead of two separate parcels.
     pause_after: 1.2
 
-  - id: "1.7"
+  - id: "1.9"
     chapter: The pieces
     visual: Glossary card for the VGRC and the companion VolumeReplication.
     narration: >-
@@ -162,7 +189,7 @@ beats:
       analogy: The packing list that says which box holds which item.
     pause_after: 1.2
 
-  - id: "1.8"
+  - id: "1.10"
     chapter: The pieces
     visual: One array session on each side, roles Source and Destination, a 15-minute clock, and the legend.
     narration: >-
@@ -173,10 +200,11 @@ beats:
     evidence: VGRC volumeGroupAttributes; group handle 5f195dc9-650e-4051-81fd-9f99f7dcc86d; preflight session e16423f4-919e-452b-9651-7744ffb02f8f
     pause_after: 1.0
 
-  - id: "1.9"
+  - id: "1.11"
     chapter: The pieces
     visual: >-
-      Two paths side by side: Failover, crash-consistent, stops at the last copy; Relocate, planned, flushes first.
+      Two paths side by side: Failover, crash-consistent, stops at the last copy;
+      Relocate, planned, flushes first.
     narration: >-
       One last distinction. Failover is the crash-consistent action. It stops at the last
       completed copy, and writes after it are lost. Relocate is the planned move. It is
@@ -185,10 +213,11 @@ beats:
     evidence: VIRTDR-498 ticket scope; DRPC action Failover
     pause_after: 1.2
 
-  - id: "1.10"
+  - id: "1.12"
     chapter: The pieces
     visual: >-
-      Recap panel. "Two claims. One group. One session. Two questions: is the copy fresh, is the peer ready?"
+      Recap panel. "Two claims. One group. One session. Two questions: is the copy fresh,
+      is the peer ready?"
     narration: >-
       So far: two sites, two claims, one group, and one array session. The group is the
       promise that both disks share a role and a recovery point. But a group does not
@@ -196,7 +225,6 @@ beats:
       Those are the next two questions.
     evidence: VIRTDR-498 run log configuration; VGRC mapping
     pause_after: 1.2
-
   - id: "2.1"
     chapter: Protection
     visual: The protected applications page, with the hammerdb row expanded.
@@ -543,10 +571,11 @@ beats:
     chapter: Cleanup
     visual: Two old-site PV cards with Retain and the vr-retained annotation.
     narration: >-
-      Each old-site PV carried a retention annotation and a reclaim policy of Retain. That
-      is deliberate. The PV must not ask the array to delete a disk that is still the live
-      copy target. The two PVs are csivol-31136f5c90 and csivol-2a761d921f. When the claims
-      were deleted, Ramen's VRG controller ran preparePVCForVRDeletion.
+      The old-site PVs were supposed to keep a retention annotation and a reclaim policy
+      of Retain. That is deliberate. The PV must not ask the array to delete a disk that is
+      still the live copy target. The two PVs are csivol-31136f5c90 and
+      csivol-2a761d921f. When the claims were deleted, Ramen's VRG controller ran
+      preparePVCForVRDeletion.
     evidence: reclaim evidence spoke1-state.txt; Ramen vrg_volrep.go preparePVCForVRDeletion
     pause_after: 1.2
 
@@ -555,10 +584,11 @@ beats:
     visual: >-
       The code branch: async VRG or Primary leads to undoPVRetention, which sets Delete and removes vr-retained.
     narration: >-
-      The code treats any async VRG as if it were primary and calls undoPVRetention. That
-      sets the PV reclaim policy back to Delete and removes the retention annotation. It
-      did this while the old site was still the replication destination. The PV controller
-      then asked the Dell driver to delete the volume.
+      The code treats an async VRG, or one already in Primary, as the undo case and calls
+      undoPVRetention. That sets the PV reclaim policy back to Delete and removes the
+      retention annotation. This code path explains the observed change while the old site
+      was still the replication destination. The PV controller then asked the Dell driver
+      to delete the volume.
     evidence: vrg_volrep.go:615 condition, :616 undo, :737 body; DFBUGS-12906
     unverified: The code path is verified in upstream main. The run's private Ramen image has no source revision label, so the deployed-build attribution is not proven.
     pause_after: 1.4
@@ -569,9 +599,9 @@ beats:
     narration: >-
       The driver tried to remove the volume from its group first. The array refused:
       HTTP four twenty-two, volumes cannot be removed from the replication destination
-      volume group. Kubernetes retried. The PV stayed Released with its finalizer, and the
-      same error repeated. The defect did not delete either array copy, and the target
-      stayed healthy.
+      volume group. The provisioner retried the delete. The PV stayed Released with its
+      finalizer, and the same error repeated. The defect did not delete either array copy,
+      and the target stayed healthy.
     evidence: DFBUGS-12906 actual results; controller.go deleteISCSIVolume
     pause_after: 1.4
 
@@ -580,12 +610,13 @@ beats:
     visual: >-
       Defect card: DFBUGS-12906, Retain workaround, impact on decommission and the latent risk.
     narration: >-
-      The workaround was local: patch the two PVs back to Retain. That stopped the retry
-      loop and kept both copies. The defect is filed as DFBUGS-12906. Its upstream code
-      path is source-verified. The running build is a private Ramen image with no source
-      revision label, so the deployed-build attribution stays unverified. The impact is a
-      site that cannot be decommissioned cleanly, and a latent risk if the replication
-      relationship is restructured before the pending delete is handled.
+      The lab's workaround was to patch the two PVs back to Retain. The defect record says
+      that stopped the retry loop and kept both copies. The defect is filed as
+      DFBUGS-12906. Its upstream code path is source-verified. The running build is a
+      private Ramen image with no source revision label, so the deployed-build attribution
+      stays unverified. The impact is a site that cannot be decommissioned cleanly, and a
+      latent risk if the replication relationship is restructured before the pending delete
+      is handled.
     evidence: DFBUGS-12906, open Major; reclaim evidence root-cause.md; lab path patch to Retain
     pause_after: 1.6
 
@@ -593,10 +624,11 @@ beats:
     chapter: Recap
     visual: The full chain in order, from the gate to the cleanup.
     narration: >-
-      The whole chain, in order. Prove the copy carried writes. Ask the hub for Failover
-      with a target. Restore the objects and rewrite the group map. Promote the group once.
-      Bind both claims to the promoted handles. Start the guest. Measure the gap. Wait for
-      the old site to become Secondary. Then clean up, and check what cleanup left behind.
+      The whole chain. Prove the copy carried writes. Ask the hub for Failover with a
+      target. Restore the objects and rewrite the group map. Promote the group once. Bind
+      both claims to the promoted handles. Start the guest. Observe the storage health.
+      Clean up the old application. Confirm the peer state and completion. Then the
+      postcheck measures the gap, and the cleanup defect is what it leaves behind.
     evidence: VIRTDR-498 run log; DRPC conditions; VGRC; cleanup evidence
     pause_after: 1.6
 

@@ -12,6 +12,24 @@
   "chapter": "The pieces"
  },
  "1.3": {
+  "chapter": "The pieces"
+ },
+ "1.4": {
+  "chapter": "The pieces",
+  "card": {
+   "kind": "PersistentVolume",
+   "name": "csivol-31136f5c90",
+   "role": "the record that binds the claim to the real disk"
+  },
+  "def": {
+   "what": "The cluster record for one bound disk.",
+   "creator": "The CSI provisioner creates it when the claim binds.",
+   "reader": "The claim, the CSI driver, and Ramen's restore path.",
+   "where": "Cluster scope on the spoke.",
+   "analogy": "The deed that names the actual storage behind the request."
+  }
+ },
+ "1.5": {
   "chapter": "The pieces",
   "card": {
    "kind": "DRPlacementControl",
@@ -26,7 +44,7 @@
    "analogy": "The work order that says which site should run the application."
   }
  },
- "1.4": {
+ "1.6": {
   "chapter": "The pieces",
   "card": {
    "kind": "DRPolicy",
@@ -41,7 +59,7 @@
    "analogy": "The contract that says how much data the business accepts losing."
   }
  },
- "1.5": {
+ "1.7": {
   "chapter": "The pieces",
   "card": {
    "kind": "VolumeReplicationGroup",
@@ -56,7 +74,7 @@
    "analogy": "The site foreman who knows which disks are protected."
   }
  },
- "1.6": {
+ "1.8": {
   "chapter": "The pieces",
   "card": {
    "kind": "VolumeGroupReplication",
@@ -64,14 +82,14 @@
    "role": "one request for the whole group"
   },
   "def": {
-   "what": "One replication request for every claim that carries the group label.",
+   "what": "One replication request for every claim that carries the group labels.",
    "creator": "The VRG on the site that is primary.",
    "reader": "csi-addons, which creates the group content and companion record.",
    "where": "Namespace hammerdb on each spoke.",
    "analogy": "One shipping container instead of two separate parcels."
   }
  },
- "1.7": {
+ "1.9": {
   "chapter": "The pieces",
   "card": {
    "kind": "VolumeGroupReplicationContent",
@@ -86,13 +104,13 @@
    "analogy": "The packing list that says which box holds which item."
   }
  },
- "1.8": {
-  "chapter": "The pieces"
- },
- "1.9": {
-  "chapter": "The pieces"
- },
  "1.10": {
+  "chapter": "The pieces"
+ },
+ "1.11": {
+  "chapter": "The pieces"
+ },
+ "1.12": {
   "chapter": "The pieces"
  },
  "2.1": {
