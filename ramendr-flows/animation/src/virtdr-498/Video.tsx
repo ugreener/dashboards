@@ -52,7 +52,7 @@ const fit = (id: string): Cam => {
     if (b === 'spoke0') { x0 = 1235; x1 = 2410; y0 = 385; }
     if (b === 'arrayB') { x0 = 70; x1 = 1240; y0 = 1305; }
     if (b === 'arrayA') { x0 = 1235; x1 = 2410; y0 = 1305; }
-    if (b === 'hub') { x0 = 70; x1 = 2410; y0 = 20; }
+    if (b === 'hub') { x0 = Math.min(x0, 70); y0 = 20; }
   } else if (y0 >= 1300) {
     y0 = 1280;
   } else if (y0 >= 400) {

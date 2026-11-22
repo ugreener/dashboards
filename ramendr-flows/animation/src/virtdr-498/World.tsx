@@ -40,14 +40,14 @@ RECT.driver0 = [1305, 1595, 500, 70];
 
 export const FOCUS: Record<string, string[]> = {
   '2.1': ['drpc', 'vrg1', 'vgr1', 'vr1', 'vm1'],
-  '2.2': ['drpc', 'placement', 'decision', 'vrg1', 'vgr1', 'vr1', 'groupB'],
+  '2.2': ['drpc', 'vrg1'],
   '2.3': ['drpc', 'policy'],
   '2.4': ['vgr1', 'vr1'],
-  '2.5': ['drpc', 'groupB'],
+  '2.5': ['drpc'],
   '3.1': ['drpc', 'vm1'],
-  '3.2': ['drpc', 'vrg0', 'vrg1', 'decision'],
+  '3.2': ['drpc'],
   '3.3': ['drpc'],
-  '3.4': ['vm1', 'vm0', 'groupA', 'groupB'],
+  '3.4': ['vm1'],
   '4.1': ['vrg0', 'content0', 'vr0', 'vm0'],
   '4.2': ['vrg0', 'vgr0', 'content0'],
   '4.3': ['vgr0', 'vr0', 'driver0'],
@@ -55,11 +55,11 @@ export const FOCUS: Record<string, string[]> = {
   '4.5': ['pvcRoot0', 'pvcData0', 'groupA'],
   '4.6': ['vm0'],
   '4.7': ['drpc', 'decision'],
-  '4.8': ['drpc', 'vrg0', 'groupA'],
-  '5.1': ['drpc', 'groupA'],
-  '5.2': ['groupB', 'drpc'],
+  '4.8': ['vrg0', 'groupA'],
+  '5.1': ['groupA'],
+  '5.2': ['groupB'],
   '5.3': ['groupB', 'groupA'],
-  '5.4': ['drpc', 'groupA'],
+  '5.4': ['groupA'],
   '6.1': ['groupA', 'groupB', 'vgr0', 'vr0'],
   '6.2': ['vgr0', 'vr0'],
   '6.3': ['groupA', 'groupB'],
@@ -71,7 +71,7 @@ export const FOCUS: Record<string, string[]> = {
   '7.4': ['pvcRoot1', 'pvcData1', 'driver1'],
   '7.5': ['pvcRoot1', 'pvcData1'],
   '8.1': ['drpc', 'vrg1', 'vrg0', 'groupA', 'groupB', 'vm0'],
-  '8.2': ['drpc', 'vrg1', 'vrg0', 'groupA', 'groupB', 'vm0'],
+  '8.2': ['groupA'],
 };
 
 export type Ctx = {id: string; f: number; dur: number; zoom: number};
