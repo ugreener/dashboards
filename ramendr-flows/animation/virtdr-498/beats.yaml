@@ -1,0 +1,614 @@
+# yamllint disable rule:line-length
+ticket: VIRTDR-498
+run: 2026-11-22
+direction: spoke-1 to spoke-0 failover, VSA-B to VSA-A, both sites reachable
+beats:
+  - id: "0.1"
+    chapter: Cold open
+    visual: Wide dark frame, two site bands and a single writing database. The title "Two disks, one handover" fades in.
+    narration: >-
+      Two sites. One database, writing. The operator asks the other site to take over
+      while both sites are still healthy. The two disks must switch together. A database
+      that wakes with one disk from one moment and one disk from another is not
+      recovered. This ticket records that grouped handover.
+    evidence: VIRTDR-498 ticket description, scope and environment
+    pause_after: 1.6
+
+  - id: "0.2"
+    chapter: Cold open
+    visual: Outcome card. "175 s outside the copy" and "900 s policy" appear, then "one cleanup defect".
+    narration: >-
+      The handover worked. The database came back with a measured gap of one hundred
+      seventy-five seconds, inside a fifteen-minute policy. Then the cleanup left two
+      disk records stuck deleting. This video follows the recorded run, the measured
+      data, and the defect it exposed.
+    evidence: VIRTDR-498 run log 2026-11-22T07:53:37Z, postcheck results
+    pause_after: 1.2
+
+  - id: "1.1"
+    chapter: The pieces
+    visual: Two site cards, a hub card, and two array strips. The workload sits on the old site.
+    narration: >-
+      Start with the floor plan. Two OpenShift clusters, called spokes, each on its own
+      machine. spoke-1 on ocp-edge97 is the old site. spoke-0 on ocp-edge95 is the
+      recovery site. A third cluster, the hub on ocp-edge36, holds the control records.
+      Each spoke has one Dell PowerStore array: VSA-B at the old site, VSA-A at the
+      recovery site.
+    evidence: VIRTDR-498 ticket environment; run log configuration
+    pause_after: 1.0
+
+  - id: "1.2"
+    chapter: The pieces
+    visual: A claim card, a volume record card, and a disk identifier. The two claims sit beside the guest.
+    narration: >-
+      The application is one RHEL 9 virtual machine named hammerdb-rhel9, in namespace
+      hammerdb. PostgreSQL holds a TPC-C database, and a HammerDB writer keeps it busy.
+      It is a discovered application: an existing workload selected for protection, not
+      an Argo CD ApplicationSet. OpenShift Virtualization runs it as a
+      VirtualMachineInstance, or VMI. Each disk is prepared by a DataVolume. The guest
+      sees two disks, and Kubernetes sees two requests for storage, called
+      PersistentVolumeClaims, or claims. The root claim is hammerdb-rhel9-rootdisk-grp.
+      The data claim is hammerdb-rhel9-datadisk-grp.
+    evidence: hub-state.txt spec.pvcSelector; run log configuration
+    pause_after: 1.2
+
+  - id: "1.3"
+    chapter: The pieces
+    visual: Glossary card for the DRPC, with the hub scope and the requested action.
+    narration: >-
+      A claim does not point at a disk directly. Kubernetes binds it to a PersistentVolume,
+      the record that names the real disk. That record carries a volume handle, the array's
+      own disk identifier. Keeping those records correct is as important as copying the
+      bytes. The hub record for the application is the DRPlacementControl, or DRPC,
+      named hammerdb-drpc. It points at a Placement named hammerdb-placement, and a
+      PlacementDecision named hammerdb-placement-decision-1 records the chosen cluster.
+    evidence: spoke-1 PV list, reclaim evidence; hub-state.txt
+    card:
+      kind: DRPlacementControl
+      name: hammerdb-drpc
+      role: the hub record for this application
+    def:
+      what: The hub control record for one protected application.
+      creator: An administrator enrolls the application, or the console creates it.
+      reader: Ramen's hub controller, the console, and the DR dashboard.
+      where: Hub cluster, namespace openshift-dr-ops.
+      analogy: The work order that says which site should run the application.
+    pause_after: 1.0
+
+  - id: "1.4"
+    chapter: The pieces
+    visual: Glossary card for the DRPolicy, with the two clusters and the 900-second objective.
+    narration: >-
+      The policy is dr-policy-15m. It pairs spoke-0 and spoke-1 and sets a recovery point
+      objective of nine hundred seconds. The recovery point objective, or RPO, is the
+      most data the business accepts losing. It is a limit, not a promise that the copy
+      is fresh. Something has to prove the copy.
+    evidence: run log configuration, DRPolicy dr-policy-15m, RPO 900 s
+    card:
+      kind: DRPolicy
+      name: dr-policy-15m
+      role: pairs the sites and sets the 15-minute objective
+    def:
+      what: A pair of clusters and a replication schedule that sets the RPO.
+      creator: A disaster recovery administrator.
+      reader: The DRPC and the VRG on each site.
+      where: Hub cluster, cluster scope.
+      analogy: The contract that says how much data the business accepts losing.
+    pause_after: 1.2
+
+  - id: "1.5"
+    chapter: The pieces
+    visual: Glossary card for the VRG, with one card on each spoke.
+    narration: >-
+      Each site has a VolumeReplicationGroup, or VRG. It is the site's coordinator. It
+      selects the claims, creates the replication objects, and reports whether this site
+      is primary or secondary. Both VRGs are named hammerdb-drpc in namespace
+      openshift-dr-ops. Ramen, the disaster recovery controller, delivers them from the
+      hub.
+    evidence: source VRG object, spoke-1 must-gather 2026-11-22T08:26Z
+    card:
+      kind: VolumeReplicationGroup
+      name: hammerdb-drpc
+      role: coordinates protection on each site
+    def:
+      what: The per-site coordinator for the protected claims.
+      creator: Ramen's hub controller delivers it as a ManifestWork.
+      reader: Ramen's spoke controller, the DRPC, and the console.
+      where: Each spoke, namespace openshift-dr-ops.
+      analogy: The site foreman who knows which disks are protected.
+    pause_after: 1.0
+
+  - id: "1.6"
+    chapter: The pieces
+    visual: Glossary card for the VGR, with the two claims inside one outline.
+    narration: >-
+      The group object is the VolumeGroupReplication, or VGR, in namespace hammerdb. It
+      selects both claims with two labels: appname equals hammerdb-rhel9-grp, and the
+      consistency-group label that names the group. That group label is the identity. It
+      tells csi-addons that these two claims are copied and promoted as one unit, not as
+      two independent disks.
+    evidence: VGR object, hammerdb must-gather 2026-11-22T08:26Z; VGRC spec
+    card:
+      kind: VolumeGroupReplication
+      name: vgr-4251c970ec7af885d6ec79c1d2c40661-hammerdb-drpc
+      role: one request for the whole group
+    def:
+      what: One replication request for every claim that carries the group label.
+      creator: The VRG on the site that is primary.
+      reader: csi-addons, which creates the group content and companion record.
+      where: Namespace hammerdb on each spoke.
+      analogy: One shipping container instead of two separate parcels.
+    pause_after: 1.2
+
+  - id: "1.7"
+    chapter: The pieces
+    visual: Glossary card for the VGRC and the companion VolumeReplication.
+    narration: >-
+      csi-addons turns the VGR into two more objects. The VolumeGroupReplicationContent,
+      or VGRC, records the array's group handle and the mapping from each disk to its
+      copy. The companion VolumeReplication carries the state machine. The VGRC is
+      cluster scoped. The companion VR is in namespace hammerdb. Both names use the
+      VGR's UID, not its name, and the card shows the exact target names.
+    evidence: VGRC and VR objects, spoke-0 must-gather 2026-11-22T08:26Z
+    card:
+      kind: VolumeGroupReplicationContent
+      name: vgrcontent-c20d5ca2-e01a-4a9a-aade-789ab83b5f2d
+      role: the map of the group and its disks
+    def:
+      what: The group manifest, with the array group handle and the disk mapping.
+      creator: csi-addons, from the VGR.
+      reader: The Dell CSI driver and Ramen's restore path.
+      where: Cluster scope on the site that owns the group.
+      analogy: The packing list that says which box holds which item.
+    pause_after: 1.2
+
+  - id: "1.8"
+    chapter: The pieces
+    visual: One array session on each side, roles Source and Destination, a 15-minute clock, and the legend.
+    narration: >-
+      On the arrays, the group is one replication session. Before the test, VSA-B was the
+      Source and VSA-A was the Destination. The policy sets a fifteen-minute schedule. A
+      session has a role, a state, and a last sync time. The role says which side is
+      writable now. The state says whether the copy is healthy.
+    evidence: VGRC volumeGroupAttributes; group handle 5f195dc9-650e-4051-81fd-9f99f7dcc86d; preflight session e16423f4-919e-452b-9651-7744ffb02f8f
+    pause_after: 1.0
+
+  - id: "1.9"
+    chapter: The pieces
+    visual: >-
+      Two paths side by side: Failover, crash-consistent, stops at the last copy; Relocate, planned, flushes first.
+    narration: >-
+      One last distinction. Failover is the crash-consistent action. It stops at the last
+      completed copy, and writes after it are lost. Relocate is the planned move. It is
+      designed to flush first and avoid that loss. This run used Failover, with both sites
+      reachable.
+    evidence: VIRTDR-498 ticket scope; DRPC action Failover
+    pause_after: 1.2
+
+  - id: "1.10"
+    chapter: The pieces
+    visual: >-
+      Recap panel. "Two claims. One group. One session. Two questions: is the copy fresh, is the peer ready?"
+    narration: >-
+      So far: two sites, two claims, one group, and one array session. The group is the
+      promise that both disks share a role and a recovery point. But a group does not
+      prove the copy is fresh, and it does not prove the old site is ready to be a peer.
+      Those are the next two questions.
+    evidence: VIRTDR-498 run log configuration; VGRC mapping
+    pause_after: 1.2
+
+  - id: "2.1"
+    chapter: Protection
+    visual: The protected applications page, with the hammerdb row expanded.
+    narration: >-
+      The console showed the application as discovered, with one volume consistency group.
+      That single group is the point: both claims are protected together. The row is
+      hammerdb-drpc, policy dr-policy-15m, current cluster spoke-1. The expansion shows
+      namespace hammerdb and the group count.
+    evidence: 01-protected-apps-expanded.png, captured 2026-11-22T07:46Z
+    screenshot: 01-protected-apps-expanded.png
+    focus: {x: 310, y: 440, w: 1200, h: 400}
+    caption: Protected applications, before the failover, group count 1
+    pause_after: 1.0
+
+  - id: "2.2"
+    chapter: Protection
+    visual: Full world. The DRPC, both VRGs, and the group session on VSA-B in the pre-run state.
+    narration: >-
+      The protection chain was in place. The DRPC was Deployed and Completed, with
+      Protected and PeerReady true. The PlacementDecision named spoke-1, and the group
+      session on VSA-B was Source and okay.
+    evidence: preflight-20261122T071932Z.json results; hub-state.txt status
+    pause_after: 1.0
+
+  - id: "2.3"
+    chapter: Protection
+    visual: The DR status popover, with the two last-synced values.
+    narration: >-
+      The console's last-synced values were zero seven oh nine for the volumes and zero
+      seven eleven for Kubernetes objects. Those values are a quick check, not the gate.
+      The gate is the array job history together with the source writes inside each
+      interval, because a completed job records when the copy finished, not what the copy
+      contains.
+    evidence: 02-dr-status-popover.png; run log postcheck output
+    screenshot: 02-dr-status-popover.png
+    focus: {x: 900, y: 250, w: 470, h: 270}
+    caption: Before the failover, volume last synced 07:09 UTC
+    pause_after: 1.0
+
+  - id: "2.4"
+    chapter: Protection
+    visual: The VSA-B replication table, highlighting the hammerdb group row, and the preflight gate panel.
+    narration: >-
+      The preflight passed ten of ten checks at zero seven nineteen. Two scheduled group
+      syncs had completed, at zero six fifty-seven and zero seven oh nine. The maximum gap
+      was seven hundred twenty seconds, inside the nine hundred second policy. Both
+      intervals carried source writes, four thousand two hundred eighty-seven rows and
+      thirty-one thousand seventy-five rows. The Initiate deadline was zero seven
+      twenty-three.
+    evidence: preflight-20261122T071932Z.json results; 04-vsa-b-replication.png
+    screenshot: 04-vsa-b-replication.png
+    focus: {x: 200, y: 415, w: 450, h: 70}
+    iw: 921
+    ih: 892
+    caption: Before failover, VSA-B lists the group as Source, array time UTC+02:00
+    pause_after: 1.2
+
+  - id: "2.5"
+    chapter: Protection
+    visual: A deadline bar from the last completed sync to the Initiate, with the actual click marked inside it.
+    narration: >-
+      This is the gate that matters. The writer was advancing, the copy was carrying real
+      rows, and the last completed sync still left time to act. At zero seven twenty-two
+      twenty-one the operator clicked Initiate, forty-nine seconds before the deadline.
+      The test did not begin with a stale copy.
+    evidence: preflight deadline 2026-11-22T07:23:10Z; Initiate 07:22:21Z; run log
+    pause_after: 1.2
+
+  - id: "3.1"
+    chapter: The request
+    visual: The Failover dialog, with target spoke-0 and the cleanup warning.
+    narration: >-
+      The Failover dialog named target cluster spoke-0. Failover readiness was Ready, and
+      the volume last-synced value was zero seven oh nine. The dialog also warned that the
+      old application must be cleaned up manually before replication can begin. That
+      warning matters later, because the console's fourth step and the array's copy are not
+      the same thing.
+    evidence: 06-failover-dialog.png, captured 2026-11-22T07:46Z
+    screenshot: 06-failover-dialog.png
+    focus: {x: 540, y: 265, w: 845, h: 540}
+    caption: Failover to spoke-0, readiness Ready, cleanup warning visible
+    pause_after: 1.2
+
+  - id: "3.2"
+    chapter: The request
+    visual: The DRPC card. Action Failover and failoverCluster spoke-0 appear; the target VRG turns Primary.
+    narration: >-
+      Clicking Initiate wrote two fields on the hub DRPC: action Failover, and
+      failoverCluster spoke-0. The console is only the front door. Ramen's DRPC controller
+      validates the target, marks the phase FailingOver, and requests the target VRG as
+      Primary through a ManifestWork. Later, after the old application is cleaned up, the
+      source VRG is told to become Secondary.
+    evidence: hub-state.txt spec.action Failover and spec.failoverCluster spoke-0
+    pause_after: 1.0
+
+  - id: "3.3"
+    chapter: The request
+    visual: >-
+      A phase strip: FailingOver at 07:22:34, WaitingForResourceRestore, FailedOver at 07:22:48, Cleaning Up.
+    narration: >-
+      The run recorded the transition. At zero seven twenty-two thirty-four the DRPC was
+      FailingOver with progression WaitingForResourceRestore. At zero seven twenty-two
+      forty-eight it was FailedOver with progression Cleaning Up. The phase changed while
+      the storage and object work were still in progress.
+    evidence: run log failover timeline; DRPC actionStartTime 07:22:21Z
+    pause_after: 1.0
+
+  - id: "3.4"
+    chapter: The request
+    visual: Both sites stay bright and reachable. No suspended node, no lost heartbeat, no powered-off array.
+    narration: >-
+      Notice what did not happen. This run did not suspend the source, did not power off
+      an array, and did not wait for a lost heartbeat. This is a reachable-source
+      failover. The hard part is not surviving a dead site. It is switching two live sites
+      without letting both sides write.
+    evidence: VIRTDR-498 ticket scope, both sites reachable; no suspension in run log
+    pause_after: 1.2
+
+  - id: "4.1"
+    chapter: Promotion
+    visual: The S3 bucket sends the archived VM, Secret, claims and group manifest to spoke-0.
+    narration: >-
+      On the target, Velero restored the VM and its Secret from the S3 archive. Ramen's
+      own restore path rebuilt the claims and the group manifest on spoke-0. The archived
+      VGRC is the map. Its group handle and disk handles still described the old
+      direction, so Ramen rewrote them to the destination side.
+    evidence: target VGRC object; Ramen vrg_volgrouprep.go cleanupVGRCForRestore
+    pause_after: 1.0
+
+  - id: "4.2"
+    chapter: Promotion
+    visual: The restored group map panel. The handle 5f195dc9 and the two promoted VSA-A handles appear.
+    narration: >-
+      The restored VGRC is the target group content, and the panel shows its exact name.
+      Its group handle became the group that was the Destination before the move. The
+      panel also shows the new destination group the reverse copy will use. The disk
+      mapping points at the promoted VSA-A handles. The VGR and companion
+      VolumeReplication were created in namespace hammerdb.
+    evidence: VGRC object, spoke-0 must-gather 2026-11-22T08:26Z
+    pause_after: 1.2
+
+  - id: "4.3"
+    chapter: Promotion
+    visual: The companion VR asks for Primary, csi-addons calls PromoteVolume, and the driver selects the group.
+    narration: >-
+      The target VRG's Primary request drove the VGR, and the VGR's companion
+      VolumeReplication asked for Primary. csi-addons called the Dell driver's
+      PromoteVolume. The driver did not promote one disk at a time. It found the volume
+      group ID and issued one failover for the group session, the same session that
+      covered both disks.
+    evidence: VR object spec.replicationState primary; csiaddons_replication.go promoteVolumeForVolumeGroup
+    pause_after: 1.2
+
+  - id: "4.4"
+    chapter: Promotion
+    visual: One array action on the group. Both disks change role together; no half-promoted state.
+    narration: >-
+      That one group action is the guarantee. The array changed the role of the group, so
+      both disks became writable on VSA-A together. There is no per-disk promotion step
+      in this path. The VGR status recorded the result: volume group promoted to primary
+      and replicating to secondary.
+    evidence: VGR status message and Completed reason Promoted; array screenshots 11 and 12
+    pause_after: 1.6
+
+  - id: "4.5"
+    chapter: Promotion
+    visual: Both target claims bind to their promoted handles. The old-site copies stay as the new destination.
+    narration: >-
+      The target claims bound through two PVs: csivol-31136f5c90 for the root claim, and
+      csivol-2a761d921f for the data claim. Each PV's spec.csi.volumeHandle points at a
+      promoted VSA-A disk, and the panel shows both exact handles. The old-site copies
+      stayed on VSA-B as the new destination. No target claim was left pointing at a
+      stale handle.
+    evidence: spoke-0 PV list; VGRC persistentVolumeMappingList
+    pause_after: 1.4
+
+  - id: "4.6"
+    chapter: Promotion
+    visual: The target VM starts. The VMI is Running, PostgreSQL and the writer come back.
+    narration: >-
+      The VM then came back on spoke-0. The target VMI was Running. PostgreSQL started,
+      and the HammerDB writer was active again. By zero seven twenty-four forty-seven the
+      guest was writing. The target recovered while the old site was still up, before the
+      source cleanup.
+    evidence: postcheck target VMI Running; run index 07:24:47 order total 10,339,193
+    pause_after: 1.2
+
+  - id: "4.7"
+    chapter: Promotion
+    visual: The console shows FailedOver, 3 of 4 steps, cleanup pending.
+    narration: >-
+      The DRPC reached FailedOver, and the PlacementDecision named spoke-0 by zero seven
+      thirty-seven. The application was serving from the recovery site. The group had done
+      what a group is for: one role change, both disks, one application. The console
+      capture still showed the fourth step, cleanup, as pending.
+    evidence: run index final state; 08-failedover-cleaningup.png
+    screenshot: 08-failedover-cleaningup.png
+    focus: {x: 960, y: 160, w: 345, h: 460}
+    caption: FailedOver, 3 of 4 steps, cleanup pending, captured 07:46 UTC
+    pause_after: 1.2
+
+  - id: "4.8"
+    chapter: Promotion
+    visual: Recap panel. The request, the restore, the one promote call, the guest, and the pending cleanup.
+    narration: >-
+      So far: the request moved the placement, the archive rebuilt the objects, one
+      promote call flipped the group, and the guest returned. The old site still held the
+      original copies. The cleanup was still pending. What happened to the data in the
+      gap?
+    evidence: VIRTDR-498 run log; DRPC conditions; target VMI
+    pause_after: 1.2
+
+  - id: "5.1"
+    chapter: Data
+    visual: >-
+      Two postcheck cards: 15 of 17 at 07:46, 17 of 17 at 07:53.
+    narration: >-
+      The first postcheck failed two handle checks. The final postcheck passed seventeen
+      of seventeen. This video uses the final result and keeps the first result in the
+      record. The archive does not contain the checker change, so the reason for the
+      difference is not established here.
+    evidence: postcheck-20261122T074620Z.json 15/17; postcheck-20261122T075337Z.json 17/17
+    pause_after: 1.2
+
+  - id: "5.2"
+    chapter: Data
+    visual: >-
+      A timeline: sync job completed 07:21:09, snapshot contains writes only to 07:19:26, Initiate 07:22:21.
+    narration: >-
+      The check compared two clocks. At Initiate, the last completed group sync was zero
+      seven twenty-one oh nine, and the checker reported its age as seventy-one seconds.
+      But the last recovered source write was zero seven nineteen twenty-six. The job
+      finished at twenty-one oh nine. The recovered rows end at nineteen twenty-six. A
+      completed job is not the same as a fresh snapshot.
+    evidence: >-
+      postcheck results: last sync 07:21:09, last source row 07:19:26
+    pause_after: 1.4
+
+  - id: "5.3"
+    chapter: Data
+    visual: >-
+      The measured window: 175 seconds of lost writes, 25 complete source minutes recovered, 900-second policy.
+    narration: >-
+      The loss window starts at the last recovered write, not at the job completion.
+      Writes between zero seven nineteen twenty-six and the zero seven twenty-two
+      twenty-one Initiate were not in the copy: one hundred seventy-five seconds. The
+      policy allows nine hundred. The check also walked twenty-five complete source
+      minutes before the last sync and found no missing rows.
+    evidence: >-
+      postcheck data loss within RPO: 175 s; 25 complete source minutes, missing none
+    pause_after: 1.6
+
+  - id: "5.4"
+    chapter: Data
+    visual: >-
+      Verdict card: complete to 07:19:26, 175 seconds lost, within the 900-second RPO, not zero loss.
+    narration: >-
+      So the verdict is narrow and honest. The check found no missing rows in the
+      twenty-five complete source minutes it walked, and one hundred seventy-five seconds
+      of writes after the last recovered row are lost. That is inside the RPO. It is not
+      zero loss, and it is not a claim about every write the database ever accepted.
+    evidence: postcheck verdict; RPO 900 s; 175 s measured
+    pause_after: 1.4
+
+  - id: "6.1"
+    chapter: Reverse copy
+    visual: The VSA-A replication table, highlighting the hammerdb group as Source, with the promotion time.
+    narration: >-
+      The console calls storage and peer readiness two different things. The target VGR
+      was already Replicating true at zero seven twenty-two fifty-seven, and the DRPC
+      reported storage health true at zero seven twenty-three oh seven. By zero seven
+      twenty-seven fifty-six the array session showed VSA-A Source and VSA-B Destination,
+      copying from the new primary back to the old site.
+    evidence: 11-vsa-a-post-failover.png; DRPC ReplicationHealthy 07:23:07Z; run index 07:27:56
+    screenshot: 11-vsa-a-post-failover.png
+    focus: {x: 18, y: 415, w: 900, h: 70}
+    caption: After failover, VSA-A lists the group as Source, array time UTC+02:00
+    pause_after: 1.2
+
+  - id: "6.2"
+    chapter: Reverse copy
+    visual: >-
+      The VGR status panel: Primary, Replicating true, autoResync false.
+    narration: >-
+      The VGR records it on the Kubernetes side. Its status was Primary, with Replicating
+      true and the message volume group is promoted to primary and replicating to
+      secondary. The target VGR's autoResync field was false, which is expected for a
+      Primary VGR. The observed session is the evidence for the reverse copy. Which side
+      issued a separate Reprotect is not recorded.
+    evidence: VGR object, spoke-0 must-gather 2026-11-22T08:26Z; driver promoteVolumeForVolumeGroup
+    unverified: The exact controller that issued a separate Reprotect is not recorded. The array state is the evidence for the reverse copy, not the autoResync field.
+    pause_after: 1.4
+
+  - id: "6.3"
+    chapter: Reverse copy
+    visual: The VSA-B replication table, highlighting the same group as Destination.
+    narration: >-
+      The pair of array views shows the same group from both sides. VSA-A now lists it as
+      Source, and VSA-B lists it as Destination. The last sync times moved forward. The
+      two views agree on the direction of the hammerdb group.
+    evidence: 12-vsa-b-post-failover.png; 11-vsa-a-post-failover.png
+    screenshot: 12-vsa-b-post-failover.png
+    focus: {x: 18, y: 415, w: 900, h: 70}
+    caption: After failover, VSA-B lists the group as Destination, array time UTC+02:00
+    pause_after: 1.2
+
+  - id: "6.4"
+    chapter: Reverse copy
+    visual: The healthy DR status popover, with PVC last synced 07:27 and Kubernetes resources 07:36.
+    narration: >-
+      Peer readiness came later. The DRPC's PeerReady condition turned true at zero seven
+      thirty-five oh four, the source VRG reported Secondary at about zero seven
+      thirty-five, and the DRPC reached Completed at zero seven thirty-seven. The console's
+      fourth step, cleanup, lines up with that peer state, not with the storage copy.
+    evidence: 10-completed-expanded.png; source VRG state Secondary; DRPC PeerReady 07:35:04Z
+    screenshot: 10-completed-expanded.png
+    focus: {x: 900, y: 250, w: 470, h: 270}
+    caption: After cleanup, healthy, PVCs last synced 07:27 UTC
+    pause_after: 1.4
+
+  - id: "6.5"
+    chapter: Reverse copy
+    visual: >-
+      Two questions side by side: Is the array copy healthy? Is the old site a ready peer?
+    narration: >-
+      This is the distinction to keep. Replicating true answers whether the array copy is
+      healthy. PeerReady answers whether the old site has finished its role change. A run
+      can have the first without the second. In this run, it did, for about twelve minutes.
+    evidence: ReplicationHealthy 07:23:07Z vs PeerReady 07:35:04Z
+    pause_after: 1.4
+
+  - id: "7.1"
+    chapter: Cleanup
+    visual: The source VM, DataVolumes and claims are deleted. The source VRG becomes Secondary.
+    narration: >-
+      Source cleanup is a separate step for a discovered application. At zero seven
+      thirty-three the old VM was deleted. At zero seven thirty-five its DataVolumes and
+      remaining claims were deleted. The source VRG then became Secondary. That is the
+      normal path, and it is where the defect appeared.
+    evidence: run index cleanup 07:33/07:35; source VRG state Secondary
+    pause_after: 1.2
+
+  - id: "7.2"
+    chapter: Cleanup
+    visual: Two old-site PV cards with Retain and the vr-retained annotation.
+    narration: >-
+      Each old-site PV carried a retention annotation and a reclaim policy of Retain. That
+      is deliberate. The PV must not ask the array to delete a disk that is still the live
+      copy target. The two PVs are csivol-31136f5c90 and csivol-2a761d921f. When the claims
+      were deleted, Ramen's VRG controller ran preparePVCForVRDeletion.
+    evidence: reclaim evidence spoke1-state.txt; Ramen vrg_volrep.go preparePVCForVRDeletion
+    pause_after: 1.2
+
+  - id: "7.3"
+    chapter: Cleanup
+    visual: >-
+      The code branch: async VRG or Primary leads to undoPVRetention, which sets Delete and removes vr-retained.
+    narration: >-
+      The code treats any async VRG as if it were primary and calls undoPVRetention. That
+      sets the PV reclaim policy back to Delete and removes the retention annotation. It
+      did this while the old site was still the replication destination. The PV controller
+      then asked the Dell driver to delete the volume.
+    evidence: vrg_volrep.go:615 condition, :616 undo, :737 body; DFBUGS-12906
+    unverified: The code path is verified in upstream main. The run's private Ramen image has no source revision label, so the deployed-build attribution is not proven.
+    pause_after: 1.4
+
+  - id: "7.4"
+    chapter: Cleanup
+    visual: The driver tries RemoveMembersFromVolumeGroup. The array returns HTTP 422 and the PV retries.
+    narration: >-
+      The driver tried to remove the volume from its group first. The array refused:
+      HTTP four twenty-two, volumes cannot be removed from the replication destination
+      volume group. Kubernetes retried. The PV stayed Released with its finalizer, and the
+      same error repeated. The defect did not delete either array copy, and the target
+      stayed healthy.
+    evidence: DFBUGS-12906 actual results; controller.go deleteISCSIVolume
+    pause_after: 1.4
+
+  - id: "7.5"
+    chapter: Cleanup
+    visual: >-
+      Defect card: DFBUGS-12906, Retain workaround, impact on decommission and the latent risk.
+    narration: >-
+      The workaround was local: patch the two PVs back to Retain. That stopped the retry
+      loop and kept both copies. The defect is filed as DFBUGS-12906. Its upstream code
+      path is source-verified. The running build is a private Ramen image with no source
+      revision label, so the deployed-build attribution stays unverified. The impact is a
+      site that cannot be decommissioned cleanly, and a latent risk if the replication
+      relationship is restructured before the pending delete is handled.
+    evidence: DFBUGS-12906, open Major; reclaim evidence root-cause.md; lab path patch to Retain
+    pause_after: 1.6
+
+  - id: "8.1"
+    chapter: Recap
+    visual: The full chain in order, from the gate to the cleanup.
+    narration: >-
+      The whole chain, in order. Prove the copy carried writes. Ask the hub for Failover
+      with a target. Restore the objects and rewrite the group map. Promote the group once.
+      Bind both claims to the promoted handles. Start the guest. Measure the gap. Wait for
+      the old site to become Secondary. Then clean up, and check what cleanup left behind.
+    evidence: VIRTDR-498 run log; DRPC conditions; VGRC; cleanup evidence
+    pause_after: 1.6
+
+  - id: "8.2"
+    chapter: Recap
+    visual: >-
+      Two columns: what the run established, and what it does not establish.
+    narration: >-
+      What this run established: a recorded, reachable-source failover of a discovered
+      RHEL application protected by Dell PowerStore volume-group replication; one group
+      promotion for both disks; a measured one hundred seventy-five second loss window
+      inside a nine hundred second policy; and a cleanup defect on the old site. What it
+      does not establish: zero loss, a site-down failover, or a fix for DFBUGS-12906.
+    evidence: VIRTDR-498 postcheck 17/17; DFBUGS-12906 open
+    pause_after: 2.0
