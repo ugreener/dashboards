@@ -223,10 +223,6 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       </defs>
 
       {!failover ? arrow('M410,305 C410,370 410,400 410,470', C.cyan, true, 'delivers the VRG', 690, 380, prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24)) : null}
-      {failover ? <>
-        {arrow('M410,305 C410,360 1525,360 1525,470', C.cyan, true, 'target VRG as Primary', 1000, 380)}
-        {arrow('M410,305 C410,350 200,350 200,470', C.purple, true, 'old VRG to Secondary', 300, 390)}
-      </> : null}
       {!failover ? <>
         {arrow('M370,640 L370,670', C.green, false, null, 0, 0)}
         {arrow('M630,765 L670,765', C.cyan, false, null, 0, 0)}
