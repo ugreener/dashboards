@@ -171,7 +171,8 @@ beats:
       point: both claims are protected as a unit, so the recovery point is shared.
     evidence: 02-baseline-drpc-details.png, 10:38:20
     screenshot: 02-baseline-drpc-details.png
-    focus: {x: 380, y: 723, w: 1050, h: 154}
+    focus: {x: 314, y: 723, w: 1558, h: 154}
+    shot: {w: 1500, x: 210, y: 90}
     caption: Expanded row, 10:38 UTC · ApplicationSet, gitops-vms, one consistency group
     pause_after: 1.2
 

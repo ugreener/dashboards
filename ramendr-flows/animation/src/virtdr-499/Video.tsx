@@ -14,6 +14,7 @@ type Meta = {
   screenshot?: string;
   focus?: {x: number; y: number; w: number; h: number};
   caption?: string;
+  shot?: {w?: number; x?: number; y?: number};
   iw?: number;
   ih?: number;
   card?: {kind: string; name: string; role: string};
@@ -171,7 +172,7 @@ export const VirtDr499: React.FC<{chapters: number[]}> = ({chapters}) => {
     {seg.type === 'beat' && ch >= 2 ? <PhaseTracker current={Math.max(0, Math.min(PHASES_499.length - 1, ch - 2))} phases={PHASES_499} /> : null}
     {seg.type === 'beat' && ch >= 3 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS_499} /> : null}
     {seg.type === 'beat' && PANEL_BEATS.has(b.id) && !m.screenshot ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
-    {seg.type === 'beat' && m.screenshot ? <Screenshot src={`evidence/virtdr-499/${m.screenshot}`} date="2026-11-22" caption={m.caption ?? ''} focus={m.focus} a={win(f, b.audio, 0.14, 0.98)} z={progIO(f, b.audio * 0.12, b.audio * 0.5)} x={865} y={215} w={1010} iw={m.iw ?? 1920} ih={m.ih ?? 1080} sourceLabel={sourceFor(m.screenshot)} /> : null}
+    {seg.type === 'beat' && m.screenshot ? <Screenshot src={`evidence/virtdr-499/${m.screenshot}`} date="2026-11-22" caption={m.caption ?? ''} focus={m.focus} a={win(f, b.audio, 0.14, 0.98)} z={progIO(f, b.audio * 0.12, b.audio * 0.5)} x={m.shot?.x ?? 865} y={m.shot?.y ?? 215} w={m.shot?.w ?? 1010} iw={m.iw ?? 1920} ih={m.ih ?? 1080} sourceLabel={sourceFor(m.screenshot)} /> : null}
     {seg.type === 'chapter' ? <ChapterCard n={seg.chapter.n} title={seg.chapter.title} sub={seg.chapter.sub} p={prog(frame - seg.from, 0, 30)} out={prog(frame - seg.from, seg.dur - 30, seg.dur)} /> : null}
     {beats.map((beat) => <Sequence key={beat.id} from={beat.from + PAD_BEFORE} durationInFrames={beat.audio + 10}><Audio src={staticFile(`audio/virtdr-499/${beat.id}.wav`)} volume={0.72} /></Sequence>)}
     {cues.map((cue, k) => <Sequence key={k} from={cue.at} durationInFrames={sec(1.6)}><Audio src={staticFile(`sfx/${cue.name}.wav`)} volume={cue.v} /></Sequence>)}
