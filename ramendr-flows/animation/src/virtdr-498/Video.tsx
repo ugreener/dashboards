@@ -138,7 +138,7 @@ export const VirtDr498: React.FC<{chapters: number[]}> = ({chapters}) => {
   for (const beat of beats) {
     const base = beat.from + PAD_BEFORE;
     const list: [number, string, number][] = [...(SFX[beat.id] ?? [])];
-    for (const [id, frac] of CH) if (id === beat.id) list.push([frac, 'flip', 0.18]);
+    for (const [id, frac, key] of CH) if (id === beat.id && (FOCUS[beat.id] ?? []).includes(key)) list.push([frac, 'flip', 0.18]);
     if (META[beat.id]?.screenshot) list.push([0.14, 'whoosh', 0.16]);
     if (META[beat.id]?.card) list.push([0.04, 'pop', 0.17]);
     for (const [frac, name, v] of list) {
