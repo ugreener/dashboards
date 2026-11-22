@@ -120,7 +120,7 @@
    "x": 310,
    "y": 440,
    "w": 1200,
-   "h": 400
+   "h": 300
   },
   "caption": "Protected applications, before the failover, group count 1"
  },
@@ -143,9 +143,9 @@
   "screenshot": "04-vsa-b-replication.png",
   "focus": {
    "x": 0,
-   "y": 430,
+   "y": 438,
    "w": 600,
-   "h": 40
+   "h": 24
   },
   "caption": "vg-c20d5ca2 (truncated in the capture) is Source on VSA-B, array time UTC+02:00",
   "iw": 921,
@@ -223,9 +223,9 @@
   "screenshot": "11-vsa-a-post-failover.png",
   "focus": {
    "x": 18,
-   "y": 430,
+   "y": 438,
    "w": 900,
-   "h": 40
+   "h": 24
   },
   "caption": "After failover, VSA-A lists the group as Source, array time UTC+02:00"
  },
@@ -238,9 +238,9 @@
   "screenshot": "12-vsa-b-post-failover.png",
   "focus": {
    "x": 18,
-   "y": 430,
+   "y": 438,
    "w": 900,
-   "h": 40
+   "h": 24
   },
   "caption": "After failover, VSA-B lists the group as Destination, array time UTC+02:00"
  },

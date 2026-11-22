@@ -116,7 +116,9 @@ All times UTC on 2026-11-22.
   the two classes, the two claims, the two PVs, `VirtualMachine hammerdb-rhel9`,
   its VMI, and the `cloudinit-hammerdb` Secret.
 - spoke-0 (recovery site): the same set after restore, with the VRG, VGR and VR in
-  Primary and the recreated claims bound to the promoted VSA-A handles.
+  Primary and the recreated claims bound to the promoted VSA-A handles. Before the run
+  the target VRG already exists as Secondary; the target VGR, VGRC and companion VR are
+  created when that VRG becomes Primary.
 - Arrays: one PowerStore volume group and one replication session per side. Roles are
   Source and Destination; the run's group is
   `vg-c20d5ca2-e01a-4a9a-aade-789ab83b5f2d-VSA-A-Fifteen_Minutes` in the restored

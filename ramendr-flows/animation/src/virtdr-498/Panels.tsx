@@ -22,8 +22,8 @@ const Chip: React.FC<{t: string; c: string; a?: number}> = ({t, c, a = 1}) => (
 export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: string}> = {
   '0.1': {title: 'A grouped handover, both sites up', rows: ['VIRTDR-498 · recorded failover', 'spoke-1 / VSA-B to spoke-0 / VSA-A', 'Both sites reachable. No site loss.'], color: C.cyan},
   '0.2': {title: 'What the run measured', rows: ['175 seconds outside the copy', '900-second recovery point objective', 'One cleanup defect on the old site'], color: C.green},
-  '1.12': {title: 'Two questions after the group', rows: ['Is the copy fresh? Array job history and source writes.', 'Is the old site a ready peer? Source VRG Secondary and DRPC PeerReady.', 'The group answers neither by itself.']},
-  '2.2': {title: 'Protection before the run', rows: ['DRPC Deployed / Completed', 'Protected=True · PeerReady=True', 'PlacementDecision: spoke-1', 'VSA-B group session: Source · OK'], color: C.green},
+  '1.12': {title: 'Two questions after the group', rows: ['Two sites, two claims, one group, one session.', 'Is the copy fresh? Array job history and source writes.', 'Is the old site a ready peer? Source VRG Secondary and DRPC PeerReady.', 'The group answers neither by itself.']},
+  '2.2': {title: 'Protection before the run', rows: ['DRPC Deployed / Completed', 'Protected=True · PeerReady=True', 'PlacementDecision: spoke-1', 'Target VRG: Secondary', 'VSA-B group session: Source · OK'], color: C.green},
   '2.4': {title: 'The gate at 07:19:32', rows: ['10 of 10 preflight checks passed', 'Syncs 06:57:09 and 07:09:09', 'Max gap 720 s < 900 s', 'Rows 4,287 and 31,075', 'Initiate deadline 07:23:10'], color: C.green},
   '2.5': {title: 'Click before the deadline', rows: ['Last completed sync at preflight: 07:09:09', 'Initiate: 07:22:21', 'Deadline: 07:23:10', 'Margin: 49 s'], color: C.green},
   '3.2': {title: 'Two fields on the hub record', rows: ['spec.action: Failover', 'spec.failoverCluster: spoke-0', 'DRPC phase: FailingOver', 'Target VRG: Primary requested']},
@@ -94,6 +94,7 @@ export const GlossaryScene: React.FC<{id: string; f: number; dur: number; card?:
   return <div style={{position: 'absolute', inset: 0, opacity: prog(f, -20, 24)}}>
     <div style={{position: 'absolute', left: 100, top: 170, color: C.purple, fontFamily: mono, fontSize: 21}}>THE PIECES · {id.split('.')[1]}</div>
     <Card x={100} y={300} w={730} kind={card.kind} name={card.name} role={card.role} nameSize={long ? 15 : 26} appear={prog(f, -10, 24)} color={C.cyan} />
+    {id === '1.9' ? <Card x={100} y={560} w={730} kind="VolumeReplication" name="vr-c20d5ca2-e01a-4a9a-aade-789ab83b5f2d" role="carries the array state machine" nameSize={16} appear={prog(f, dur * 0.12, dur * 0.12 + 24)} color={C.amber} /> : null}
     <GlossaryPanel d={def} p={prog(f, dur * 0.03, dur * 0.75)} x={870} y={220} w={970} />
   </div>;
 };
@@ -214,7 +215,7 @@ export const BeatPanel: React.FC<{id: string; f: number; dur: number}> = ({id, f
   const d = PANEL_DATA[id];
   if (!d) return null;
   const a = prog(f, 0, 24);
-  const cold = id === '0.1' || id === '0.2';
+  const cold = id === '0.1' || id === '0.2' || id === '1.12';
   return <div style={{position: 'absolute', left: cold ? 170 : 940, top: cold ? 290 : 220, width: cold ? 1580 : 900, padding: 32, border: `2px solid ${d.color ?? C.blue}`, borderRadius: 20, background: C.bg, opacity: a, fontFamily: sans, boxShadow: '0 20px 70px #000c'}}>
     <div style={{fontSize: cold ? 46 : 29, fontWeight: 700, color: d.color ?? C.blue, marginBottom: 22}}>{d.title}</div>
     {d.rows.map((r, i) => <div key={r} style={{marginTop: 16, fontSize: cold ? 32 : 23, lineHeight: 1.35, color: r.startsWith('INFERENCE') ? C.amber : C.text, fontWeight: r.startsWith('INFERENCE') ? 700 : 400, opacity: prog(f, dur * (.03 + i * .05), dur * (.03 + i * .05) + 22), transform: `translateX(${(1 - prog(f, dur * (.03 + i * .05), dur * (.03 + i * .05) + 22)) * 22}px)`, fontFamily: /^[a-f0-9]{8}-/.test(r) || r.startsWith('VGRC ') || r.startsWith('Promoted ') || r.startsWith('New destination ') || r.startsWith('Root ') || r.startsWith('Data ') || r.startsWith('csivol-') || r.startsWith('f41919e2') || r.startsWith('6cefffe5') ? mono : sans, overflowWrap: 'anywhere'}}>{r}</div>)}

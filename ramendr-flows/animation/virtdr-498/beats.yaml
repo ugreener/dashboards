@@ -235,7 +235,7 @@ beats:
       namespace hammerdb and the group count.
     evidence: 01-protected-apps-expanded.png, captured 2026-11-22T07:46Z
     screenshot: 01-protected-apps-expanded.png
-    focus: {x: 310, y: 440, w: 1200, h: 400}
+    focus: {x: 310, y: 440, w: 1200, h: 300}
     caption: Protected applications, before the failover, group count 1
     pause_after: 1.0
 
@@ -276,7 +276,7 @@ beats:
       twenty-three.
     evidence: preflight-20261122T071932Z.json results; 04-vsa-b-replication.png
     screenshot: 04-vsa-b-replication.png
-    focus: {x: 0, y: 430, w: 600, h: 40}
+    focus: {x: 0, y: 438, w: 600, h: 24}
     iw: 921
     ih: 892
     caption: vg-c20d5ca2 (truncated in the capture) is Source on VSA-B, array time UTC+02:00
@@ -500,7 +500,7 @@ beats:
       copying from the new primary back to the old site.
     evidence: 11-vsa-a-post-failover.png; DRPC ReplicationHealthy 07:23:07Z; run index 07:27:56
     screenshot: 11-vsa-a-post-failover.png
-    focus: {x: 18, y: 430, w: 900, h: 40}
+    focus: {x: 18, y: 438, w: 900, h: 24}
     caption: After failover, VSA-A lists the group as Source, array time UTC+02:00
     pause_after: 1.2
 
@@ -527,7 +527,7 @@ beats:
       two views agree on the direction of the hammerdb group.
     evidence: 12-vsa-b-post-failover.png; 11-vsa-a-post-failover.png
     screenshot: 12-vsa-b-post-failover.png
-    focus: {x: 18, y: 430, w: 900, h: 40}
+    focus: {x: 18, y: 438, w: 900, h: 24}
     caption: After failover, VSA-B lists the group as Destination, array time UTC+02:00
     pause_after: 1.2
 

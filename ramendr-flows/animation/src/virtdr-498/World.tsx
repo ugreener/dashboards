@@ -64,7 +64,7 @@ export const FOCUS: Record<string, string[]> = {
   '6.2': ['vgr0', 'vr0'],
   '6.3': ['groupA', 'groupB'],
   '6.4': ['vrg1', 'drpc'],
-  '6.5': ['drpc', 'vrg1', 'vrg0'],
+  '6.5': ['drpc', 'vrg1'],
   '7.1': ['vm1', 'pvcRoot1', 'pvcData1', 'vrg1'],
   '7.2': ['pvcRoot1', 'pvcData1'],
   '7.3': ['pvcRoot1', 'pvcData1', 'vrg1'],
@@ -86,7 +86,6 @@ export const CH: [string, number, string, string][] = [
   ['3.2', 0.2, 'drpc', 'FailingOver'],
   ['3.2', 0.4, 'decision', 'spoke-0'],
   ['3.2', 0.5, 'vrg0', 'Primary requested'],
-  ['3.2', 0.6, 'vrg1', 'Secondary requested'],
   ['3.3', 0.3, 'drpc', 'FailedOver · Cleaning Up'],
   ['4.2', 0.2, 'vrg0', 'Primary'],
   ['4.2', 0.3, 'vgr0', 'primary'],
@@ -141,7 +140,7 @@ const BASE: Record<string, string> = {
   vm1: 'Running',
   pvcRoot1: 'Bound',
   pvcData1: 'Bound',
-  vrg0: 'not created yet',
+  vrg0: 'Secondary',
   vgr0: 'not created yet',
   content0: 'not created yet',
   vr0: 'not created yet',
@@ -175,7 +174,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
   const focus = (key: string) => (keys.length === 0 || keys.includes(key) ? 1 : 0.08);
   const active = new Set(keys.map((k) => BAND[k]).filter(Boolean));
   const bandOn = (b: string) => keys.length === 0 || active.has(b);
-  const bandOpacity = (b: string) => (bandOn(b) ? 1 : 0.16);
+  const bandOpacity = (b: string) => (panel && !bandOn(b) ? 0 : bandOn(b) ? 1 : 0.16);
   const bandHide = (b: string) => panel || !bandOn(b);
   const appearAll = chapter === 2 ? prog(c.f, -15, 35) : 1;
   const failover = reached(c.id, '3.2');
@@ -208,7 +207,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
     <Region b={{x: 1235, y: 1320, w: 1175, h: 360}} title="VSA-A · RECOVERY ARRAY" color={C.array} opacity={bandOpacity('arrayA')} hideTitle={bandHide('arrayA')} />
 
     {Object.keys(NODES).map((key) => {
-      if ((key === 'vrg0' || key === 'vgr0' || key === 'content0' || key === 'vr0' || key === 'vm0' || key === 'pvcRoot0' || key === 'pvcData0') && !failover) return null;
+      if ((key === 'vgr0' || key === 'content0' || key === 'vr0' || key === 'vm0' || key === 'pvcRoot0' || key === 'pvcData0') && !failover) return null;
       return node(key, failover && key.startsWith('vrg0') ? prog(c.f, -10, 24) : appearAll);
     })}
     {DRIVER(140, 1595, 'spoke-1', status('driver1'))}
