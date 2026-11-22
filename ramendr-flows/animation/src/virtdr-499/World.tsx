@@ -169,6 +169,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
   const onB = (b: string) => keys.length === 0 || active.has(b);
   const ao = (b: string) => (onB(b) ? 1 : 0);
   const ab = (a: string, b: string) => (onB(a) && onB(b) ? 1 : 0);
+  const both = (a: string, b: string) => keys.length === 0 || (keys.includes(a) && keys.includes(b));
 
   const failover = reached(c.id, '4.1');
   const appPlane = reached(c.id, '5.3');
@@ -216,19 +217,19 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
 
     <svg width={2480} height={2000} style={{position: 'absolute', left: 0, top: 0, pointerEvents: 'none'}}>
       <defs>
-        <marker id="tip499" markerWidth={10} markerHeight={10} refX={8} refY={3} orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="context-stroke" /></marker>
+        <marker id="tip499" markerUnits="userSpaceOnUse" markerWidth={16} markerHeight={16} refX={13} refY={6} orient="auto"><path d="M0,0 L0,12 L15,6 z" fill="context-stroke" /></marker>
       </defs>
 
-      {arrow('M670,195 L720,195', C.cyan, false, null, 0, 0, ao('hub'))}
-      {arrow('M1420,195 L1470,195', C.purple, true, null, 0, 0, ao('hub'))}
-      {arrow('M870,410 L910,410', C.purple, true, null, 0, 0, ao('hub'))}
+      {arrow('M670,195 L720,195', C.cyan, false, null, 0, 0, both('placement', 'decision') ? 1 : 0)}
+      {arrow('M1420,195 L1470,195', C.purple, true, null, 0, 0, both('decision', 'appset') ? 1 : 0)}
+      {arrow('M870,410 L910,410', C.purple, true, null, 0, 0, both('drpc', 'policy') ? 1 : 0)}
 
-      {!pruned ? arrow('M370,790 L370,850', C.green, false, null, 0, 0, ao('spoke1')) : null}
+      {!pruned && both('app1', 'vrg1') ? arrow('M370,790 L370,850', C.green, false, null, 0, 0, 1) : null}
 
-      {appPlane ? arrow('M1535,790 L1535,850', C.green, false, null, 0, 0, ao('spoke0')) : null}
+      {appPlane && both('app0', 'vrg0') ? arrow('M1535,790 L1535,850', C.green, false, null, 0, 0, 1) : null}
 
-      {reached(c.id, '4.3') && !reached(c.id, '7.1') ? arrow('M1170,1780 L1305,1780', C.orange, false, null, 0, 0, ab('arrayA', 'arrayB')) : null}
-      {reached(c.id, '7.1') ? arrow('M1305,1808 L1170,1808', C.green, false, null, 0, 0, ab('arrayA', 'arrayB')) : null}
+      {reached(c.id, '4.3') && !reached(c.id, '7.1') ? arrow('M1170,1780 L1305,1780', C.orange, false, null, 0, 0, both('groupA', 'groupB') ? 1 : 0) : null}
+      {reached(c.id, '7.1') ? arrow('M1305,1808 L1170,1808', C.green, false, null, 0, 0, both('groupA', 'groupB') ? 1 : 0) : null}
       {c.id === '5.4' ? arrow('M120,790 C80,900 80,980 120,1060', C.red, true, null, 0, 0, ao('spoke1')) : null}
     </svg>
   </div>;

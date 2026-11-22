@@ -113,10 +113,10 @@
   "chapter": "The request",
   "screenshot": "08-initiate-failover-dialog.png",
   "focus": {
-   "x": 500,
-   "y": 335,
-   "w": 1390,
-   "h": 440
+   "x": 532,
+   "y": 322,
+   "w": 856,
+   "h": 436
   },
   "caption": "Failover dialog, 10:55 UTC \u00b7 stale Last available is DFBUGS-12487"
  },
