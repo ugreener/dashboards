@@ -90,8 +90,8 @@ export const CH: [string, number, string, string][] = [
   ['4.2', 0.3, 'vrg0', 'Primary requested'],
   ['4.3', 0.4, 'groupA', 'Local role: Source → VSA-B'],
   ['4.3', 0.5, 'groupB', 'Local role: Destination → VSA-A'],
-  ['4.4', 0.4, 'pvcRoot0', 'Bound · promoted'],
-  ['4.4', 0.5, 'pvcData0', 'Bound · promoted'],
+  ['4.4', 0.02, 'pvcRoot0', 'Bound · promoted'],
+  ['4.4', 0.04, 'pvcData0', 'Bound · promoted'],
   ['4.5', 0.3, 'vrg0', 'Primary · Replicating'],
   ['5.2', 0.3, 'decision', 'spoke-0 · reason spoke-0'],
   ['5.3', 0.3, 'app1', 'removed by Argo'],
@@ -168,7 +168,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
   const bandHide = (b: string) => panel || !bandOn(b);
   const onB = (b: string) => keys.length === 0 || active.has(b);
   const ao = (b: string) => (onB(b) ? 1 : 0);
-  const ab = (a: string, b: string) => (onB(a) || onB(b) ? 1 : 0);
+  const ab = (a: string, b: string) => (onB(a) && onB(b) ? 1 : 0);
 
   const failover = reached(c.id, '4.1');
   const appPlane = reached(c.id, '5.3');

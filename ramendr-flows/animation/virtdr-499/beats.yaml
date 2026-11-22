@@ -171,7 +171,7 @@ beats:
       point: both claims are protected as a unit, so the recovery point is shared.
     evidence: 02-baseline-drpc-details.png, 10:38:20
     screenshot: 02-baseline-drpc-details.png
-    focus: {x: 314, y: 723, w: 1100, h: 154}
+    focus: {x: 314, y: 723, w: 1450, h: 154}
     caption: Expanded row, 10:38 UTC · ApplicationSet, gitops-vms, one consistency group
     pause_after: 1.2
 
@@ -264,7 +264,7 @@ beats:
       application by hand.
     evidence: 08-initiate-failover-dialog.png, 10:55:55; DFBUGS-12487 (moved from VIRTDR-308), open Major
     screenshot: 08-initiate-failover-dialog.png
-    focus: {x: 632, y: 385, w: 690, h: 305}
+    focus: {x: 520, y: 340, w: 800, h: 370}
     caption: Failover dialog, 10:55 UTC · stale Last available is DFBUGS-12487
     pause_after: 1.4
 

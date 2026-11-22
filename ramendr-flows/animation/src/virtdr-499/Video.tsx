@@ -122,7 +122,8 @@ const win = (f: number, audio: number, a: number, z: number) =>
 
 const sourceFor = (file: string) =>
   file.includes('vsa-') ? 'PowerStore console · historical capture' :
-  file.includes('application') ? 'Argo CD · historical capture' : 'hub console · historical capture';
+  file.includes('generated-application') || file.includes('target-application') ? 'Argo CD · historical capture' :
+  'hub console · historical capture';
 
 export const VirtDr499: React.FC<{chapters: number[]}> = ({chapters}) => {
   const frame = useCurrentFrame();

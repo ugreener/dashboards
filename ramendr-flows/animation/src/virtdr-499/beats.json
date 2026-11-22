@@ -61,7 +61,7 @@
   "focus": {
    "x": 314,
    "y": 723,
-   "w": 1100,
+   "w": 1450,
    "h": 154
   },
   "caption": "Expanded row, 10:38 UTC \u00b7 ApplicationSet, gitops-vms, one consistency group"
@@ -113,10 +113,10 @@
   "chapter": "The request",
   "screenshot": "08-initiate-failover-dialog.png",
   "focus": {
-   "x": 632,
-   "y": 385,
-   "w": 690,
-   "h": 305
+   "x": 520,
+   "y": 340,
+   "w": 800,
+   "h": 370
   },
   "caption": "Failover dialog, 10:55 UTC \u00b7 stale Last available is DFBUGS-12487"
  },
