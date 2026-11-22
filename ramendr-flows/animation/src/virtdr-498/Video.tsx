@@ -6,7 +6,7 @@ import {ChapterCard, Hud, Legend, TimelineBar, TEvent} from '../components/overl
 import {PhaseTracker, Screenshot} from '../components/newcomer';
 import {buildTimeline, PAD_BEFORE, Segment} from './timeline';
 import {World, FOCUS, RECT, CH} from './World';
-import {BeatPanel, GlossaryScene, PANEL_BEATS, PHASES_498} from './Panels';
+import {BeatPanel, ColdOpen, GlossaryScene, PANEL_BEATS, PHASES_498} from './Panels';
 import BEATS from './beats.json';
 
 type Meta = {
@@ -153,12 +153,13 @@ export const VirtDr498: React.FC<{chapters: number[]}> = ({chapters}) => {
   const cast = ch === 1;
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
     {showWorld ? <div style={{position: 'absolute', inset: 0, clipPath: 'inset(210px 0 0 0)'}}><div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} panel={!!m.screenshot || PANEL_BEATS.has(b.id)} /></div></div> : null}
+    {seg.type === 'beat' && b.id === '0.1' ? <ColdOpen f={f} dur={b.audio} /> : null}
     {seg.type === 'beat' && cast ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={ch >= 3 ? CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null : null} ticket="VIRTDR-498" /> : null}
     {seg.type === 'beat' && ch >= 2 ? <PhaseTracker current={Math.max(0, Math.min(PHASES_498.length - 1, ch - 2))} phases={PHASES_498} /> : null}
     {seg.type === 'beat' && ch >= 3 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS_498} /> : null}
     {seg.type === 'beat' && b.id === '1.10' ? <Legend appear={win(f, b.audio, 0.04, 0.96)} /> : null}
-    {seg.type === 'beat' && PANEL_BEATS.has(b.id) && !m.screenshot ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
+    {seg.type === 'beat' && PANEL_BEATS.has(b.id) && b.id !== '0.1' && !m.screenshot ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
     {seg.type === 'beat' && m.screenshot ? <Screenshot src={`evidence/virtdr-498/${m.screenshot}`} date="2026-11-22" caption={m.caption ?? ''} focus={m.focus} a={win(f, b.audio, 0.14, 0.98)} z={progIO(f, b.audio * 0.2, b.audio * 0.65)} x={small ? 1010 : 865} y={small ? 205 : 215} w={small ? 720 : 1010} iw={m.iw ?? 1920} ih={m.ih ?? 1080} sourceLabel={m.screenshot.includes('vsa-') ? 'PowerStore console · historical capture' : 'hub console · historical capture'} /> : null}
     {seg.type === 'chapter' ? <ChapterCard n={seg.chapter.n} title={seg.chapter.title} sub={seg.chapter.sub} p={prog(frame - seg.from, 0, 30)} out={prog(frame - seg.from, seg.dur - 30, seg.dur)} /> : null}
     {beats.map((beat) => <Sequence key={beat.id} from={beat.from + PAD_BEFORE} durationInFrames={beat.audio + 10}><Audio src={staticFile(`audio/virtdr-498/${beat.id}.wav`)} volume={0.72} /></Sequence>)}

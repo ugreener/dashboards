@@ -49,6 +49,40 @@ export const PANEL_DATA: Record<string, {title: string; rows: string[]; color?: 
 };
 export const PANEL_BEATS = new Set(Object.keys(PANEL_DATA));
 
+export const ColdOpen: React.FC<{f: number; dur: number}> = ({f, dur}) => (
+  <div style={{position: 'absolute', inset: 0, fontFamily: sans}}>
+    <div style={{position: 'absolute', left: 0, right: 0, top: 190, textAlign: 'center', fontSize: 64, fontWeight: 800, color: C.text, opacity: prog(f, dur * 0.02, dur * 0.02 + 28)}}>
+      Two disks, one handover
+    </div>
+    <div style={{position: 'absolute', left: 0, right: 0, top: 275, textAlign: 'center', fontSize: 27, color: C.dim, opacity: prog(f, dur * 0.08, dur * 0.08 + 24)}}>
+      One database, writing. Both sites still healthy.
+    </div>
+    {[
+      ['OLD SITE', 'the running copy', 'one copy of the disks', C.spoke1, 150],
+      ['RECOVERY SITE', 'the standby copy', 'the other copy', C.spoke0, 1070],
+    ].map(([name, role, sub, col, x], i) => <div key={name} style={{position: 'absolute', left: x as number, top: 380, width: 700, padding: '32px 36px', border: `2px solid ${col}`, borderRadius: 22, background: `${col}10`, opacity: prog(f, dur * (0.12 + i * 0.1), dur * (0.12 + i * 0.1) + 28)}}>
+      <div style={{fontFamily: mono, fontSize: 18, color: col as string, letterSpacing: 1.5}}>{name}</div>
+      <div style={{fontSize: 36, color: C.text, fontWeight: 700, marginTop: 12}}>{role}</div>
+      <div style={{fontSize: 24, color: C.dim, marginTop: 10}}>{sub}</div>
+    </div>)}
+    <div style={{position: 'absolute', left: 830, top: 620, width: 260, padding: '24px 20px', border: `2px solid ${C.green}`, borderRadius: 18, background: C.bg, textAlign: 'center', opacity: prog(f, dur * 0.28, dur * 0.28 + 26)}}>
+      <div style={{width: 38, height: 38, borderRadius: 19, background: C.green, margin: '0 auto'}} />
+      <div style={{fontFamily: mono, fontSize: 16, color: C.green, marginTop: 6}}>PostgreSQL</div>
+      <div style={{fontSize: 22, color: C.text, marginTop: 4}}>writing</div>
+    </div>
+    <svg width={1920} height={1080} style={{position: 'absolute', left: 0, top: 0}}>
+      <path d="M850,500 L1070,500" stroke={C.orange} strokeWidth={7} markerEnd="url(#tipCO)" />
+      <defs><marker id="tipCO" markerWidth={12} markerHeight={12} refX={9} refY={4} orient="auto"><path d="M0,0 L0,8 L11,4 z" fill={C.orange} /></marker></defs>
+    </svg>
+    <div style={{position: 'absolute', left: 0, right: 0, top: 780, textAlign: 'center', fontSize: 30, color: C.text, opacity: prog(f, dur * 0.48, dur * 0.48 + 26)}}>
+      The operator asks the other site to take over. The two disks must switch together.
+    </div>
+    <div style={{position: 'absolute', left: 0, right: 0, top: 835, textAlign: 'center', fontSize: 25, color: C.amber, opacity: prog(f, dur * 0.62, dur * 0.62 + 24)}}>
+      A database that wakes with one disk from one moment and one disk from another is not recovered.
+    </div>
+  </div>
+);
+
 export const GlossaryScene: React.FC<{id: string; f: number; dur: number; card?: {kind: string; name: string; role: string}; def?: Def}> = ({id, f, dur, card, def}) => {
   if (id === '1.1') return <TwoSites f={f} dur={dur} />;
   if (id === '1.2') return <ApplicationScene f={f} dur={dur} />;
@@ -180,7 +214,7 @@ export const BeatPanel: React.FC<{id: string; f: number; dur: number}> = ({id, f
   const d = PANEL_DATA[id];
   if (!d) return null;
   const a = prog(f, 0, 24);
-  const cold = id === '0.1';
+  const cold = id === '0.1' || id === '0.2';
   return <div style={{position: 'absolute', left: cold ? 170 : 940, top: cold ? 290 : 220, width: cold ? 1580 : 900, padding: 32, border: `2px solid ${d.color ?? C.blue}`, borderRadius: 20, background: C.bg, opacity: a, fontFamily: sans, boxShadow: '0 20px 70px #000c'}}>
     <div style={{fontSize: cold ? 46 : 29, fontWeight: 700, color: d.color ?? C.blue, marginBottom: 22}}>{d.title}</div>
     {d.rows.map((r, i) => <div key={r} style={{marginTop: 16, fontSize: cold ? 32 : 23, lineHeight: 1.35, color: r.startsWith('INFERENCE') ? C.amber : C.text, fontWeight: r.startsWith('INFERENCE') ? 700 : 400, opacity: prog(f, dur * (.03 + i * .05), dur * (.03 + i * .05) + 22), transform: `translateX(${(1 - prog(f, dur * (.03 + i * .05), dur * (.03 + i * .05) + 22)) * 22}px)`, fontFamily: /^[a-f0-9]{8}-/.test(r) || r.startsWith('VGRC ') || r.startsWith('Promoted ') || r.startsWith('New destination ') || r.startsWith('Root ') || r.startsWith('Data ') || r.startsWith('csivol-') || r.startsWith('f41919e2') || r.startsWith('6cefffe5') ? mono : sans, overflowWrap: 'anywhere'}}>{r}</div>)}
