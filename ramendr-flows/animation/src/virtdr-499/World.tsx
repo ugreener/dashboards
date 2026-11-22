@@ -231,9 +231,9 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       {appPlane ? arrow('M1695,1150 L1715,1150', C.cyan, true, null, 0, 0, ao('spoke0')) : null}
       {appPlane ? arrow('M1795,800 L1825,800', C.purple, true, null, 0, 0, ao('spoke0')) : null}
 
-      {reached(c.id, '4.3') ? arrow('M1170,1780 L1305,1780', C.orange, false, null, 0, 0, ab('arrayA', 'arrayB')) : null}
-      {reached(c.id, '7.2') ? arrow('M1305,1808 L1170,1808', C.green, false, null, 0, 0, ab('arrayA', 'arrayB')) : null}
-      {reached(c.id, '5.4') ? arrow('M120,790 C80,900 80,980 120,1060', C.red, true, null, 0, 0, ao('spoke1')) : null}
+      {reached(c.id, '4.3') && !reached(c.id, '7.1') ? arrow('M1170,1780 L1305,1780', C.orange, false, null, 0, 0, ab('arrayA', 'arrayB')) : null}
+      {reached(c.id, '7.1') ? arrow('M1305,1808 L1170,1808', C.green, false, null, 0, 0, ab('arrayA', 'arrayB')) : null}
+      {c.id === '5.4' ? arrow('M120,790 C80,900 80,980 120,1060', C.red, true, null, 0, 0, ao('spoke1')) : null}
     </svg>
   </div>;
 };
