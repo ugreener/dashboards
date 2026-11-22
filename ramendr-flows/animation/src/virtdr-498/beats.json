@@ -142,9 +142,9 @@
   "chapter": "Protection",
   "screenshot": "04-vsa-b-replication.png",
   "focus": {
-   "x": 0,
+   "x": 6,
    "y": 438,
-   "w": 600,
+   "w": 650,
    "h": 24
   },
   "caption": "vg-c20d5ca2 (truncated in the capture) is Source on VSA-B, array time UTC+02:00",
@@ -224,7 +224,7 @@
   "focus": {
    "x": 18,
    "y": 438,
-   "w": 900,
+   "w": 1100,
    "h": 24
   },
   "caption": "After failover, VSA-A lists the group as Source, array time UTC+02:00"
@@ -239,7 +239,7 @@
   "focus": {
    "x": 18,
    "y": 438,
-   "w": 900,
+   "w": 1100,
    "h": 24
   },
   "caption": "After failover, VSA-B lists the group as Destination, array time UTC+02:00"

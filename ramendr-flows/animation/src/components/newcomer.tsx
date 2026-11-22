@@ -9,7 +9,7 @@ export type Rect = {x: number; y: number; w: number; h: number};
  * Historical run screenshot in a browser-style frame on the right half of the screen.
  * `a` 0..1 slide-in/out, `z` 0..1 slow zoom toward `focus` (image pixels, 1920x1080 source).
  */
-export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a: number; z: number; x?: number; y?: number; w?: number; date?: string; sourceLabel?: string; iw?: number; ih?: number}> = ({
+export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a: number; z: number; x?: number; y?: number; w?: number; date?: string; sourceLabel?: string; iw?: number; ih?: number; pad?: number; halo?: number}> = ({
   src,
   date = '2026-10-07',
   sourceLabel = 'hub console · historical capture',
@@ -22,6 +22,8 @@ export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a
   w = 1040,
   iw = 1920,
   ih = 1080,
+  pad = 8,
+  halo = 24,
 }) => {
   if (a <= 0) return null;
   const IW = iw;
@@ -66,13 +68,13 @@ export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a
             <div
               style={{
                 position: 'absolute',
-                left: focus.x - 8,
-                top: focus.y - 8,
-                width: focus.w + 16,
-                height: focus.h + 16,
+                left: focus.x - pad,
+                top: focus.y - pad,
+                width: focus.w + 2 * pad,
+                height: focus.h + 2 * pad,
                 border: `${4 / s}px solid ${C.amber}`,
                 borderRadius: 10 / s,
-                boxShadow: `0 0 ${24 / s}px ${C.amber}, inset 0 0 ${18 / s}px ${C.amber}55`,
+                boxShadow: `0 0 ${halo / s}px ${C.amber}, inset 0 0 ${(halo * 0.75) / s}px ${C.amber}55`,
                 opacity: Math.min(1, z * 3),
               }}
             />

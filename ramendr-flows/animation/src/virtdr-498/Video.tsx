@@ -133,6 +133,7 @@ export const VirtDr498: React.FC<{chapters: number[]}> = ({chapters}) => {
   const ch = b.chapter.n;
   const m = META[b.id] ?? {};
   const small = (m.iw ?? 1920) < 1200;
+  const tight = (m.focus?.h ?? 999) <= 40;
   const cues: {at: number; name: string; v: number}[] = [];
   const seen = new Set<string>();
   for (const beat of beats) {
@@ -160,7 +161,7 @@ export const VirtDr498: React.FC<{chapters: number[]}> = ({chapters}) => {
     {seg.type === 'beat' && ch >= 3 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS_498} /> : null}
     {seg.type === 'beat' && b.id === '1.10' ? <Legend appear={win(f, b.audio, 0.04, 0.96)} /> : null}
     {seg.type === 'beat' && PANEL_BEATS.has(b.id) && b.id !== '0.1' && !m.screenshot ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
-    {seg.type === 'beat' && m.screenshot ? <Screenshot src={`evidence/virtdr-498/${m.screenshot}`} date="2026-11-22" caption={m.caption ?? ''} focus={m.focus} a={win(f, b.audio, 0.14, 0.98)} z={progIO(f, b.audio * 0.2, b.audio * 0.65)} x={small ? 1010 : 865} y={small ? 205 : 215} w={small ? 720 : 1010} iw={m.iw ?? 1920} ih={m.ih ?? 1080} sourceLabel={m.screenshot.includes('vsa-') ? 'PowerStore console · historical capture' : 'hub console · historical capture'} /> : null}
+    {seg.type === 'beat' && m.screenshot ? <Screenshot src={`evidence/virtdr-498/${m.screenshot}`} date="2026-11-22" caption={m.caption ?? ''} focus={m.focus} a={win(f, b.audio, 0.14, 0.98)} z={progIO(f, b.audio * 0.12, b.audio * 0.5)} x={small ? 1010 : 865} y={small ? 205 : 215} w={small ? 720 : 1010} iw={m.iw ?? 1920} ih={m.ih ?? 1080} sourceLabel={m.screenshot.includes('vsa-') ? 'PowerStore console · historical capture' : 'hub console · historical capture'} pad={tight ? 0 : 8} halo={tight ? 8 : 24} /> : null}
     {seg.type === 'chapter' ? <ChapterCard n={seg.chapter.n} title={seg.chapter.title} sub={seg.chapter.sub} p={prog(frame - seg.from, 0, 30)} out={prog(frame - seg.from, seg.dur - 30, seg.dur)} /> : null}
     {beats.map((beat) => <Sequence key={beat.id} from={beat.from + PAD_BEFORE} durationInFrames={beat.audio + 10}><Audio src={staticFile(`audio/virtdr-498/${beat.id}.wav`)} volume={0.72} /></Sequence>)}
     {cues.map((cue, k) => <Sequence key={k} from={cue.at} durationInFrames={sec(1.6)}><Audio src={staticFile(`sfx/${cue.name}.wav`)} volume={cue.v} /></Sequence>)}
