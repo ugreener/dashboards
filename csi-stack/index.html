@@ -160,7 +160,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="leg"><span class="lline"></span>Call or handoff</div>
 <div class="leg"><span class="lline dash" style="border-top-color:var(--blue)"></span>Custom-resource delivery</div>
 <div class="leg"><span class="lline dash" style="border-top-color:var(--orange)"></span>Array-to-array replication</div>
-<div class="leg"><span class="lline dash" style="border-top-color:#6e7681"></span>Object archive traffic</div>
+<div class="leg"><span class="lline dash" style="border-top-color:#6e7681"></span>Object archive traffic (OADP)</div>
 <div class="leg"><span class="lline dot"></span>Same component, second pod</div>
 <div class="leg" style="border-left:1px solid var(--border);padding-left:14px">Dashed box = one site</div>
 </div>
@@ -278,7 +278,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <div class="blk" id="minio" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" style="left:536px;top:711px;width:328px;height:90px;border-color:var(--blue)">
 <div class="k">S3 store &middot; hub only</div>
 <div class="t" style="color:var(--blue)">MinIO</div>
-<div class="o">Keeps the object archive that OADP on the spokes writes, and the target site reads back.</div>
+<div class="o">Keeps the object archive and the DR metadata the two sites use to rebuild an application.</div>
 </div>
 
 <div class="site-note" style="left:536px;top:825px;width:328px"><b>Why the hub box is empty below this line:</b> no storage driver, no csi-addons controller, no OADP and no array run here. The hub decides, records and coordinates; every storage action happens inside a spoke box.</div>
@@ -386,6 +386,7 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <tr><td>CSI and CSI-Addons specifications</td><td class="none">No site</td><td>Written agreements, not programs. Both spoke drivers answer them; the hub runs no driver, so it answers neither.</td></tr>
 <tr><td>Ramen hub operator</td><td class="hub">Hub only, <code>openshift-operators</code></td><td>The decision-maker. Chooses the site, starts Failover and Relocate, and records the outcome. Runs next to the RHDR multicluster operator, and never contacts an array.</td></tr>
 <tr><td>Ramen cluster operator</td><td class="spk">Both spokes, <code>openshift-dr-system</code></td><td>The worker. Protects that site's own disks and objects and reports upward. It does not choose placement.</td></tr>
+<tr><td>DRPolicy and DRCluster</td><td class="hub">Hub only, cluster-scoped</td><td>The policy pairs the two sites and sets the RPO and the S3 profile. Each DRPC refers to it, and the console creates both at enrollment.</td></tr>
 <tr><td>DRPC</td><td class="hub">Hub only: <code>openshift-gitops</code> for managed apps, <code>openshift-dr-ops</code> for discovered apps</td><td>One per application. Carries the preferred site, the requested action and its result.</td></tr>
 <tr><td>VRG</td><td class="spk">Both spokes, one per app per site: the app namespace (<code>gitops-vms</code>) for managed apps, <code>openshift-dr-ops</code> for discovered apps</td><td>Same kind of object, different job: the site holding the writable copy reports what it protects, the other reports what it received.</td></tr>
 <tr><td>VolumeReplication / VolumeGroupReplication</td><td class="spk">Both spokes, application namespace</td><td>Created by the local Ramen operator from the local VRG. One per disk, or one per group.</td></tr>
@@ -394,9 +395,11 @@ footer{font-size:10px;color:var(--muted);text-align:center;margin-top:22px;paddi
 <tr><td>csi-powerstore controller and <code>powerstore-node</code></td><td class="spk">Both spokes, namespace <code>powerstore</code></td><td>One controller pod per cluster, one node pod on every worker. Workers carry the data over NVMe/TCP to the array beside them.</td></tr>
 <tr><td>VSA-A and VSA-B</td><td class="spk">One array per site</td><td>VSA-A is local to spoke-0, VSA-B to spoke-1. They replicate to each other directly; the hub has no storage at all.</td></tr>
 <tr><td>OADP (Velero)</td><td class="spk">Both spokes, <code>openshift-adp</code></td><td>The backup engine for Kubernetes objects. It writes the archive to the hub MinIO on the live site and reads it back on the target during recovery.</td></tr>
-<tr><td>MinIO</td><td class="hub">Hub only, namespace <code>minio</code></td><td>Holds the kube-object backup archive. The live site writes it and the target site reads it back, so it must survive a spoke loss.</td></tr>
+<tr><td>MinIO</td><td class="hub">Hub only, namespace <code>minio</code></td><td>Holds the object archive and the DR metadata. The live site writes the archive and the target site reads it back, so it must survive a spoke loss.</td></tr>
 <tr><td>Data Services DR console</td><td class="hub">Hub only, <code>openshift-operators</code></td><td>The UI that creates the DRPC and offers the actions. It reads the DRPC, so it shows one application across both sites.</td></tr>
-<tr><td>Placement and PlacementDecision</td><td class="hub">Hub only: <code>openshift-gitops</code> for managed apps, <code>openshift-dr-ops</code> for discovered apps</td><td>Names the site the application should run on. Ramen follows that decision instead of scheduling by itself.</td></tr>
+<tr><td>Placement and PlacementDecision</td><td class="hub">Hub only: <code>openshift-gitops</code> for managed apps, <code>openshift-dr-ops</code> for discovered apps</td><td>Names the site the application should run on. Ramen follows that decision instead of scheduling by itself.</td></tr><tr><td>ManifestWork</td><td class="hub">Hub only, one per managed cluster namespace</td><td>How ACM delivers a VRG, a policy or a placement to a spoke. The spoke's agent applies it and reports status back.</td></tr>
+<tr><td>ApplicationSet (Argo CD)</td><td class="hub">Hub only, <code>openshift-gitops</code></td><td>For managed apps, redeploys the workload on the site named by the PlacementDecision, and prunes the old copy after a failover.</td></tr>
+
 </tbody>
 </table>
 <p class="dcap" style="margin-top:12px">spoke-0 and spoke-1 are peers, not a fixed primary and standby. Both protected applications have spoke-0 as their home site, but which side holds the writable copy at any moment is a fact about one application, taken from the live PlacementDecision. That is why the two spoke boxes show the same software and no permanent role label: after a failover or a Relocate the roles swap, while the boxes stay as drawn.</p>
