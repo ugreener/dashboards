@@ -171,7 +171,7 @@ beats:
       point: both claims are protected as a unit, so the recovery point is shared.
     evidence: 02-baseline-drpc-details.png, 10:38:20
     screenshot: 02-baseline-drpc-details.png
-    focus: {x: 340, y: 720, w: 900, h: 145}
+    focus: {x: 314, y: 723, w: 1100, h: 154}
     caption: Expanded row, 10:38 UTC · ApplicationSet, gitops-vms, one consistency group
     pause_after: 1.2
 
@@ -289,7 +289,7 @@ beats:
       the application is now deployed on spoke-0.
     evidence: 09-initiate-accepted.png, 10:56:00; evidence-index timeline 10:56:14, 10:56:29, 11:01:03
     screenshot: 09-initiate-accepted.png
-    focus: {x: 520, y: 338, w: 880, h: 92}
+    focus: {x: 314, y: 349, w: 1558, h: 82}
     caption: After Initiate, 10:56 UTC · banner names the DRPC, not the row
     pause_after: 1.4
 

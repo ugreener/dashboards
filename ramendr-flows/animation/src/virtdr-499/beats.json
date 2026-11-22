@@ -59,10 +59,10 @@
   "chapter": "Protection",
   "screenshot": "02-baseline-drpc-details.png",
   "focus": {
-   "x": 340,
-   "y": 720,
-   "w": 900,
-   "h": 145
+   "x": 314,
+   "y": 723,
+   "w": 1100,
+   "h": 154
   },
   "caption": "Expanded row, 10:38 UTC \u00b7 ApplicationSet, gitops-vms, one consistency group"
  },
@@ -127,10 +127,10 @@
   "chapter": "The request",
   "screenshot": "09-initiate-accepted.png",
   "focus": {
-   "x": 520,
-   "y": 338,
-   "w": 880,
-   "h": 92
+   "x": 314,
+   "y": 349,
+   "w": 1558,
+   "h": 82
   },
   "caption": "After Initiate, 10:56 UTC \u00b7 banner names the DRPC, not the row"
  },
