@@ -185,7 +185,7 @@ beats:
       site, so both sites deploy the same definition.
     evidence: 05-baseline-generated-application.png, 10:52:26; branch ocp-4.22-rhdr-dell at 8a94cd637d22
     screenshot: 05-baseline-generated-application.png
-    focus: {x: 430, y: 120, w: 1180, h: 430}
+    focus: {x: 430, y: 120, w: 1420, h: 430}
     caption: Argo CD, spoke-side Application, 10:52 UTC · Healthy, Synced
     pause_after: 1.2
 
@@ -264,7 +264,7 @@ beats:
       application by hand.
     evidence: 08-initiate-failover-dialog.png, 10:55:55; DFBUGS-12487 (moved from VIRTDR-308), open Major
     screenshot: 08-initiate-failover-dialog.png
-    focus: {x: 520, y: 340, w: 800, h: 370}
+    focus: {x: 500, y: 335, w: 1390, h: 440}
     caption: Failover dialog, 10:55 UTC · stale Last available is DFBUGS-12487
     pause_after: 1.4
 
@@ -413,7 +413,7 @@ beats:
       targets changed.
     evidence: 13-completion-target-application.png, 11:15:45; same revision 8a94cd6 as the source Application
     screenshot: 13-completion-target-application.png
-    focus: {x: 430, y: 120, w: 1180, h: 300}
+    focus: {x: 430, y: 120, w: 1420, h: 300}
     caption: Argo CD, target Application, 11:15 UTC · Healthy, Synced
     pause_after: 1.2
 

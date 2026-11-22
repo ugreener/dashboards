@@ -72,7 +72,7 @@
   "focus": {
    "x": 430,
    "y": 120,
-   "w": 1180,
+   "w": 1420,
    "h": 430
   },
   "caption": "Argo CD, spoke-side Application, 10:52 UTC \u00b7 Healthy, Synced"
@@ -113,10 +113,10 @@
   "chapter": "The request",
   "screenshot": "08-initiate-failover-dialog.png",
   "focus": {
-   "x": 520,
-   "y": 340,
-   "w": 800,
-   "h": 370
+   "x": 500,
+   "y": 335,
+   "w": 1390,
+   "h": 440
   },
   "caption": "Failover dialog, 10:55 UTC \u00b7 stale Last available is DFBUGS-12487"
  },
@@ -171,7 +171,7 @@
   "focus": {
    "x": 430,
    "y": 120,
-   "w": 1180,
+   "w": 1420,
    "h": 300
   },
   "caption": "Argo CD, target Application, 11:15 UTC \u00b7 Healthy, Synced"
