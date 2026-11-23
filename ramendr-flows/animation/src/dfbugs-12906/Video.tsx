@@ -45,15 +45,15 @@ const fit = (id: string): Cam => {
   const bands = new Set(keys.map((k) => BAND_OF[k]).filter(Boolean));
   if (bands.size === 1) {
     const b = [...bands][0];
-    if (b === 'spoke1') { x0 = 70; x1 = 1240; y0 = 385; }
-    if (b === 'spoke0') { x0 = 1235; x1 = 2410; y0 = 385; }
-    if (b === 'arrayB') { x0 = 70; x1 = 1240; y0 = 1425; }
-    if (b === 'arrayA') { x0 = 1235; x1 = 2410; y0 = 1425; }
+    if (b === 'spoke1') { x0 = 70; x1 = 1240; y0 = 362; }
+    if (b === 'spoke0') { x0 = 1235; x1 = 2410; y0 = 362; }
+    if (b === 'arrayB') { x0 = 70; x1 = 1240; y0 = 1405; }
+    if (b === 'arrayA') { x0 = 1235; x1 = 2410; y0 = 1405; }
     if (b === 'hub') { x0 = Math.min(x0, 70); y0 = 20; }
   } else if (y0 >= 1400) {
     y0 = 1420;
   } else if (y0 >= 400) {
-    y0 = 385;
+    y0 = 362;
   } else {
     y0 = 0;
   }

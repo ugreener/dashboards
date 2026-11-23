@@ -65,7 +65,7 @@ export const FOCUS: Record<string, string[]> = {
   '6.2': ['vrg1', 'drpc'],
   '6.3': ['groupA', 'groupB'],
   '6.4': ['pvRoot1', 'pvData1', 'pvRoot0', 'pvData0'],
-  '6.5': ['vgr1', 'vrg1', 'groupB'],
+  '6.5': ['vgr1', 'groupB', 'groupA'],
   '6.6': ['vrg1', 'groupB', 'pvRoot1'],
   '7.1': ['vrg0', 'vm0'],
   '7.2': ['pvRoot1', 'pvData1'],
