@@ -148,7 +148,7 @@ export const Dfbugs12906: React.FC<{chapters: number[]}> = ({chapters}) => {
   const showWorld = ch >= 2;
   const cast = ch === 1;
   return <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
-    {showWorld ? <div style={{position: 'absolute', inset: 0, clipPath: 'inset(210px 0 0 0)'}}><div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} panel={sidePanel(b.id)} /></div></div> : null}
+    {showWorld ? <div style={{position: 'absolute', inset: 0, clipPath: 'inset(210px 0 185px 0)'}}><div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}><World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} panel={sidePanel(b.id)} /></div></div> : null}
     {seg.type === 'beat' && b.id === '0.1' ? <ColdOpen f={f} dur={b.audio} /> : null}
     {seg.type === 'beat' && cast ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={ch >= 3 ? CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null : null} ticket="DFBUGS-12906" /> : null}
