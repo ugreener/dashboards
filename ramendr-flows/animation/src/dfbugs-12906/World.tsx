@@ -19,7 +19,7 @@ export const NODES: Record<string, Node> = {
   pvcData1: {kind: 'PersistentVolumeClaim', name: 'hammerdb-rhel9-datadisk-grp', role: 'the database disk claim', lines: (s) => ['spoke-1 · hammerdb', s], box: [810, 640, 310, 170], color: C.dim, nameSize: 11},
   pvRoot1: {kind: 'PersistentVolume', name: 'csivol-31136f5c90', role: 'the root disk record: handle, policy, mark', lines: (s) => ['spoke-1 · cluster scope', s], box: [110, 850, 520, 200], color: C.dim, nameSize: 24},
   pvData1: {kind: 'PersistentVolume', name: 'csivol-2a761d921f', role: 'the database disk record: handle, policy, mark', lines: (s) => ['spoke-1 · cluster scope', s], box: [660, 850, 520, 200], color: C.dim, nameSize: 24},
-  vgr1: {kind: 'VolumeGroupReplication', name: VGR_NAME, role: 'the request that drives the group session', lines: (s) => ['spoke-1 · hammerdb', s], box: [110, 1070, 430, 170], color: C.purple, nameSize: 9},
+  vgr1: {kind: 'VolumeGroupReplication', name: VGR_NAME, role: 'the request that drives the group session', lines: (s) => ['spoke-1 · hammerdb', s], box: [110, 1070, 430, 190], color: C.purple, nameSize: 9},
 
   vrg0: {kind: 'VolumeReplicationGroup', name: 'hammerdb-drpc', role: 'tells this site what its job is', lines: (s) => ['spoke-0 · openshift-dr-ops', s], box: [1275, 460, 1095, 150], color: C.orange},
   vm0: {kind: 'VirtualMachine', name: 'hammerdb-rhel9', role: 'the guest, running here now', lines: (s) => ['spoke-0 · hammerdb', s], box: [1275, 640, 330, 170], color: C.green, nameSize: 18},
@@ -32,9 +32,9 @@ export const NODES: Record<string, Node> = {
   groupA: {kind: 'PowerStore volume group', name: GROUP_NAME, role: 'the hammerdb group on the new array', lines: (s) => ['VSA-A · PS3b37452a6e0f', s], box: [1305, 1500, 1035, 190], color: C.array, nameSize: 14},
 };
 export const RECT = Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k, n.box])) as Record<string, Box>;
-RECT.driver1 = [570, 1110, 610, 72];
+RECT.driver1 = [570, 1085, 610, 72];
 RECT.driver0 = [1305, 1110, 610, 72];
-RECT.err = [660, 1070, 520, 190];
+RECT.err = [660, 1165, 520, 80];
 
 export const FOCUS: Record<string, string[]> = {
   '2.1': ['drpc', 'vrg1', 'vrg0'],
@@ -67,12 +67,12 @@ export const FOCUS: Record<string, string[]> = {
   '6.4': ['pvRoot1', 'pvData1', 'pvRoot0', 'pvData0'],
   '6.5': ['vgr1', 'vrg1', 'groupB'],
   '6.6': ['vrg1', 'groupB', 'pvRoot1'],
-  '7.1': ['groupA', 'groupB', 'vm0'],
+  '7.1': ['vrg0', 'vm0'],
   '7.2': ['pvRoot1', 'pvData1'],
   '7.3': ['pvRoot1', 'pvData1', 'pvRoot0', 'pvData0'],
   '7.4': ['pvRoot1', 'pvData1', 'groupB'],
   '7.5': ['pvRoot1', 'pvData1', 'groupB', 'vrg1'],
-  '7.6': ['drpc', 'vrg1', 'vrg0', 'groupA', 'groupB', 'pvRoot1', 'pvData1'],
+  '7.6': ['drpc', 'vrg1', 'vrg0'],
 };
 
 export type Ctx = {id: string; f: number; dur: number; zoom: number};
@@ -175,7 +175,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
     const n = NODES[key];
     return <Card key={key} x={n.box[0]} y={n.box[1]} w={n.box[2]} kind={n.kind} name={n.name} role={n.role}
       lines={n.lines(status(key))} appear={appear} focus={focus(key)} hl={keys.includes(key) ? 0.26 : 0} exit={panel && !keys.includes(key) ? 1 : 0}
-      color={n.color} detail={Math.max(0, Math.min(1, (c.zoom - 0.6) / 0.2))} nameSize={n.nameSize ?? 22} />;
+      color={n.color} detail={1} nameSize={n.nameSize ?? 22} />;
   };
   const marker = (x: number, y: number, w: number, text: string, color: string, show: boolean) =>
     show ? <div style={{position: 'absolute', left: x, top: y, width: w, padding: '10px 16px', borderRadius: 12, border: `2px solid ${color}`, background: `${C.bg}f2`, color, fontFamily: sans, fontWeight: 700, fontSize: 19, boxShadow: `0 0 24px ${color}44`}}>{text}</div> : null;
@@ -191,10 +191,10 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       if (key.endsWith('0') && key !== 'policy' && !restored && key !== 'vrg0' && key !== 'driver0') return null;
       return node(key, appearAll);
     })}
-    {DRIVER(570, 1110, 'spoke-1', status('driver1'))}
+    {DRIVER(570, 1085, 'spoke-1', status('driver1'))}
     {DRIVER(1305, 1110, 'spoke-0', status('driver0'))}
 
-    {marker(660, 1070, 520, status('err') || 'VolumeFailedDelete · retrying', C.red, stuck && keys.includes('err'))}
+    {marker(660, 1165, 520, status('err') || 'VolumeFailedDelete · retrying', C.red, stuck && keys.includes('err'))}
 
     <svg width={2480} height={1780} style={{position: 'absolute', left: 0, top: 0, pointerEvents: 'none'}}>
       <defs>

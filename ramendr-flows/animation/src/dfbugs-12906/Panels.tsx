@@ -26,14 +26,14 @@ export const ColdOpen: React.FC<{f: number; dur: number}> = ({f, dur}) => (
       A failover that worked, and two records left behind on the site it left.
     </div>
     {[
-      ['NEW PRIMARY', 'spoke-0', 'the application is running here', C.green, 150],
-      ['OLD SITE', 'spoke-1', 'the copies are still needed here', C.spoke1, 1070],
-    ].map(([name, site, sub, col, x], i) => <div key={name} style={{position: 'absolute', left: x as number, top: 350, width: 700, padding: '30px 34px', border: `2px solid ${col}`, borderRadius: 22, background: `${col}10`, opacity: prog(f, dur * (0.12 + i * 0.1), dur * (0.12 + i * 0.1) + 28)}}>
+      ['NEW PRIMARY', 'spoke-0', 'the application is running here', C.green, 110],
+      ['OLD SITE', 'spoke-1', 'the copies are still needed here', C.spoke1, 1130],
+    ].map(([name, site, sub, col, x], i) => <div key={name} style={{position: 'absolute', left: x as number, top: 350, width: 680, padding: '30px 34px', border: `2px solid ${col}`, borderRadius: 22, background: `${col}10`, opacity: prog(f, dur * (0.12 + i * 0.1), dur * (0.12 + i * 0.1) + 28)}}>
       <div style={{fontFamily: mono, fontSize: 18, color: col as string, letterSpacing: 1.5}}>{name}</div>
       <div style={{fontSize: 40, color: C.text, fontWeight: 700, marginTop: 10}}>{site}</div>
       <div style={{fontSize: 23, color: C.dim, marginTop: 10}}>{sub}</div>
     </div>)}
-    <div style={{position: 'absolute', left: 830, top: 360, width: 260, padding: '22px 18px', border: `2px solid ${C.green}`, borderRadius: 18, background: C.bg, textAlign: 'center', opacity: prog(f, dur * 0.26, dur * 0.26 + 26)}}>
+    <div style={{position: 'absolute', left: 810, top: 372, width: 300, padding: '22px 18px', border: `2px solid ${C.green}`, borderRadius: 18, background: C.bg, textAlign: 'center', opacity: prog(f, dur * 0.26, dur * 0.26 + 26)}}>
       <div style={{fontFamily: mono, fontSize: 16, color: C.green}}>postcheck</div>
       <div style={{fontSize: 30, color: C.text, fontWeight: 700, marginTop: 4}}>17/17</div>
     </div>
@@ -216,24 +216,24 @@ export const PANEL_DATA: Record<string, Panel> = {
   '2.1': {title: 'After the failover, the old site has a new job', rows: ['It is the Destination of the reversed session.', 'Its disks hold the standby copy.', 'Its application is supposed to disappear.'], color: C.blue},
   '2.2': {title: 'The promise the operator made', rows: ['Keep the old-site volume records.', 'Keep their policy at Retain.', 'Then nothing asks the array to remove a disk.'], color: C.green},
   '3.1': {title: 'The documented source cleanup', rows: ['Delete the guest.', 'Delete its DataVolumes.', 'Delete any remaining claims.', 'Ramen then releases its own protection of those claims.'], color: C.dim},
-  '3.3': {title: '07:35:04 · the peer is ready', rows: ['PeerReady=True, reason Success', 'About twelve minutes after FailedOver at 07:22:37', 'The reverse copy now has a destination.'], color: C.green},
-  '3.4': {title: '07:35:04.207 · the group request is deleted', rows: ['The VRG removes its own VolumeGroupReplication object.', 'Both claims are already gone from this site.', 'The array session does not depend on that object.'], color: C.amber},
+  '3.3': {title: '07:35:04 · the peer is ready', rows: ['PeerReady=True, reason Success', 'About twelve minutes after FailedOver at 07:22:37', 'The cleanup is recorded as complete.'], color: C.green},
+  '3.4': {title: '07:35:04.207 · the group request is deleted', rows: ['The VRG removes its own VolumeGroupReplication object.', 'The claims are still there, waiting to be released.', 'The array session does not depend on that object.'], color: C.amber},
   '4.1': {title: 'One condition, two outcomes', rows: ['In preparePVCForVRDeletion:', 'if the VRG is async, or already Primary, undo the retention.', 'Otherwise keep Retain and label the record as left behind.'], color: C.red},
   '4.2': {title: 'What the undo branch does', rows: ['Set persistentVolumeReclaimPolicy to Delete.', 'Remove the vr-retained annotation.', 'It only acts when the annotation is there.'], color: C.red},
   '4.3': {title: 'The Sync branch does the opposite', rows: ['It keeps Retain on purpose.', 'It labels the record ramendr.openshift.io/pv-left-behind-by-ramen.', 'Its own comment says a delete call must not be issued,', 'because both sites map to the same volume.'], color: C.green},
   '4.4': {title: 'Why the safe branch never runs here', rows: ['The test is: async is set, OR the site is Primary.', 'For an async pair the first half is always true.', 'So a secondary takes the Primary path.', 'The Retain branch only runs for synchronous replication.'], color: C.red},
   '4.5': {title: 'The group path uses the same helper', rows: ['The group request is deleted first.', 'Then preparePVCForVRDeletion runs for every claim.', 'So the decision does not depend on grouping.', 'Grouping only decides which storage call fails later.'], color: C.amber},
   '4.6': {title: 'So far', rows: ['The engine that keeps the copy alive is the same one that moves the policy.', 'An async secondary takes the Primary branch.', 'Nothing in that branch asks whether the array still needs the volume.'], color: C.amber},
-  '5.1': {title: 'Released plus Delete means: delete it', rows: ['The claim is gone, so the record is unused.', 'The policy says Delete.', 'The volume controller asks the storage plugin to remove the disk.'], color: C.red},
+  '5.1': {title: 'Released plus Delete means: delete it', rows: ['The claim is gone, so the record is unused.', 'The policy says Delete.', 'The external-provisioner asks the storage driver to remove the disk.'], color: C.red},
   '5.2': {title: 'The provisioner issues DeleteVolume', rows: ['external-provisioner calls the CSI driver.', 'Driver: csi-powerstore.dellemc.com.', 'The request names the volume handle from the record.'], color: C.red},
   '5.4': {title: 'The driver knows the rule on another path', rows: ['DeleteLocalVolume refuses when the disk is in a group', 'or carries a protection policy.', 'Its comment says the source side owns that operation.', 'The CSI delete path carries no such check.'], color: C.amber},
   '5.5': {title: 'Twenty-seven attempts, no end', rows: ['The record stays Released with its finalizer.', 'Kubernetes retries the same call.', 'Nothing in the record stops it.'], color: C.red},
   '5.6': {title: 'So far', rows: ['A local policy switch became a storage delete call.', 'The array refused, so the call repeats.', 'No retry can ever succeed while the session is reversed.'], color: C.red},
-  '6.2': {title: 'Two conditions disagree', rows: ['DataProtected=True, message: no claims need protection.', 'DestinationInfoAvailable=False, reason Progressing.', 'The same object reports both at the same second.'], color: C.amber},
-  '6.4': {title: 'Same name, different policy', rows: ['spoke-0: Bound · Retain · vr-retained present', 'spoke-1: Released · Delete · mark removed', 'Both records are named csivol-31136f5c90 or csivol-2a761d921f.'], color: C.amber},
+  '6.2': {title: 'Two conditions disagree', rows: ['DataProtected=True, message: no claims need protection.', 'DestinationInfoAvailable=False, reason Progressing.', 'Different subjects, recorded by the same object at the same moment.'], color: C.amber},
+  '6.4': {title: 'Same name, different policy', rows: ['spoke-0: Bound · Retain · vr-retained present', 'spoke-1: Released · Delete · mark removed', 'Both sites use the same two object names, over different backing volumes.'], color: C.amber},
   '6.6': {title: 'So far', rows: ['Kubernetes removed its own record of the relationship.', 'The array kept the relationship.', 'The volume record now follows the side that forgot.'], color: C.amber},
-  '7.1': {title: 'What the record shows', rows: ['No data was lost.', 'Both array copies stayed intact.', 'The recovery site served the whole time.', 'The only damage was on the site left behind.'], color: C.green},
-  '7.2': {title: 'What it cost', rows: ['The old site cannot be decommissioned cleanly.', 'Released records keep retrying a delete that cannot work.', 'Whatever needs those disks next inherits the loop.'], color: C.amber},
+  '7.1': {title: 'What the record shows', rows: ['No array copy was destroyed.', 'Both array copies stayed intact.', 'The recovery site served the whole time.', 'The only damage was on the site left behind.'], color: C.green},
+  '7.2': {title: 'What it cost', rows: ['The old site cannot be torn down cleanly.', 'Released records keep retrying a delete that cannot work.', 'Whatever needs those disks next inherits the loop.'], color: C.amber},
   '7.3': {title: 'The name is already taken', rows: ['Ramen restores target records under the source record names.', 'So the new site already holds both of those names.', 'A move back has to recreate them while the old ones still exist.', 'INFERENCE: the ticket reports this blocked a later reverse failover. The archived dumps do not cover it.'], color: C.amber},
   '7.4': {title: 'The per-volume case is untested', rows: ['A grouped disk fails inside the group removal.', 'A disk with no group skips that step entirely.', 'Whether the array refuses a direct delete was never tested here.'], color: C.amber},
   '7.5': {title: 'What a fix has to do', rows: ['Keep Retain while the volume is still a replication destination.', 'Return to Delete only after the relationship has ended.', 'So a deliberate teardown can still reclaim the old copies.'], color: C.green},
@@ -329,7 +329,7 @@ export const BeatPanel: React.FC<{id: string; f: number; dur: number}> = ({id, f
   if (!d) return null;
   const a = prog(f, 0, 24);
   const cold = id === '0.1' || id === '0.2';
-  return <div style={{position: 'absolute', left: cold ? 170 : 940, top: cold ? 290 : 220, width: cold ? 1580 : 900, padding: 32, border: `2px solid ${d.color ?? C.blue}`, borderRadius: 20, background: C.bg, opacity: a, fontFamily: sans, boxShadow: '0 20px 70px #000c'}}>
+  return <div style={{position: 'absolute', left: cold ? 170 : 920, top: cold ? 290 : 220, width: cold ? 1580 : 920, padding: 32, border: `2px solid ${d.color ?? C.blue}`, borderRadius: 20, background: C.bg, opacity: a, fontFamily: sans, boxShadow: '0 20px 70px #000c'}}>
     <div style={{fontSize: cold ? 44 : 29, fontWeight: 700, color: d.color ?? C.blue, marginBottom: 20, lineHeight: 1.25}}>{d.title}</div>
     {d.rows.map((r, i) => <Row key={r} text={r} i={i} f={f} dur={dur} cold={cold} />)}
   </div>;
@@ -339,7 +339,7 @@ export const EvidencePanel: React.FC<{id: string; f: number; dur: number}> = ({i
   const d = EVIDENCE[id];
   if (!d) return null;
   const a = prog(f, 0, 24);
-  return <div style={{position: 'absolute', left: 900, top: 205, width: 950, padding: '26px 30px', border: `2px solid ${d.color}`, borderRadius: 20, background: C.bg, opacity: a, fontFamily: sans, boxShadow: '0 20px 70px #000c'}}>
+  return <div style={{position: 'absolute', left: 920, top: 205, width: 920, padding: '26px 30px', border: `2px solid ${d.color}`, borderRadius: 20, background: C.bg, opacity: a, fontFamily: sans, boxShadow: '0 20px 70px #000c'}}>
     <div style={{fontFamily: mono, fontSize: 15, letterSpacing: 1.3, color: d.color}}>{d.kicker}</div>
     <div style={{fontSize: 27, fontWeight: 700, color: C.text, marginTop: 8, marginBottom: 16, lineHeight: 1.25}}>{d.title}</div>
     {d.lines.map((l, i) => <div key={`${i}-${l}`} style={{fontFamily: mono, fontSize: 17, lineHeight: 1.45, color: l.startsWith('07:35') ? d.color : C.text, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', opacity: prog(f, dur * (0.02 + i * 0.035), dur * (0.02 + i * 0.035) + 18)}}>{l || '\u00a0'}</div>)}
