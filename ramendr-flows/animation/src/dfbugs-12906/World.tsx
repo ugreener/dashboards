@@ -175,6 +175,10 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       lines={n.lines(status(key))} appear={appear} focus={focus(key)} hl={keys.includes(key) ? 0.26 : 0} exit={panel && !keys.includes(key) ? 1 : 0}
       color={n.color} detail={1} nameSize={n.nameSize ?? 22} />;
   };
+  const chip = (k: string, x: number, y: number, side: string) => {
+    const op = panel ? (keys.includes(k) ? 1 : 0) : bandOn(BAND[k]) ? 1 : 0.16;
+    return op > 0 ? <div style={{opacity: op}}>{DRIVER(x, y, side, status(k))}</div> : null;
+  };
   const marker = (x: number, y: number, w: number, text: string, color: string, show: boolean) =>
     show ? <div style={{position: 'absolute', left: x, top: y, width: w, padding: '10px 16px', borderRadius: 12, border: `2px solid ${color}`, background: `${C.bg}f2`, color, fontFamily: sans, fontWeight: 700, fontSize: 19, boxShadow: `0 0 24px ${color}44`}}>{text}</div> : null;
 
@@ -189,8 +193,8 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       if (key.endsWith('0') && key !== 'policy' && !restored && key !== 'vrg0' && key !== 'driver0') return null;
       return node(key, appearAll);
     })}
-    {DRIVER(570, 1085, 'spoke-1', status('driver1'))}
-    {DRIVER(1305, 1110, 'spoke-0', status('driver0'))}
+    {chip('driver1', 570, 1085, 'spoke-1')}
+    {chip('driver0', 1305, 1110, 'spoke-0')}
 
     {marker(660, 1165, 520, status('err') || 'VolumeFailedDelete · retrying', C.red, stuck && keys.includes('err'))}
 
