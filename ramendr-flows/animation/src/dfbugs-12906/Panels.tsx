@@ -4,7 +4,7 @@ import {Card} from '../components/primitives';
 import {Def, GlossaryPanel} from '../components/newcomer';
 import {prog} from '../lib/anim';
 
-export const PHASES_DFBUGS = ['Protection', 'The promise', 'Cleanup', 'The branch', 'The delete', 'Two beliefs', 'What it cost'];
+export const PHASES_DFBUGS = ['The promise', 'One second', 'The branch', 'The delete', 'Two beliefs', 'What it cost'];
 
 const Chip: React.FC<{t: string; c: string; a?: number}> = ({t, c, a = 1}) => (
   <span style={{display: 'inline-block', opacity: a, padding: '3px 12px', borderRadius: 999, border: `1.5px solid ${c}`, background: `${c}1c`, color: c, fontFamily: mono, fontSize: 17, fontWeight: 600, whiteSpace: 'nowrap'}}>{t}</span>
@@ -244,7 +244,7 @@ type Ev = {title: string; kicker: string; lines: string[]; gloss: string; color:
 export const EVIDENCE: Record<string, Ev> = {
   '3.5': {
     title: 'The reconcile that undid the promise',
-    kicker: 'RAMEN OPERATOR LOG · spoke-1 · verbatim',
+    kicker: 'RAMEN OPERATOR LOG · spoke-1 · excerpt',
     color: C.red,
     lines: [
       '07:35:04.207  vrg_volgrouprep.go:1073',
@@ -262,7 +262,7 @@ export const EVIDENCE: Record<string, Ev> = {
   },
   '3.6': {
     title: 'Who changed the policy',
-    kicker: 'PV MANAGEDFIELDS · csivol-31136f5c90 · spoke-1 · verbatim',
+    kicker: 'PV MANAGEDFIELDS · csivol-31136f5c90 · spoke-1 · excerpt',
     color: C.amber,
     lines: [
       'manager                    Update  07:35:05Z',
@@ -273,11 +273,8 @@ export const EVIDENCE: Record<string, Ev> = {
       '',
       'kube-controller-manager    Update  07:35:05Z',
       '  f:status.phase',
-      '',
-      'The manager field reads "manager",',
-      'which is the Ramen operator binary.',
     ],
-    gloss: 'Three controllers wrote to the same record in the same second. Only one of them touched the delete policy.',
+    gloss: 'Three controllers wrote to the same record in the same second. Only the one whose manager field reads "manager" touched the delete policy. The root-cause write-up identifies that binary as the Ramen operator.',
   },
   '5.4': {
     title: 'The array refuses, in its own words',
@@ -328,7 +325,7 @@ export const BeatPanel: React.FC<{id: string; f: number; dur: number}> = ({id, f
   const d = PANEL_DATA[id];
   if (!d) return null;
   const a = prog(f, 0, 24);
-  const cold = id === '0.1' || id === '0.2';
+  const cold = id === '0.1' || id === '0.2' || id === '0.3';
   return <div style={{position: 'absolute', left: cold ? 170 : 920, top: cold ? 290 : 220, width: cold ? 1580 : 920, padding: 32, border: `2px solid ${d.color ?? C.blue}`, borderRadius: 20, background: C.bg, opacity: a, fontFamily: sans, boxShadow: '0 20px 70px #000c'}}>
     <div style={{fontSize: cold ? 44 : 29, fontWeight: 700, color: d.color ?? C.blue, marginBottom: 20, lineHeight: 1.25}}>{d.title}</div>
     {d.rows.map((r, i) => <Row key={r} text={r} i={i} f={f} dur={dur} cold={cold} />)}

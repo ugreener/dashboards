@@ -66,10 +66,10 @@ const fit = (id: string): Cam => {
 };
 
 const CLOCK: Record<string, string> = {
-  '3.1': '~07:34', '3.2': '07:34:48', '3.3': '07:35:04', '3.4': '07:35:04',
+  '3.1': '07:34:30', '3.2': '07:34:48', '3.3': '07:35:04', '3.4': '07:35:04',
   '3.5': '07:35:05', '3.6': '07:35:05', '3.7': '07:35:05',
   '4.1': '07:35:05', '4.2': '07:35:05', '4.3': '07:35:05', '4.4': '07:35:05', '4.5': '07:35:05', '4.6': '07:35:05',
-  '5.1': '07:35:06', '5.2': '07:35:06', '5.3': '~07:35', '5.4': '~07:35', '5.5': '08:47:00', '5.6': '08:47:00',
+  '5.1': '07:35:06', '5.2': '07:35:06', '5.3': '07:35:30', '5.4': '07:35:40', '5.5': '08:47:00', '5.6': '08:47:00',
   '6.1': '08:26:00', '6.2': '08:26:00', '6.3': '08:39:56', '6.4': '08:47:00', '6.5': '08:47:00', '6.6': '08:47:00',
   '7.1': '07:53:37', '7.2': '08:47:00', '7.3': '13:05:00', '7.4': '08:47:00', '7.5': '08:47:00', '7.6': '13:05:00',
 };
@@ -152,7 +152,7 @@ export const Dfbugs12906: React.FC<{chapters: number[]}> = ({chapters}) => {
     {seg.type === 'beat' && b.id === '0.1' ? <ColdOpen f={f} dur={b.audio} /> : null}
     {seg.type === 'beat' && cast ? <GlossaryScene id={b.id} f={f} dur={b.audio} card={m.card} def={m.def} /> : null}
     {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={ch >= 3 ? CLOCK_LABELS[b.id] ?? CLOCK[b.id] ?? null : null} ticket="DFBUGS-12906" /> : null}
-    {seg.type === 'beat' && ch >= 2 ? <PhaseTracker current={Math.max(0, Math.min(PHASES_DFBUGS.length - 1, ch - 1))} phases={PHASES_DFBUGS} /> : null}
+    {seg.type === 'beat' && ch >= 2 ? <PhaseTracker current={Math.max(0, Math.min(PHASES_DFBUGS.length - 1, ch - 2))} phases={PHASES_DFBUGS} /> : null}
     {seg.type === 'beat' && ch >= 3 ? <TimelineBar now={CLOCK[b.id] ?? null} events={EVENTS} /> : null}
     {seg.type === 'beat' && PANEL_BEATS.has(b.id) && b.id !== '0.1' ? (EVIDENCE[b.id] ? <EvidencePanel id={b.id} f={f} dur={b.audio} /> : <BeatPanel id={b.id} f={f} dur={b.audio} />) : null}
     {seg.type === 'chapter' ? <ChapterCard n={seg.chapter.n} title={seg.chapter.title} sub={seg.chapter.sub} p={prog(frame - seg.from, 0, 30)} out={prog(frame - seg.from, seg.dur - 30, seg.dur)} /> : null}
