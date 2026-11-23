@@ -59,7 +59,7 @@ const fit = (id: string): Cam => {
   }
   x0 -= 40;
   x1 += 40;
-  y1 += 65;
+  y1 += 45;
   const left = 35, right = side ? 895 : 1880, top = 210, bottom = 895;
   const z = Math.min(1.2, (right - left) / (x1 - x0), (bottom - top) / (y1 - y0));
   return {x: (x0 + x1) / 2, y: (y0 + y1) / 2, z, sx: (left + right) / 2, sy: (top + bottom) / 2, ...CAMS[id]};

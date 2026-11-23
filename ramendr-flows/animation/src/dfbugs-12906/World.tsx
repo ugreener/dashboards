@@ -159,7 +159,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
     }
     return v;
   };
-  const focus = (key: string) => (keys.length === 0 || keys.includes(key) ? 1 : panel ? 0 : 0.08);
+  const focus = (key: string) => (keys.length === 0 || keys.includes(key) ? 1 : panel ? 0.12 : 0.08);
   const on = (...k: string[]) => k.every((x) => keys.includes(x));
   const active = new Set(keys.map((k) => BAND[k]).filter(Boolean));
   const bandOn = (b: string) => keys.length === 0 || active.has(b);
@@ -172,7 +172,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
   const node = (key: string, appear = appearAll) => {
     const n = NODES[key];
     return <Card key={key} x={n.box[0]} y={n.box[1]} w={n.box[2]} kind={n.kind} name={n.name} role={n.role}
-      lines={n.lines(status(key))} appear={appear} focus={focus(key)} hl={keys.includes(key) ? 0.26 : 0} exit={panel && !keys.includes(key) ? 1 : 0}
+      lines={n.lines(status(key))} appear={appear} focus={focus(key)} hl={keys.includes(key) ? 0.26 : 0} exit={panel && !bandOn(BAND[key]) ? 1 : 0}
       color={n.color} detail={1} nameSize={n.nameSize ?? 22} />;
   };
   const chip = (k: string, x: number, y: number, side: string) => {
@@ -214,7 +214,7 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
       {on('pvcRoot0', 'pvRoot0') ? arrow('M1790,810 L1600,848', C.green, false, null, 0, 0) : null}
       {on('pvcData0', 'pvData0') ? arrow('M2125,810 L2125,848', C.green, false, null, 0, 0) : null}
 
-      {on('driver1', 'groupB') ? arrow('M760,1157 C760,1300 400,1330 400,1498', C.red, true, 'DeleteVolume · group member first', 700, 1350, prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24)) : null}
+      {on('driver1', 'groupB') ? arrow('M760,1157 C790,1300 770,1380 745,1496', C.red, true, 'DeleteVolume · group member first', 700, 1330, prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24)) : null}
       {on('groupA', 'groupB') ? arrow('M1290,1595 L1190,1595', C.orange, false, null, 0, 0) : null}
       {on('vrg0', 'groupA') ? arrow('M1575,610 C1600,900 1450,1250 1420,1498', C.purple, true, 'reverse copy', 1500, 1360, prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24)) : null}
     </svg>

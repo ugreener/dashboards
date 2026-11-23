@@ -218,6 +218,7 @@ export const PANEL_DATA: Record<string, Panel> = {
   '3.1': {title: 'The documented source cleanup', rows: ['Delete the guest.', 'Delete its DataVolumes.', 'Delete any remaining claims.', 'Ramen then releases its own protection of those claims.'], color: C.dim},
   '3.3': {title: 'The peer is declared ready', rows: ['The hub sets PeerReady true at 07:35:04, reason Success.', 'About twelve minutes after FailedOver at 07:22:37', 'The cleanup is recorded as complete.'], color: C.green},
   '3.4': {title: '07:35:04.207 · the group request is deleted', rows: ['The VRG removes its own VolumeGroupReplication object.', 'The claims are still there, waiting to be released.', 'The array session does not depend on that object.'], color: C.amber},
+  '3.7': {title: 'Released, Delete, and the finalizer stays', rows: ['Both records moved to Released.', 'Their policy is now Delete, and the mark is gone.', 'The external-provisioner finalizer still holds them.'], color: C.amber},
   '4.1': {title: 'One condition, two outcomes', rows: ["Ramen's claim-preparation step asks one question.", 'Is this work order async, or is this site already Primary?', 'If yes, undo the retention. If no, keep Retain and mark the record as left behind.'], color: C.red},
   '4.2': {title: 'What the undo branch does', rows: ['Set persistentVolumeReclaimPolicy to Delete.', 'Remove the vr-retained annotation.', 'It only acts when the annotation is there.'], color: C.red},
   '4.3': {title: 'The Sync branch does the opposite', rows: ['It keeps Retain on purpose.', 'It labels the record ramendr.openshift.io/pv-left-behind-by-ramen.', 'Its own comment says a delete call must not be issued,', 'because both sites map to the same volume.'], color: C.green},
@@ -226,7 +227,7 @@ export const PANEL_DATA: Record<string, Panel> = {
   '4.6': {title: 'So far', rows: ['The engine that keeps the copy alive is the same one that moves the policy.', 'An async secondary takes the Primary branch.', 'Nothing in that branch asks whether the array still needs the volume.'], color: C.amber},
   '5.1': {title: 'Released plus Delete means: delete it', rows: ['The claim is gone, so the record is unused.', 'The policy says Delete.', 'The external-provisioner asks the storage driver to remove the disk.'], color: C.red},
   '5.2': {title: 'The provisioner asks the driver to delete', rows: ['The external-provisioner calls the CSI driver delete call.', 'Driver: csi-powerstore.dellemc.com.', 'The request names the volume handle from the record.'], color: C.red},
-  '5.4': {title: 'The driver knows the rule on another path', rows: ['DeleteLocalVolume refuses when the disk is in a group', 'or carries a protection policy.', 'Its comment says the source side owns that operation.', 'The CSI delete path carries no such check.'], color: C.amber},
+  '5.4': {title: 'The driver knows the rule on another path', rows: ['A different call refuses when the disk is in a group', 'or carries a protection policy.', 'Its comment says the source side owns that operation.', 'The Kubernetes delete path carries no such check.'], color: C.amber},
   '5.5': {title: 'Twenty-seven attempts, no end', rows: ['The record stays Released with its finalizer.', 'Kubernetes retries the same call.', 'Nothing in the record stops it.'], color: C.red},
   '5.6': {title: 'So far', rows: ['A local policy switch became a storage delete call.', 'The array refused, so the call repeats.', 'No retry can ever succeed while the session is reversed.'], color: C.red},
   '6.2': {title: 'Two conditions disagree', rows: ['DataProtected=True, message: no claims need protection.', 'DestinationInfoAvailable=False, reason Progressing.', 'Different subjects, recorded by the same object at the same moment.'], color: C.amber},
@@ -276,7 +277,7 @@ export const EVIDENCE: Record<string, Ev> = {
     ],
     gloss: 'Three controllers wrote to the same record in the same second. Only the one whose manager field reads "manager" touched the delete policy. The root-cause write-up identifies that binary as the Ramen operator.',
   },
-  '5.4': {
+  '5.3': {
     title: 'The array refuses, in its own words',
     kicker: 'KUBERNETES EVENT · persistentvolume/csivol-2a761d921f · verbatim',
     color: C.red,
@@ -326,7 +327,7 @@ export const BeatPanel: React.FC<{id: string; f: number; dur: number}> = ({id, f
   if (!d) return null;
   const a = prog(f, 0, 24);
   const cold = id === '0.1' || id === '0.2' || id === '0.3';
-  return <div style={{position: 'absolute', left: cold ? 170 : 920, top: cold ? 290 : 220, width: cold ? 1580 : 920, padding: 32, border: `2px solid ${d.color ?? C.blue}`, borderRadius: 20, background: C.bg, opacity: a, fontFamily: sans, boxShadow: '0 20px 70px #000c'}}>
+  return <div style={{position: 'absolute', left: cold ? 170 : 920, top: cold ? 380 : 220, width: cold ? 1580 : 920, padding: 32, border: `2px solid ${d.color ?? C.blue}`, borderRadius: 20, background: C.bg, opacity: a, fontFamily: sans, boxShadow: '0 20px 70px #000c'}}>
     <div style={{fontSize: cold ? 44 : 29, fontWeight: 700, color: d.color ?? C.blue, marginBottom: 20, lineHeight: 1.25}}>{d.title}</div>
     {d.rows.map((r, i) => <Row key={r} text={r} i={i} f={f} dur={dur} cold={cold} />)}
   </div>;
