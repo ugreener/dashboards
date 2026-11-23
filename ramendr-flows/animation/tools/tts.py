@@ -148,6 +148,7 @@ SPOKEN = {
     "8/0": "eight slash zero",
     "4.22": "four point twenty-two",
     "e6d8e968": "E six D eight E nine six eight",
+    "vr-retained": "V R retained",
     "VGRC": "V G R C",
     "VGR": "V G R",
     "UIDs": "U I Ds",

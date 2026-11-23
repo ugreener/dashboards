@@ -1,0 +1,230 @@
+{
+ "0.1": {
+  "chapter": "A cleanup that would not end"
+ },
+ "0.2": {
+  "chapter": "A cleanup that would not end"
+ },
+ "0.3": {
+  "chapter": "A cleanup that would not end"
+ },
+ "1.1": {
+  "chapter": "The pieces"
+ },
+ "1.2": {
+  "chapter": "The pieces"
+ },
+ "1.3": {
+  "chapter": "The pieces",
+  "card": {
+   "kind": "PersistentVolumeClaim",
+   "name": "hammerdb-rhel9-rootdisk-grp",
+   "role": "the request for the root disk"
+  },
+  "def": {
+   "what": "A request for storage, written by whoever runs the application.",
+   "creator": "The application owner, or a DataVolume preparing a disk for a guest.",
+   "reader": "Kubernetes and the storage plugin. Ramen lists these to decide what to protect.",
+   "where": "The workload namespace, hammerdb, on each cluster.",
+   "analogy": "An order slip for a disk. It is not the disk and it is not the ledger entry."
+  }
+ },
+ "1.4": {
+  "chapter": "The pieces",
+  "card": {
+   "kind": "PersistentVolume",
+   "name": "csivol-31136f5c90",
+   "role": "the ledger entry that names the real disk and its delete policy"
+  },
+  "def": {
+   "what": "The cluster-wide record of one real disk. It holds the disk handle and the delete policy.",
+   "creator": "The storage plugin, when a claim is bound.",
+   "reader": "Kubernetes volume controller, the storage plugin, and Ramen when it protects the claim.",
+   "where": "Cluster scope on the cluster that owns the disk.",
+   "analogy": "The ledger entry that carries the serial number of the thing in the storeroom, plus a note saying whether it may be scrapped."
+  }
+ },
+ "1.5": {
+  "chapter": "The pieces"
+ },
+ "1.6": {
+  "chapter": "The pieces"
+ },
+ "1.7": {
+  "chapter": "The pieces",
+  "card": {
+   "kind": "VolumeReplicationGroup",
+   "name": "hammerdb-drpc",
+   "role": "tells one cluster what its job is for this application"
+  },
+  "def": {
+   "what": "The per-cluster work order for one application. Its state field says Primary or Secondary.",
+   "creator": "The hub placement controller, which writes the state into the cluster manifest.",
+   "reader": "The Ramen controller on that cluster, and the hub when it checks readiness.",
+   "where": "openshift-dr-ops, on both managed clusters.",
+   "analogy": "A shift assignment posted at one factory. Head office writes it. The factory only reads it."
+  }
+ },
+ "1.8": {
+  "chapter": "The pieces",
+  "card": {
+   "kind": "VolumeGroupReplication",
+   "name": "vgr-4251c970ec7af885d6ec79c1d2c40661-hammerdb-drpc",
+   "role": "the request that drives one array session for the whole group"
+  },
+  "def": {
+   "what": "One request covering every disk of a group, so the array moves them together.",
+   "creator": "The Ramen controller on the cluster that holds the claims.",
+   "reader": "The storage replication sidecar, which turns it into an array call.",
+   "where": "The workload namespace, hammerdb, on the cluster that owns the claims.",
+   "analogy": "One shipping order for a pallet. It is not the pallet and it is not the truck."
+  }
+ },
+ "1.9": {
+  "chapter": "The pieces"
+ },
+ "1.10": {
+  "chapter": "The pieces"
+ },
+ "2.1": {
+  "chapter": "The promise"
+ },
+ "2.2": {
+  "chapter": "The promise"
+ },
+ "2.3": {
+  "chapter": "The promise"
+ },
+ "2.4": {
+  "chapter": "The promise"
+ },
+ "2.5": {
+  "chapter": "The promise"
+ },
+ "3.1": {
+  "chapter": "One second",
+  "t": "2026-11-22T07:33:00Z"
+ },
+ "3.2": {
+  "chapter": "One second",
+  "t": "2026-11-22T07:34:48Z"
+ },
+ "3.3": {
+  "chapter": "One second",
+  "t": "2026-11-22T07:35:04Z"
+ },
+ "3.4": {
+  "chapter": "One second",
+  "t": "2026-11-22T07:35:04Z"
+ },
+ "3.5": {
+  "chapter": "One second",
+  "t": "2026-11-22T07:35:05Z"
+ },
+ "3.6": {
+  "chapter": "One second",
+  "t": "2026-11-22T07:35:05Z"
+ },
+ "3.7": {
+  "chapter": "One second",
+  "t": "2026-11-22T07:35:06Z"
+ },
+ "4.1": {
+  "chapter": "The branch",
+  "t": "2026-11-22T07:35:05Z"
+ },
+ "4.2": {
+  "chapter": "The branch",
+  "t": "2026-11-22T07:35:05Z"
+ },
+ "4.3": {
+  "chapter": "The branch",
+  "t": "2026-11-22T07:35:05Z"
+ },
+ "4.4": {
+  "chapter": "The branch",
+  "t": "2026-11-22T07:35:05Z"
+ },
+ "4.5": {
+  "chapter": "The branch",
+  "t": "2026-11-22T07:35:05Z"
+ },
+ "4.6": {
+  "chapter": "The branch",
+  "t": "2026-11-22T07:35:05Z"
+ },
+ "5.1": {
+  "chapter": "The delete that would not end",
+  "t": "2026-11-22T07:35:06Z"
+ },
+ "5.2": {
+  "chapter": "The delete that would not end",
+  "t": "2026-11-22T07:35:06Z"
+ },
+ "5.3": {
+  "chapter": "The delete that would not end",
+  "t": "2026-11-22T07:35:07Z"
+ },
+ "5.4": {
+  "chapter": "The delete that would not end",
+  "t": "2026-11-22T07:35:07Z"
+ },
+ "5.5": {
+  "chapter": "The delete that would not end",
+  "t": "2026-11-22T08:47:00Z"
+ },
+ "5.6": {
+  "chapter": "The delete that would not end",
+  "t": "2026-11-22T08:47:00Z"
+ },
+ "6.1": {
+  "chapter": "Two beliefs",
+  "t": "2026-11-22T08:26:00Z"
+ },
+ "6.2": {
+  "chapter": "Two beliefs",
+  "t": "2026-11-22T08:26:00Z"
+ },
+ "6.3": {
+  "chapter": "Two beliefs",
+  "t": "2026-11-22T08:39:56Z"
+ },
+ "6.4": {
+  "chapter": "Two beliefs",
+  "t": "2026-11-22T08:47:00Z"
+ },
+ "6.5": {
+  "chapter": "Two beliefs",
+  "t": "2026-11-22T08:47:00Z"
+ },
+ "6.6": {
+  "chapter": "Two beliefs",
+  "t": "2026-11-22T08:47:00Z"
+ },
+ "7.1": {
+  "chapter": "What it cost",
+  "t": "2026-11-22T07:53:37Z"
+ },
+ "7.2": {
+  "chapter": "What it cost",
+  "t": "2026-11-22T08:47:00Z"
+ },
+ "7.3": {
+  "chapter": "What it cost",
+  "t": "2026-11-22T13:05:00Z",
+  "unverified": true
+ },
+ "7.4": {
+  "chapter": "What it cost",
+  "t": "2026-11-22T08:47:00Z"
+ },
+ "7.5": {
+  "chapter": "What it cost",
+  "t": "2026-11-22T08:47:00Z"
+ },
+ "7.6": {
+  "chapter": "What it cost",
+  "t": "2026-11-22T13:05:00Z",
+  "unverified": true
+ }
+}

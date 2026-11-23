@@ -1,0 +1,570 @@
+# yamllint disable rule:line-length
+ticket: DFBUGS-12906
+run: '2026-11-22'
+direction: spoke-1 to spoke-0 failover, VSA-B to VSA-A, both sites reachable
+beats:
+  - id: '0.1'
+    chapter: A cleanup that would not end
+    visual: Title, then two site cards, then the postcheck score, then the loop.
+    narration: >-
+      On a Saturday morning in November, a disaster recovery failover finished.
+      The application came back on the recovery site, the database was writing,
+      and the copy between the two storage arrays was healthy. Then, on the site
+      that had just been left behind, two storage records began failing the same
+      delete. No data was lost. Only the cleanup would not end.
+    evidence: [dfbugs-12906 description, virtDR-498 postcheck-20261122T075337Z.json]
+    pause_after: 2.2
+
+  - id: '0.2'
+    chapter: A cleanup that would not end
+    visual: Panel with the attempt count and the elapsed time.
+    narration: >-
+      By the time the operator collected evidence, that delete had been retried
+      twenty-seven times over seventy-two minutes. The recovery site was fine.
+      The old site held two records that kept asking the storage to remove disks
+      the storage still needed. This video follows the one second that started it.
+    evidence: [edge97 must-gather, VolumeFailedDelete event count 27, spoke1-state.txt events]
+    pause_after: 1.8
+
+  - id: '0.3'
+    chapter: A cleanup that would not end
+    visual: Panel naming what is observed and what is inferred.
+    narration: >-
+      Everything here comes from a recorded run. The failover, the timestamps and
+      the log lines are observed. Where the video infers a cause that the record
+      cannot prove, it says so on screen. The defect is open, and the build that
+      produced it carries no source revision, so one attribution stays unverified.
+    evidence: [dfbugs-12906 description, virtDR-498 run log]
+    pause_after: 1.5
+
+  - id: '1.1'
+    chapter: The pieces
+    visual: Two site cards, the hub strip, and the two arrays.
+    narration: >-
+      Two clusters, one storage array each. The hub holds the control records.
+      Before the failover, spoke-1 ran the application with its array VSA-B, and
+      spoke-0 held the standby copy on VSA-A. Kubernetes manages records. The
+      arrays move the bytes.
+    evidence: [virtDR-498 run log configuration, spoke1-state.txt, spoke0-state.txt]
+    pause_after: 1.5
+
+  - id: '1.2'
+    chapter: The pieces
+    visual: The guest card, then two claim cards with their volume records.
+    narration: >-
+      The application is one virtual machine, a RHEL guest running PostgreSQL with
+      a benchmark writer. It uses two disks: a root disk and a database disk. Each
+      disk is a claim, and each claim is bound to a volume record. Those two records
+      are what the rest of this video is about.
+    evidence: [virtDR-498 run log workload, spoke0-state.txt claimRef]
+    pause_after: 1.5
+
+  - id: '1.3'
+    chapter: The pieces
+    visual: One claim card and its glossary.
+    card: {kind: PersistentVolumeClaim, name: hammerdb-rhel9-rootdisk-grp, role: 'the request for the root disk'}
+    def: {what: 'A request for storage, written by whoever runs the application.', creator: 'The application owner, or a DataVolume preparing a disk for a guest.', reader: 'Kubernetes and the storage plugin. Ramen lists these to decide what to protect.', where: 'The workload namespace, hammerdb, on each cluster.', analogy: 'An order slip for a disk. It is not the disk and it is not the ledger entry.'}
+    narration: >-
+      A PersistentVolumeClaim is a request for storage. The application asks for a
+      disk, and Kubernetes answers with a record. Ours are hammerdb-rhel9-rootdisk-grp
+      and hammerdb-rhel9-datadisk-grp, in the hammerdb namespace on each site.
+    evidence: [spoke1-state.txt claimRef, spoke0-state.txt claimRef]
+    pause_after: 1.2
+
+  - id: '1.4'
+    chapter: The pieces
+    visual: One volume record card and its glossary.
+    card: {kind: PersistentVolume, name: csivol-31136f5c90, role: 'the ledger entry that names the real disk and its delete policy'}
+    def: {what: 'The cluster-wide record of one real disk. It holds the disk handle and the delete policy.', creator: 'The storage plugin, when a claim is bound.', reader: 'Kubernetes volume controller, the storage plugin, and Ramen when it protects the claim.', where: 'Cluster scope on the cluster that owns the disk.', analogy: 'The ledger entry that carries the serial number of the thing in the storeroom, plus a note saying whether it may be scrapped.'}
+    narration: >-
+      The PersistentVolume is the record that names the real disk. It holds a volume
+      handle, which is the array's own disk identifier, and it holds a delete policy.
+      If this record says Delete, Kubernetes is allowed to ask the storage to destroy
+      the disk.
+    evidence: [spoke1-state.txt csivol-31136f5c90 spec.csi.volumeHandle and persistentVolumeReclaimPolicy]
+    pause_after: 1.5
+
+  - id: '1.5'
+    chapter: The pieces
+    visual: Retain and Delete side by side, then the policy as the last gate.
+    narration: >-
+      Retain and Delete are the two answers. Retain means the record is kept and the
+      storage is never asked to delete the volume. Delete means the record is released
+      and a delete call goes out. The switch lives on the record, on one cluster, and
+      it is the last gate before the storage.
+    evidence: [spoke1-state.txt persistentVolumeReclaimPolicy, spoke0-state.txt persistentVolumeReclaimPolicy]
+    pause_after: 1.8
+
+  - id: '1.6'
+    chapter: The pieces
+    visual: The annotation, then who adds it, who reads it, who is skipped.
+    narration: >-
+      Ramen adds a mark when it changes a record from Delete to Retain. The annotation
+      is called vr-retained, its value is retained, and it lives under the volume
+      replication group prefix. If a record was already Retain before Ramen saw it,
+      Ramen returns early and never adds the mark, so that record is never affected by
+      what follows.
+    evidence: [upstream ramen vrg_volrep.go retainPVForPVC 680-689, spoke0-state.txt vr-retained annotation]
+    pause_after: 2
+
+  - id: '1.7'
+    chapter: The pieces
+    visual: One work-order card and its glossary.
+    card: {kind: VolumeReplicationGroup, name: hammerdb-drpc, role: 'tells one cluster what its job is for this application'}
+    def: {what: 'The per-cluster work order for one application. Its state field says Primary or Secondary.', creator: 'The hub placement controller, which writes the state into the cluster manifest.', reader: 'The Ramen controller on that cluster, and the hub when it checks readiness.', where: 'openshift-dr-ops, on both managed clusters.', analogy: 'A shift assignment posted at one factory. Head office writes it. The factory only reads it.'}
+    narration: >-
+      The VolumeReplicationGroup is the per-site work order. The hub writes its state,
+      Primary or Secondary, and the controller on that cluster acts on it. It is the
+      object that decides what this site should be doing with its copy.
+    evidence: [spoke1-state.txt VRG spec, spoke0-state.txt VRG status, upstream drplacementcontrol.go:2604]
+    pause_after: 1.2
+
+  - id: '1.8'
+    chapter: The pieces
+    visual: One group-request card and its glossary.
+    card: {kind: VolumeGroupReplication, name: 'vgr-4251c970ec7af885d6ec79c1d2c40661-hammerdb-drpc', role: 'the request that drives one array session for the whole group'}
+    def: {what: 'One request covering every disk of a group, so the array moves them together.', creator: 'The Ramen controller on the cluster that holds the claims.', reader: 'The storage replication sidecar, which turns it into an array call.', where: 'The workload namespace, hammerdb, on the cluster that owns the claims.', analogy: 'One shipping order for a pallet. It is not the pallet and it is not the truck.'}
+    narration: >-
+      The VolumeGroupReplication is the request that drives one array session for the
+      whole group. It carries the group handle and the state the array should be in.
+      It is a control record inside Kubernetes. Deleting it does not delete the array
+      session.
+    evidence: [spoke1-state.txt VRG spec.async grouped peer class, edge97 must-gather VGR absent at 08:26, array-state.json session still OK]
+    pause_after: 1.8
+
+  - id: '1.9'
+    chapter: The pieces
+    visual: Two arrays with their roles, then the session strip.
+    narration: >-
+      On the array side there is one session for the group. One array is the Source and
+      reads; the other is the Destination and follows. The session has its own state,
+      and after a failover the roles swap. The old array becomes the Destination, and
+      its disks are still the receiving end of a live copy.
+    evidence: [array-state.json sessions, virtDR-498 preflight session e16423f4]
+    pause_after: 1.8
+
+  - id: '1.10'
+    chapter: The pieces
+    visual: The five objects listed, then the promise.
+    narration: >-
+      So far: a claim, a volume record with a delete policy, a mark that keeps the record
+      alive, a group request, and an array session. Five objects, two sides. The promise
+      is that while the copy is still needed, the record keeps Retain and keeps the mark.
+    evidence: [source trace]
+    pause_after: 1.5
+
+  - id: '2.1'
+    chapter: The promise
+    visual: The old site card taking the Destination role, its application fading out.
+    narration: >-
+      After the failover the old site has a new job. It is the Destination of the
+      reversed session, holding the standby copy. Its application is supposed to
+      disappear, and its disks are supposed to stay. That is the whole point of a
+      standby copy.
+    evidence: [spoke1-state.txt VRG annotations destination-cluster, array-state.json VSA-B role Destination]
+    pause_after: 1.5
+
+  - id: '2.2'
+    chapter: The promise
+    visual: The two old-site volume records keeping Retain and the mark.
+    narration: >-
+      So Ramen keeps the old-site volume records and their Retain policy. If they stayed
+      as they were, nothing would ever ask the array to remove those disks. The claim can
+      go, the guest can go, and the storage stays.
+    evidence: [dfbugs-12906 Expected results, spoke0-state.txt retained records on the new site]
+    pause_after: 1.5
+
+  - id: '2.3'
+    chapter: The promise
+    visual: Retain and Delete as two outcomes of the same Released record.
+    narration: >-
+      Look at what each policy allows. With Retain, the record is Released and kept, and
+      no delete call is made. With Delete, the record is Released and a delete call goes
+      to the driver. The difference is not cosmetic. It is the difference between keeping
+      a copy and destroying it.
+    evidence: [spoke1-state.txt Released with Delete, spoke0-state.txt Bound with Retain]
+    pause_after: 1.8
+
+  - id: '2.4'
+    chapter: The promise
+    visual: Who gets the mark and who does not.
+    narration: >-
+      The mark is what makes the promise reversible. Ramen only undoes a retention it can
+      recognise, and it recognises its own annotation. A record an administrator retained
+      by hand has no annotation, so Ramen leaves it alone. That is why the defect hits
+      records Ramen created, not every record on the site.
+    evidence: [upstream ramen undoPVRetention 736-744 guard, retainPVForPVC 680-689 early return, dfbugs-12906 Additional info]
+    pause_after: 2
+
+  - id: '2.5'
+    chapter: The promise
+    visual: One field and one annotation, both on the old site.
+    narration: >-
+      So the promise rests on one field and one annotation, both living on the old site.
+      Keep them and the copy survives. Lose them and Kubernetes starts doing exactly what
+      the policy says.
+    evidence: [source trace]
+    pause_after: 1.5
+
+  - id: '3.1'
+    chapter: One second
+    t: '2026-11-22T07:33:00Z'
+    visual: The documented cleanup steps, in order.
+    narration: >-
+      The cleanup for a discovered application is documented. Delete the guest, then its
+      DataVolumes, then any claims that remain. Nothing there mentions the volume records,
+      because the operator is not supposed to touch them. Ramen is supposed to handle that
+      part.
+    evidence: [dfbugs-12906 Steps to Reproduce 3, virtDR-498 run log]
+    pause_after: 1.5
+
+  - id: '3.2'
+    chapter: One second
+    t: '2026-11-22T07:34:48Z'
+    visual: The claim-in-use check passing between two reconciles.
+    narration: >-
+      The controller tells us when the guest went. At seven thirty-four and twenty-six the
+      reconcile still reports that a claim is in use by a pod, so it refuses to move to
+      Secondary. Twenty-two seconds later the same check passes. The guest and its pod
+      are gone.
+    evidence: [edge97 must-gather current.log 07:34:26 and 07:34:48 Secondary transition failed as PVC is potentially in use by a pod]
+    pause_after: 1.8
+
+  - id: '3.3'
+    chapter: One second
+    t: '2026-11-22T07:35:04Z'
+    visual: PeerReady flipping true, and the clock holding on it.
+    narration: >-
+      At seven thirty-five and four the hub reports PeerReady true. The reverse copy now
+      has a destination, and the old site is officially the standby. That is the moment
+      the old site's disks became necessary. Remember the time. The next event is one
+      second later.
+    evidence: [hub-state.txt DRPC PeerReady True 2026-11-22T07:35:04Z, virtDR-498 run log]
+    pause_after: 2.2
+
+  - id: '3.4'
+    chapter: One second
+    t: '2026-11-22T07:35:04Z'
+    visual: The group request card being removed, the array session unchanged.
+    narration: >-
+      The claims are being deleted, so Ramen starts unprotecting them. It deletes its own
+      group request first, at seven thirty-five and four, two hundred milliseconds in.
+      Both claims are already gone from this site. The array session is untouched, because
+      that object was never the session.
+    evidence: [edge97 must-gather current.log 07:35:04.207 Deleted VolumeGroupReplication resource, array-state.json]
+    pause_after: 2
+
+  - id: '3.5'
+    chapter: One second
+    t: '2026-11-22T07:35:05Z'
+    visual: Evidence panel with the three log lines, then the gloss.
+    narration: >-
+      The next reconcile finds the group request missing and says so: unprotecting PVCs as
+      VGR is missing. It then calls the function that prepares a claim for deletion. In the
+      same second the log records that Ramen deleted its annotations from a volume record,
+      with the state reported as secondary.
+    evidence: [edge97 must-gather current.log 07:35:05.291 and 07:35:05.310, dfbugs-12906 root-cause.md log excerpt]
+    pause_after: 2.2
+
+  - id: '3.6'
+    chapter: One second
+    t: '2026-11-22T07:35:05Z'
+    visual: Evidence panel with the managed fields rows.
+    narration: >-
+      The record's own history names the writer. Three controllers wrote to the same volume
+      record in the same second. Only one of them touched the delete policy, and its manager
+      field reads manager, which is the Ramen operator binary. The policy change is not a
+      guess about who did it.
+    evidence: [spoke1-state.txt managedFields csivol-31136f5c90, dfbugs-12906 root-cause.md]
+    pause_after: 1.8
+
+  - id: '3.7'
+    chapter: One second
+    t: '2026-11-22T07:35:06Z'
+    visual: Both records moving to Released with Delete, then the finalizer.
+    narration: >-
+      Then the claims are released, and the volume records move to Released. Their policy is
+      now Delete. The mark is gone. Both records still carry the finalizer that keeps them
+      alive, and the next thing Kubernetes does is ask the storage to remove the disks.
+    evidence: [spoke1-state.txt phase Released and reclaim Delete, finalizers, edge97 current.log 07:35:05.874 PVC delete]
+    pause_after: 1.8
+
+  - id: '4.1'
+    chapter: The branch
+    t: '2026-11-22T07:35:05Z'
+    visual: The condition and its two outcomes, as a panel.
+    narration: >-
+      Here is the decision, in the function that prepares a claim for deletion. One
+      condition: if the work order is async, or if the site is already Primary, undo the
+      retention. Otherwise keep Retain. Our site is async and Secondary, and the first half
+      of that test is already true.
+    evidence: [upstream ramen dd0cd25 vrg_volrep.go:615-616 preparePVCForVRDeletion]
+    pause_after: 2.2
+
+  - id: '4.2'
+    chapter: The branch
+    t: '2026-11-22T07:35:05Z'
+    visual: The undo function, its guard, and its two writes.
+    narration: >-
+      The undo branch does two things. It sets the reclaim policy to Delete, and it removes
+      the vr-retained annotation. It acts only when the annotation is present and equals
+      retained. It never asks the array anything, and it never looks at the session.
+    evidence: [upstream ramen vrg_volrep.go:736-744 undoPVRetention]
+    pause_after: 2
+
+  - id: '4.3'
+    chapter: The branch
+    t: '2026-11-22T07:35:05Z'
+    visual: The synchronous branch, its comment, and the left-behind label.
+    narration: >-
+      There is a second branch that does the opposite. For a synchronous pair it keeps
+      Retain and labels the record as left behind by Ramen. Its own comment says a delete
+      call must not be issued, because both sites map to the same volume. The code knows
+      the rule. It applies it on one branch.
+    evidence: [upstream ramen vrg_volrep.go:607-624 else branch, volumereplicationgroup_controller.go:610-611 label key]
+    pause_after: 2.2
+
+  - id: '4.4'
+    chapter: The branch
+    t: '2026-11-22T07:35:05Z'
+    visual: The condition rewritten to show the unreachable else.
+    narration: >-
+      But the branch is not reachable for this class of protection. The test reads: if async
+      is set, or the site is Primary. For an async pair the first half is always true, so a
+      secondary takes the same path as a primary. The second branch only ever runs for
+      synchronous replication.
+    evidence: [upstream ramen vrg_volrep.go:615 condition, PR 2934 diff adding the else branch]
+    pause_after: 2
+
+  - id: '4.5'
+    chapter: The branch
+    t: '2026-11-22T07:35:05Z'
+    visual: The group call chain, ending at the same helper.
+    narration: >-
+      The group path changes nothing. The delete of the group request happens first, then
+      the same preparation runs for every claim. The retention decision does not depend on
+      whether the disks are grouped. Grouping only decides which storage call fails later.
+    evidence: [upstream ramen vrg_volgrouprep.go:648 deleteVGR, then 658 preparePVCForVRDeletion, 705 reconcileMissingVGR]
+    pause_after: 1.8
+
+  - id: '4.6'
+    chapter: The branch
+    t: '2026-11-22T07:35:05Z'
+    visual: The three plain sentences, then the missing question.
+    narration: >-
+      So far: one condition, written for asynchronous replication, treats a standby site
+      like a primary. It then undoes a retention the code itself put in place, while the
+      copy is still live. Nothing in that branch asks whether the array still needs the
+      volume.
+    evidence: [source trace]
+    pause_after: 1.5
+
+  - id: '5.1'
+    chapter: The delete that would not end
+    t: '2026-11-22T07:35:06Z'
+    visual: Released plus Delete, then the volume controller issuing the request.
+    narration: >-
+      Now Kubernetes does its job. The claim is gone, the record is Released, and the policy
+      says Delete. The volume controller asks the storage plugin to remove the volume, naming
+      the handle from the record. This is the intended behaviour of a Delete policy. Nothing
+      here is wrong yet.
+    evidence: [spoke1-state.txt Released and Delete, finalizer external-provisioner.volume.kubernetes.io/finalizer]
+    pause_after: 1.8
+
+  - id: '5.2'
+    chapter: The delete that would not end
+    t: '2026-11-22T07:35:06Z'
+    visual: The driver steps in order. List the groups, remove the member, clear the policy, delete.
+    narration: >-
+      In the Dell driver, the delete path lists the volume groups the disk belongs to. If it
+      is a group member, it removes the member first, then clears the protection policy, then
+      deletes the volume. That order is deliberate: the array will not let you delete a member
+      in place.
+    evidence: [csi-powerstore v2.14.0 controller.go:602 613 623 660, chart csi-powerstore-2.14.0]
+    pause_after: 2
+
+  - id: '5.3'
+    chapter: The delete that would not end
+    t: '2026-11-22T07:35:07Z'
+    visual: Evidence panel with the array message.
+    narration: >-
+      The array refuses. Its answer is a four twenty-two: volumes cannot be removed from the
+      replication destination volume group. The message names the group. The driver returns it
+      unchanged, and the delete call fails. Twenty-seven of these were recorded before the
+      evidence was collected.
+    evidence: [spoke1-state.txt VolumeFailedDelete event, dfbugs-12906 Actual results]
+    pause_after: 2.2
+
+  - id: '5.4'
+    chapter: The delete that would not end
+    t: '2026-11-22T07:35:07Z'
+    visual: Two driver calls side by side. One refuses, one does not check.
+    narration: >-
+      And the driver already knows this rule. On a different call, the one used to delete a
+      local replicated volume, it refuses outright when the disk is in a group or carries a
+      protection policy, and says the source side owns that operation. The Kubernetes delete
+      path does not carry that check.
+    evidence: [csi-powerstore v2.14.0 replication.go:585-593, csi-powerstore main csiaddons_replication.go:574-579]
+    pause_after: 2
+
+  - id: '5.5'
+    chapter: The delete that would not end
+    t: '2026-11-22T08:47:00Z'
+    visual: The retry counter and the finalizer holding the record.
+    narration: >-
+      Nothing clears the failure. The record stays Released, the finalizer stays on it, and
+      Kubernetes retries the same call. No retry can succeed while the group is still a
+      replication destination. By the time the archive was collected, the loop was seventy-two
+      minutes old.
+    evidence: [spoke1-state.txt events count 27 first seen 72m, finalizers]
+    pause_after: 2
+
+  - id: '5.6'
+    chapter: The delete that would not end
+    t: '2026-11-22T08:47:00Z'
+    visual: The chain summarised, then the pointer back to Ramen.
+    narration: >-
+      So far: a local policy switch became a storage delete call, the array refused it, and
+      Kubernetes keeps asking. The retry loop is a symptom. The decision that caused it
+      happened one chapter earlier, in Ramen.
+    evidence: [source trace]
+    pause_after: 1.5
+
+  - id: '6.1'
+    chapter: Two beliefs
+    t: '2026-11-22T08:26:00Z'
+    visual: Evidence panel with the work-order conditions.
+    narration: >-
+      Meanwhile the old site believes it is finished. Its work order now protects zero claims,
+      so DataReady and DataProtected both read true with the message that secondary protection
+      is complete. The same object reports DestinationInfoAvailable false, still progressing,
+      because destination information is missing for one or more volumes.
+    evidence: [edge97 must-gather VRG hammerdb-drpc status 07:35:06 and 07:35:04]
+    pause_after: 2.2
+
+  - id: '6.2'
+    chapter: Two beliefs
+    t: '2026-11-22T08:26:00Z'
+    visual: Two conditions side by side, contradicting each other.
+    narration: >-
+      Those two statements cannot both be the whole truth. One says there is nothing left to
+      protect. The other says it does not have the destination information it needs. The
+      controller records both, and neither one is used as a gate before the retention is
+      undone.
+    evidence: [upstream ramen vrg_volrep.go:3624-3668 aggregateVolRepDestinationInfoAvailableCondition, 2097-2098 recorded not enforced]
+    pause_after: 1.8
+
+  - id: '6.3'
+    chapter: Two beliefs
+    t: '2026-11-22T08:39:56Z'
+    visual: Both array sessions with roles swapped and the sync timestamps.
+    narration: >-
+      The array disagrees with both. The session is still in state OK, the new array is still
+      the Source, the old array is still the Destination, and the last sync and the next sync
+      are on the clock. The relationship the object graph forgot is still doing work.
+    evidence: [array-state.json session e16423f4 last_sync 2026-11-22T08:39:56 next_sync 08:54:14]
+    pause_after: 2
+
+  - id: '6.4'
+    chapter: Two beliefs
+    t: '2026-11-22T08:47:00Z'
+    visual: The four volume records, two per site, compared.
+    narration: >-
+      Compare the two sites. On the new site the records are Bound, the policy is Retain, and
+      the vr-retained mark is present. On the old site the same two names are Released, the
+      policy is Delete, and the mark is gone. Same application, same disks, opposite outcomes.
+    evidence: [spoke0-state.txt Bound Retain retained, spoke1-state.txt Released Delete no annotation]
+    pause_after: 2
+
+  - id: '6.5'
+    chapter: Two beliefs
+    t: '2026-11-22T08:47:00Z'
+    visual: The group object gone from the cluster, the session still on the arrays.
+    narration: >-
+      The group request is gone from the old site, but the group session is not. Deleting that
+      object removed a Kubernetes record and left the array relationship alone. That is the gap
+      the whole story turns on: the record that said do not delete is the record that was deleted.
+    evidence: [edge97 must-gather no hammerdb VolumeGroupReplication at 08:26, array-state.json session still OK]
+    pause_after: 2.2
+
+  - id: '6.6'
+    chapter: Two beliefs
+    t: '2026-11-22T08:47:00Z'
+    visual: The three sentences of the chapter, as a recap.
+    narration: >-
+      So far: Kubernetes removed its own record of the relationship, the array kept the
+      relationship, and the volume record now follows the side that forgot. The next chapter
+      is about what that costs.
+    evidence: [source trace]
+    pause_after: 1.5
+
+  - id: '7.1'
+    chapter: What it cost
+    t: '2026-11-22T07:53:37Z'
+    visual: The postcheck score and the healthy recovery site.
+    narration: >-
+      Start with what did not happen. No data was lost. Both array copies stayed intact, the
+      recovery site served the whole time, and the failover passed seventeen of seventeen
+      postcheck checks. The damage is entirely on the site that was left behind.
+    evidence: [virtDR-498 postcheck-20261122T075337Z.json OVERALL PASS 17/17, dfbugs-12906 Actual results no data was lost]
+    pause_after: 2
+
+  - id: '7.2'
+    chapter: What it cost
+    t: '2026-11-22T08:47:00Z'
+    visual: The decommission blocked, the events filling.
+    narration: >-
+      The old site cannot be decommissioned cleanly. Its volume records stay Released and keep
+      retrying a delete that cannot work, which fills the events and holds the disks. Whatever
+      needs those disks next inherits the loop instead of a clean starting state.
+    evidence: [dfbugs-12906 Impact, spoke1-state.txt events count 27]
+    pause_after: 1.8
+
+  - id: '7.3'
+    chapter: What it cost
+    t: '2026-11-22T13:05:00Z'
+    unverified: true
+    visual: The name reuse across the two sites, with a visible inference label.
+    narration: >-
+      There is a second cost, and this part is inference. Ramen restores target records under
+      the source record names, so the new site already holds both of those names. A move back
+      has to recreate them while the old objects still exist. The ticket reports that this
+      blocked a later reverse failover. The archived dumps do not cover it.
+    evidence: [spoke0-state.txt restored PV names at 07:22:21, spoke1-state.txt same names, dfbugs-12906 comment 2026-11-22T13:05Z]
+    pause_after: 2.2
+
+  - id: '7.4'
+    chapter: What it cost
+    t: '2026-11-22T08:47:00Z'
+    visual: The group path and the bare path diverging.
+    narration: >-
+      The per-volume case is not the same shape. A disk with no group membership skips the
+      group removal and the protection policy step entirely, and the driver calls the array's
+      delete directly. Whether the array refuses that call was never tested in this lab, so
+      the outcome is unknown.
+    evidence: [csi-powerstore v2.14.0 controller.go:609-660, dfbugs-12906 Additional info driver detail]
+    pause_after: 2
+
+  - id: '7.5'
+    chapter: What it cost
+    t: '2026-11-22T08:47:00Z'
+    visual: The question a fix has to ask, and the two states it must separate.
+    narration: >-
+      A fix has to answer the question the branch never asks: is this volume still a replication
+      destination? Keep Retain while the answer is yes, and return to Delete only when the
+      relationship has ended, so a deliberate teardown can still reclaim the old copies.
+    evidence: [dfbugs-12906 Expected results, upstream ramen docs/design/proposals/VRG-Reconciliation.md:235-239]
+    pause_after: 2.2
+
+  - id: '7.6'
+    chapter: What it cost
+    t: '2026-11-22T13:05:00Z'
+    unverified: true
+    visual: What is observed, what is inferred, and what stays open.
+    narration: >-
+      What stays open. The upstream path matches this run, but the running build is a private
+      image with no source revision label, so the attribution is inference. No fix is merged,
+      and the change that added the synchronous branch left the asynchronous test untouched.
+      The defect is open.
+    evidence: [dfbugs-12906 Version-Release, upstream ramen PR 2934, PR 2979 open not merged]
+    pause_after: 2.5
