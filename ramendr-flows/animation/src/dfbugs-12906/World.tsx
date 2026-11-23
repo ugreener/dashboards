@@ -100,8 +100,6 @@ export const CH: [string, number, string, string][] = [
   ['3.6', 0.45, 'pvData1', 'Delete · mark gone'],
   ['3.7', 0.3, 'pvRoot1', 'Released · Delete'],
   ['3.7', 0.4, 'pvData1', 'Released · Delete'],
-  ['4.4', 0.3, 'groupB', 'Destination · OK'],
-  ['4.4', 0.4, 'groupA', 'Source · OK'],
   ['5.1', 0.3, 'driver1', 'DeleteVolume'],
   ['5.3', 0.4, 'driver1', 'RemoveMembersFromVolumeGroup'],
   ['5.4', 0.4, 'driver1', 'HTTP 422'],
@@ -109,7 +107,6 @@ export const CH: [string, number, string, string][] = [
   ['5.5', 0.4, 'pvData1', 'Released · retrying'],
   ['6.1', 0.3, 'vrg1', 'Secondary · 0 claims'],
   ['6.3', 0.2, 'groupB', 'Destination · OK · syncing'],
-  ['6.3', 0.3, 'groupA', 'Source · OK · syncing'],
   ['7.1', 0.2, 'vm0', 'Running'],
   ['7.5', 0.3, 'pvRoot1', 'Retain · patched'],
   ['7.5', 0.4, 'pvData1', 'Retain · patched'],
@@ -132,14 +129,14 @@ const BASE: Record<string, string> = {
   pvRoot1: 'Bound · Retain · marked',
   pvData1: 'Bound · Retain · marked',
   vgr1: 'primary',
-  vrg0: 'not created yet',
-  vm0: 'not created yet',
-  pvcRoot0: 'not created yet',
-  pvcData0: 'not created yet',
-  pvRoot0: 'not created yet',
-  pvData0: 'not created yet',
-  groupB: 'Source · OK',
-  groupA: 'Destination · OK',
+  vrg0: 'Primary',
+  vm0: 'Running',
+  pvcRoot0: 'Bound',
+  pvcData0: 'Bound',
+  pvRoot0: 'Bound · Retain · marked',
+  pvData0: 'Bound · Retain · marked',
+  groupB: 'Destination · OK',
+  groupA: 'Source · OK',
   driver1: 'idle',
   driver0: 'idle',
 };
@@ -163,13 +160,14 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
     return v;
   };
   const focus = (key: string) => (keys.length === 0 || keys.includes(key) ? 1 : panel ? 0 : 0.08);
+  const on = (...k: string[]) => k.every((x) => keys.includes(x));
   const active = new Set(keys.map((k) => BAND[k]).filter(Boolean));
   const bandOn = (b: string) => keys.length === 0 || active.has(b);
   const bandOpacity = (b: string) => (panel && !bandOn(b) ? 0 : bandOn(b) ? 1 : 0.16);
   const bandHide = (b: string) => panel || !bandOn(b);
   const appearAll = chapter === 2 ? prog(c.f, -15, 35) : 1;
   const cleanup = reached(c.id, '3.1');
-  const restored = reached(c.id, '3.3');
+  const restored = reached(c.id, '2.1');
   const stuck = reached(c.id, '5.4');
   const node = (key: string, appear = appearAll) => {
     const n = NODES[key];
@@ -201,20 +199,20 @@ export const World: React.FC<{c: Ctx; panel?: boolean}> = ({c, panel}) => {
         <marker id="tip12906" markerWidth={12} markerHeight={12} refX={9} refY={4} orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L0,8 L11,4 z" fill="context-stroke" /></marker>
       </defs>
 
-      {arrow('M410,305 C410,380 410,410 410,460', C.cyan, true, 'delivers the VRG', 700, 375, prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24))}
-      {arrow('M1575,305 C1575,380 1575,410 1575,460', C.cyan, true, null, 0, 0, restored ? prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24) : 0)}
+      {on('drpc', 'vrg1') ? arrow('M410,305 C410,380 410,410 410,458', C.cyan, true, 'delivers the work order', 700, 375, prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24)) : null}
+      {on('drpc', 'vrg0') ? arrow('M1575,305 C1575,380 1575,410 1575,458', C.cyan, true, null, 0, 0, prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24)) : null}
 
-      {arrow('M410,610 L410,640', C.green, false, null, 0, 0, 1)}
-      {arrow('M1575,610 L1575,640', C.green, false, null, 0, 0, restored ? 1 : 0)}
+      {on('vrg1', 'vm1') ? arrow('M410,610 L410,638', C.green, false, null, 0, 0) : null}
+      {on('vrg0', 'vm0') ? arrow('M1575,610 L1575,638', C.green, false, null, 0, 0) : null}
 
-      {arrow('M275,810 L315,850', C.purple, false, 'claim gone, so the record is handled', 690, 800, cleanup ? prog(c.f, c.dur * 0.1, c.dur * 0.1 + 24) : 0)}
-      {arrow('M1010,810 L1010,850', C.purple, false, null, 0, 0, cleanup ? prog(c.f, c.dur * 0.1, c.dur * 0.1 + 24) : 0)}
+      {on('pvcRoot1', 'pvRoot1') ? arrow('M275,810 L310,848', C.purple, false, 'claim gone, record handled', 690, 800, prog(c.f, c.dur * 0.1, c.dur * 0.1 + 24)) : null}
+      {on('pvcData1', 'pvData1') ? arrow('M1010,810 L1010,848', C.purple, false, null, 0, 0, prog(c.f, c.dur * 0.1, c.dur * 0.1 + 24)) : null}
+      {on('pvcRoot0', 'pvRoot0') ? arrow('M1790,810 L1600,848', C.green, false, null, 0, 0) : null}
+      {on('pvcData0', 'pvData0') ? arrow('M2125,810 L2125,848', C.green, false, null, 0, 0) : null}
 
-      {arrow('M370,1050 C400,1070 530,1080 570,1120', C.red, true, null, 0, 0, stuck ? 0.9 : 0)}
-      {arrow('M760,1182 C760,1300 400,1330 400,1500', C.red, true, 'DeleteVolume · group member first', 700, 1350, stuck ? prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24) : 0)}
-
-      {arrow('M1170,1595 L1305,1595', C.orange, false, null, 0, 0, restored ? 0.9 : 0)}
-      {arrow('M1575,1050 C1600,1200 1500,1300 1400,1500', C.purple, true, 'reverse copy', 1500, 1360, restored ? prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24) : 0)}
+      {on('driver1', 'groupB') ? arrow('M760,1157 C760,1300 400,1330 400,1498', C.red, true, 'DeleteVolume · group member first', 700, 1350, prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24)) : null}
+      {on('groupA', 'groupB') ? arrow('M1290,1595 L1190,1595', C.orange, false, null, 0, 0) : null}
+      {on('vrg0', 'groupA') ? arrow('M1575,610 C1600,900 1450,1250 1420,1498', C.purple, true, 'reverse copy', 1500, 1360, prog(c.f, c.dur * 0.05, c.dur * 0.05 + 24)) : null}
     </svg>
   </div>;
 };
