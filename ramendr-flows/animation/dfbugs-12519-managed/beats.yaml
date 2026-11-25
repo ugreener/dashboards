@@ -1,9 +1,11 @@
 # yamllint disable rule:line-length
-# VIRTDR-292 managed-app failover explainer, newcomer edition (rewritten from scratch).
-# Run: 2026-10-07, DRPC openshift-gitops/dell-vm-drpc, VM gitops-vms/hammerdb-rhel9,
-# recorded direction spoke-1 (edge97, VSA-B) to spoke-0 (edge95, VSA-A, home cluster).
+# DFBUGS-12519 managed-app explainer, two parts.
+# Part one: 2026-10-07 recorded normal flow, DRPC openshift-gitops/dell-vm-drpc, VM gitops-vms/hammerdb-rhel9,
+# direction spoke-1 (edge97, VSA-B) to spoke-0 (edge95, VSA-A, home cluster).
+# Part two: 2026-11-25 site-down run with group replication and the VGRC resync-on-primary label,
+# under the new DRPC openshift-gitops/dell-vm-placement-drpc.
 #
-# evidence tags:
+# part-one evidence tags:
 #   run       = VIRTDR-292 run log + preflight JSON (2026-10-07 attachments 1237286, 1237287)
 #   shot      = run-date console screenshot (attachments 1237288..1237299)
 #   ramen     = RamenDR/ramen source (see trace.md)
@@ -13,6 +15,10 @@
 #   ocm       = open-cluster-management-io/multicloud-integrations pull model
 #   repo      = elsapassaro/ramendr-starter-kit @ e6237efd8cba2c68908cf351c7b779d53be654f9, clusters/dell-s4
 #   setup     = Setup Google Doc; notes = Dell DR notes Google Doc
+#   run       = DFBUGS-12519 run log, preflight and postcheck JSON (2026-11-25)
+#   phaseA    = phase A state snapshot 2026-11-25T1314Z
+#   postcheck = phase A postcheck filtered to the managed app
+#   trace     = trace.md part-two section (observed states and source status)
 #   live      = read-only hub listing (objects created before the run): dell-vm-placement-decision-1, dell-vm-drpc-gitops-vms-vrg-mw, dell-vm-drpc-gitops-vms-vrg-mcv, dell-vm-drpc-gitops-vms-ns-mw
 # t = UTC time from the run log. Screenshot times shown in the console are browser-local (UTC+3); captions use UTC.
 # Screenshot `focus` boxes are in image pixels (1920x1080).

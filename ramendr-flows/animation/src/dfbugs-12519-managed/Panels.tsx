@@ -510,7 +510,7 @@ export const BeatPanel: React.FC<PP & {id: string}> = ({id, f, dur}) => {
             <div style={{position: 'relative', width: 760, height: 470}}>
               <GB x={0} y={20} w={350} h={300} title="spoke-0" color={C.red} a={at(f, dur, 0.1)} />
               <div style={{position: 'absolute', left: 24, top: 78, fontSize: 22, color: C.red, opacity: at(f, dur, 0.18)}}>six node VMs suspended</div>
-              <div style={{position: 'absolute', left: 24, top: 116, fontSize: 22, color: C.red, opacity: at(f, dur, 0.24)}}>both VSA-A nodes powered off</div>
+              <div style={{position: 'absolute', left: 24, top: 116, fontSize: 22, color: C.red, opacity: at(f, dur, 0.24)}}>both VSA-A nodes off</div>
               <div style={{position: 'absolute', left: 60, top: 180, fontFamily: mono, fontSize: 60, color: C.red, opacity: at(f, dur, 0.3)}}>OFFLINE</div>
               <GB x={410} y={20} w={350} h={300} title="spoke-1" color={C.green} a={at(f, dur, 0.34)} />
               <div style={{position: 'absolute', left: 434, top: 78, fontSize: 22, color: C.green, opacity: at(f, dur, 0.4)}}>the only surviving site</div>

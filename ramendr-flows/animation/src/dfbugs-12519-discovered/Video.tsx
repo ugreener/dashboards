@@ -275,6 +275,7 @@ export const VirtDr291: React.FC<{chapters: number[]}> = ({chapters}) => {
   for (const s of segs) if (s.type === 'chapter') sfx.push({at: s.from + 4, s: 'chime', v: 0.18});
 
   const showWorld = ch >= 2 && ch < 14;
+  const sidePanel = !!meta.screenshot || PANEL_BEATS.has(beat.id);
   return (
     <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%, #0b1320, ${C.bg} 70%)`, overflow: 'hidden'}}>
       {showWorld ? (
@@ -282,6 +283,7 @@ export const VirtDr291: React.FC<{chapters: number[]}> = ({chapters}) => {
           <World c={ctx} />
         </div>
       ) : null}
+      {showWorld && sidePanel ? <div style={{position: 'absolute', left: 780, top: 0, width: 130, height: '100%', background: `linear-gradient(to right, ${C.bg}00, ${C.bg} 88%)`, pointerEvents: 'none'}} /> : null}
       {seg.type === 'beat' && ch === 1 ? <GlossaryScene id={beat.id} f={f} dur={beat.audio} card={meta.card} def={meta.def} /> : null}
       {seg.type === 'beat' && beat.id !== '0.1' ? <Hud chapter={beat.chapter.title} clock={CLOCK[beat.id] ?? null} ticket="DFBUGS-12519 · discovered app" /> : null}
       {seg.type === 'beat' && ch >= 3 && ch < 14 ? <PhaseTracker current={PHASE_OF[ch] ?? -1} phases={PHASES_291} /> : null}

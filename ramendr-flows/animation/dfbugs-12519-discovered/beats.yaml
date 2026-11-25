@@ -1,10 +1,11 @@
 # yamllint disable rule:line-length
-# VIRTDR-291 discovered-app failover explainer, newcomer edition.
-# Run: 2026-10-05, DRPC openshift-dr-ops/hammerdb-drpc (protectedNamespaces: [hammerdb]), VM hammerdb/hammerdb-rhel9,
-# recorded direction spoke-0 (edge95, VSA-A, home cluster) to spoke-1 (edge97, VSA-B).
-# The HammerDB writer was already stopped before the test: this run shows recovery of a quiet database, not an RPO-gap measurement.
+# DFBUGS-12519 discovered-app explainer, two parts.
+# Part one: 2026-10-05 recorded normal flow, DRPC openshift-dr-ops/hammerdb-drpc (protectedNamespaces: [hammerdb]),
+# VM hammerdb/hammerdb-rhel9, direction spoke-0 (edge95, VSA-A, home cluster) to spoke-1 (edge97, VSA-B).
+# The part-one writer was already stopped before the test, so part one shows recovery of a quiet database.
+# Part two: 2026-11-25 site-down run with group replication and the VGRC resync-on-primary label.
 #
-# evidence tags:
+# part-one evidence tags:
 #   pause    = source-pause investigation log (attachment 1234014)
 #   done     = authorized cleanup and completion log (attachment 1234166) + command log (1234338)
 #   roles    = replication role evidence JSON (1234034): session IDs, volume IDs, PV handles, VRG/DRPC snapshot
@@ -13,6 +14,10 @@
 #   csiaddons= csi-addons/kubernetes-csi-addons @ eca6e16ba6a5f68a04a10591dc587e4b48132743
 #   powerstore = dell/csi-powerstore @ c35ca28883044f240bab36d47e43da3f96f080cd
 #   kubevirt = kubevirt/kubevirt @ 4717f10d96cfb0dab5898a1fd3996fbc61686f40
+#   run      = DFBUGS-12519 run log, preflight and postcheck JSON (2026-11-25)
+#   phaseA   = phase A state snapshot 2026-11-25T1314Z
+#   postcheck= phase A postcheck filtered to the discovered app
+#   trace    = trace.md part-two section (observed states and source status)
 #   live     = read-only hub listing (objects older than the run): hammerdb-placement-decision-1, hammerdb-drpc-openshift-dr-ops-vrg-mw,
 #              hammerdb-drpc-hammerdb-ns-mw, hammerdb-drpc-openshift-dr-ops-vrg-mcv, DRPC spec, Placement annotation, DRPolicy spec, S3 profile
 #   setup    = Setup Google Doc
