@@ -102,21 +102,21 @@
   "chapter": "What we ruled out",
   "screenshot": "pg-old-untagged-crop.png",
   "focus": {
-   "x": 140,
-   "y": 36,
-   "w": 380,
-   "h": 24
+   "x": 120,
+   "y": 20,
+   "w": 440,
+   "h": 20
   },
   "caption": "An older pair's interconnect group: its own name, untagged, on the shared switch.",
   "shot": {
    "w": 1000,
    "x": 460,
-   "y": 340
+   "y": 360
   },
-  "iw": 600,
-  "ih": 140,
+  "iw": 590,
+  "ih": 70,
   "pad": 4,
-  "halo": 10
+  "halo": 8
  },
  "4.1": {
   "chapter": "Why it can break"
@@ -147,61 +147,61 @@
   "chapter": "The change",
   "screenshot": "pg-vlan1-crop.png",
   "focus": {
-   "x": 140,
-   "y": 36,
-   "w": 380,
-   "h": 24
+   "x": 120,
+   "y": 20,
+   "w": 440,
+   "h": 20
   },
   "caption": "First pair, interconnect link one: network number 1.",
   "shot": {
    "w": 1000,
    "x": 460,
-   "y": 340
+   "y": 360
   },
-  "iw": 600,
-  "ih": 140,
+  "iw": 590,
+  "ih": 70,
   "pad": 4,
-  "halo": 10
+  "halo": 8
  },
  "5.3": {
   "chapter": "The change",
   "screenshot": "pg-vlan2-crop.png",
   "focus": {
-   "x": 140,
-   "y": 36,
-   "w": 380,
-   "h": 24
+   "x": 120,
+   "y": 20,
+   "w": 440,
+   "h": 20
   },
   "caption": "First pair, interconnect link two: network number 2.",
   "shot": {
    "w": 1000,
    "x": 460,
-   "y": 340
+   "y": 360
   },
-  "iw": 600,
-  "ih": 140,
+  "iw": 590,
+  "ih": 70,
   "pad": 4,
-  "halo": 10
+  "halo": 8
  },
  "5.4": {
   "chapter": "The change",
   "screenshot": "pg-vlan3-crop.png",
   "focus": {
-   "x": 140,
-   "y": 36,
-   "w": 380,
-   "h": 24
+   "x": 120,
+   "y": 20,
+   "w": 440,
+   "h": 20
   },
   "caption": "Second pair, interconnect link one: network number 3, a different room.",
   "shot": {
    "w": 1000,
    "x": 460,
-   "y": 340
+   "y": 360
   },
-  "iw": 600,
-  "ih": 140,
+  "iw": 590,
+  "ih": 70,
   "pad": 4,
-  "halo": 10
+  "halo": 8
  },
  "5.5": {
   "chapter": "The change",
@@ -226,20 +226,20 @@
   "screenshot": "vm-networks-crop.png",
   "focus": {
    "x": 30,
-   "y": 40,
+   "y": 20,
    "w": 650,
-   "h": 46
+   "h": 50
   },
   "caption": "Both nodes of the pair, and only they, on the two interconnect groups.",
   "shot": {
    "w": 1100,
    "x": 410,
-   "y": 340
+   "y": 360
   },
   "iw": 710,
-  "ih": 140,
+  "ih": 90,
   "pad": 4,
-  "halo": 10
+  "halo": 8
  },
  "6.2": {
   "chapter": "The result",
@@ -247,19 +247,19 @@
   "focus": {
    "x": 20,
    "y": 20,
-   "w": 520,
-   "h": 100
+   "w": 510,
+   "h": 95
   },
   "caption": "Both nodes up, management addresses present, 18 GB and 6 processors.",
   "shot": {
    "w": 1000,
    "x": 460,
-   "y": 320
+   "y": 340
   },
   "iw": 560,
-  "ih": 150,
+  "ih": 140,
   "pad": 4,
-  "halo": 10
+  "halo": 8
  },
  "6.3": {
   "chapter": "The result"

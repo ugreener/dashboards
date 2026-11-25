@@ -138,12 +138,12 @@ beats:
   - id: "3.4"
     chapter: "What we ruled out"
     screenshot: pg-old-untagged-crop.png
-    iw: 600
-    ih: 140
-    focus: {x: 140, y: 36, w: 380, h: 24}
+    iw: 590
+    ih: 70
+    focus: {x: 120, y: 20, w: 440, h: 20}
     pad: 4
-    halo: 10
-    shot: {w: 1000, x: 460, y: 340}
+    halo: 8
+    shot: {w: 1000, x: 460, y: 360}
     caption: "An older pair's interconnect group: its own name, untagged, on the shared switch."
     narration: >-
       This is an older pair, and the failed pair used the same pattern: its own port group
@@ -196,12 +196,12 @@ beats:
   - id: "5.2"
     chapter: "The change"
     screenshot: pg-vlan1-crop.png
-    iw: 600
-    ih: 140
-    focus: {x: 140, y: 36, w: 380, h: 24}
+    iw: 590
+    ih: 70
+    focus: {x: 120, y: 20, w: 440, h: 20}
     pad: 4
-    halo: 10
-    shot: {w: 1000, x: 460, y: 340}
+    halo: 8
+    shot: {w: 1000, x: 460, y: 360}
     caption: "First pair, interconnect link one: network number 1."
     narration: >-
       Each pair got its own port groups, and each group got its own network number. The
@@ -209,12 +209,12 @@ beats:
   - id: "5.3"
     chapter: "The change"
     screenshot: pg-vlan2-crop.png
-    iw: 600
-    ih: 140
-    focus: {x: 140, y: 36, w: 380, h: 24}
+    iw: 590
+    ih: 70
+    focus: {x: 120, y: 20, w: 440, h: 20}
     pad: 4
-    halo: 10
-    shot: {w: 1000, x: 460, y: 340}
+    halo: 8
+    shot: {w: 1000, x: 460, y: 360}
     caption: "First pair, interconnect link two: network number 2."
     narration: >-
       The second appliance uses number three and number four. Number one and two are now a
@@ -223,12 +223,12 @@ beats:
   - id: "5.4"
     chapter: "The change"
     screenshot: pg-vlan3-crop.png
-    iw: 600
-    ih: 140
-    focus: {x: 140, y: 36, w: 380, h: 24}
+    iw: 590
+    ih: 70
+    focus: {x: 120, y: 20, w: 440, h: 20}
     pad: 4
-    halo: 10
-    shot: {w: 1000, x: 460, y: 340}
+    halo: 8
+    shot: {w: 1000, x: 460, y: 360}
     caption: "Second pair, interconnect link one: network number 3, a different room."
     narration: >-
       This is the second pair's first interconnect group. Its number is three. The pair is
@@ -250,11 +250,11 @@ beats:
     chapter: "The result"
     screenshot: vm-networks-crop.png
     iw: 710
-    ih: 140
-    focus: {x: 30, y: 40, w: 650, h: 46}
+    ih: 90
+    focus: {x: 30, y: 20, w: 650, h: 50}
     pad: 4
-    halo: 10
-    shot: {w: 1100, x: 410, y: 340}
+    halo: 8
+    shot: {w: 1100, x: 410, y: 360}
     caption: "Both nodes of the pair, and only they, on the two interconnect groups."
     narration: >-
       Both nodes of the first appliance now sit on the same two interconnect port groups,
@@ -264,11 +264,11 @@ beats:
     chapter: "The result"
     screenshot: vm-summary-crop.png
     iw: 560
-    ih: 150
-    focus: {x: 20, y: 20, w: 520, h: 100}
+    ih: 140
+    focus: {x: 20, y: 20, w: 510, h: 95}
     pad: 4
-    halo: 10
-    shot: {w: 1000, x: 460, y: 320}
+    halo: 8
+    shot: {w: 1000, x: 460, y: 340}
     caption: "Both nodes up, management addresses present, 18 GB and 6 processors."
     narration: >-
       The appliance came up with both nodes running, both management addresses present, and
