@@ -96,7 +96,7 @@ beats:
     iw: 1024
     ih: 768
     focus: {x: 0, y: 690, w: 1024, h: 78}
-    shot: {w: 1000, x: 460, y: 140}
+    shot: {w: 1000, x: 460, y: 180}
     caption: "The failing node's console: the installer could not confirm the cluster step."
     narration: >-
       This is the console of the failing node. The installer could not confirm success from
@@ -109,7 +109,7 @@ beats:
     iw: 2048
     ih: 1536
     focus: {x: 0, y: 1180, w: 800, h: 400}
-    shot: {w: 1000, x: 460, y: 140}
+    shot: {w: 1000, x: 460, y: 180}
     caption: "Hours later: a plain Linux login prompt, no appliance, no management address."
     narration: >-
       Hours later, the node was still at this login prompt. No web page, no cluster, no

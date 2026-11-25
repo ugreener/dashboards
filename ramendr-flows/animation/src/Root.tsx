@@ -15,6 +15,8 @@ import {CleanupReprotect} from './cleanup-reprotect/Video';
 import {buildTimeline as buildTimelineCR} from './cleanup-reprotect/timeline';
 import {ZertoPrimer} from './zerto-primer/Video';
 import {buildTimeline as buildTimelineZP} from './zerto-primer/timeline';
+import {VsaDeployL2} from './vsa-deploy-l2/Video';
+import {buildTimeline as buildTimelineVL2} from './vsa-deploy-l2/timeline';
 import {RelocateHome} from './virtdr-343-relocate/Video';
 import {buildTimeline as buildTimeline343R} from './virtdr-343-relocate/timeline';
 import {VirtDr307} from './virtdr-307/Video';
@@ -62,6 +64,7 @@ const ALL = Array.from({length: 16}, (_, i) => i);
 const ALL_CL = Array.from({length: 8}, (_, i) => i);
 const ALL_CV = Array.from({length: 7}, (_, i) => i);
 const ALL_ZP = Array.from({length: 13}, (_, i) => i);
+const ALL_VL2 = Array.from({length: 8}, (_, i) => i);
 const ALL_CR = Array.from({length: 8}, (_, i) => i);
 const ALL_343R = Array.from({length: 8}, (_, i) => i);
 
@@ -156,6 +159,15 @@ export const Root: React.FC = () => (
       width={1920}
       height={1080}
       defaultProps={{chapters: ALL_ZP}}
+    />
+    <Composition
+      id="vsa-deploy-l2"
+      component={VsaDeployL2}
+      durationInFrames={Math.max(1, buildTimelineVL2(ALL_VL2).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_VL2}}
     />
     <Composition
       id="csi-layers"

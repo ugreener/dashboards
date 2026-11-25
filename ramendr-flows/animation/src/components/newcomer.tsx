@@ -9,10 +9,11 @@ export type Rect = {x: number; y: number; w: number; h: number};
  * Historical run screenshot in a browser-style frame on the right half of the screen.
  * `a` 0..1 slide-in/out, `z` 0..1 slow zoom toward `focus` (image pixels, 1920x1080 source).
  */
-export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a: number; z: number; x?: number; y?: number; w?: number; date?: string; sourceLabel?: string; iw?: number; ih?: number; pad?: number; halo?: number}> = ({
+export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a: number; z: number; x?: number; y?: number; w?: number; date?: string; sourceLabel?: string; captionPrefix?: string; iw?: number; ih?: number; pad?: number; halo?: number}> = ({
   src,
   date = '2026-10-07',
   sourceLabel = 'hub console · historical capture',
+  captionPrefix = 'Captured during the run',
   focus,
   caption,
   a,
@@ -82,7 +83,7 @@ export const Screenshot: React.FC<{src: string; focus?: Rect; caption: string; a
         </div>
       </div>
       <div style={{padding: '12px 18px', background: C.panel, borderTop: `1px solid ${C.border}`, fontFamily: sans, fontSize: 20, color: C.text, lineHeight: 1.35}}>
-        <span style={{color: C.amber, fontWeight: 700}}>Captured during the run</span>
+        <span style={{color: C.amber, fontWeight: 700}}>{captionPrefix}</span>
         <span style={{color: C.faint}}> · {date} · </span>
         {caption}
       </div>
