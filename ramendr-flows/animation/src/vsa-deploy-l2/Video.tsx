@@ -134,7 +134,7 @@ export const VsaDeployL2: React.FC<{chapters: number[]}> = ({chapters}) => {
           focus={meta.focus}
           caption={meta.caption ?? ''}
           a={winA(SHOT_WIN[0], SHOT_WIN[1])}
-          z={progIO(f, beat.audio * 0.25, beat.audio * 0.6)}
+          z={progIO(f, beat.audio * 0.1, beat.audio * 0.45)}
           x={meta.shot?.x ?? 250}
           y={meta.shot?.y ?? 190}
           w={meta.shot?.w ?? 1400}
