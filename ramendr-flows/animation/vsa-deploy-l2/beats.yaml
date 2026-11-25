@@ -263,9 +263,9 @@ beats:
   - id: "6.2"
     chapter: "The result"
     screenshot: vm-summary-crop.png
-    iw: 700
+    iw: 560
     ih: 150
-    focus: {x: 20, y: 20, w: 620, h: 100}
+    focus: {x: 20, y: 20, w: 520, h: 100}
     pad: 4
     halo: 10
     shot: {w: 1000, x: 460, y: 320}

@@ -247,7 +247,7 @@
   "focus": {
    "x": 20,
    "y": 20,
-   "w": 620,
+   "w": 520,
    "h": 100
   },
   "caption": "Both nodes up, management addresses present, 18 GB and 6 processors.",
@@ -256,7 +256,7 @@
    "x": 460,
    "y": 320
   },
-  "iw": 700,
+  "iw": 560,
   "ih": 150,
   "pad": 4,
   "halo": 10
