@@ -57,37 +57,37 @@
   "chapter": "What happened",
   "screenshot": "console-error-crop.png",
   "focus": {
-   "x": 10,
-   "y": 94,
-   "w": 1004,
-   "h": 30
+   "x": 12,
+   "y": 110,
+   "w": 1040,
+   "h": 70
   },
   "caption": "The failing node's console: the installer could not confirm the cluster step.",
   "shot": {
    "w": 1300,
    "x": 310,
-   "y": 340
+   "y": 320
   },
-  "iw": 1024,
-  "ih": 140
+  "iw": 1064,
+  "ih": 198
  },
  "2.4": {
   "chapter": "What happened",
   "screenshot": "console-login-crop.png",
   "focus": {
-   "x": 10,
-   "y": 20,
-   "w": 680,
-   "h": 220
+   "x": 12,
+   "y": 40,
+   "w": 716,
+   "h": 240
   },
   "caption": "Hours later: a plain Linux login prompt, no appliance, no management address.",
   "shot": {
    "w": 900,
    "x": 510,
-   "y": 300
+   "y": 260
   },
-  "iw": 700,
-  "ih": 256
+  "iw": 740,
+  "ih": 296
  },
  "3.1": {
   "chapter": "What we ruled out"
@@ -102,12 +102,19 @@
   "chapter": "What we ruled out",
   "screenshot": "pg-old-untagged.png",
   "focus": {
-   "x": 400,
-   "y": 280,
-   "w": 1050,
-   "h": 45
+   "x": 500,
+   "y": 270,
+   "w": 560,
+   "h": 80
   },
-  "caption": "An older pair's interconnect group: its own name, untagged, on the shared switch."
+  "caption": "An older pair's interconnect group: its own name, untagged, on the shared switch.",
+  "shot": {
+   "w": 1100,
+   "x": 410,
+   "y": 300
+  },
+  "iw": 1920,
+  "ih": 1080
  },
  "4.1": {
   "chapter": "Why it can break"
@@ -138,67 +145,109 @@
   "chapter": "The change",
   "screenshot": "pg-vlan1.png",
   "focus": {
-   "x": 400,
-   "y": 280,
-   "w": 1050,
-   "h": 45
+   "x": 500,
+   "y": 270,
+   "w": 560,
+   "h": 80
   },
-  "caption": "First pair, interconnect link one: network number 1."
+  "caption": "First pair, interconnect link one: network number 1.",
+  "shot": {
+   "w": 1100,
+   "x": 410,
+   "y": 300
+  },
+  "iw": 1920,
+  "ih": 1080
  },
  "5.3": {
   "chapter": "The change",
   "screenshot": "pg-vlan2.png",
   "focus": {
-   "x": 400,
-   "y": 280,
-   "w": 1050,
-   "h": 45
+   "x": 500,
+   "y": 270,
+   "w": 560,
+   "h": 80
   },
-  "caption": "First pair, interconnect link two: network number 2."
+  "caption": "First pair, interconnect link two: network number 2.",
+  "shot": {
+   "w": 1100,
+   "x": 410,
+   "y": 300
+  },
+  "iw": 1920,
+  "ih": 1080
  },
  "5.4": {
   "chapter": "The change",
   "screenshot": "pg-vlan3.png",
   "focus": {
-   "x": 400,
-   "y": 280,
-   "w": 1050,
-   "h": 45
+   "x": 500,
+   "y": 270,
+   "w": 560,
+   "h": 80
   },
-  "caption": "Second pair, interconnect link one: network number 3, a different room."
+  "caption": "Second pair, interconnect link one: network number 3, a different room.",
+  "shot": {
+   "w": 1100,
+   "x": 410,
+   "y": 300
+  },
+  "iw": 1920,
+  "ih": 1080
  },
  "5.5": {
   "chapter": "The change",
   "screenshot": "vm-adapters.png",
   "focus": {
-   "x": 520,
-   "y": 490,
-   "w": 1000,
-   "h": 95
+   "x": 600,
+   "y": 480,
+   "w": 700,
+   "h": 110
   },
-  "caption": "Inside the VM: adapters 2 and 3 are the interconnect, now behind the new switch."
+  "caption": "Inside the VM: adapters 2 and 3 are the interconnect, now behind the new switch.",
+  "shot": {
+   "w": 1200,
+   "x": 360,
+   "y": 280
+  },
+  "iw": 1920,
+  "ih": 1080
  },
  "6.1": {
   "chapter": "The result",
   "screenshot": "vm-networks.png",
   "focus": {
-   "x": 350,
+   "x": 580,
    "y": 250,
-   "w": 1400,
-   "h": 90
+   "w": 1020,
+   "h": 100
   },
-  "caption": "Both nodes of the pair, and only they, on the two interconnect groups."
+  "caption": "Both nodes of the pair, and only they, on the two interconnect groups.",
+  "shot": {
+   "w": 1400,
+   "x": 250,
+   "y": 340
+  },
+  "iw": 1920,
+  "ih": 1080
  },
  "6.2": {
   "chapter": "The result",
   "screenshot": "vm-summary.png",
   "focus": {
-   "x": 380,
-   "y": 140,
-   "w": 1100,
-   "h": 120
+   "x": 400,
+   "y": 130,
+   "w": 850,
+   "h": 140
   },
-  "caption": "Both nodes up, management addresses present, 18 GB and 6 processors."
+  "caption": "Both nodes up, management addresses present, 18 GB and 6 processors.",
+  "shot": {
+   "w": 1200,
+   "x": 360,
+   "y": 300
+  },
+  "iw": 1920,
+  "ih": 1080
  },
  "6.3": {
   "chapter": "The result"

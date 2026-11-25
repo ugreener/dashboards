@@ -19,8 +19,8 @@ This is a reconstruction from live environment captures and command output. It i
 
 | File                | Beat | What it shows                                                          |
 | ------------------- | ---- | ---------------------------------------------------------------------- |
-| console-error.png   | 2.3  | The failing node console with the installer's Error 24 line            |
-| console-login.png   | 2.4  | The same node at a plain Linux login prompt hours later                |
+| console-error-crop.png | 2.3 | The failing node console with the installer's Error 24 line            |
+| console-login-crop.png | 2.4 | The same node at a plain Linux login prompt hours later                |
 | pg-old-untagged.png | 3.4  | An older pair's interconnect port group, untagged on the shared switch |
 | dvs-new.png         | 5.1  | The new dedicated distributed switch                                   |
 | pg-vlan1.png        | 5.2  | First pair, interconnect link one, VLAN 1                              |

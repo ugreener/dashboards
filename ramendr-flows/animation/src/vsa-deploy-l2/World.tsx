@@ -89,9 +89,8 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
   const focus = FOCUS[c.id] ?? [];
   const isFocus = (k: string) => (focus.length ? inGroup(k, focus) : true);
   const regions = regionsOf(focus);
-  const single = regions.length === 1 ? regions[0] : null;
-  const regionOn = (name: string) => (single ? name === single : true);
-  const cardOn = (k: string) => (single ? (GROUP[single] ?? []).includes(k) : true);
+  const regionOn = (name: string) => regions.includes(name);
+  const cardOn = (k: string) => regions.some((r) => (GROUP[r] ?? []).includes(k));
 
   return (
     <div style={{position: 'relative', width: WORLD[2], height: WORLD[3], fontFamily: sans}}>
