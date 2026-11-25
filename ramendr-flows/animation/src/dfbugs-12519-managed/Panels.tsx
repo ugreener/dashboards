@@ -65,8 +65,8 @@ const GB: React.FC<{x: number; y: number; w: number; h: number; title: string; c
   </div>
 );
 
-const Disc: React.FC<{x: number; y: number; name: string; sub: string; color: string; a: number}> = ({x, y, name, sub, color, a}) => (
-  <div style={{position: 'absolute', left: x, top: y, width: 262, height: 92, borderRadius: 12, background: C.panel2, border: `1.5px solid ${color}`, opacity: a, padding: '10px 14px'}}>
+const Disc: React.FC<{x: number; y: number; name: string; sub: string; color: string; a: number; w?: number}> = ({x, y, name, sub, color, a, w = 262}) => (
+  <div style={{position: 'absolute', left: x, top: y, width: w, height: 92, borderRadius: 12, background: C.panel2, border: `1.5px solid ${color}`, opacity: a, padding: '10px 14px'}}>
     <div style={{fontFamily: mono, fontSize: 16, color}}>{name}</div>
     <div style={{fontSize: 14, color: C.dim, marginTop: 6}}>{sub}</div>
   </div>
@@ -401,15 +401,15 @@ export const BeatPanel: React.FC<PP & {id: string}> = ({id, f, dur}) => {
             <GB x={6} y={60} w={700} h={340} title="VSA-A · source" color={C.array} a={at(f, dur, 0.1)} />
             <div style={{position: 'absolute', left: 26, top: 112, width: 660, height: 210, border: `2px dashed ${C.amber}`, borderRadius: 12, opacity: at(f, dur, 0.2)}} />
             <div style={{position: 'absolute', left: 26, top: 86, width: 660, textAlign: 'center', fontFamily: mono, fontSize: 16, color: C.amber, opacity: at(f, dur, 0.2)}}>one group · one array session</div>
-            <Disc x={42} y={140} name="hammerdb-rhel9-rootdisk-mgd-grp" sub="35Gi · powerstore-sc-group" color={C.spoke0} a={at(f, dur, 0.22)} />
-            <Disc x={42} y={246} name="hammerdb-rhel9-datadisk-mgd-grp" sub="20Gi · powerstore-sc-group" color={C.spoke0} a={at(f, dur, 0.3)} />
+            <Disc w={610} x={42} y={140} name="hammerdb-rhel9-rootdisk-mgd-grp" sub="35Gi · powerstore-sc-group" color={C.spoke0} a={at(f, dur, 0.22)} />
+            <Disc w={610} x={42} y={246} name="hammerdb-rhel9-datadisk-mgd-grp" sub="20Gi · powerstore-sc-group" color={C.spoke0} a={at(f, dur, 0.3)} />
             {arrowX(716, 230, 210, at(f, dur, 0.4))}
             <div style={{position: 'absolute', left: 690, top: 188, width: 270, textAlign: 'center', fontSize: 17, color: C.dim, opacity: at(f, dur, 0.4)}}>same schedule<br />one group identity</div>
             <GB x={936} y={60} w={700} h={340} title="VSA-B · target" color={C.array} a={at(f, dur, 0.5)} />
             <div style={{position: 'absolute', left: 956, top: 112, width: 660, height: 210, border: `2px dashed ${C.amber}`, borderRadius: 12, opacity: at(f, dur, 0.55)}} />
             <div style={{position: 'absolute', left: 956, top: 86, width: 660, textAlign: 'center', fontFamily: mono, fontSize: 16, color: C.amber, opacity: at(f, dur, 0.55)}}>one group · one array session</div>
-            <Disc x={972} y={140} name="rootdisk replica" sub="read-only until promoted" color={C.spoke1} a={at(f, dur, 0.58)} />
-            <Disc x={972} y={246} name="datadisk replica" sub="read-only until promoted" color={C.spoke1} a={at(f, dur, 0.64)} />
+            <Disc w={610} x={972} y={140} name="rootdisk replica" sub="read-only until promoted" color={C.spoke1} a={at(f, dur, 0.58)} />
+            <Disc w={610} x={972} y={246} name="datadisk replica" sub="read-only until promoted" color={C.spoke1} a={at(f, dur, 0.64)} />
             <div style={{position: 'absolute', left: 6, top: 420, width: 1630, textAlign: 'center', fontSize: 22, color: C.text, opacity: at(f, dur, 0.72)}}>
               Promoted together, demoted together. The disks cannot move as a set unless they are copied as a set.
             </div>
@@ -428,7 +428,7 @@ export const BeatPanel: React.FC<PP & {id: string}> = ({id, f, dur}) => {
               <TR a={at(f, dur, 0.2)} k="driver" v="csi-powerstore.dellemc.com" />
               <TR a={at(f, dur, 0.26)} k="direction" v="local array to peer array, mirrored per spoke" />
               <TR a={at(f, dur, 0.32)} k="schedule" v="15m · recovery point 15m" />
-              <TR a={at(f, dur, 0.38)} k="pairs with" v="StorageClass powerstore-sc-group" />
+              <TR a={at(f, dur, 0.38)} k="pairs with StorageClass" v="powerstore-sc-group" />
             </div>
             <div style={{flex: 1}}>
               <div style={{display: 'flex', gap: 18}}>
@@ -496,6 +496,9 @@ export const BeatPanel: React.FC<PP & {id: string}> = ({id, f, dur}) => {
           <H2>The same failure, two outcomes</H2>
           {col(10, 'WITHOUT THE LABEL', C.red, ['Reprotect cannot reach the peer array.', 'The driver reports FailedToResync.', 'Ramen sets DataReady false.', 'Argo CD has nothing healthy to adopt, so the VM never starts. That is the reported block.'], at(f, dur, 0.1))}
           {col(830, 'WITH THE LABEL', C.green, ['Ramen asks for the resync from the primary side.', 'DataReady stays true while Reprotect retries.', 'Argo CD deploys the VM on the target; CDI adopts the restored claims.', 'Re-protection waits for the peer array to return.'], at(f, dur, 0.45))}
+          <div style={{position: 'absolute', left: 10, top: 600, width: 1610, fontSize: 19, color: C.dim, lineHeight: 1.4, opacity: at(f, dur, 0.8)}}>
+            Inferred: the label makes Ramen request the resync from the primary side. Observed: DataReady stayed true and the VM started.
+          </div>
         </Frame2>
       );
     }
@@ -549,7 +552,7 @@ export const BeatPanel: React.FC<PP & {id: string}> = ({id, f, dur}) => {
               <TR a={at(f, dur, 0.2)} k="DRPC" v="FailedOver · Cleaning Up" />
               <TR a={at(f, dur, 0.28)} k="PeerReady" v="False · NotStarted" ok={false} />
               <TR a={at(f, dur, 0.36)} k="Protected" v="False · Error" ok={false} />
-              <TR a={at(f, dur, 0.44)} k="group session" v="not replicating · reprotect pending" />
+              <TR a={at(f, dur, 0.44)} k="group session" v="not replicating" />
               <TR a={at(f, dur, 0.52)} k="next step" v="wait for the source site" />
               <div style={{marginTop: 22, fontSize: 21, color: C.dim, lineHeight: 1.45, opacity: at(f, dur, 0.6)}}>
                 Cleaning Up is the source cleanup gate, not the resync block. The hub cannot delete anything on a site it cannot reach.
@@ -574,12 +577,14 @@ export const BeatPanel: React.FC<PP & {id: string}> = ({id, f, dur}) => {
             </div>
             <div style={{flex: 1, background: C.panel, border: `1.5px solid ${C.blue}`, borderRadius: 14, padding: '16px 24px'}}>
               <div style={{fontFamily: mono, fontSize: 17, color: C.blue}}>PHASE B · AFTER THE SITE RETURNS</div>
-              <TR a={at(f, dur, 0.2)} k="source VolumeReplicationGroup" v="Secondary" ok />
+              <TR a={at(f, dur, 0.2)} k="source VRG" v="Secondary" ok />
               <TR a={at(f, dur, 0.28)} k="target Completed" v="True · Promoted" ok />
               <TR a={at(f, dur, 0.34)} k="target Degraded" v="False · Healthy" ok />
               <TR a={at(f, dur, 0.4)} k="target Replicating" v="True" ok />
               <TR a={at(f, dur, 0.48)} k="DRPC" v="FailedOver · Completed" ok />
-              <TR a={at(f, dur, 0.56)} k="Protected · PeerReady · ReplicationHealthy" v="True · True · True" ok />
+              <TR a={at(f, dur, 0.54)} k="Protected" v="True" ok />
+              <TR a={at(f, dur, 0.58)} k="PeerReady" v="True" ok />
+              <TR a={at(f, dur, 0.62)} k="ReplicationHealthy" v="True" ok />
             </div>
           </div>
           <div style={{marginTop: 22, fontSize: 21, color: C.dim, textAlign: 'center', opacity: at(f, dur, 0.68)}}>

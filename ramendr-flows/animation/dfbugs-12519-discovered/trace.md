@@ -1,21 +1,37 @@
-# VIRTDR-291 evidence and controller trace
+# DFBUGS-12519 discovered-app site-down animation trace
 
-## Recorded result and limits
+## What each part asserts
 
-The animation explains the 2026-10-05 discovered-application failover of `hammerdb/hammerdb-rhel9` (DRPC `openshift-dr-ops/hammerdb-drpc`, `protectedNamespaces: [hammerdb]`) from spoke-0 (edge95, VSA-A, home cluster) to spoke-1 (edge97, VSA-B). It does not assert current placement.
+Part one is the normal discovered-app flow, illustrated with the 2026-10-05 recorded run (VIRTDR-291). The ordered controller trace below is that run's trace and still describes the mechanism part one shows.
 
-Evidence read:
-- [Ticket and comments](https://redhat.atlassian.net/browse/VIRTDR-291).
-- [Source-pause investigation log, 1234014](https://redhat.atlassian.net/rest/api/2/attachment/content/1234014): Initiate about 13:57 (DRPC `actionStartTime` 13:57:26), NVMe write rejection and libvirt pause 13:57:36, `WaitingForResourceRestore` 13:57:38, target VM Running/Ready and `WaitOnUserToCleanUp` 13:58:28, guest check 14:01:16. Running domain `error_policy=stop` on both disks.
-- [Cleanup and completion log, 1234166](https://redhat.atlassian.net/rest/api/2/attachment/content/1234166) and [command log, 1234338](https://redhat.atlassian.net/rest/api/2/attachment/content/1234338): prechecks 15:30, VM delete 15:36:53, rootdisk DV 15:40:35, datadisk DV 15:41:56, `FailedOver/Completed`, `actionDuration` 1h44m50.852263393s (completion about 15:42:17), reversed syncs 15:35:17 and 15:38:17, guest reads 15:44:22 and 15:44:53.
-- [Replication role evidence, 1234034](https://redhat.atlassian.net/rest/api/2/attachment/content/1234034): sessions root `52001a43-4c9e-44c2-ad24-df241b86b69d`, data `f98a3cde-a18e-46d0-b298-1efb8d1bc417`; VSA-A volumes `b78834ea-f1ba-4e08-9770-335a626c708a` (root), `ac6dcaf0-52fb-4ba9-b99c-e263b32f52cf` (data); VSA-B volumes `79a21ec8-a12a-4eca-9f26-c5c8a5e6edbf` (root), `d8c237c7-bec9-4b03-8019-a6b374db6e5c` (data); PVs `csivol-841ca78019` (root), `csivol-3471d7938c` (data); VRG `openshift-dr-ops/hammerdb-drpc`.
-- Read-only hub listing (objects 13 days old, older than the run): PlacementDecision `hammerdb-placement-decision-1`, ManifestWorks `hammerdb-drpc-openshift-dr-ops-vrg-mw` and `hammerdb-drpc-hammerdb-ns-mw` in `spoke-0`/`spoke-1`, ManagedClusterView `hammerdb-drpc-openshift-dr-ops-vrg-mcv`; DRPC spec (`kubeObjectProtection.captureInterval: 15m0s`, `pvcSelector: {}`); Placement annotation `cluster.open-cluster-management.io/experimental-scheduling-disable: "true"`; DRPolicy `schedulingInterval: 15m`; S3 profile `minio-on-hub`, bucket `ramen-metadata`; Velero namespace `openshift-adp`.
+Part two is the 2026-11-25 site-down run that produced DFBUGS-12519. It asserts only what the run recorded.
 
-**The HammerDB writer was already stopped before the test.** The order-sequence sum 8482937 matched before and after and no history rows were newer than 2026-09-29. This run proves the recovery chain, the source pause and the manual cleanup. It is not an active-write RPO-gap result. No scripted preflight is attached for this run; the baseline inventory at 13:53:45 recorded last syncs 13:51:26 (root) and 13:50:26 (data), so the oldest copy was 7 minutes old at Initiate.
+## Part two: configuration and evidence
 
-The DRPC duration includes about 1.5 hours of deliberate waiting for investigation and separately authorized cleanup; it is not a recovery time.
+- Run record: `DFBUGS-12519-run-log-20261125T133059Z.md`, `postcheck-20261125T133059Z.json`, `preflight-20261125T125927Z.json`, phase A snapshot `phase-a-state-20261125T1314Z.txt`, all under `~/Pictures/Screenshots/dell-dr-failover-2026-11-25/` and in the posted archive `DFBUGS-12519-flow-logs-20261125T1632Z.zip`.
+- Label: `ramendr.openshift.io/resync-on-primary: "true"` on `VolumeGroupReplicationClass/powerstore-vgrc-15m` on both spokes. The DRPC annotation was not used.
+- Grouping: `grouping: true` in the VRG peer class entry, disks on `StorageClass/powerstore-sc-group`, one `VolumeGroupReplication` per app, one group session per array.
+- Builds: Ramen `quay.io/sughosh/ramen-operator:resync-via-vgr-class` digest `sha256:8bce11858fa137357098cbb1eb285c93365799014d196b515614c9fc880834cc`; csi-addons controller `quay.io/sughosh/k8s-controller:upstream-main` digest `sha256:737e45c6600a881437464d78c8449822b10722851a3de249864b345705ccb3f6`; Dell driver `quay.io/martjack/csi-powerstore:v26.11.17` digest `sha256:d922a937e7430d356a40806ea6ab0697ff2149a482673d0b8e93b307a06c7716`.
 
-## Ordered upstream source trace
+Observed phase A (13:14Z, peer array off):
+- VGR `vgr-4251c970...-hammerdb-drpc`: state Primary, Completed False(FailedToResync), Degraded True(Error), Resyncing False(FailedToResync), Replicating False(NotReplicating).
+- VRG `openshift-dr-ops/hammerdb-drpc`: DataReady True(Ready), DataProtected False(Error), ClusterDataReady True(Restored), KubeObjectsReady True(KubeObjectsRestored).
+- DRPC: FailedOver/Cleaning Up, Available True, PeerReady False, Protected False, ReplicationHealthy False.
+- VMI `hammerdb/hammerdb-rhel9`: Running.
+- VSA-B: 7 sessions, 2 Failed_Over Source, 5 OK Destination.
+
+Observed phase A postcheck (13:30:59Z): PASS 14/14; last sync 12:54:55; Initiate 13:01:22; data loss 386 s; recovered gap 12:54:56 to 13:03:01; 55 complete source minutes, missing none.
+
+Observed phase B (14:22Z): source VRG Secondary; target VGR Completed True(Promoted), Degraded False(Healthy), Replicating True; DRPC FailedOver/Completed with Protected, PeerReady and ReplicationHealthy True.
+
+## Part two: source status
+
+The build under test is a personal Ramen image whose branch is not published, so the class-label code path is not source-verified. The public related design is RamenDR/ramen PR #2982 (`resync-on-primary-candidate`), which implements the same resync-from-primary behaviour for a DRPC annotation: a primary VR or VGR that reports `Replicating=False` is moved to `Resync`, then back to Primary when the resync completes, and `DataReady` progresses while resyncing. csi-addons issue #1200 is the referenced gap. `autoResync` is a separate VRG peer-class setting: `vrg_volgrouprep.go` writes `volRep.Spec.AutoResync = v.autoResync(state)`.
+
+INFERRED (shown on screen in 14.5): that the class label makes Ramen request the resync from the primary side. OBSERVED: DataReady stayed True(Ready), the VGR stayed FailedToResync, and the VMI ran. The video separates the inference from the observation.
+
+## Part one: ordered upstream source trace
+
 
 Delegated as required by flow-animation. SHAs are explanatory evidence, not deployed-build provenance (the deployed driver image `quay.io/openshift-virtualization-dr/csi-powerstore:20260805143521` source commit was not established).
 

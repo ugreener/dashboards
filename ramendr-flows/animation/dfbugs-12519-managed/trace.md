@@ -1,24 +1,40 @@
-# VIRTDR-292 evidence and controller trace
+# DFBUGS-12519 managed-app site-down animation trace
 
-## Recorded result and limits
+## What each part asserts
 
-The animation explains the completed 2026-10-07 managed failover from spoke-1 (VSA-B) to its home cluster spoke-0 (VSA-A). It does not assert current placement.
+Part one is the normal managed-app flow, illustrated with the 2026-10-07 recorded run (VIRTDR-292). The ordered controller trace below is that run's trace and still describes the mechanism part one shows.
 
-Evidence read:
-- [Ticket and comments](https://redhat.atlassian.net/browse/VIRTDR-292).
-- [Run log, attachment 1237286](https://redhat.atlassian.net/rest/api/2/attachment/content/1237286).
-- [Preflight, attachment 1237287](https://redhat.atlassian.net/rest/api/2/attachment/content/1237287), inspected for its schema and timestamps.
-- [Setup Doc](https://docs.google.com/document/d/1npumTvaf2SRj2wdEUoBBuYLZXwqXxJNUvY3SNqrLfe0/edit) and [Dell notes](https://docs.google.com/document/d/1Lk82_-zfwNNajqDp2uIUlJI2VuKwxwW63QeafuF0Z1c/edit?tab=t.0), all-tab text read through Docs API.
-- [ODF ApplicationSet procedure](https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation/4.22/html/configuring_openshift_data_foundation_disaster_recovery_for_openshift_workloads/rdr-solution#creating-applicationset-application_manage-rdr), read through Chrome. Requires GitOps on all three clusters, both spoke registrations, registration Placement tolerations, spoke ClusterRoleBindings and pull model with 180-second requeue.
-- [Recorded workload revision](https://github.com/elsapassaro/ramendr-starter-kit/tree/e6237efd8cba2c68908cf351c7b779d53be654f9/clusters/dell-s4). ApplicationSet, DRPC and DataVolume definitions read at this immutable revision. Current branch tree has no workload Namespace manifest.
+Part two is the 2026-11-25 site-down run that produced DFBUGS-12519. It asserts only what the run recorded.
 
-Initiate was 13:26:40 UTC, completion 13:32:21, last sync 13:22:27, source pause 13:26:44 and first target write 13:31:37. The recovery point was 253 seconds before Initiate, within the 900-second objective. All 277,433 source rows in the 59 full minutes before sync were recovered. Later source writes were lost. Recovery gap was 550 seconds. This is not zero loss.
+## Part two: configuration and evidence
 
-The attached preflight began at 13:14:25 and finished at 13:15:58. Its oldest last sync was 13:10:27, so under the current rule its Initiate deadline was 13:24:27 (last sync plus the 900-second RPO, minus a 60-second margin). Initiate at 13:26:40 was 2 minutes 13 seconds past that deadline, so the procedure required a rerun, and no rerun is evidenced in the attachments. The VSA-B job history shows both disks completed a sync at 13:22:28 (datadisk ended 13:24:05, rootdisk 13:22:30), 252 seconds before Initiate, so the gate did hold at the click, as the postcheck now re-verifies. The animation must show both facts rather than imply the earlier PASS authorized the later click.
+- Run record: `DFBUGS-12519-run-log-20261125T132841Z.md`, `postcheck-20261125T132841Z.json`, `preflight-20261125T125822Z.json`, phase A snapshot `phase-a-state-20261125T1314Z.txt`, all under `~/Pictures/Screenshots/dell-dr-failover-2026-11-25/` and in the posted archive `DFBUGS-12519-flow-logs-20261125T1632Z.zip`.
+- Label: `ramendr.openshift.io/resync-on-primary: "true"` on `VolumeGroupReplicationClass/powerstore-vgrc-15m` on both spokes. The DRPC annotation was not used.
+- Grouping: `grouping: true` in the VRG peer class entry, disks on `StorageClass/powerstore-sc-group`, one `VolumeGroupReplication` per app, one group session per array.
+- Workload: `gitops-vms/hammerdb-rhel9`, DRPC `openshift-gitops/dell-vm-placement-drpc`, claims `hammerdb-rhel9-rootdisk-mgd-grp` and `hammerdb-rhel9-datadisk-mgd-grp`.
+- Builds: Ramen `quay.io/sughosh/ramen-operator:resync-via-vgr-class` digest `sha256:8bce11858fa137357098cbb1eb285c93365799014d196b515614c9fc880834cc`; csi-addons controller `quay.io/sughosh/k8s-controller:upstream-main` digest `sha256:737e45c6600a881437464d78c8449822b10722851a3de249864b345705ccb3f6`; Dell driver `quay.io/martjack/csi-powerstore:v26.11.17` digest `sha256:d922a937e7430d356a40806ea6ab0697ff2149a482673d0b8e93b307a06c7716`.
 
-The run log records automatic source VM/DataVolume/PVC removal, namespace retention, replica reuse and guest auto-start. Writer shutdown was separately verified after the script encountered an SSH error. Exact RPC attempts, exact Application generation/deletion times, CDI adoption mechanics and deployed controller source revisions were not captured. Screenshot attachment inventory was read, but the historical images were not visually inspected in this preparation pass.
+Observed phase A (13:14Z, peer array off):
+- VGR `vgr-4251c970...-dell-vm-placement-drpc`: state Primary, Completed False(FailedToResync), Degraded True(Error), Resyncing False(FailedToResync), Replicating False(NotReplicating).
+- VRG `gitops-vms/dell-vm-placement-drpc`: DataReady True(Ready), DataProtected False(Error), ClusterDataReady True(Restored), KubeObjectsReady True(KubeObjectsRestored).
+- DRPC: FailedOver/Cleaning Up, Available True, PeerReady False, Protected False, ReplicationHealthy False.
+- VMI `gitops-vms/hammerdb-rhel9`: Running.
+- VSA-B: 7 sessions, 2 Failed_Over Source, 5 OK Destination.
 
-## Ordered upstream source trace
+Observed phase A postcheck (13:28:41Z): PASS 14/14; last sync 12:55:47; Initiate 13:01:52; data loss 365 s; recovered gap 12:55:47 to 13:06:04; 57 complete source minutes, missing none. The DRPC started the run in Relocated/Completed.
+
+Observed phase B (14:22Z): source VRG Secondary; target VGR Completed True(Promoted), Degraded False(Healthy), Replicating True; DRPC FailedOver/Completed with Protected, PeerReady and ReplicationHealthy True.
+
+## Part two: source status
+
+The build under test is a personal Ramen image whose branch is not published, so the class-label code path is not source-verified. The public related design is RamenDR/ramen PR #2982 (`resync-on-primary-candidate`), which implements the same resync-from-primary behaviour for a DRPC annotation: a primary VR or VGR that reports `Replicating=False` is moved to `Resync`, then back to Primary when the resync completes, and `DataReady` progresses while resyncing. csi-addons issue #1200 is the referenced gap. `autoResync` is a separate VRG peer-class setting: `vrg_volgrouprep.go` writes `volRep.Spec.AutoResync = v.autoResync(state)`.
+
+INFERRED (shown on screen in 16.5): that the class label makes Ramen request the resync from the primary side. OBSERVED: DataReady stayed True(Ready), the VGR stayed FailedToResync, and the VMI ran. The video separates the inference from the observation.
+
+INFERRED (16.7): that Argo CD deployed the workload on spoke-1. The phase A snapshot records the VMI Running, not the Application status. The deployment path itself is the managed mechanism shown in part one and described in VIRTDR-499.
+
+## Part one: ordered upstream source trace
+
 
 Research was delegated as required by flow-animation. Links are immutable. These upstream SHAs are explanatory evidence, not established deployed-build provenance.
 

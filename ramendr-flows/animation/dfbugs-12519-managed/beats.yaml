@@ -936,9 +936,11 @@ beats:
   visual: "Title card: part two, three questions."
   narration: >
     Part one followed the normal managed flow, with both sites up and one
-    replication object per disk. Part two is the run that produced this bug
-    report. The storage was reconfigured so that both disks of each application
-    are copied as one group, and then the whole source site was switched off.
+    replication object per disk. That run went from spoke-1 to spoke-0, under the
+    DRPC dell-vm-drpc. Part two is the run that produced this bug report, and it
+    went the other way, from spoke-0 to spoke-1. The managed app was reconfigured
+    for group replication under a new DRPC, dell-vm-placement-drpc, so both of its
+    disks are copied as one group. Then the whole source site was switched off.
     This part explains the group, the class object that describes it, the one
     label that changed the outcome, and what happened when the site came back.
   evidence: [run, trace]
