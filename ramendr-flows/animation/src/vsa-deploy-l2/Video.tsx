@@ -18,6 +18,8 @@ type BeatMeta = {
   shot?: {w: number; x: number; y: number};
   iw?: number;
   ih?: number;
+  pad?: number;
+  halo?: number;
   unverified?: boolean;
 };
 const META = BEATS as unknown as Record<string, BeatMeta>;
@@ -147,6 +149,8 @@ export const VsaDeployL2: React.FC<{chapters: number[]}> = ({chapters}) => {
           w={meta.shot?.w ?? 1400}
           iw={meta.iw ?? 1920}
           ih={meta.ih ?? 1080}
+          pad={meta.pad}
+          halo={meta.halo}
           date={isConsole ? '2026-11-24' : '2026-11-25'}
           sourceLabel={isConsole ? 'VM console · live capture' : 'vCenter · live capture'}
           captionPrefix={isConsole ? 'Captured from the VM console' : 'Captured from vCenter'}

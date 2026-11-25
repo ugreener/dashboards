@@ -140,7 +140,9 @@ beats:
     screenshot: pg-old-untagged.png
     iw: 1920
     ih: 1080
-    focus: {x: 520, y: 285, w: 480, h: 70}
+    focus: {x: 520, y: 292, w: 430, h: 14}
+    pad: 6
+    halo: 10
     shot: {w: 1100, x: 410, y: 300}
     caption: "An older pair's interconnect group: its own name, untagged, on the shared switch."
     narration: >-
@@ -196,7 +198,9 @@ beats:
     screenshot: pg-vlan1.png
     iw: 1920
     ih: 1080
-    focus: {x: 520, y: 285, w: 480, h: 70}
+    focus: {x: 520, y: 292, w: 430, h: 14}
+    pad: 6
+    halo: 10
     shot: {w: 1100, x: 410, y: 300}
     caption: "First pair, interconnect link one: network number 1."
     narration: >-
@@ -207,7 +211,9 @@ beats:
     screenshot: pg-vlan2.png
     iw: 1920
     ih: 1080
-    focus: {x: 520, y: 285, w: 480, h: 70}
+    focus: {x: 520, y: 292, w: 430, h: 14}
+    pad: 6
+    halo: 10
     shot: {w: 1100, x: 410, y: 300}
     caption: "First pair, interconnect link two: network number 2."
     narration: >-
@@ -219,7 +225,9 @@ beats:
     screenshot: pg-vlan3.png
     iw: 1920
     ih: 1080
-    focus: {x: 520, y: 285, w: 480, h: 70}
+    focus: {x: 520, y: 292, w: 430, h: 14}
+    pad: 6
+    halo: 10
     shot: {w: 1100, x: 410, y: 300}
     caption: "Second pair, interconnect link one: network number 3, a different room."
     narration: >-
@@ -243,7 +251,9 @@ beats:
     screenshot: vm-networks-crop.png
     iw: 960
     ih: 140
-    focus: {x: 12, y: 30, w: 936, h: 80}
+    focus: {x: 30, y: 40, w: 900, h: 40}
+    pad: 4
+    halo: 10
     shot: {w: 1100, x: 410, y: 340}
     caption: "Both nodes of the pair, and only they, on the two interconnect groups."
     narration: >-
@@ -255,7 +265,9 @@ beats:
     screenshot: vm-summary.png
     iw: 1920
     ih: 1080
-    focus: {x: 420, y: 140, w: 600, h: 110}
+    focus: {x: 420, y: 145, w: 530, h: 100}
+    pad: 4
+    halo: 10
     shot: {w: 1100, x: 410, y: 300}
     caption: "Both nodes up, management addresses present, 18 GB and 6 processors."
     narration: >-
