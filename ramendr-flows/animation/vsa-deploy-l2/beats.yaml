@@ -94,9 +94,9 @@ beats:
     chapter: "What happened"
     screenshot: console-error-crop.png
     iw: 1064
-    ih: 198
-    focus: {x: 12, y: 110, w: 1040, h: 70}
-    shot: {w: 1300, x: 310, y: 320}
+    ih: 90
+    focus: {x: 12, y: 20, w: 1040, h: 50}
+    shot: {w: 1200, x: 360, y: 380}
     caption: "The failing node's console: the installer could not confirm the cluster step."
     narration: >-
       This is the console of the failing node. The installer could not confirm success from
@@ -140,7 +140,7 @@ beats:
     screenshot: pg-old-untagged.png
     iw: 1920
     ih: 1080
-    focus: {x: 500, y: 270, w: 560, h: 80}
+    focus: {x: 520, y: 285, w: 480, h: 70}
     shot: {w: 1100, x: 410, y: 300}
     caption: "An older pair's interconnect group: its own name, untagged, on the shared switch."
     narration: >-
@@ -196,7 +196,7 @@ beats:
     screenshot: pg-vlan1.png
     iw: 1920
     ih: 1080
-    focus: {x: 500, y: 270, w: 560, h: 80}
+    focus: {x: 520, y: 285, w: 480, h: 70}
     shot: {w: 1100, x: 410, y: 300}
     caption: "First pair, interconnect link one: network number 1."
     narration: >-
@@ -207,7 +207,7 @@ beats:
     screenshot: pg-vlan2.png
     iw: 1920
     ih: 1080
-    focus: {x: 500, y: 270, w: 560, h: 80}
+    focus: {x: 520, y: 285, w: 480, h: 70}
     shot: {w: 1100, x: 410, y: 300}
     caption: "First pair, interconnect link two: network number 2."
     narration: >-
@@ -219,7 +219,7 @@ beats:
     screenshot: pg-vlan3.png
     iw: 1920
     ih: 1080
-    focus: {x: 500, y: 270, w: 560, h: 80}
+    focus: {x: 520, y: 285, w: 480, h: 70}
     shot: {w: 1100, x: 410, y: 300}
     caption: "Second pair, interconnect link one: network number 3, a different room."
     narration: >-
@@ -230,7 +230,7 @@ beats:
     screenshot: vm-adapters.png
     iw: 1920
     ih: 1080
-    focus: {x: 600, y: 480, w: 700, h: 110}
+    focus: {x: 600, y: 490, w: 550, h: 90}
     shot: {w: 1200, x: 360, y: 280}
     caption: "Inside the VM: adapters 2 and 3 are the interconnect, now behind the new switch."
     narration: >-
@@ -240,11 +240,11 @@ beats:
 
   - id: "6.1"
     chapter: "The result"
-    screenshot: vm-networks.png
-    iw: 1920
-    ih: 1080
-    focus: {x: 580, y: 250, w: 1020, h: 100}
-    shot: {w: 1400, x: 250, y: 340}
+    screenshot: vm-networks-crop.png
+    iw: 960
+    ih: 140
+    focus: {x: 12, y: 30, w: 936, h: 80}
+    shot: {w: 1100, x: 410, y: 340}
     caption: "Both nodes of the pair, and only they, on the two interconnect groups."
     narration: >-
       Both nodes of the first appliance now sit on the same two interconnect port groups,
@@ -255,8 +255,8 @@ beats:
     screenshot: vm-summary.png
     iw: 1920
     ih: 1080
-    focus: {x: 400, y: 130, w: 850, h: 140}
-    shot: {w: 1200, x: 360, y: 300}
+    focus: {x: 420, y: 140, w: 600, h: 110}
+    shot: {w: 1100, x: 410, y: 300}
     caption: "Both nodes up, management addresses present, 18 GB and 6 processors."
     narration: >-
       The appliance came up with both nodes running, both management addresses present, and

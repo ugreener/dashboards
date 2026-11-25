@@ -58,18 +58,18 @@
   "screenshot": "console-error-crop.png",
   "focus": {
    "x": 12,
-   "y": 110,
+   "y": 20,
    "w": 1040,
-   "h": 70
+   "h": 50
   },
   "caption": "The failing node's console: the installer could not confirm the cluster step.",
   "shot": {
-   "w": 1300,
-   "x": 310,
-   "y": 320
+   "w": 1200,
+   "x": 360,
+   "y": 380
   },
   "iw": 1064,
-  "ih": 198
+  "ih": 90
  },
  "2.4": {
   "chapter": "What happened",
@@ -102,10 +102,10 @@
   "chapter": "What we ruled out",
   "screenshot": "pg-old-untagged.png",
   "focus": {
-   "x": 500,
-   "y": 270,
-   "w": 560,
-   "h": 80
+   "x": 520,
+   "y": 285,
+   "w": 480,
+   "h": 70
   },
   "caption": "An older pair's interconnect group: its own name, untagged, on the shared switch.",
   "shot": {
@@ -145,10 +145,10 @@
   "chapter": "The change",
   "screenshot": "pg-vlan1.png",
   "focus": {
-   "x": 500,
-   "y": 270,
-   "w": 560,
-   "h": 80
+   "x": 520,
+   "y": 285,
+   "w": 480,
+   "h": 70
   },
   "caption": "First pair, interconnect link one: network number 1.",
   "shot": {
@@ -163,10 +163,10 @@
   "chapter": "The change",
   "screenshot": "pg-vlan2.png",
   "focus": {
-   "x": 500,
-   "y": 270,
-   "w": 560,
-   "h": 80
+   "x": 520,
+   "y": 285,
+   "w": 480,
+   "h": 70
   },
   "caption": "First pair, interconnect link two: network number 2.",
   "shot": {
@@ -181,10 +181,10 @@
   "chapter": "The change",
   "screenshot": "pg-vlan3.png",
   "focus": {
-   "x": 500,
-   "y": 270,
-   "w": 560,
-   "h": 80
+   "x": 520,
+   "y": 285,
+   "w": 480,
+   "h": 70
   },
   "caption": "Second pair, interconnect link one: network number 3, a different room.",
   "shot": {
@@ -200,9 +200,9 @@
   "screenshot": "vm-adapters.png",
   "focus": {
    "x": 600,
-   "y": 480,
-   "w": 700,
-   "h": 110
+   "y": 490,
+   "w": 550,
+   "h": 90
   },
   "caption": "Inside the VM: adapters 2 and 3 are the interconnect, now behind the new switch.",
   "shot": {
@@ -215,35 +215,35 @@
  },
  "6.1": {
   "chapter": "The result",
-  "screenshot": "vm-networks.png",
+  "screenshot": "vm-networks-crop.png",
   "focus": {
-   "x": 580,
-   "y": 250,
-   "w": 1020,
-   "h": 100
+   "x": 12,
+   "y": 30,
+   "w": 936,
+   "h": 80
   },
   "caption": "Both nodes of the pair, and only they, on the two interconnect groups.",
   "shot": {
-   "w": 1400,
-   "x": 250,
+   "w": 1100,
+   "x": 410,
    "y": 340
   },
-  "iw": 1920,
-  "ih": 1080
+  "iw": 960,
+  "ih": 140
  },
  "6.2": {
   "chapter": "The result",
   "screenshot": "vm-summary.png",
   "focus": {
-   "x": 400,
-   "y": 130,
-   "w": 850,
-   "h": 140
+   "x": 420,
+   "y": 140,
+   "w": 600,
+   "h": 110
   },
   "caption": "Both nodes up, management addresses present, 18 GB and 6 processors.",
   "shot": {
-   "w": 1200,
-   "x": 360,
+   "w": 1100,
+   "x": 410,
    "y": 300
   },
   "iw": 1920,
