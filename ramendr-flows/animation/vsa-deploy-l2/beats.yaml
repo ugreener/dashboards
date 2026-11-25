@@ -137,10 +137,10 @@ beats:
       adapters were plugged in.
   - id: "3.4"
     chapter: "What we ruled out"
+    iw: 560
+    focus: {x: 110, y: 20, w: 420, h: 20}
     screenshot: pg-old-untagged-crop.png
-    iw: 590
     ih: 70
-    focus: {x: 120, y: 20, w: 440, h: 20}
     pad: 4
     halo: 8
     shot: {w: 1000, x: 460, y: 360}
@@ -195,10 +195,10 @@ beats:
     pause_after: 1.8
   - id: "5.2"
     chapter: "The change"
+    iw: 560
+    focus: {x: 110, y: 20, w: 420, h: 20}
     screenshot: pg-vlan1-crop.png
-    iw: 590
     ih: 70
-    focus: {x: 120, y: 20, w: 440, h: 20}
     pad: 4
     halo: 8
     shot: {w: 1000, x: 460, y: 360}
@@ -208,10 +208,10 @@ beats:
       first appliance uses number one and number two for its two interconnect links.
   - id: "5.3"
     chapter: "The change"
+    iw: 560
+    focus: {x: 110, y: 20, w: 420, h: 20}
     screenshot: pg-vlan2-crop.png
-    iw: 590
     ih: 70
-    focus: {x: 120, y: 20, w: 440, h: 20}
     pad: 4
     halo: 8
     shot: {w: 1000, x: 460, y: 360}
@@ -222,10 +222,10 @@ beats:
       same physical host and cables.
   - id: "5.4"
     chapter: "The change"
+    iw: 560
+    focus: {x: 110, y: 20, w: 420, h: 20}
     screenshot: pg-vlan3-crop.png
-    iw: 590
     ih: 70
-    focus: {x: 120, y: 20, w: 440, h: 20}
     pad: 4
     halo: 8
     shot: {w: 1000, x: 460, y: 360}
@@ -262,10 +262,10 @@ beats:
     pause_after: 1.8
   - id: "6.2"
     chapter: "The result"
+    ih: 150
+    focus: {x: 20, y: 20, w: 510, h: 105}
     screenshot: vm-summary-crop.png
     iw: 560
-    ih: 140
-    focus: {x: 20, y: 20, w: 510, h: 95}
     pad: 4
     halo: 8
     shot: {w: 1000, x: 460, y: 340}
