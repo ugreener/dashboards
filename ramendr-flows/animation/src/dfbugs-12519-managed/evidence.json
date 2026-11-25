@@ -1,0 +1,72 @@
+[
+ {
+  "file": "VIRTDR-292-2026-10-07-21-pre-initiate-hub-managed-status.png",
+  "id": "1237288",
+  "size": 150973,
+  "created": "2026-10-07T13:44:30.775+0000",
+  "step": "pre-initiate-hub-managed-status"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-22-pre-initiate-hub-managed-failover-menu.png",
+  "id": "1237289",
+  "size": 152575,
+  "created": "2026-10-07T13:44:32.667+0000",
+  "step": "pre-initiate-hub-managed-failover-menu"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-23-confirmation-hub-managed-target-spoke-0.png",
+  "id": "1237290",
+  "size": 138541,
+  "created": "2026-10-07T13:44:34.696+0000",
+  "step": "confirmation-hub-managed-target-spoke-0"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-24-initiated-hub-managed-failingover.png",
+  "id": "1237291",
+  "size": 145642,
+  "created": "2026-10-07T13:44:36.532+0000",
+  "step": "initiated-hub-managed-failingover"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-25-transition-hub-managed-cleaning-up-popover.png",
+  "id": "1237292",
+  "size": 165018,
+  "created": "2026-10-07T13:44:38.276+0000",
+  "step": "transition-hub-managed-cleaning-up-popover"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-26-promotion-spoke-1-source-vmi-paused.png",
+  "id": "1237295",
+  "size": 149525,
+  "created": "2026-10-07T13:44:40.425+0000",
+  "step": "promotion-spoke-1-source-vmi-paused"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-27-promotion-spoke-0-target-vrg-conditions.png",
+  "id": "1237296",
+  "size": 161814,
+  "created": "2026-10-07T13:44:42.436+0000",
+  "step": "promotion-spoke-0-target-vrg-conditions"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-28-completed-hub-managed-status.png",
+  "id": "1237297",
+  "size": 160068,
+  "created": "2026-10-07T13:44:44.394+0000",
+  "step": "completed-hub-managed-status"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-29-completed-spoke-0-target-vmi-ready.png",
+  "id": "1237298",
+  "size": 142514,
+  "created": "2026-10-07T13:44:46.372+0000",
+  "step": "completed-spoke-0-target-vmi-ready"
+ },
+ {
+  "file": "VIRTDR-292-2026-10-07-30-completed-hub-dr-policy-unchanged.png",
+  "id": "1237299",
+  "size": 102824,
+  "created": "2026-10-07T13:44:48.395+0000",
+  "step": "completed-hub-dr-policy-unchanged"
+ }
+]

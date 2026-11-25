@@ -5,6 +5,10 @@ import {VirtDr292} from './virtdr-292/Video';
 import {buildTimeline} from './virtdr-292/timeline';
 import {VirtDr291} from './virtdr-291/Video';
 import {buildTimeline as buildTimeline291} from './virtdr-291/timeline';
+import {VirtDr291 as Dfbugs12519Discovered} from './dfbugs-12519-discovered/Video';
+import {buildTimeline as buildTimelineDFD} from './dfbugs-12519-discovered/timeline';
+import {VirtDr292 as Dfbugs12519Managed} from './dfbugs-12519-managed/Video';
+import {buildTimeline as buildTimelineDFM} from './dfbugs-12519-managed/timeline';
 import {VirtDr342} from './virtdr-342/Video';
 import {buildTimeline as buildTimeline342} from './virtdr-342/timeline';
 import {CsiLayers} from './csi-layers/Video';
@@ -48,6 +52,8 @@ const ALL_PAG = Array.from({length: 7}, (_, i) => i);
 const ALL_PBG = Array.from({length: 8}, (_, i) => i);
 
 const ALL_291 = Array.from({length: 14}, (_, i) => i);
+const ALL_DFD = Array.from({length: 15}, (_, i) => i);
+const ALL_DFM = Array.from({length: 17}, (_, i) => i);
 const ALL_342 = Array.from({length: 10}, (_, i) => i);
 const ALL_307 = Array.from({length: 9}, (_, i) => i);
 const ALL_337 = Array.from({length: 8}, (_, i) => i);
@@ -213,6 +219,24 @@ export const Root: React.FC = () => (
       width={1920}
       height={1080}
       defaultProps={{chapters: ALL_291}}
+    />
+    <Composition
+      id="dfbugs-12519-discovered"
+      component={Dfbugs12519Discovered}
+      durationInFrames={Math.max(1, buildTimelineDFD(ALL_DFD).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_DFD}}
+    />
+    <Composition
+      id="dfbugs-12519-managed"
+      component={Dfbugs12519Managed}
+      durationInFrames={Math.max(1, buildTimelineDFM(ALL_DFM).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_DFM}}
     />
     <Composition
       id="peer-array-gate"

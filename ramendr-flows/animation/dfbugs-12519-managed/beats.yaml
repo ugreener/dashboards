@@ -1,0 +1,1074 @@
+# yamllint disable rule:line-length
+# VIRTDR-292 managed-app failover explainer, newcomer edition (rewritten from scratch).
+# Run: 2026-10-07, DRPC openshift-gitops/dell-vm-drpc, VM gitops-vms/hammerdb-rhel9,
+# recorded direction spoke-1 (edge97, VSA-B) to spoke-0 (edge95, VSA-A, home cluster).
+#
+# evidence tags:
+#   run       = VIRTDR-292 run log + preflight JSON (2026-10-07 attachments 1237286, 1237287)
+#   shot      = run-date console screenshot (attachments 1237288..1237299)
+#   ramen     = RamenDR/ramen source (see trace.md)
+#   csiaddons = csi-addons/kubernetes-csi-addons source
+#   powerstore= dell/csi-powerstore source
+#   argocd    = argoproj/argo-cd duck-type generator
+#   ocm       = open-cluster-management-io/multicloud-integrations pull model
+#   repo      = elsapassaro/ramendr-starter-kit @ e6237efd8cba2c68908cf351c7b779d53be654f9, clusters/dell-s4
+#   setup     = Setup Google Doc; notes = Dell DR notes Google Doc
+#   live      = read-only hub listing (objects created before the run): dell-vm-placement-decision-1, dell-vm-drpc-gitops-vms-vrg-mw, dell-vm-drpc-gitops-vms-vrg-mcv, dell-vm-drpc-gitops-vms-ns-mw
+# t = UTC time from the run log. Screenshot times shown in the console are browser-local (UTC+3); captions use UTC.
+# Screenshot `focus` boxes are in image pixels (1920x1080).
+
+meta:
+  title: "Anatomy of a failover: a GitOps-managed VM on Dell PowerStore with RamenDR"
+  ticket: VIRTDR-292
+  run_date: 2026-10-07
+  direction: "spoke-1 (VSA-B) to spoke-0 (VSA-A, home cluster)"
+
+beats:
+
+# ================= Chapter 0: cold open =================
+- id: "0.1"
+  chapter: Cold open
+  t: "13:26:40"
+  visual: "Typed timestamp, click ripple, VM teaser moves between clusters, elapsed counter to +5m 41s."
+  narration: >
+    At 13:26:40 UTC on October 7th, someone clicked one button in a web console.
+    Five minutes and forty-one seconds later, a running database virtual machine had moved
+    from one OpenShift cluster to another, onto disks that two Dell storage arrays had been copying in the background.
+    This video walks through everything that happened in between, one handoff at a time.
+  pause_after: 1.8
+  evidence: [run]
+
+# ================= Chapter 1: cast of characters =================
+- id: "1.1"
+  chapter: Cast of characters
+  visual: "Three cluster boxes: hub on top, two spokes below. Definition panel: hub and managed cluster."
+  card: {kind: "Hub and managed clusters", name: "edge36 hub · spoke-0 · spoke-1", role: "one cluster manages the other two"}
+  def:
+    what: "Red Hat Advanced Cluster Management, ACM, runs on a hub cluster and manages other clusters, called managed clusters or spokes."
+    creator: "Clusters are registered to the hub once, at setup."
+    reader: "Every controller in this video runs on either the hub or a spoke."
+    where: "Hub: edge36. spoke-0: edge95. spoke-1: edge97."
+    analogy: "Head office and two branch offices."
+  narration: >
+    Before the failover, let's meet the cast. Everything in this story lives on three clusters.
+    One hub cluster runs Advanced Cluster Management, A C M, and manages the other two, called managed clusters, or spokes.
+    Think of a head office and two branch offices. The hub is edge36, spoke-0 is edge95, and spoke-1 is edge97.
+  evidence: [setup]
+
+- id: "1.2"
+  chapter: Cast of characters
+  card: {kind: VirtualMachine, name: hammerdb-rhel9, role: "the database VM we are protecting"}
+  def:
+    what: "OpenShift Virtualization runs full virtual machines as Kubernetes objects. A VirtualMachine is the definition. A VirtualMachineInstance, VMI, is the running copy inside a pod."
+    creator: "Applied from Git by GitOps (Argo CD, introduced below)."
+    reader: "KubeVirt starts a virt-launcher pod that runs the guest."
+    where: "Namespace gitops-vms on whichever spoke runs the app."
+    analogy: "The VirtualMachine is the recipe, the VMI is the dish on the table."
+  narration: >
+    The workload is a virtual machine. OpenShift Virtualization lets a cluster run full VMs as Kubernetes objects.
+    A VirtualMachine is the definition, and a VirtualMachineInstance, or V M I, is the running copy, inside a pod.
+    Ours is called hammerdb-rhel9. It runs PostgreSQL, and a load generator called HammerDB writes to it nonstop.
+  evidence: [repo, setup]
+
+- id: "1.3"
+  chapter: Cast of characters
+  card: {kind: DataVolume, name: hammerdb-rhel9-rootdisk, role: "creates and fills a VM disk"}
+  def:
+    what: "A DataVolume asks the Containerized Data Importer, CDI, to create a PersistentVolumeClaim and fill it, for example by cloning an OS image or leaving it blank."
+    creator: "Applied from Git by GitOps (introduced below): rootdisk and datadisk."
+    reader: "CDI creates PVCs with the same names, and the VM mounts them."
+    where: "gitops-vms on the spoke."
+    analogy: "An order form that says: give me a 35 gig disk, preloaded with RHEL."
+  narration: >
+    The VM has two disks, and each one starts life as a DataVolume. A DataVolume is an order form for a disk.
+    It asks the importer, C D I, to create a persistent volume claim and fill it. The root disk clones a RHEL 9 image.
+    The data disk starts blank. The resulting claims keep the same names, hammerdb-rhel9-rootdisk and hammerdb-rhel9-datadisk.
+  evidence: [repo]
+
+- id: "1.4"
+  chapter: Cast of characters
+  card: {kind: "PowerStore replication session", name: 23dfdc6d-3feb-4281-83bb-69287b7b1a35, role: "the data-disk session: VSA-B copies changed blocks to VSA-A"}
+  def:
+    what: "Each spoke stores its disks on its own Dell PowerStore virtual array. A replication session on the array copies a volume's changed blocks to the peer array on a schedule."
+    creator: "The PowerStore CSI driver, when replication is enabled."
+    reader: "The peer array keeps a read-only destination copy."
+    where: "spoke-0 uses VSA-A, spoke-1 uses VSA-B, over NVMe over TCP."
+    analogy: "A courier that drives a fresh copy of your files to the other office every few minutes."
+  narration: >
+    The bytes live on storage arrays. Each spoke uses its own Dell PowerStore virtual array: spoke-0 uses VSA-A, spoke-1 uses VSA-B.
+    For each protected volume, the source array runs a replication session that copies changed blocks to the other array on a schedule.
+    The copy on the far side is read-only until someone promotes it. Like a courier taking fresh copies to the other office.
+  evidence: [setup]
+
+- id: "1.5"
+  chapter: Cast of characters
+  card: {kind: VolumeReplicationClass, name: powerstore-vrc-15m, role: "says how often to replicate"}
+  def:
+    what: "A cluster-scoped class that tells the storage driver which replication settings to use, here a 15 minute schedule."
+    creator: "Created once on each spoke during setup."
+    reader: "csi-addons passes its parameters to the PowerStore driver."
+    where: "Cluster-scoped, on each spoke."
+    analogy: "The courier's timetable."
+  narration: >
+    How often the courier drives is set by a VolumeReplicationClass. It is a cluster-wide settings object on each spoke.
+    Ours is powerstore-vrc-15m, a fifteen minute schedule. It does nothing by itself.
+    It is the timetable that the next object points at.
+  evidence: [setup]
+
+- id: "1.6"
+  chapter: Cast of characters
+  card: {kind: VolumeReplication, name: hammerdb-rhel9-datadisk, role: "turns replication on for one PVC"}
+  def:
+    what: "Asks for one PVC's volume to be replicated, and in which role: primary means writable source, secondary means read-only destination."
+    creator: "The VolumeReplicationGroup (next) creates one per protected PVC."
+    reader: "The csi-addons controller translates it into gRPC calls on the PowerStore CSI driver."
+    where: "Same namespace as the PVC, on the spoke."
+    analogy: "A work order for the courier: this disk, this timetable, you are the sender."
+  narration: >
+    A VolumeReplication turns replication on for one claim. It names the claim, the class, and a role.
+    Primary means this side is the writable source. Secondary means this side is the read-only destination.
+    A controller called csi-addons reads it and makes the matching calls on the PowerStore storage driver.
+  evidence: [csiaddons, ramen]
+
+- id: "1.7"
+  chapter: Cast of characters
+  card: {kind: VolumeReplicationGroup, name: dell-vm-drpc, role: "protects all the app's disks on one spoke"}
+  def:
+    what: "Ramen's per-spoke object for one application. It finds the app's PVCs by label, creates their VolumeReplications, and saves their definitions to S3. Its state is Primary or Secondary."
+    creator: "The hub delivers it to both spokes."
+    reader: "Ramen's spoke controller acts on it, and the hub reads its status back."
+    where: "gitops-vms on each spoke."
+    analogy: "A site manager at each office who knows which boxes belong to this customer."
+  narration: >
+    Grouping those per-disk orders is the VolumeReplicationGroup, or V R G. Ramen is the disaster recovery operator here,
+    and the V R G is its site manager on each spoke. It finds the app's claims by label and creates their VolumeReplications.
+    One spoke's V R G is Primary, running the app. The other is Secondary, standing by.
+  evidence: [ramen]
+
+- id: "1.8"
+  chapter: Cast of characters
+  card: {kind: "S3 bucket", name: ramen-metadata, role: "remembers which disk belongs to which claim"}
+  def:
+    what: "An S3 bucket, served by MinIO on the hub, where Ramen stores copies of the protected PV and PVC definitions."
+    creator: "The Primary VRG uploads them."
+    reader: "A VRG that becomes Primary on the other spoke downloads them."
+    where: "MinIO on the hub, bucket ramen-metadata."
+    analogy: "The labels for the boxes, kept in a safe at head office."
+  narration: >
+    Copied bytes alone are not enough. The other cluster also needs to know which volume belongs to which claim.
+    So the Primary V R G uploads the persistent volume and claim definitions to an S3 bucket called ramen-metadata,
+    served by MinIO on the hub. These are the labels for the boxes, kept in head office's safe.
+  evidence: [ramen, setup]
+
+- id: "1.9"
+  chapter: Cast of characters
+  card: {kind: DRPolicy, name: dr-policy-15m, role: "pairs the two spokes, 15 minute schedule"}
+  def:
+    what: "A cluster-scoped hub object that names the two peer clusters and the replication interval."
+    creator: "Created once on the hub during setup."
+    reader: "Each DRPlacementControl points at one DRPolicy."
+    where: "Hub, cluster-scoped."
+    analogy: "The contract between the two branch offices."
+  narration: >
+    On the hub, a DRPolicy names the pair of clusters that back each other up, and the replication interval.
+    Ours is dr-policy-15m: spoke-0 and spoke-1, every fifteen minutes. That interval is also our recovery point objective,
+    or R P O: the most recent writes we can afford to lose, here 900 seconds.
+  evidence: [run, setup]
+
+- id: "1.10"
+  chapter: Cast of characters
+  card: {kind: Placement, name: dell-vm-placement, role: "the question: which cluster runs this app?"}
+  def:
+    what: "An ACM object that asks which clusters an application should run on."
+    creator: "Applied from Git into openshift-gitops on the hub."
+    reader: "Normally the ACM scheduler answers it. Here an annotation switches that off, so only Ramen answers."
+    where: "Hub, namespace openshift-gitops."
+    analogy: "A job posting: we need one office to run this."
+  narration: >
+    Now the hub objects that decide where the app runs. A Placement is a question: which cluster should run this app?
+    Normally A C M's scheduler answers it. Ours is dell-vm-placement, and an annotation switches the scheduler off for it,
+    so that only Ramen gets to answer.
+  evidence: [repo]
+
+- id: "1.11"
+  chapter: Cast of characters
+  card: {kind: PlacementDecision, name: dell-vm-placement-decision-1, role: "the answer: the chosen cluster list"}
+  def:
+    what: "The answer to a Placement: a list of selected cluster names."
+    creator: "Here, written only by Ramen's hub operator."
+    reader: "The ApplicationSet generator polls it to decide where to deploy."
+    where: "Hub, openshift-gitops, labeled with the Placement name."
+    analogy: "The posted result: office spoke-1 gets the job."
+  narration: >
+    The answer is a PlacementDecision: a short list of cluster names. Ramen writes it, and GitOps reads it.
+    That single list is the hinge of this whole story. When it changes, the app moves.
+    Ours is dell-vm-placement-decision-1.
+  evidence: [ramen, argocd]
+
+- id: "1.12"
+  chapter: Cast of characters
+  card: {kind: DRPlacementControl, name: dell-vm-drpc, role: "the DR control panel for one app"}
+  def:
+    what: "Ramen's hub object for one protected application. It points at a Placement and a DRPolicy, selects PVCs by label, and accepts actions like Failover."
+    creator: "Applied from Git. The console edits its action field."
+    reader: "Ramen's hub operator reconciles it and reports phase and conditions."
+    where: "Hub, openshift-gitops, next to its Placement."
+    analogy: "The control panel with the big red failover switch."
+  narration: >
+    Tying it together is the DRPlacementControl, or D R P C: Ramen's control panel for one app.
+    Ours is dell-vm-drpc. It points at the Placement and the DRPolicy, and selects disks with the label drprotection equals true.
+    When you press Failover in the console, the console writes into this object.
+  evidence: [repo, ramen]
+
+- id: "1.13"
+  chapter: Cast of characters
+  card: {kind: ManifestWork, name: "dell-vm-drpc-gitops-vms-vrg-mw", role: "a parcel the hub ships to a spoke"}
+  def:
+    what: "An ACM object on the hub that wraps Kubernetes manifests. The work agent on the named spoke applies them there."
+    creator: "Ramen (for VRGs) and the GitOps propagation controller (for Applications)."
+    reader: "The work agent on the spoke."
+    where: "Hub, in the spoke's cluster namespace."
+    analogy: "A sealed parcel addressed to one branch office."
+  narration: >
+    The hub never edits spoke objects directly. Instead it writes a ManifestWork: a parcel of manifests addressed to one spoke.
+    A work agent on that spoke unpacks it and applies the contents. Ramen ships each V R G this way,
+    in a parcel called dell-vm-drpc-gitops-vms-vrg-mw, one per spoke.
+  evidence: [ramen, live]
+
+- id: "1.14"
+  chapter: Cast of characters
+  card: {kind: ManagedClusterView, name: dell-vm-drpc-gitops-vms-vrg-mcv, role: "a window to read spoke status"}
+  def:
+    what: "An ACM object on the hub that asks a spoke for the current copy of one of its objects."
+    creator: "Ramen's hub operator."
+    reader: "Ramen reads the returned VRG status to decide its next step."
+    where: "Hub, in the spoke's cluster namespace."
+    analogy: "A status report the branch office faxes back."
+  narration: >
+    Going the other way, a ManagedClusterView is a window. It asks a spoke for the current copy of one object
+    and brings it back to the hub. Ramen reads each V R G's status through views like dell-vm-drpc-gitops-vms-vrg-mcv.
+    Shipping a parcel and seeing the result are always two separate steps.
+  evidence: [ramen]
+
+- id: "1.15"
+  chapter: Cast of characters
+  card: {kind: ApplicationSet, name: dell-vm-workload, role: "stamps out one Application per chosen cluster"}
+  def:
+    what: "An Argo CD object that generates Applications from a template. Our generator reads the PlacementDecision."
+    creator: "Applied from Git into openshift-gitops on the hub."
+    reader: "The ApplicationSet controller polls the decision every 180 seconds."
+    where: "Hub, openshift-gitops."
+    analogy: "A mail-merge: one letter per name on the list."
+  narration: >
+    Now GitOps. Argo CD deploys things from Git. An ApplicationSet is a mail-merge: a template, plus a list of targets.
+    Ours, dell-vm-workload, takes its list from the PlacementDecision, and checks it every 180 seconds.
+    For each cluster on the list, it stamps out one Application.
+  evidence: [repo, argocd]
+
+- id: "1.16"
+  chapter: Cast of characters
+  card: {kind: Application, name: dell-vm-workload-spoke-0, role: "deploy this Git folder to that cluster"}
+  def:
+    what: "An Argo CD object: sync this Git path to this cluster and namespace, and keep it that way."
+    creator: "Generated by the ApplicationSet, one per selected cluster."
+    reader: "Argo CD on the spoke syncs it (pull model)."
+    where: "Hub copy in openshift-gitops, delivered to the spoke's openshift-gitops."
+    analogy: "One mail-merged letter: office spoke-0, build exactly what is in this folder."
+  narration: >
+    An Application says: make this cluster match this Git folder, and keep it that way.
+    Ours are named dell-vm-workload, a dash, and the cluster name, so dell-vm-workload-spoke-0 or dell-vm-workload-spoke-1.
+    If something in Git is removed, Argo CD removes it from the cluster too. That is called pruning.
+  evidence: [repo]
+
+- id: "1.17"
+  chapter: Cast of characters
+  visual: "All glossary cards in a grid, grouped: workload, storage, DR control, GitOps."
+  narration: >
+    That is the whole cast. The workload: a VirtualMachine and its DataVolumes. Storage: arrays, VolumeReplications, and their group.
+    D R control: a DRPolicy, a D R P C, a Placement, and its decision. Delivery: ManifestWorks and views.
+    And GitOps: an ApplicationSet and its Applications. Now let's place them on the map.
+  pause_after: 1.4
+  evidence: [repo, ramen]
+
+# ================= Chapter 2: the environment =================
+- id: "2.1"
+  chapter: The environment
+  visual: "Full topology fades in: hub, spoke-1, spoke-0, VSA-B, VSA-A, MinIO."
+  narration: >
+    Why look at the map first? Because a failover is a relay race between controllers on different clusters,
+    and you can only follow the baton if you know where each runner stands.
+    Here is the hub on top, the two spokes below, and each spoke's array underneath, linked by asynchronous replication.
+  evidence: [setup]
+
+- id: "2.2"
+  chapter: The environment
+  visual: "Zoom into spoke-1: VM hammerdb-rhel9, two PVCs with drprotection=true."
+  narration: >
+    In this recorded run the VM started on spoke-1, so the test failed over from spoke-1 to spoke-0, which is the app's home cluster.
+    In the gitops-vms namespace: the VM, its 35 gig root disk claim and its 20 gig data disk claim,
+    both labeled drprotection equals true. That label is how Ramen will find them.
+  evidence: [run, repo]
+
+- id: "2.3"
+  chapter: The environment
+  visual: "Git card; hub namespace openshift-gitops: Placement, DRPC, ApplicationSet, PlacementDecision, DRPolicy."
+  narration: >
+    The virtual machine's definition lives in Git, on the ocp-4.22-rhdr-dell branch, under clusters/dell-s4/workloads.
+    On the hub, in openshift-gitops, sit the Placement, the D R P C, the ApplicationSet and the PlacementDecision,
+    with the DRPolicy alongside. All three app objects share one namespace on purpose: Ramen and Argo CD each require it.
+  evidence: [repo]
+
+- id: "2.4"
+  chapter: The environment
+  visual: "Placement annotation highlighted; ACM scheduler chip greys out; Ramen chip becomes only writer."
+  narration: >
+    Look at the Placement's annotation, experimental-scheduling-disable. It switches off A C M's automatic choice,
+    so only Ramen writes the decision. Lose it, and the D R P C refuses to work.
+    That happened once in this lab: deleting the D R P C made Ramen strip the annotation, and it had to be re-applied.
+  evidence: [repo, notes]
+
+- id: "2.5"
+  chapter: The environment
+  visual: "ApplicationSet YAML: clusterDecisionResource, acm-placement, requeueAfterSeconds 180."
+  narration: >
+    The ApplicationSet uses the cluster decision resource generator. Through the acm-placement config map
+    it knows how to read our PlacementDecision, and it re-reads it every 180 seconds.
+    That is a polling interval, not a promise of delivery time. Keep that number in mind.
+  pause_after: 1.4
+  evidence: [repo, argocd]
+
+- id: "2.6"
+  chapter: The environment
+  visual: "Application dell-vm-workload-spoke-1 travels in a ManifestWork to spoke-1; spoke Argo CD pulls Git and syncs the VM."
+  define: {term: "pull model", text: "The hub only generates the Application. The spoke's own Argo CD does the sync."}
+  narration: >
+    This is the pull model. The hub copy of the Application carries a skip-reconcile annotation, so the hub's Argo CD leaves it alone.
+    A propagation controller packs it into a ManifestWork for the chosen spoke, the work agent applies it,
+    and the spoke's own Argo CD pulls the Git folder and syncs it. Automatic prune and self-heal are on: self-heal puts back anything changed by hand.
+  evidence: [repo, ocm]
+
+- id: "2.7"
+  chapter: The environment
+  visual: "Git card: 'no namespace.yaml' highlighted; YAML syncOptions CreateNamespace=true."
+  narration: >
+    One deliberate omission: the Git folder has no namespace manifest. Argo CD creates gitops-vms if needed, but does not own it.
+    An earlier attempt did own it. On failover Argo CD deleted the whole namespace on the source,
+    taking Ramen's V R G with it mid-handoff, and the failover got stuck.
+  evidence: [repo, notes]
+
+- id: "2.8"
+  chapter: The environment
+  narration: >
+    So far: three clusters, two arrays, one Git folder. On the hub, a D R P C and a Placement whose decision only Ramen writes,
+    and an ApplicationSet that turns that decision into a deployed VM on whichever spoke is listed.
+  pause_after: 1.2
+  evidence: [repo]
+
+# ================= Chapter 3: protected steady state =================
+- id: "3.1"
+  chapter: Protected steady state
+  visual: "Overview; phase tracker appears with 'Protect' highlighted."
+  narration: >
+    Before anything fails, what does protected actually mean? If protection is incomplete,
+    a failover would bring back disks with missing data, or disks the target cluster cannot even attach.
+    Protection has three parts: two V R Gs, replicated volumes, and saved storage definitions.
+  evidence: [ramen]
+
+- id: "3.2"
+  chapter: Protected steady state
+  visual: "Hub Ramen ships two ManifestWorks: VRG Primary to spoke-1, VRG Secondary to spoke-0; status returns via views."
+  narration: >
+    The hub's Ramen operator ships a V R G parcel to each spoke. On spoke-1, where the VM runs, the V R G is Primary.
+    On spoke-0 it is Secondary. The work agents apply them, and Ramen watches their status through ManagedClusterViews.
+  evidence: [ramen, run]
+
+- id: "3.3"
+  chapter: Protected steady state
+  visual: "Primary VRG selects both PVCs; badges 'Protected PVC'; two VolumeReplications appear."
+  define: {term: "finalizer", text: "A tag that blocks deletion of an object until a controller removes it."}
+  narration: >
+    The Primary V R G selects claims labeled drprotection equals true. On each it adds a finalizer, a tag that blocks deletion until Ramen lets go,
+    and sets the volume to be retained if the claim is deleted. Then it creates one VolumeReplication per claim, role primary,
+    using powerstore-vrc-15m.
+  evidence: [ramen, setup]
+
+- id: "3.4"
+  chapter: Protected steady state
+  visual: "csi-addons chip to VSA-B volumes; replication sessions to VSA-A replicas pulse."
+  narration: >
+    csi-addons sees each VolumeReplication and asks the PowerStore driver to enable replication.
+    VSA-B now runs one session per disk toward VSA-A. With a fifteen minute rule, these sessions synced about every twelve minutes in this run.
+  pause_after: 1.0
+  evidence: [csiaddons, run, setup]
+
+- id: "3.5"
+  chapter: Protected steady state
+  visual: "PV and PVC YAML fly from spoke-1 to the ramen-metadata bucket; condition ClusterDataProtected True."
+  narration: >
+    Finally the V R G uploads the volume and claim definitions to the ramen-metadata bucket, including which replica volume belongs to which claim.
+    When that upload succeeds, it reports the condition ClusterDataProtected as true.
+  pause_after: 1.2
+  evidence: [ramen, setup]
+
+- id: "3.6"
+  chapter: Protected steady state
+  narration: >
+    So far: a Primary V R G on spoke-1 and a Secondary on spoke-0, both disks replicating from VSA-B to VSA-A,
+    and their definitions saved in S3. The hub sums this up on the D R P C as Protected.
+  pause_after: 1.2
+  evidence: [ramen, run]
+
+# ================= Chapter 4: preflight gate =================
+- id: "4.1"
+  chapter: Preflight gate
+  visual: "Phase tracker: Gate. Flashback card October 6: rootdisk ticks; datadisk misses a tick; console shows Ready."
+  narration: >
+    Why check anything before pressing the button? Because the day before, the same test lost data.
+    The array ran the data disk's first sync, then silently skipped the next scheduled one. No failed job, no alert, session state OK.
+    Fifteen minutes of writes were missing after failover.
+  pause_after: 1.2
+  evidence: [run, notes]
+
+- id: "4.2"
+  chapter: Preflight gate
+  screenshot: VIRTDR-292-2026-10-07-21-pre-initiate-hub-managed-status.png
+  focus: {x: 925, y: 400, w: 330, h: 220}
+  caption: "Before Initiate · status popover: All volumes are synced, last synced 13:15 UTC"
+  narration: >
+    And the console could not see it. This is the console just before this run's failover, in the Protected applications list,
+    where the row is labeled with the ApplicationSet name, dell-vm-workload. It says all volumes are synced.
+    But the Dell driver reports the current time as the last sync time, so this view cannot catch a skipped sync.
+  evidence: [shot, powerstore]
+
+- id: "4.3"
+  chapter: Preflight gate
+  visual: "Preflight checklist: 24 of 24; per-disk sync history; rows per interval."
+  narration: >
+    So the gate is a script that reads the array's own job history. At 13:15:58 it passed 24 of 24 checks.
+    Each disk had 87 completed scheduled syncs, no failures, every gap under 900 seconds.
+    And the last two sync intervals each carried real writes: 57,767 and 59,673 database rows.
+  evidence: [run]
+
+- id: "4.4"
+  chapter: Preflight gate
+  visual: "Timeline: last sync 13:10:27, deadline 13:24:27 (amber), Initiate 13:26:40 past it; second sync 13:22:28 marked green, 252s before the click."
+  narration: >
+    One honest caveat. The preflight printed a deadline of 13:24:27, the last sync plus the fifteen-minute objective minus a minute of margin.
+    The click came at 13:26:40, two minutes late, so the procedure called for a fresh preflight, and none was recorded.
+    The array's job history shows both disks synced again at 13:22:28, so the data was still within the objective when failover started.
+  pause_after: 1.4
+  evidence: [run]
+
+- id: "4.5"
+  chapter: Preflight gate
+  narration: >
+    So far: the console's synced badge is not proof. Only the array's job history shows that every disk synced recently, and that those syncs carried writes.
+  pause_after: 1.0
+  evidence: [run, notes]
+
+# ================= Chapter 5: initiate =================
+- id: "5.1"
+  chapter: Initiate
+  t: "13:22:27"
+  visual: "Phase tracker: Initiate. Both VSA-B sessions tick 'COMPLETED 13:22:27'; marker 'recovery point'."
+  define: {term: "recovery point", text: "The moment the newest copy on the other array was taken. Writes after it are not on the replica."}
+  narration: >
+    Why mark this moment? Because in an unplanned failover the target only has what the last sync carried.
+    At 13:22:27 both disks completed a scheduled sync. Nobody knew it yet, but this was the recovery point.
+  pause_after: 1.6
+  evidence: [run]
+
+- id: "5.2"
+  chapter: Initiate
+  t: "13:26:40"
+  screenshot: VIRTDR-292-2026-10-07-22-pre-initiate-hub-managed-failover-menu.png
+  focus: {x: 1570, y: 675, w: 280, h: 235}
+  caption: "Before Initiate · row action menu with Failover"
+  narration: >
+    Four minutes later the operator opens the row's action menu in the hub's Data Services console and chooses Failover:
+    move workloads to the target cluster.
+  evidence: [run, shot]
+
+- id: "5.3"
+  chapter: Initiate
+  t: "13:26:40"
+  screenshot: VIRTDR-292-2026-10-07-23-confirmation-hub-managed-target-spoke-0.png
+  focus: {x: 560, y: 470, w: 780, h: 175}
+  caption: "Confirmation · target spoke-0 · stale 'Last available' value is open bug VIRTDR-308"
+  narration: >
+    The confirmation dialog names target cluster spoke-0, failover readiness Ready, volume last synced 13:15.
+    The Last available date above it is stale. That is a known open bug, VIRTDR-308, not a real cluster outage.
+    At 13:26:40, Initiate.
+  pause_after: 1.2
+  evidence: [run, shot]
+
+- id: "5.4"
+  chapter: Initiate
+  visual: "DRPC card: spec.action Failover, failoverCluster spoke-0 typed in."
+  narration: >
+    Under the hood the console changes just two fields on the D R P C: action, set to Failover, and failover cluster, set to spoke-0.
+    Everything after this is controllers noticing that change and doing their own small part.
+  evidence: [ramen]
+
+- id: "5.5"
+  chapter: Initiate
+  narration: >
+    So far: the request is written down. Nothing has moved yet. The hub's Ramen operator is about to read it.
+  pause_after: 0.8
+  evidence: [ramen]
+
+# ================= Chapter 6: hub checks the target =================
+- id: "6.1"
+  chapter: Hub checks the target
+  visual: "Phase tracker: Validate. DRPC status: phase FailingOver, PeerReady False."
+  define: {term: "PeerReady", text: "True when both clusters are settled and another DR action is allowed."}
+  narration: >
+    Why check before acting? Promoting a target that is not ready would leave the app with nowhere to run.
+    Ramen first confirms that spoke-0's V R G exists and is a settled Secondary. It sets the phase to FailingOver
+    and PeerReady to false, meaning no other D R action may start now.
+  evidence: [ramen]
+
+- id: "6.2"
+  chapter: Hub checks the target
+  visual: "Progression ticker: CheckingFailoverPrerequisites, then FailingOverToCluster; Metro-only fencing step greyed."
+  narration: >
+    This is Regional D R, with asynchronous arrays, so there is no fencing step that locks the old site out.
+    Ramen checks whether the storage needs a maintenance mode first. Here it does not, and moves on.
+  evidence: [ramen]
+  unverified: "Individual progression timestamps were not recorded in this run."
+
+- id: "6.3"
+  chapter: Hub checks the target
+  visual: "PlacementDecision: spoke-1 entry tagged RetainedForFailover."
+  define: {term: "RetainedForFailover", text: "Ramen keeps the source in the decision on purpose until the target is ready."}
+  narration: >
+    Next, a subtle move. Ramen does not remove spoke-1 from the PlacementDecision. It tags the entry RetainedForFailover.
+    If it removed it now, Argo CD would start deleting the source VM before the target could run anything.
+  evidence: [ramen]
+
+- id: "6.4"
+  chapter: Hub checks the target
+  visual: "Hub edits spoke-0 VRG ManifestWork: replicationState primary, action Failover; parcel flies to spoke-0."
+  narration: >
+    Then it edits the V R G parcel for spoke-0: become primary, because of a failover. The work agent on spoke-0 applies it.
+    The D R P C progression becomes WaitingForResourceRestore.
+  evidence: [ramen]
+
+- id: "6.5"
+  chapter: Hub checks the target
+  narration: >
+    So far: the target is checked, the source is kept on the list on purpose, and spoke-0 has been told to become Primary.
+  pause_after: 0.8
+  evidence: [ramen]
+
+# ================= Chapter 7: promotion on spoke-0 =================
+- id: "7.1"
+  chapter: Promotion on spoke-0
+  visual: "Phase tracker: Promote. Spoke-0 VRG flips to Primary; arrow up to MinIO; PV/PVC definitions descend."
+  narration: >
+    Why restore definitions first? The replica volumes on VSA-A exist, but spoke-0 has no claims that point at them.
+    So the spoke-0 V R G, acting as Primary, downloads the saved volume and claim definitions from S3
+    and recreates them, pointing at the replica volume handles on VSA-A.
+  evidence: [ramen]
+
+- id: "7.2"
+  chapter: Promotion on spoke-0
+  visual: "Restored PVC cards appear on spoke-0; VRG condition ClusterDataReady True."
+  narration: >
+    The condition ClusterDataReady goes true: the storage definitions are back. It does not by itself prove every claim is bound.
+    In this run the target volume handles were separately confirmed to be the promoted replicas.
+  evidence: [ramen, run]
+
+- id: "7.3"
+  chapter: Promotion on spoke-0
+  visual: "Two VolumeReplications on spoke-0, role primary; csi-addons sends Promote to PowerStore CSI."
+  narration: >
+    Next the V R G creates two VolumeReplications with role primary. csi-addons calls Promote on the PowerStore driver.
+    It tries a normal promote first, and only retries with force if the driver refuses.
+  evidence: [ramen, csiaddons]
+  unverified: "Which promote variant PowerStore needed in this run is not recorded."
+
+- id: "7.4"
+  chapter: Promotion on spoke-0
+  visual: "VSA-A volumes switch role pill to 'writable'; VSA-B sessions flagged 'failed over'."
+  narration: >
+    On the arrays, failover makes the VSA-A copies writable. That is not yet replication in the opposite direction.
+    Reversing the sessions is a separate step that we will see near the end.
+  evidence: [setup, powerstore]
+  unverified: "Exact PowerStore RPC sequence and deployed-driver build were not captured."
+
+- id: "7.5"
+  chapter: Promotion on spoke-0
+  t: "13:26:45"
+  screenshot: VIRTDR-292-2026-10-07-27-promotion-spoke-0-target-vrg-conditions.png
+  focus: {x: 340, y: 862, w: 1180, h: 188}
+  caption: "spoke-0 · VRG dell-vm-drpc conditions after promotion (console shows local time 4:26 PM = 13:26 UTC)"
+  narration: >
+    At 13:26:45, five seconds after the click, both target VolumeReplications reported Primary and completed.
+    Here is the spoke-0 V R G a moment later: data ready, and cluster data restored from S3, both true.
+    Data protected still says replicating, because the new direction has not synced yet.
+  pause_after: 1.2
+  evidence: [run, shot]
+
+- id: "7.6"
+  chapter: Promotion on spoke-0
+  narration: >
+    So far: spoke-0 has claims pointing at the replicas, and the replicas are writable. But no VM runs there yet.
+  pause_after: 0.8
+  evidence: [run]
+
+# ================= Chapter 8: the source stops writing =================
+- id: "8.1"
+  chapter: The source stops writing
+  visual: "Spoke-1 VM still running; write to VSA-B volume; array rejects."
+  narration: >
+    Meanwhile, what happens to the old VM? In this test spoke-1 was not actually down in this test, so the VM kept running and writing.
+    But its volumes on VSA-B had just become read-only replication destinations. The next write from the guest was rejected by the array.
+  evidence: [run, setup]
+
+- id: "8.2"
+  chapter: The source stops writing
+  t: "13:26:44"
+  screenshot: VIRTDR-292-2026-10-07-26-promotion-spoke-1-source-vmi-paused.png
+  focus: {x: 340, y: 866, w: 1240, h: 46}
+  caption: "spoke-1 · source VMI hammerdb-rhel9 · Ready False, VM paused after I/O error (4:26 PM local = 13:26 UTC)"
+  define: {term: "PausedIOError", text: "The hypervisor pauses a VM whose disk write failed, instead of letting the guest crash."}
+  narration: >
+    At 13:26:44 the hypervisor paused the VM, with reason PausedIOError. Here is the source V M I on spoke-1: Ready is false,
+    because the virtual machine is paused. This is not fencing. It is a side effect of the array flipping roles, and it is what stopped the source writes.
+  pause_after: 1.4
+  evidence: [run, shot]
+
+- id: "8.3"
+  chapter: The source stops writing
+  narration: >
+    So far: writes on the source stopped four seconds after the click. Everything written since 13:22:27 exists only on the old disks.
+  pause_after: 1.0
+  evidence: [run]
+
+# ================= Chapter 9: placement moves =================
+- id: "9.1"
+  chapter: Placement moves
+  visual: "Phase tracker: Switch placement. Hub reads spoke-0 VRG via ManagedClusterView: Primary, DataReady, ClusterDataReady."
+  narration: >
+    Why wait to move the placement? Because moving it is what tells GitOps to deploy the VM, and the disks must be ready first.
+    Ramen reads the spoke-0 V R G through its view: state Primary, data ready, cluster data ready. The gate opens.
+  evidence: [ramen]
+
+- id: "9.2"
+  chapter: Placement moves
+  visual: "PlacementDecision lists spoke-1 (RetainedForFailover) and spoke-0."
+  narration: >
+    Ramen rewrites the PlacementDecision. It keeps the retained spoke-1 entry and adds spoke-0. For a short while, both clusters are listed.
+  evidence: [ramen]
+
+- id: "9.3"
+  chapter: Placement moves
+  t: "13:26:49"
+  screenshot: VIRTDR-292-2026-10-07-24-initiated-hub-managed-failingover.png
+  focus: {x: 318, y: 368, w: 700, h: 70}
+  caption: "Shortly after Initiate · banner: failed over to spoke-0, while cleanup still ran"
+  define: {term: "Cleaning Up", text: "FailedOver, but the source side is not finished yet. Not the same as Completed."}
+  narration: >
+    At 13:26:49 the D R P C reports phase FailedOver, progression Cleaning Up. The console banner already says failed over.
+    That is only half true: the storage side is done, but the application has not moved yet, and the source still has to be cleaned up.
+  pause_after: 1.2
+  evidence: [run, shot]
+
+- id: "9.4"
+  chapter: Placement moves
+  screenshot: VIRTDR-292-2026-10-07-25-transition-hub-managed-cleaning-up-popover.png
+  focus: {x: 925, y: 455, w: 330, h: 270}
+  caption: "During Cleaning Up · popover title says complete while 3 of 4 steps are done (open bug VIRTDR-316)"
+  narration: >
+    The status popover shows three of four steps done, with clean up still spinning. Its title says Failover complete.
+    That mismatch is a known open bug, VIRTDR-316. Trust the step count and the D R P C progression, not the title.
+  evidence: [run, shot]
+
+- id: "9.5"
+  chapter: Placement moves
+  narration: >
+    So far: nine seconds in, storage is promoted and the decision lists the target. Everything left is about the application.
+  pause_after: 1.0
+  evidence: [run]
+
+# ================= Chapter 10: GitOps redeploys =================
+- id: "10.1"
+  chapter: GitOps redeploys
+  visual: "Phase tracker: Redeploy. ApplicationSet clock counts down from 180; reads decision; generates dell-vm-workload-spoke-0."
+  narration: >
+    Why can there be a pause here? Because nobody pushes the change to GitOps. The ApplicationSet discovers it on its next poll.
+    When it re-reads the decision, it finds spoke-0 and stamps out a second Application, dell-vm-workload-spoke-0.
+  evidence: [argocd, run]
+  unverified: "Generation time is recorded only as about 13:29; attributing the wait to the 180 s poll is inferred."
+
+- id: "10.2"
+  chapter: GitOps redeploys
+  visual: "Propagation controller wraps Application in ManifestWork to spoke-0; Argo CD on spoke-0 pulls Git."
+  narration: >
+    The propagation controller packs it into a ManifestWork for spoke-0 and points it at spoke-0's local A P I server.
+    The work agent applies it, and spoke-0's Argo CD pulls clusters/dell-s4/workloads from Git.
+  evidence: [ocm, repo]
+
+- id: "10.3"
+  chapter: GitOps redeploys
+  visual: "DataVolume manifests meet existing restored PVCs; green 'reuse' link instead of a fresh clone."
+  narration: >
+    Here the restore pays off. The root disk DataVolume says: clone a fresh RHEL image. But claims with those exact names already exist,
+    restored by Ramen and bound to the replicas. So the recovered disks are used, not overwritten by a blank or freshly cloned disk.
+  pause_after: 1.2
+  evidence: [run, repo]
+  unverified: "Replica reuse is recorded through volume handles and recovered rows; the exact CDI adoption sequence was not traced."
+
+- id: "10.4"
+  chapter: GitOps redeploys
+  visual: "Volume handles on screen: root 9e3b6608-30f4-42e8-aaca-4f774fe7662a, data 41b0880b-916d-42a1-b4b6-a55f9c853c91."
+  narration: >
+    The run log proves it. Each target claim is bound to the VSA-A volume that was the replica of that same disk, shown here next to its VSA-B source volume.
+  evidence: [run]
+
+- id: "10.5"
+  chapter: GitOps redeploys
+  narration: >
+    So far: a new Application for spoke-0, delivered and synced, and its VM definition wired to the recovered disks.
+  pause_after: 0.8
+  evidence: [run]
+
+# ================= Chapter 11: VM boots on spoke-0 =================
+- id: "11.1"
+  chapter: VM boots on spoke-0
+  t: "13:29:40"
+  screenshot: VIRTDR-292-2026-10-07-29-completed-spoke-0-target-vmi-ready.png
+  focus: {x: 340, y: 866, w: 1240, h: 46}
+  caption: "spoke-0 · target VMI hammerdb-rhel9 on worker-2 · Ready True (4:29 PM local = 13:29 UTC)"
+  narration: >
+    Why does the guest matter separately? A running pod does not mean a working database.
+    At 13:29:40 the target V M I was created on spoke-0, worker-2, and six seconds later it was Ready.
+    That is about three minutes after placement moved, which lines up with the ApplicationSet poll.
+  evidence: [run, shot]
+
+- id: "11.2"
+  chapter: VM boots on spoke-0
+  t: "13:31:37"
+  define: {term: "crash-consistent", text: "The disk looks as if the power was pulled at the sync moment. The database repairs itself on start."}
+  narration: >
+    The guest boots from a crash-consistent copy, as if the power had been pulled at the last sync. PostgreSQL replays its log and starts.
+    Both services are enabled in systemd, so the HammerDB writer starts by itself. The first new row landed at 13:31:37.
+  pause_after: 1.2
+  evidence: [run]
+
+- id: "11.3"
+  chapter: VM boots on spoke-0
+  narration: >
+    So far: the app runs on spoke-0, on the replicated disks, writing again. But the hub still says Cleaning Up.
+  pause_after: 0.8
+  evidence: [run]
+
+# ================= Chapter 12: cleaning up the source =================
+- id: "12.1"
+  chapter: Cleaning up the source
+  visual: "Phase tracker: Clean up. Hub edits spoke-1 VRG ManifestWork to secondary; view sees accepted spec; spoke-1 removed from decision."
+  narration: >
+    Why clean up at all? The old disks must become replication destinations again, or the app is not protected for the next disaster.
+    Ramen edits the spoke-1 V R G parcel to secondary. Once the view shows spoke-1 accepted that request, Ramen removes the retained spoke-1 entry from the decision.
+  evidence: [ramen]
+
+- id: "12.2"
+  chapter: Cleaning up the source
+  visual: "ApplicationSet no longer sees spoke-1; Application dell-vm-workload-spoke-1 fades; its ManifestWork removed."
+  narration: >
+    On its next poll the ApplicationSet no longer sees spoke-1, so it deletes dell-vm-workload-spoke-1.
+    The propagation controller deletes that Application's parcel, and the Application disappears from spoke-1.
+  evidence: [ramen, ocm, run]
+  unverified: "The spoke-1 Application removal is recorded only as about 13:29 to 13:31."
+
+- id: "12.3"
+  chapter: Cleaning up the source
+  t: "13:31:00"
+  visual: "Spoke-1 Argo CD prunes: VM, DataVolumes, PVCs vanish. Namespace gitops-vms and VRG stay."
+  narration: >
+    On spoke-1, Argo CD prunes what it owned: the paused VM, its DataVolumes and their claims. No human deleted anything.
+    The namespace stays, because Git never declared it and Ramen delivers it separately, and so does the V R G inside it.
+  pause_after: 1.0
+  evidence: [run]
+
+- id: "12.4"
+  chapter: Cleaning up the source
+  visual: "Spoke-1 VRG lock: no pod uses the PVCs, no attachment; lock opens."
+  narration: >
+    The spoke-1 V R G was waiting for exactly this. It will not demote a disk while any pod uses it or it is still attached to a node.
+    With the VM gone, that check passes.
+  evidence: [ramen]
+
+- id: "12.5"
+  chapter: Cleaning up the source
+  visual: "Spoke-1 VolumeReplications: secondary, Demote then Resync; finalizers released; PVCs gone; VRG Secondary."
+  narration: >
+    It sets both VolumeReplications to secondary. csi-addons calls Demote, then Resync. The V R G accepts that as a healthy Secondary,
+    removes its finalizers, and the old claims finally finish deleting. The spoke-1 V R G reports Secondary.
+  evidence: [ramen, csiaddons]
+
+- id: "12.6"
+  chapter: Cleaning up the source
+  narration: >
+    So far: the source workload is gone without manual deletion, and the source V R G is Secondary. The namespace survived, as designed.
+  pause_after: 0.8
+  evidence: [run]
+
+# ================= Chapter 13: completed =================
+- id: "13.1"
+  chapter: Completed
+  t: "13:32:21"
+  visual: "Phase tracker: Complete. DRPC PeerReady True, progression Completed, 5m41s."
+  narration: >
+    Why does completion need its own check? Because Cleaning Up and Completed look alike in a banner.
+    At 13:32:21 the hub saw the spoke-1 V R G as Secondary. PeerReady went true, the progression became Completed,
+    and the action took five minutes and forty-one seconds.
+  pause_after: 1.4
+  evidence: [run, ramen]
+
+- id: "13.2"
+  chapter: Completed
+  screenshot: VIRTDR-292-2026-10-07-28-completed-hub-managed-status.png
+  focus: {x: 925, y: 515, w: 330, h: 215}
+  caption: "After completion · row on spoke-0, healthy · 'last synced' 13:27 UTC"
+  narration: >
+    The console row now shows spoke-0 and healthy. The popover says all volumes synced at 13:27.
+    Remember the driver reports the current time there. It is not proof that a fresh reverse sync has completed.
+  evidence: [shot, powerstore]
+
+- id: "13.3"
+  chapter: Completed
+  screenshot: VIRTDR-292-2026-10-07-30-completed-hub-dr-policy-unchanged.png
+  focus: {x: 318, y: 448, w: 1380, h: 56}
+  caption: "After completion · dr-policy-15m still Validated, async interval 15m"
+  narration: >
+    The DRPolicy is unchanged: dr-policy-15m, still validated, async every fifteen minutes. Failover moves an app, not the policy.
+    And on the arrays, the sessions now run the other way, VSA-A to VSA-B, both reporting OK.
+  evidence: [shot, run]
+
+- id: "13.4"
+  chapter: Completed
+  narration: >
+    So far: the D R P C is FailedOver and Completed, the app runs on its home cluster spoke-0, and replication points back toward spoke-1.
+  pause_after: 1.0
+  evidence: [run]
+
+# ================= Chapter 14: what did we lose =================
+- id: "14.1"
+  chapter: What did we lose
+  visual: "Phase tracker: Verify data. Bar chart of recovered rows per minute."
+  narration: >
+    Why measure, if it is green? Because asynchronous replication always loses something. The question is how much.
+    The history table on the recovered database records every transaction's time. Counting rows per minute shows a steady stream until 13:22.
+  evidence: [run]
+
+- id: "14.2"
+  chapter: What did we lose
+  visual: "13:22 bar cut at 13:22:27; empty 13:23 to 13:30; small 13:31 bar in a new color."
+  narration: >
+    The 13:22 bar is cut off at exactly 13:22:27, the last array sync. Then nothing until 13:31, when the new writer starts.
+    The gap between the last recovered row and the first new one is 550 seconds.
+  evidence: [run]
+
+- id: "14.3"
+  chapter: What did we lose
+  visual: "Ruler: green band 277,433 rows recovered; red band 13:22:27 to 13:26:44 lost; RPO bar 900 s."
+  narration: >
+    All 277,433 rows from the 59 full minutes before that sync are present. The writes between 13:22:27 and the pause at 13:26:44 are gone.
+    That is a recovery point 253 seconds before the click, inside the 900 second R P O. A pass, but not zero loss.
+  pause_after: 1.8
+  evidence: [run]
+
+- id: "14.4"
+  chapter: What did we lose
+  narration: >
+    So far: every row up to the recovery point survived, and about four minutes of writes after it were lost, within policy.
+  pause_after: 0.8
+  evidence: [run]
+
+# ================= Chapter 15: after the failover =================
+- id: "15.1"
+  chapter: After the failover
+  t: "13:42:00"
+  visual: "Reversed sessions: rootdisk ticks 13:36:57; datadisk still 13:22:27 at 13:42, warning."
+  narration: >
+    Why keep watching afterwards? Right after the reversal, the root disk synced at 13:36:57, but at 13:42 the data disk still had not.
+    That looks like the same first-sync skip as the day before. So the two-sync gate must pass again before anyone moves the app back.
+  evidence: [run, notes]
+
+- id: "15.2"
+  chapter: After the failover
+  visual: "Guest: ramendr-dr-hammerdb.service disabled, ramendr-postgresql.service active, sum stable 1,443,612."
+  narration: >
+    To finish the test, the writer was stopped and disabled, while PostgreSQL stayed running so the data remained queryable.
+    The order counter stayed at 1,443,612. That is an order-sequence total, not an exact transaction count.
+  evidence: [run]
+
+- id: "15.3"
+  chapter: After the failover
+  visual: "Full-chain recap: phases light up in order on the topology."
+  narration: >
+    Let's replay it. Protect: two V R Gs, replicating disks, definitions in S3. Gate: the array's own sync history.
+    Initiate: two fields on the D R P C. Validate: the target is checked and the source is kept. Promote: definitions restored, replicas made writable.
+  evidence: [run, ramen]
+
+- id: "15.4"
+  chapter: After the failover
+  visual: "Recap continues: switch placement, redeploy, clean up, complete, verify."
+  narration: >
+    Switch placement: the decision gains spoke-0. Redeploy: the ApplicationSet polls, and Argo CD builds the VM on the recovered disks.
+    Clean up: Argo CD prunes the source, and its V R G becomes Secondary. Complete: PeerReady. Verify: rows, not badges.
+  evidence: [run, ramen]
+
+- id: "15.5"
+  chapter: After the failover
+  visual: "Result card: 5m41s, recovery point 253 s before Initiate, within 900 s, not zero loss."
+  narration: >
+    The result: five minutes and forty-one seconds from click to completion, a recovery point 253 seconds before the click, within the fifteen minute objective,
+    with no manual cleanup. Each controller only did its own small job. That is what makes it work, and what you debug when it does not.
+  pause_after: 2.5
+  evidence: [run]
+
+# ================= Part two: the site-down run and the VGRC label =================
+- id: "16.1"
+  chapter: The site-down run
+  visual: "Title card: part two, three questions."
+  narration: >
+    Part one followed the normal managed flow, with both sites up and one
+    replication object per disk. Part two is the run that produced this bug
+    report. The storage was reconfigured so that both disks of each application
+    are copied as one group, and then the whole source site was switched off.
+    This part explains the group, the class object that describes it, the one
+    label that changed the outcome, and what happened when the site came back.
+  evidence: [run, trace]
+  pause_after: 1.2
+
+- id: "16.2"
+  chapter: The site-down run
+  visual: "Two disks inside one group box on VSA-A, one arrow to one group on VSA-B."
+  narration: >
+    Start with the idea. A database is not one disk. It has a data disk and a log or
+    root disk, and the two must agree. Copying each disk on its own can leave one a
+    few minutes ahead of the other. After a crash, the database may open a log that
+    does not match its data. Volume group replication treats the disks as one unit.
+    The array copies them on the same schedule, promotes them together and demotes
+    them together. PowerStore keeps one group session per array, with one group
+    identity, instead of two independent sessions. The price is that the disks can
+    only move as a set.
+  evidence: [run, trace]
+  pause_after: 1.0
+
+- id: "16.3"
+  chapter: The site-down run
+  visual: "VGRC card with name, driver, direction and schedule; child objects below."
+  narration: >
+    The recipe for that group lives in a VolumeGroupReplicationClass, or V G R C.
+    It is a cluster-scoped object on each spoke, so every namespace on that spoke
+    can use it. It names the driver, the local source array, the peer array and the
+    remote system, the schedule, and the recovery point. Our class is
+    powerstore-vgrc-15m, the fifteen-minute policy. The class is paired with the
+    group storage class, powerstore-sc-group, through matching labels. Ramen reads
+    the class and creates one VolumeGroupReplication for the whole application, a
+    generated identifier followed by the DRPC name. csi-addons turns that object
+    into one group session on the array. In this namespace the two claims are the
+    root disk and data disk with the letters m g d in their names.
+  evidence: [run, trace]
+  pause_after: 1.0
+
+- id: "16.4"
+  chapter: The site-down run
+  visual: "Live VGRC excerpt, resync-on-primary label highlighted."
+  narration: >
+    One line on that class is the change under test. The label
+    ramendr.openshift.io/resync-on-primary is set to true. In this run it was on
+    powerstore-vgrc-15m, on both spokes, so a failover in either direction would
+    use it. This is a label on the class, not an annotation on the DRPC. A related
+    upstream design puts a similar annotation on the DRPC, one application at a
+    time. It was not used here. The class-level label needs no per-application
+    edit, and it covers every application that uses the class.
+  evidence: [run, trace]
+  pause_after: 1.4
+
+- id: "16.5"
+  chapter: The site-down run
+  visual: "Two-column compare: without the label, and with the label."
+  narration: >
+    Here is the problem it solves. After a failover, the target array holds the
+    writable copy. Re-protection means copying from that new primary back to the
+    old site. The driver calls this Reprotect. Reprotect needs the old array to
+    answer, because it has to reverse the session with it. While the old site is
+    off, Reprotect cannot finish, and the driver reports FailedToResync. Without
+    the label, Ramen treats that as data not ready, sets DataReady to false, and
+    the workload is not restored. For this managed app that means Argo CD has
+    nothing healthy to adopt, and the virtual machine does not start. That is the
+    reported block. With the label, Ramen asks for the resync from the primary side
+    and keeps DataReady true while Reprotect retries. Argo CD deploys the virtual
+    machine, CDI adopts the restored claims, and the second copy waits for the old
+    array to return.
+  evidence: [run, trace]
+  pause_after: 1.4
+
+- id: "16.6"
+  chapter: The site-down run
+  visual: "spoke-0 greyed out with both array nodes off; preflight facts."
+  narration: >
+    The test made the old site genuinely absent. Both VSA-A storage nodes were
+    powered off, and all six node virtual machines on spoke-0 were suspended. The
+    managed application ran from gitops-vms on spoke-0, and the DRPC started the
+    run in Relocated with progression Completed. The preflight passed. Both group
+    sessions were healthy, the last scheduled sync completed at 12:55:47, and the
+    HammerDB writer was advancing. The two syncs before the shutdown carried
+    twenty-five thousand seven hundred thirty-five and fifteen thousand seven
+    hundred eighty-eight rows. The click came at 13:01:52.
+  evidence: [run, preflight]
+  pause_after: 1.2
+
+- id: "16.7"
+  chapter: The site-down run
+  visual: "Status table from the phase A snapshot."
+  narration: >
+    Fourteen minutes after the click, the target looked like this. The
+    VolumeGroupReplication was Primary, but Completed was false with reason
+    FailedToResync, Degraded was true, and Replicating was false. That is the
+    failure the label does not remove. The important line is different. The
+    VolumeReplicationGroup dell-vm-placement-drpc reported DataReady true with
+    reason Ready, and the virtual machine instance in gitops-vms was Running. The
+    Kubernetes objects had been restored, Argo CD had deployed the workload on
+    spoke-1, and the claims pointed at the promoted copies. The DRPC stayed
+    FailedOver with progression Cleaning Up. That is the source cleanup gate, not
+    the resync block, because the hub cannot clean up a site it cannot reach.
+  evidence: [run, phaseA]
+  pause_after: 1.4
+
+- id: "16.8"
+  chapter: The site-down run
+  visual: "Postcheck and phase B result table."
+  narration: >
+    The postcheck passed fourteen of fourteen. The last source write was at
+    12:55:47, the first write on the target at 13:06:04, and the data loss measured
+    from the last sync to the click was three hundred sixty-five seconds, inside
+    the nine-hundred-second objective. All fifty-seven complete source minutes
+    before the last sync were present. When the source site was powered back on,
+    the rest of the story completed on its own. The source VolumeReplicationGroup
+    became Secondary, the target group reported Completed true with reason
+    Promoted, Degraded false and Replicating true, and the DRPC reached FailedOver
+    with progression Completed. Protected, PeerReady and ReplicationHealthy all
+    turned true. No manual cleanup was needed.
+  evidence: [run, postcheck, phaseA]
+  pause_after: 1.6
+
+- id: "16.9"
+  chapter: The site-down run
+  visual: "Takeaway card."
+  narration: >
+    So what does the label actually do? It is a class-level opt-in that separates
+    recovery from re-protection. Recovery means the application can start on the
+    surviving site. Re-protection means the copy back to the old site resumes. The
+    label lets the first happen while the second is impossible. It does not make
+    Reprotect succeed while the peer array is gone, and it is not a replacement
+    for the auto resync setting, which controls whether the driver reverses the
+    session at all. Those are separate switches. The label only decides which side
+    is asked to start the resync, and when the application is allowed to proceed.
+  evidence: [run, trace]
+  pause_after: 2.0
