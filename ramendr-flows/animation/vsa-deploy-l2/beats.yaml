@@ -137,13 +137,13 @@ beats:
       adapters were plugged in.
   - id: "3.4"
     chapter: "What we ruled out"
-    screenshot: pg-old-untagged.png
-    iw: 1920
-    ih: 1080
-    focus: {x: 520, y: 292, w: 430, h: 14}
-    pad: 6
+    screenshot: pg-old-untagged-crop.png
+    iw: 600
+    ih: 140
+    focus: {x: 140, y: 36, w: 380, h: 24}
+    pad: 4
     halo: 10
-    shot: {w: 1100, x: 410, y: 300}
+    shot: {w: 1000, x: 460, y: 340}
     caption: "An older pair's interconnect group: its own name, untagged, on the shared switch."
     narration: >-
       This is an older pair, and the failed pair used the same pattern: its own port group
@@ -195,26 +195,26 @@ beats:
     pause_after: 1.8
   - id: "5.2"
     chapter: "The change"
-    screenshot: pg-vlan1.png
-    iw: 1920
-    ih: 1080
-    focus: {x: 520, y: 292, w: 430, h: 14}
-    pad: 6
+    screenshot: pg-vlan1-crop.png
+    iw: 600
+    ih: 140
+    focus: {x: 140, y: 36, w: 380, h: 24}
+    pad: 4
     halo: 10
-    shot: {w: 1100, x: 410, y: 300}
+    shot: {w: 1000, x: 460, y: 340}
     caption: "First pair, interconnect link one: network number 1."
     narration: >-
       Each pair got its own port groups, and each group got its own network number. The
       first appliance uses number one and number two for its two interconnect links.
   - id: "5.3"
     chapter: "The change"
-    screenshot: pg-vlan2.png
-    iw: 1920
-    ih: 1080
-    focus: {x: 520, y: 292, w: 430, h: 14}
-    pad: 6
+    screenshot: pg-vlan2-crop.png
+    iw: 600
+    ih: 140
+    focus: {x: 140, y: 36, w: 380, h: 24}
+    pad: 4
     halo: 10
-    shot: {w: 1100, x: 410, y: 300}
+    shot: {w: 1000, x: 460, y: 340}
     caption: "First pair, interconnect link two: network number 2."
     narration: >-
       The second appliance uses number three and number four. Number one and two are now a
@@ -222,13 +222,13 @@ beats:
       same physical host and cables.
   - id: "5.4"
     chapter: "The change"
-    screenshot: pg-vlan3.png
-    iw: 1920
-    ih: 1080
-    focus: {x: 520, y: 292, w: 430, h: 14}
-    pad: 6
+    screenshot: pg-vlan3-crop.png
+    iw: 600
+    ih: 140
+    focus: {x: 140, y: 36, w: 380, h: 24}
+    pad: 4
     halo: 10
-    shot: {w: 1100, x: 410, y: 300}
+    shot: {w: 1000, x: 460, y: 340}
     caption: "Second pair, interconnect link one: network number 3, a different room."
     narration: >-
       This is the second pair's first interconnect group. Its number is three. The pair is
@@ -249,9 +249,9 @@ beats:
   - id: "6.1"
     chapter: "The result"
     screenshot: vm-networks-crop.png
-    iw: 960
+    iw: 710
     ih: 140
-    focus: {x: 30, y: 40, w: 900, h: 46}
+    focus: {x: 30, y: 40, w: 650, h: 46}
     pad: 4
     halo: 10
     shot: {w: 1100, x: 410, y: 340}
@@ -262,13 +262,13 @@ beats:
     pause_after: 1.8
   - id: "6.2"
     chapter: "The result"
-    screenshot: vm-summary.png
-    iw: 1920
-    ih: 1080
-    focus: {x: 420, y: 145, w: 530, h: 100}
+    screenshot: vm-summary-crop.png
+    iw: 700
+    ih: 150
+    focus: {x: 20, y: 20, w: 620, h: 100}
     pad: 4
     halo: 10
-    shot: {w: 1100, x: 410, y: 300}
+    shot: {w: 1000, x: 460, y: 320}
     caption: "Both nodes up, management addresses present, 18 GB and 6 processors."
     narration: >-
       The appliance came up with both nodes running, both management addresses present, and
