@@ -92,11 +92,11 @@ beats:
       plain Linux login prompt, with no appliance and no management address.
   - id: "2.3"
     chapter: "What happened"
-    screenshot: console-error.png
+    screenshot: console-error-crop.png
     iw: 1024
-    ih: 768
-    focus: {x: 0, y: 690, w: 1024, h: 68}
-    shot: {w: 1000, x: 460, y: 180}
+    ih: 140
+    focus: {x: 10, y: 94, w: 1004, h: 30}
+    shot: {w: 1300, x: 310, y: 340}
     caption: "The failing node's console: the installer could not confirm the cluster step."
     narration: >-
       This is the console of the failing node. The installer could not confirm success from
@@ -105,11 +105,11 @@ beats:
     pause_after: 1.8
   - id: "2.4"
     chapter: "What happened"
-    screenshot: console-login.png
-    iw: 2048
-    ih: 1536
-    focus: {x: 0, y: 1400, w: 900, h: 120}
-    shot: {w: 1000, x: 460, y: 180}
+    screenshot: console-login-crop.png
+    iw: 700
+    ih: 256
+    focus: {x: 10, y: 20, w: 680, h: 220}
+    shot: {w: 900, x: 510, y: 300}
     caption: "Hours later: a plain Linux login prompt, no appliance, no management address."
     narration: >-
       Hours later, the node was still at this login prompt. No web page, no cluster, no
@@ -138,7 +138,7 @@ beats:
   - id: "3.4"
     chapter: "What we ruled out"
     screenshot: pg-old-untagged.png
-    focus: {x: 400, y: 250, w: 1050, h: 230}
+    focus: {x: 400, y: 280, w: 1050, h: 45}
     caption: "An older pair's interconnect group: its own name, untagged, on the shared switch."
     narration: >-
       This is an older pair, and the failed pair used the same pattern: its own port group
@@ -191,7 +191,7 @@ beats:
   - id: "5.2"
     chapter: "The change"
     screenshot: pg-vlan1.png
-    focus: {x: 400, y: 250, w: 1050, h: 230}
+    focus: {x: 400, y: 280, w: 1050, h: 45}
     caption: "First pair, interconnect link one: network number 1."
     narration: >-
       Each pair got its own port groups, and each group got its own network number. The
@@ -199,7 +199,7 @@ beats:
   - id: "5.3"
     chapter: "The change"
     screenshot: pg-vlan2.png
-    focus: {x: 400, y: 250, w: 1050, h: 230}
+    focus: {x: 400, y: 280, w: 1050, h: 45}
     caption: "First pair, interconnect link two: network number 2."
     narration: >-
       The second appliance uses number three and number four. Number one and two are now a
@@ -208,7 +208,7 @@ beats:
   - id: "5.4"
     chapter: "The change"
     screenshot: pg-vlan3.png
-    focus: {x: 400, y: 250, w: 1050, h: 230}
+    focus: {x: 400, y: 280, w: 1050, h: 45}
     caption: "Second pair, interconnect link one: network number 3, a different room."
     narration: >-
       This is the second pair's first interconnect group. Its number is three. The pair is
@@ -216,7 +216,7 @@ beats:
   - id: "5.5"
     chapter: "The change"
     screenshot: vm-adapters.png
-    focus: {x: 500, y: 430, w: 1000, h: 250}
+    focus: {x: 520, y: 490, w: 1000, h: 95}
     caption: "Inside the VM: adapters 2 and 3 are the interconnect, now behind the new switch."
     narration: >-
       Inside the virtual machine, the adapter order did not change. Adapter one is
@@ -226,7 +226,7 @@ beats:
   - id: "6.1"
     chapter: "The result"
     screenshot: vm-networks.png
-    focus: {x: 350, y: 200, w: 1400, h: 220}
+    focus: {x: 350, y: 250, w: 1400, h: 90}
     caption: "Both nodes of the pair, and only they, on the two interconnect groups."
     narration: >-
       Both nodes of the first appliance now sit on the same two interconnect port groups,
@@ -235,7 +235,7 @@ beats:
   - id: "6.2"
     chapter: "The result"
     screenshot: vm-summary.png
-    focus: {x: 380, y: 120, w: 1100, h: 260}
+    focus: {x: 380, y: 140, w: 1100, h: 120}
     caption: "Both nodes up, management addresses present, 18 GB and 6 processors."
     narration: >-
       The appliance came up with both nodes running, both management addresses present, and

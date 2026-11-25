@@ -55,39 +55,39 @@
  },
  "2.3": {
   "chapter": "What happened",
-  "screenshot": "console-error.png",
+  "screenshot": "console-error-crop.png",
   "focus": {
-   "x": 0,
-   "y": 690,
-   "w": 1024,
-   "h": 68
+   "x": 10,
+   "y": 94,
+   "w": 1004,
+   "h": 30
   },
   "caption": "The failing node's console: the installer could not confirm the cluster step.",
   "shot": {
-   "w": 1000,
-   "x": 460,
-   "y": 180
+   "w": 1300,
+   "x": 310,
+   "y": 340
   },
   "iw": 1024,
-  "ih": 768
+  "ih": 140
  },
  "2.4": {
   "chapter": "What happened",
-  "screenshot": "console-login.png",
+  "screenshot": "console-login-crop.png",
   "focus": {
-   "x": 0,
-   "y": 1400,
-   "w": 900,
-   "h": 120
+   "x": 10,
+   "y": 20,
+   "w": 680,
+   "h": 220
   },
   "caption": "Hours later: a plain Linux login prompt, no appliance, no management address.",
   "shot": {
-   "w": 1000,
-   "x": 460,
-   "y": 180
+   "w": 900,
+   "x": 510,
+   "y": 300
   },
-  "iw": 2048,
-  "ih": 1536
+  "iw": 700,
+  "ih": 256
  },
  "3.1": {
   "chapter": "What we ruled out"
@@ -103,9 +103,9 @@
   "screenshot": "pg-old-untagged.png",
   "focus": {
    "x": 400,
-   "y": 250,
+   "y": 280,
    "w": 1050,
-   "h": 230
+   "h": 45
   },
   "caption": "An older pair's interconnect group: its own name, untagged, on the shared switch."
  },
@@ -139,9 +139,9 @@
   "screenshot": "pg-vlan1.png",
   "focus": {
    "x": 400,
-   "y": 250,
+   "y": 280,
    "w": 1050,
-   "h": 230
+   "h": 45
   },
   "caption": "First pair, interconnect link one: network number 1."
  },
@@ -150,9 +150,9 @@
   "screenshot": "pg-vlan2.png",
   "focus": {
    "x": 400,
-   "y": 250,
+   "y": 280,
    "w": 1050,
-   "h": 230
+   "h": 45
   },
   "caption": "First pair, interconnect link two: network number 2."
  },
@@ -161,9 +161,9 @@
   "screenshot": "pg-vlan3.png",
   "focus": {
    "x": 400,
-   "y": 250,
+   "y": 280,
    "w": 1050,
-   "h": 230
+   "h": 45
   },
   "caption": "Second pair, interconnect link one: network number 3, a different room."
  },
@@ -171,10 +171,10 @@
   "chapter": "The change",
   "screenshot": "vm-adapters.png",
   "focus": {
-   "x": 500,
-   "y": 430,
+   "x": 520,
+   "y": 490,
    "w": 1000,
-   "h": 250
+   "h": 95
   },
   "caption": "Inside the VM: adapters 2 and 3 are the interconnect, now behind the new switch."
  },
@@ -183,9 +183,9 @@
   "screenshot": "vm-networks.png",
   "focus": {
    "x": 350,
-   "y": 200,
+   "y": 250,
    "w": 1400,
-   "h": 220
+   "h": 90
   },
   "caption": "Both nodes of the pair, and only they, on the two interconnect groups."
  },
@@ -194,9 +194,9 @@
   "screenshot": "vm-summary.png",
   "focus": {
    "x": 380,
-   "y": 120,
+   "y": 140,
    "w": 1100,
-   "h": 260
+   "h": 120
   },
   "caption": "Both nodes up, management addresses present, 18 GB and 6 processors."
  },

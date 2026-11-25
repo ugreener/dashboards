@@ -5,7 +5,7 @@ import {lerp, prog, progIO, sec} from '../lib/anim';
 import {ChapterCard, Hud} from '../components/overlays';
 import {PhaseTracker, Screenshot} from '../components/newcomer';
 import {buildTimeline, PAD_BEFORE, Segment} from './timeline';
-import {Ctx, FOCUS, RECT, World} from './World';
+import {Ctx, FOCUS, RECT, REGIONS, World, regionsOf} from './World';
 import {ColdOpen, HonestyBadge, InferenceBadge, TermCard} from './Panels';
 import BEATS from './beats.json';
 
@@ -32,7 +32,14 @@ const fit = (id: string): Cam => {
   const areaX1 = 1880;
   const keys = FOCUS[id];
   let [x0, y0, x1, yb] = [WORLD[0], WORLD[1], WORLD[2], WORLD[3]];
-  if (keys && keys.length) {
+  const regions = regionsOf(keys ?? []);
+  if (regions.length === 1) {
+    const b = REGIONS[regions[0]];
+    x0 = b[0] - 30;
+    y0 = b[1] - 75;
+    x1 = b[0] + b[2] + 30;
+    yb = b[1] + b[3] + 30;
+  } else if (keys && keys.length) {
     x0 = Infinity;
     y0 = Infinity;
     x1 = -Infinity;

@@ -54,6 +54,15 @@ const GROUP: Record<string, string[]> = {
   dedicated: ['dvs', 'segA', 'segB'],
 };
 
+export const REGIONS: Record<string, [number, number, number, number]> = {
+  appliance: APPLIANCE,
+  shared: SHARED,
+  dedicated: DEDICATED,
+};
+
+export const regionsOf = (focus: string[]) =>
+  Object.keys(REGIONS).filter((name) => focus.includes(name) || (GROUP[name] ?? []).some((k) => focus.includes(k)));
+
 export const FOCUS: Record<string, string[]> = {
   '2.1': ['appliance', 'nodeA', 'nodeB', 'cluster'],
   '2.2': ['nodeA', 'nodeB', 'link', 'cluster'],
@@ -79,15 +88,18 @@ const inGroup = (key: string, focus: string[]) => {
 export const World: React.FC<{c: Ctx}> = ({c}) => {
   const focus = FOCUS[c.id] ?? [];
   const isFocus = (k: string) => (focus.length ? inGroup(k, focus) : true);
-  const regionOn = (name: string) => focus.includes(name) || (GROUP[name] ?? []).some((k) => inGroup(k, focus));
+  const regions = regionsOf(focus);
+  const single = regions.length === 1 ? regions[0] : null;
+  const regionOn = (name: string) => (single ? name === single : true);
+  const cardOn = (k: string) => (single ? (GROUP[single] ?? []).includes(k) : true);
 
   return (
     <div style={{position: 'relative', width: WORLD[2], height: WORLD[3], fontFamily: sans}}>
-      <Region b={{x: APPLIANCE[0], y: APPLIANCE[1], w: APPLIANCE[2], h: APPLIANCE[3]}} title="One appliance" sub="two virtual machines" color={C.green} opacity={regionOn('appliance') ? 1 : 0.1} hideTitle={!regionOn('appliance')} />
-      <Region b={{x: SHARED[0], y: SHARED[1], w: SHARED[2], h: SHARED[3]}} title="The old shared switch" sub="every port group untagged" color={C.red} opacity={regionOn('shared') ? 1 : 0.1} hideTitle={!regionOn('shared')} />
-      <Region b={{x: DEDICATED[0], y: DEDICATED[1], w: DEDICATED[2], h: DEDICATED[3]}} title="The new dedicated switch" sub="a numbered room per pair" color={C.green} opacity={regionOn('dedicated') ? 1 : 0.1} hideTitle={!regionOn('dedicated')} />
+      {regionOn('appliance') ? <Region b={{x: APPLIANCE[0], y: APPLIANCE[1], w: APPLIANCE[2], h: APPLIANCE[3]}} title="One appliance" sub="two virtual machines" color={C.green} /> : null}
+      {regionOn('shared') ? <Region b={{x: SHARED[0], y: SHARED[1], w: SHARED[2], h: SHARED[3]}} title="The old shared switch" sub="every port group untagged" color={C.red} /> : null}
+      {regionOn('dedicated') ? <Region b={{x: DEDICATED[0], y: DEDICATED[1], w: DEDICATED[2], h: DEDICATED[3]}} title="The new dedicated switch" sub="a numbered room per pair" color={C.green} /> : null}
 
-      {Object.entries(CARDS).map(([k, d]) => (
+      {Object.entries(CARDS).filter(([k]) => cardOn(k)).map(([k, d]) => (
         <Card
           key={k}
           x={d.x}
@@ -104,24 +116,40 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       ))}
 
       <svg width={WORLD[2]} height={WORLD[3]} style={{position: 'absolute', left: 0, top: 0, overflow: 'visible', pointerEvents: 'none'}}>
-        <line x1={290} y1={378} x2={420} y2={430} stroke={C.cyan} strokeWidth={4} strokeDasharray="9 7" opacity={isFocus('link') ? 0.95 : 0.25} />
-        <line x1={730} y1={378} x2={650} y2={430} stroke={C.cyan} strokeWidth={4} strokeDasharray="9 7" opacity={isFocus('link') ? 0.95 : 0.25} />
-        <line x1={290} y1={640} x2={290} y2={378} stroke={C.blue} strokeWidth={3} opacity={isFocus('mgmt') ? 0.75 : 0.2} />
-        <line x1={730} y1={640} x2={730} y2={378} stroke={C.orange} strokeWidth={3} opacity={isFocus('storage') ? 0.75 : 0.2} />
+        {regionOn('appliance') ? (
+          <>
+            <line x1={290} y1={378} x2={420} y2={430} stroke={C.cyan} strokeWidth={4} strokeDasharray="9 7" opacity={isFocus('link') ? 0.95 : 0.25} />
+            <line x1={730} y1={378} x2={650} y2={430} stroke={C.cyan} strokeWidth={4} strokeDasharray="9 7" opacity={isFocus('link') ? 0.95 : 0.25} />
+            <line x1={290} y1={640} x2={290} y2={378} stroke={C.blue} strokeWidth={3} opacity={isFocus('mgmt') ? 0.75 : 0.2} />
+            <line x1={730} y1={640} x2={730} y2={378} stroke={C.orange} strokeWidth={3} opacity={isFocus('storage') ? 0.75 : 0.2} />
+          </>
+        ) : null}
 
-        <line x1={1100} y1={300} x2={1100} y2={850} stroke={C.red} strokeWidth={6} opacity={isFocus('shared') ? 0.55 : 0.15} />
-        <text x={1078} y={578} fill={C.red} fontFamily={mono} fontSize={20} textAnchor="middle" transform="rotate(-90 1078 578)" opacity={isFocus('shared') ? 0.9 : 0.2}>one segment</text>
+        {regionOn('shared') ? (
+          <>
+            <line x1={1100} y1={300} x2={1100} y2={850} stroke={C.red} strokeWidth={6} opacity={isFocus('shared') ? 0.55 : 0.15} />
+            <text x={1078} y={578} fill={C.red} fontFamily={mono} fontSize={20} textAnchor="middle" transform="rotate(-90 1078 578)" opacity={isFocus('shared') ? 0.9 : 0.2}>one segment</text>
+          </>
+        ) : null}
 
-        <line x1={1290} y1={1180} x2={1270} y2={1230} stroke={C.green} strokeWidth={4} opacity={isFocus('dvs') ? 0.9 : 0.2} />
-        <line x1={1570} y1={1180} x2={1590} y2={1230} stroke={C.green} strokeWidth={4} opacity={isFocus('dvs') ? 0.9 : 0.2} />
+        {regionOn('dedicated') ? (
+          <>
+            <line x1={1290} y1={1180} x2={1270} y2={1230} stroke={C.green} strokeWidth={4} opacity={isFocus('dvs') ? 0.9 : 0.2} />
+            <line x1={1570} y1={1180} x2={1590} y2={1230} stroke={C.green} strokeWidth={4} opacity={isFocus('dvs') ? 0.9 : 0.2} />
+          </>
+        ) : null}
       </svg>
 
-      <div style={{position: 'absolute', left: 1120, top: 900, fontFamily: mono, fontSize: 19, color: C.red, opacity: regionOn('shared') ? 1 : 0.1}}>
-        all four pairs hear each other
-      </div>
-      <div style={{position: 'absolute', left: 1120, top: 1390, fontFamily: mono, fontSize: 19, color: C.green, opacity: regionOn('dedicated') ? 1 : 0.1}}>
-        one pair per room, nothing else inside
-      </div>
+      {regionOn('shared') ? (
+        <div style={{position: 'absolute', left: 1120, top: 900, fontFamily: mono, fontSize: 19, color: C.red}}>
+          all four pairs hear each other
+        </div>
+      ) : null}
+      {regionOn('dedicated') ? (
+        <div style={{position: 'absolute', left: 1120, top: 1390, fontFamily: mono, fontSize: 19, color: C.green}}>
+          one pair per room, nothing else inside
+        </div>
+      ) : null}
     </div>
   );
 };
