@@ -4,7 +4,7 @@ import {Card, Region} from '../components/primitives';
 import {prog} from '../lib/anim';
 
 export type Box = [number, number, number, number];
-type Node = {kind: string; name: string; role: string; lines: string[]; box: Box; color: string};
+type Node = {kind: string; name: string; role: string; lines: string[]; box: Box; color: string; nameSize?: number};
 export const NODES: Record<string, Node> = {
   drpolicy: {kind: 'DRPolicy', name: 'dr-policy-15m', role: 'names the two clusters and the copy interval', lines: ['hub custom resource', 'schedulingInterval 15m'], box: [110, 190, 380, 150], color: C.blue},
   drpc: {kind: 'DRPlacementControl', name: 'dell-vm-placement-drpc', role: 'one application, its disks, its preferred site', lines: ['you or the console create it'], box: [110, 390, 380, 160], color: C.blue},
@@ -19,16 +19,16 @@ export const NODES: Record<string, Node> = {
   driver: {kind: 'Dell CSI driver', name: 'csi-powerstore', role: 'creates and assigns the array objects', lines: ['runs in controller and node'], box: [490, 960, 360, 170], color: C.orange},
   csiaddons: {kind: 'csi-addons controller', name: 'csi-addons-system', role: 'watches replication requests', lines: ['not part of the driver chart'], box: [890, 960, 360, 170], color: C.cyan},
 
-  pp: {kind: 'Protection policy', name: 'pp-...-VSA-B-Fifteen_Minutes', role: 'pairs a disk or group with a rule', lines: ['created by the driver'], box: [1700, 760, 380, 160], color: C.orange},
-  rr: {kind: 'Replication rule', name: 'rr-...-VSA-B-Fifteen_Minutes', role: 'holds the peer and the RPO', lines: ['created by the driver'], box: [1700, 970, 380, 150], color: C.orange},
+  pp: {kind: 'Protection policy', name: 'pp-vg-VSA-B-Fifteen_Minutes', role: 'pairs a disk or group with a rule', lines: ['created by the driver'], box: [1700, 760, 380, 160], color: C.orange, nameSize: 19},
+  rr: {kind: 'Replication rule', name: 'rr-vg-VSA-B-Fifteen_Minutes', role: 'holds the peer and the RPO', lines: ['created by the driver'], box: [1700, 970, 380, 150], color: C.orange, nameSize: 19},
   session: {kind: 'Replication session', name: 'async, A to B', role: 'the running copy', lines: ['created by assigning the policy'], box: [1700, 1160, 380, 150], color: C.orange},
-  replica: {kind: 'Replica policy', name: 'pp-..._VSA-A', role: 'the peer copy of the policy', lines: ['marked as a replica'], box: [2190, 860, 380, 170], color: C.orange},
+  replica: {kind: 'Replica policy', name: 'pp-vg-VSA-B-Fifteen_Minutes_VSA-A', role: 'the peer copy of the policy', lines: ['marked as a replica'], box: [2190, 860, 380, 170], color: C.orange, nameSize: 17},
   copy: {kind: 'Destination copy', name: 'baseline, then periodic syncs', role: 'the recoverable data', lines: ['on the peer array'], box: [2190, 1070, 380, 160], color: C.orange},
 
   bundle: {kind: 'Install bundle', name: 'csi-powerstore-install.tar.gz', role: 'chart, values and per-cluster manifests', lines: ['from Dell, via Google Drive'], box: [110, 1450, 560, 170], color: C.cyan},
   settings: {kind: 'Helm values', name: 'settings.yaml', role: 'lists every image and feature switch', lines: ['set images.driver.image here'], box: [720, 1450, 520, 170], color: C.cyan},
   images: {kind: 'Container images', name: '8 images, 9 containers', role: 'the driver plus seven helpers', lines: ['only the driver image is private'], box: [1290, 1450, 560, 170], color: C.cyan},
-  pull: {kind: 'Pull secret', name: 'two ServiceAccounts', role: 'lets the kubelet pull the private image', lines: ['the chart does not render it'], box: [1900, 1450, 560, 170], color: C.cyan},
+  pull: {kind: 'Pull secret', name: 'your registry pull secret', role: 'lets the kubelet pull the private image', lines: ['the chart does not render it'], box: [1900, 1450, 560, 170], color: C.cyan},
 };
 export const RECT = Object.fromEntries(Object.entries(NODES).map(([k, n]) => [k, n.box])) as Record<string, Box>;
 
@@ -151,6 +151,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
             focus={focus(key)}
             hl={keys.includes(key) ? 0.25 : 0}
             color={n.color}
+            nameSize={n.nameSize}
             detail={Math.max(0, Math.min(1, (c.zoom - 0.65) / 0.2))}
           />
         );
