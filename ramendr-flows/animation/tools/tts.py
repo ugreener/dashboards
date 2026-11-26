@@ -404,6 +404,13 @@ SPOKEN = {
     "pvcSelector": "P V C selector",
     "OpenShift 4.22": "OpenShift four twenty-two",
     "MinIO": "min I O",
+    "storageid": "storage I D",
+    "replicationid": "replication I D",
+    "groupreplicationid": "group replication I D",
+    "hostpath-csi": "host path C S I",
+    "martjack": "mart jack",
+    "nnevin": "Nevin",
+    "sughosh": "Sue gosh",
 }
 NO_SPLIT = {"OpenShift", "PowerStore", "GitOps", "KubeVirt", "NetApp"}
 ACRONYMS = {"DRPC", "VRG", "VRGs", "PVC", "PVCs", "PV", "PVs", "VMI", "VM", "VMs",

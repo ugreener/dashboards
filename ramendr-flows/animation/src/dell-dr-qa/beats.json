@@ -1,0 +1,92 @@
+{
+ "0.1": {
+  "chapter": "Cold open"
+ },
+ "1.1": {
+  "chapter": "The cast"
+ },
+ "1.2": {
+  "chapter": "The cast",
+  "define": {
+   "term": "DRPC",
+   "text": "A hub object that says which application to protect, which disks belong to it, and which site should run it."
+  }
+ },
+ "1.3": {
+  "chapter": "The cast",
+  "define": {
+   "term": "RPO",
+   "text": "The oldest copy you are willing to fall back to, measured in time."
+  }
+ },
+ "2.1": {
+  "chapter": "Who creates the copy",
+  "define": {
+   "term": "csi-addons",
+   "text": "A small helper beside the storage driver that carries replication requests from Kubernetes to the driver."
+  }
+ },
+ "2.2": {
+  "chapter": "Who creates the copy",
+  "define": {
+   "term": "protection policy",
+   "text": "An array object that pairs a disk, or a group of disks, with a replication rule."
+  }
+ },
+ "2.3": {
+  "chapter": "Who creates the copy"
+ },
+ "3.1": {
+  "chapter": "Who creates what"
+ },
+ "3.2": {
+  "chapter": "Who creates what"
+ },
+ "4.1": {
+  "chapter": "The three labels",
+  "define": {
+   "term": "storageid",
+   "text": "A label that names the storage on one cluster, so the two clusters can tell their own storage apart."
+  }
+ },
+ "4.2": {
+  "chapter": "The three labels"
+ },
+ "5.1": {
+  "chapter": "The installer kit"
+ },
+ "5.2": {
+  "chapter": "The installer kit",
+  "define": {
+   "term": "digest",
+   "text": "A fingerprint of one exact image, which does not change when a tag is reused."
+  }
+ },
+ "6.1": {
+  "chapter": "Where the pieces come from"
+ },
+ "7.1": {
+  "chapter": "What we installed"
+ },
+ "7.2": {
+  "chapter": "What we installed"
+ },
+ "8.1": {
+  "chapter": "The order that works"
+ },
+ "8.2": {
+  "chapter": "The order that works"
+ },
+ "8.3": {
+  "chapter": "The order that works"
+ },
+ "9.1": {
+  "chapter": "The hub question"
+ },
+ "9.2": {
+  "chapter": "The hub question"
+ },
+ "10.1": {
+  "chapter": "Recap"
+ }
+}

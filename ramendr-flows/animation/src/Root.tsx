@@ -40,6 +40,8 @@ import {ResyncPrimary} from './resync-primary/Video';
 import {buildTimeline as buildTimelineRP} from './resync-primary/timeline';
 import {VolGroupDrpc} from './volgroup-drpc/Video';
 import {buildTimeline as buildTimelineVG} from './volgroup-drpc/timeline';
+import {DellDrQa} from './dell-dr-qa/Video';
+import {buildTimeline as buildTimelineQA} from './dell-dr-qa/timeline';
 import {VirtDr498} from './virtdr-498/Video';
 import {buildTimeline as buildTimeline498} from './virtdr-498/timeline';
 import {Dfbugs12906} from './dfbugs-12906/Video';
@@ -62,6 +64,7 @@ const ALL_334 = Array.from({length: 8}, (_, i) => i);
 const ALL_EF = Array.from({length: 8}, (_, i) => i);
 const ALL_RP = Array.from({length: 7}, (_, i) => i);
 const ALL_VG = Array.from({length: 7}, (_, i) => i);
+const ALL_QA = Array.from({length: 11}, (_, i) => i);
 const ALL_498 = Array.from({length: 9}, (_, i) => i);
 const ALL_499 = Array.from({length: 9}, (_, i) => i);
 const ALL_12906 = Array.from({length: 8}, (_, i) => i);
@@ -282,6 +285,15 @@ export const Root: React.FC = () => (
       width={1920}
       height={1080}
       defaultProps={{chapters: ALL_VG}}
+    />
+    <Composition
+      id="dell-dr-qa"
+      component={DellDrQa}
+      durationInFrames={Math.max(1, buildTimelineQA(ALL_QA).total)}
+      fps={FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{chapters: ALL_QA}}
     />
   </>
 );

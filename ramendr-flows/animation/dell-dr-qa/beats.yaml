@@ -1,0 +1,146 @@
+# yamllint disable rule:line-length
+ticket: dell-dr-qa
+run: conceptual explainer, no recorded run
+diagram: 'Dell PowerStore + RamenDR, answers to the session questions'
+beats:
+  - id: '0.1'
+    chapter: Cold open
+    visual: 'Cold-open title panel over the dimmed world: Dell PowerStore + RamenDR, the session questions.'
+    narration: 'Nine questions came up while a second engineer built this Dell PowerStore disaster recovery environment. Who creates the copy on the array. Who creates the policy objects. Where the three pairing labels come from. Which container images the driver needs. And whether the hub needs virtualization. This is the set of answers, in the order they were asked.'
+    evidence: [setup-doc, live-env]
+    pause_after: 2
+
+  - id: '1.1'
+    chapter: The cast
+    visual: 'World: hub, spoke and array regions appear. Chapter card: The cast.'
+    narration: 'Start with the cast. A hub cluster runs the control plane. Two spoke clusters run the applications. Each spoke has a local storage array, and the two arrays copy to each other. This is not a recorded failover. It is an explanation of how the pieces fit together.'
+    evidence: [setup-doc]
+    pause_after: 1.6
+
+  - id: '1.2'
+    chapter: The cast
+    visual: 'DRPolicy and DRPC in focus. Ramen card. Definition panel for DRPC.'
+    define: {term: 'DRPC', text: 'A hub object that says which application to protect, which disks belong to it, and which site should run it.'}
+    narration: 'On the hub, a DRPolicy names the two clusters and the copy interval. A DRPlacementControl, or DRPC, names one application, the disks to protect, and the preferred site. Ramen reads the DRPC and writes a VolumeReplicationGroup, or VRG, on each cluster. The VRG is the per-cluster protection record.'
+    evidence: [ramen-docs, live-env]
+
+  - id: '1.3'
+    chapter: The cast
+    visual: 'VRG and the replication request in focus. Class card. Definition panel for RPO.'
+    define: {term: 'RPO', text: 'The oldest copy you are willing to fall back to, measured in time.'}
+    narration: 'On the spoke, the VRG creates the replication request. One disk becomes a VolumeReplication. A group of disks that must move together becomes a VolumeGroupReplication. The request names a class. The class holds the real facts: which array is the source, which is the peer, the mode, and the recovery point objective, or RPO.'
+    evidence: [ramen-docs, live-env]
+
+  - id: '2.1'
+    chapter: Who creates the copy
+    visual: 'The chain lights up from DRPC through VRG and request to the class and the sidecar. Definition panel for csi-addons.'
+    define: {term: 'csi-addons', text: 'A small helper beside the storage driver that carries replication requests from Kubernetes to the driver.'}
+    narration: 'Here is the correction that started the discussion. The driver never reads the DRPC. The DRPC leads to a VRG, the VRG leads to a replication request, and the request leads to the class. A small sidecar called csi-addons carries the class parameters to the Dell driver. The driver is the last link, not the first.'
+    evidence: [dell-driver-source, ramen-docs]
+
+  - id: '2.2'
+    chapter: Who creates the copy
+    visual: 'Driver in focus, then the protection policy and replication rule appear. Definition panel for protection policy.'
+    define: {term: 'protection policy', text: 'An array object that pairs a disk, or a group of disks, with a replication rule.'}
+    narration: 'When the request arrives, the driver looks up the peer array by name. It makes sure a protection policy and a replication rule exist, and creates them if they do not. Then it assigns the policy to the disk or the disk group. That assignment is what makes the array create the session and start the first full copy.'
+    evidence: [dell-driver-source]
+
+  - id: '2.3'
+    chapter: Who creates the copy
+    visual: 'Peer array replica policy appears. Summary panel.'
+    narration: 'The peer array receives a mirror of the policy, marked as a replica. So every array-side object in this chain is created by the driver, from the class, on behalf of the VRG. You do not build them by hand. And a DRPC with no matching class never reaches the array at all.'
+    evidence: [dell-driver-source, live-env]
+    pause_after: 1.6
+
+  - id: '3.1'
+    chapter: Who creates what
+    visual: 'Input cards separate from generated cards. Panel: inputs and generated.'
+    narration: 'The inputs are yours, or the console''s. You create the DRClusters, the DRPolicy and the classes. The console creates the policy and clusters in its wizard, and the DRPC when you enroll an application. Ramen generates the VRG and the replication requests. The driver creates the array objects.'
+    evidence: [live-env, setup-doc]
+
+  - id: '3.2'
+    chapter: Who creates what
+    visual: 'Class in focus, then the session roles reverse while the class stays still.'
+    narration: 'One more distinction. Direction is not a class property. Each cluster''s class always names its own array as source and the peer as target. Which side is primary right now comes from Ramen, following placement and the last recovery action. After a failover the session roles reverse while the classes stay unchanged.'
+    evidence: [ramen-docs, dell-driver-source, live-env]
+
+  - id: '4.1'
+    chapter: The three labels
+    visual: 'StorageClass and replication class in focus with their labels. Definition panel for storageid.'
+    define: {term: 'storageid', text: 'A label that names the storage on one cluster, so the two clusters can tell their own storage apart.'}
+    narration: 'The storage class and the replication classes carry three labels. storageid names the storage on one cluster, so it must match between a storage class and the replication class beside it, and it differs on the other cluster. replicationid and groupreplicationid name the pair, so both clusters use the same value. Ramen pairs the sides by those labels.'
+    evidence: [ramen-docs, live-env]
+
+  - id: '4.2'
+    chapter: The three labels
+    visual: 'Bundle card in focus, then the pre-filled per-cluster files. Panel: same or different.'
+    narration: 'Where did the values come from? Not from a formula. The Dell install bundle arrived with the per-cluster files already filled in: a different storageid per cluster, and identical pair identifiers on both. If you write the files yourself, any unique string works, as long as the same-or-different rule holds.'
+    evidence: [setup-doc, dell-bundle]
+
+  - id: '5.1'
+    chapter: The installer kit
+    visual: 'Images card in focus, expanding into the eight image names.'
+    narration: 'The driver install is not one image. It is nine containers built from eight images. The driver itself runs in both the controller and the node pods. The other seven are helpers: attacher, provisioner, snapshotter, resizer, metadata retriever, node registrar, and the csi-addons sidecar.'
+    evidence: [live-env, setup-doc]
+
+  - id: '5.2'
+    chapter: The installer kit
+    visual: 'Private driver image and the pull secret. Definition panel for digest.'
+    define: {term: 'digest', text: 'A fingerprint of one exact image, which does not change when a tag is reused.'}
+    narration: 'Only the driver image is private. The helper images pull from public registries. The chart does not add a pull secret, so the secret has to be linked to the two service accounts the chart creates. And the driver should be pinned by digest, because a tag can be moved to different content.'
+    evidence: [live-env, dell-bundle]
+
+  - id: '6.1'
+    chapter: Where the pieces come from
+    visual: 'Bundle, settings file and images in focus. Panel: where the list lives.'
+    narration: 'The full image list is in the bundle''s settings file, in the images block, including the optional images that stay switched off. Dell''s offline bundle guide explains how the whole set is collected from the chart. A bundle is prepared per cluster, because its array secret holds that lab''s endpoint and credential.'
+    evidence: [dell-bundle, dell-driver-source]
+
+  - id: '7.1'
+    chapter: What we installed
+    visual: 'Driver card in focus with the martjack digest. Panel: not the official image.'
+    narration: 'In this lab, the driver did not come from Dell''s public registry. It is a private test build in a Quay namespace called martjack, pinned by digest, supplied by Dell for driver-fix work. The official Dell image for the same chart version is a different digest.'
+    evidence: [live-env, setup-doc]
+
+  - id: '7.2'
+    chapter: What we installed
+    visual: 'Sidecar and controller cards in focus. Panel: one chart, one separate controller.'
+    narration: 'The replication sidecar is from a namespace called nnevin. The separate csi-addons controller runs a build from a namespace called sughosh. That controller is not part of the chart. It is the component that watches replication requests, and its build has to match the sidecar.'
+    evidence: [live-env, setup-doc]
+
+  - id: '8.1'
+    chapter: The order that works
+    visual: 'Bundle, settings, pull secret and driver in focus. Panel: first four moves.'
+    narration: 'The order that works. First check the arrays. Then put the driver image where the cluster can pull it. Create the namespace and the array secret. Install the chart. Link the pull secret to both service accounts. Wait for the controller pod and one node pod per worker.'
+    evidence: [setup-doc, live-env]
+
+  - id: '8.2'
+    chapter: The order that works
+    visual: 'Storage class, replication class and a test disk in focus.'
+    narration: 'Apply the storage class, the snapshot class, and the replication classes from that cluster''s folder. Bind a small test disk, confirm it appears on the local array, then delete it. Repeat on the second cluster with its own folder and the roles reversed.'
+    evidence: [setup-doc, live-env]
+
+  - id: '8.3'
+    chapter: The order that works
+    visual: 'csi-addons controller and a test request reaching Primary and Replicating. Panel: prove it.'
+    narration: 'The csi-addons controller goes in last, as a separate deployment in csi-addons-system. Then one test replication request proves the chain. The request should reach Primary and Replicating, and a matching session should appear on the source array.'
+    evidence: [setup-doc, dell-driver-source]
+
+  - id: '9.1'
+    chapter: The hub question
+    visual: 'Hub console card in focus, linked to the DRPC. Panel: console only.'
+    narration: 'Does the hub need OpenShift Virtualization? Not for the recovery itself. The hub runs no protected machines. It is there for the console: the Fleet virtualization perspective that lists the spoke machines and offers Manage disaster recovery for a single machine.'
+    evidence: [live-env, setup-doc]
+
+  - id: '9.2'
+    chapter: The hub question
+    visual: 'MinIO and hostpath-csi in focus. Panel: if you skip virtualization.'
+    narration: 'It also brings the only storage class on our hub, hostpath-csi, and that is what the MinIO metadata volume uses. If you skip virtualization, give MinIO another storage class or a static volume. Enabling the console integration also installs the migration toolkit, so check hub capacity.'
+    evidence: [live-env, setup-doc]
+
+  - id: '10.1'
+    chapter: Recap
+    visual: 'Whole world in view, then the recap panel.'
+    narration: 'The short version. You own the policy and the classes. Ramen generates the per-cluster requests. The driver creates the array policy and session. The pairing labels come with the Dell bundle. The install is nine containers with one private image. And hub virtualization is for the console and for MinIO''s storage class, not for the protected machines.'
+    evidence: [setup-doc, live-env]
+    pause_after: 2.2
