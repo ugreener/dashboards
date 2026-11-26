@@ -82,10 +82,9 @@ const EDGES: Record<string, Edge> = {
   assign: {d: 'M2080,840 C2140,840 2140,1235 2080,1235', color: C.green, intro: '2.2', src: 'pp', dst: 'session', end: [2080, 1235], ang: 180},
   mirror: {d: 'M2080,880 C2140,880 2140,940 2190,940', color: C.purple, intro: '2.3', src: 'pp', dst: 'replica', dashed: true, end: [2190, 940], ang: 8},
   syncs: {d: 'M2080,1235 C2140,1235 2140,1150 2190,1150', color: C.orange, intro: '2.3', src: 'session', dst: 'copy', end: [2190, 1150], ang: 350},
-  scSame: {d: 'M280,960 L280,900 L890,900', label: 'same storageid', lx: 600, ly: 900, color: C.dim, intro: '4.1', src: 'sc', dst: 'klass', dashed: true, end: [890, 900], ang: 0},
+  scSame: {d: 'M280,960 L280,940 L890,940 L890,930', label: 'same storageid', lx: 600, ly: 940, color: C.dim, intro: '4.1', src: 'sc', dst: 'klass', dashed: true, end: [890, 930], ang: 270},
   bundleHolds: {d: 'M670,1535 L720,1535', color: C.dim, intro: '6.1', src: 'bundle', dst: 'settings', end: [720, 1535], ang: 0},
   settingsLists: {d: 'M1240,1535 L1290,1535', color: C.dim, intro: '6.1', src: 'settings', dst: 'images', end: [1290, 1535], ang: 0},
-  installedAs: {d: 'M1570,1450 C1200,1400 900,1250 700,1130', label: 'installed as', lx: 1140, ly: 1310, color: C.cyan, intro: '8.1', src: 'images', dst: 'driver', end: [700, 1130], ang: 215, noArrow: true},
   pullWith: {d: 'M1900,1560 L1858,1560', color: C.cyan, intro: '5.2', src: 'pull', dst: 'images', dashed: true, end: [1858, 1560], ang: 180},
   enrolls: {d: 'M540,470 L490,470', color: C.purple, intro: '9.1', src: 'console', dst: 'drpc', dashed: true, end: [490, 470], ang: 180},
 };
