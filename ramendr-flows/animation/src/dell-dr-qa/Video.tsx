@@ -92,6 +92,10 @@ export const DellDrQa: React.FC<{chapters: number[]}> = ({chapters}) => {
   const ch = b.chapter.n, m = META[b.id] ?? {};
   const win = (a: number, z: number) => Math.min(1, Math.max(0, (f - b.audio * a) / 22)) * Math.min(1, Math.max(0, (b.audio * z - f) / 22));
   const side = PANEL_BEATS.has(b.id) || !!m.define;
+  const camLeft = 35, camRight = side ? 825 : 1880;
+  const camSpan = (camRight - camLeft) / target.z;
+  const camX0 = target.x - camSpan / 2;
+  const hiddenTitles = PANEL_BEATS.has(b.id) ? REGIONS.map((r) => r.key) : REGIONS.filter((r) => camX0 > r.b.x + 20).map((r) => r.key);
   const showWorld = ch >= 1;
   const cues: {at: number; name: string; v: number}[] = [];
   const seen = new Set<string>();
@@ -111,13 +115,13 @@ export const DellDrQa: React.FC<{chapters: number[]}> = ({chapters}) => {
     <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
       {showWorld ? (
         <div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}>
-          <World c={{id: b.id, f, dur: b.audio, zoom: cam.z, hideTitles: PANEL_BEATS.has(b.id)}} />
+          <World c={{id: b.id, f, dur: b.audio, zoom: cam.z, hiddenTitles: hiddenTitles}} />
         </div>
       ) : null}
       {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={null} ticket="DELL DR · SESSION Q&A" /> : null}
       <Badge />
       {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
-      {seg.type === 'beat' && m.define ? <DefinitionPanel term={m.define.term} text={m.define.text} a={win(0.05, 0.97)} x={880} bottom={150} /> : null}
+      {seg.type === 'beat' && m.define ? <DefinitionPanel term={m.define.term} text={m.define.text} a={win(0.05, 0.97)} x={880} bottom={150} opaque /> : null}
       {seg.type === 'chapter' ? <ChapterCard n={seg.chapter.n} title={seg.chapter.title} sub={seg.chapter.sub} p={Math.min(1, Math.max(0, (frame - seg.from) / 30))} out={Math.min(1, Math.max(0, (frame - seg.from - (seg.dur - 30)) / 30))} /> : null}
       {beats.map((beat) => (
         <Sequence key={beat.id} from={beat.from + PAD_BEFORE} durationInFrames={beat.audio + 10}>

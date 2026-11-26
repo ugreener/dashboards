@@ -123,7 +123,7 @@ export const PhaseTracker: React.FC<{current: number; appear?: number; phases?: 
 );
 
 /** Short definition of a status word or concept, bottom-left above the timeline. */
-export const DefinitionPanel: React.FC<{term: string; text: string; a: number; x?: number; bottom?: number}> = ({term, text, a, x = 40, bottom = 150}) =>
+export const DefinitionPanel: React.FC<{term: string; text: string; a: number; x?: number; bottom?: number; opaque?: boolean}> = ({term, text, a, x = 40, bottom = 150, opaque = false}) =>
   a > 0 ? (
     <div
       style={{
@@ -133,7 +133,7 @@ export const DefinitionPanel: React.FC<{term: string; text: string; a: number; x
         width: 620,
         opacity: a,
         transform: `translateY(${(1 - a) * 24}px)`,
-        background: `${C.bg}f4`,
+        background: opaque ? C.bg : `${C.bg}f4`,
         border: `1.5px solid ${C.purple}`,
         borderLeft: `6px solid ${C.purple}`,
         borderRadius: 12,

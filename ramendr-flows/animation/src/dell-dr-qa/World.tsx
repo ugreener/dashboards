@@ -91,7 +91,7 @@ const EDGES: Record<string, Edge> = {
   enrolls: {d: 'M540,470 L490,470', color: C.purple, intro: '9.1', src: 'console', dst: 'drpc', dashed: true, end: [490, 470], ang: 180},
 };
 
-export type Ctx = {id: string; f: number; dur: number; zoom: number; hideTitles?: boolean};
+export type Ctx = {id: string; f: number; dur: number; zoom: number; hiddenTitles?: string[]};
 const chapter = (id: string) => Number(id.split('.')[0]);
 const reached = (id: string, other: string) => {
   const [a, b] = id.split('.').map(Number);
@@ -135,7 +135,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
         const members = Object.keys(NODES).filter((k) => REGION_OF[k] === r.key);
         const anyFocused = keys.length === 0 || members.some((k) => keys.includes(k));
         const regionOp = keys.length === 0 ? 1 : anyFocused ? 1 : 0.08;
-        return <Region key={r.key} b={r.b} title={r.title} sub={r.sub} color={r.color} opacity={regionOp} hideTitle={c.hideTitles} />;
+        return <Region key={r.key} b={r.b} title={r.title} sub={r.sub} color={r.color} opacity={regionOp} hideTitle={c.hiddenTitles?.includes(r.key)} />;
       })}
       {Object.entries(NODES).map(([key, n], i) => {
         const appear = firstWorldBeat ? prog(c.f, -12 + i * 3, 30 + i * 3) : 1;
