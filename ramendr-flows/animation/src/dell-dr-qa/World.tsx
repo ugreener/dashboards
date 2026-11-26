@@ -87,7 +87,7 @@ const EDGES: Record<string, Edge> = {
   bundleHolds: {d: 'M670,1535 L720,1535', color: C.dim, intro: '6.1', src: 'bundle', dst: 'settings', end: [720, 1535], ang: 0},
   settingsLists: {d: 'M1240,1535 L1290,1535', color: C.dim, intro: '6.1', src: 'settings', dst: 'images', end: [1290, 1535], ang: 0},
   installedAs: {d: 'M1570,1450 C1200,1400 900,1250 700,1130', label: 'installed as', lx: 1140, ly: 1310, color: C.cyan, intro: '8.1', src: 'images', dst: 'driver', end: [700, 1130], ang: 215},
-  pullWith: {d: 'M2180,1450 C2100,1450 1950,1500 1850,1535', label: 'pulls with', lx: 2030, ly: 1405, color: C.cyan, intro: '5.2', src: 'pull', dst: 'images', dashed: true, end: [1850, 1535], ang: 155},
+  pullWith: {d: 'M1900,1560 L1858,1560', color: C.cyan, intro: '5.2', src: 'pull', dst: 'images', dashed: true, end: [1858, 1560], ang: 180},
   enrolls: {d: 'M540,470 L490,470', color: C.purple, intro: '9.1', src: 'console', dst: 'drpc', dashed: true, end: [490, 470], ang: 180},
 };
 
