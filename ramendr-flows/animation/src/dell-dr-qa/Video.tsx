@@ -27,11 +27,13 @@ const fit = (id: string): Cam => {
     x1 = Math.max(x1, r[0] + r[2]);
     y1 = Math.max(y1, r[1] + r[3]);
     const rk = REGION_OF[key];
-    if (!side && rk) {
+    if (rk) {
       const reg = REGIONS.find((g) => g.key === rk)!;
       y0 = Math.min(y0, reg.b.y + 10);
-      x0 = Math.min(x0, reg.b.x + 20);
-      x1 = Math.max(x1, reg.b.x + reg.b.w - 20);
+      if (!side) {
+        x0 = Math.min(x0, reg.b.x + 20);
+        x1 = Math.max(x1, reg.b.x + reg.b.w - 20);
+      }
     }
   }
   if (!Number.isFinite(x0)) {
@@ -109,7 +111,7 @@ export const DellDrQa: React.FC<{chapters: number[]}> = ({chapters}) => {
     <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
       {showWorld ? (
         <div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}>
-          <World c={{id: b.id, f, dur: b.audio, zoom: cam.z, hideTitles: side}} />
+          <World c={{id: b.id, f, dur: b.audio, zoom: cam.z, hideTitles: PANEL_BEATS.has(b.id)}} />
         </div>
       ) : null}
       {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={null} ticket="DELL DR · SESSION Q&A" /> : null}
