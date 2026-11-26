@@ -72,13 +72,12 @@ export const FOCUS: Record<string, string[]> = {
   '10.1': Object.keys(NODES),
 };
 
-type Edge = {d: string; label?: string; lx?: number; ly?: number; color: string; intro: string; src: string; dst: string; frac?: number; dashed?: boolean; end: [number, number]; ang: number};
+type Edge = {d: string; label?: string; lx?: number; ly?: number; color: string; intro: string; src: string; dst: string; frac?: number; dashed?: boolean; end: [number, number]; ang: number; noArrow?: boolean};
 const EDGES: Record<string, Edge> = {
   createVr: {d: 'M450,825 L490,830', color: C.green, intro: '1.3', src: 'vrg', dst: 'vr', end: [490, 830], ang: 6},
   nameClass: {d: 'M850,830 L890,830', color: C.green, intro: '1.3', src: 'vr', dst: 'klass', end: [890, 830], ang: 0},
   classParams: {d: 'M1070,930 L1070,960', color: C.dim, intro: '2.1', src: 'klass', dst: 'csiaddons', dashed: true, end: [1070, 960], ang: 90},
   gRpc: {d: 'M890,1045 L850,1045', color: C.cyan, intro: '2.1', src: 'csiaddons', dst: 'driver', end: [850, 1045], ang: 180},
-  driverCreates: {d: 'M850,1040 C1200,1040 1400,840 1700,840', label: 'creates', lx: 1230, ly: 980, color: C.green, intro: '2.2', src: 'driver', dst: 'pp', end: [1700, 840], ang: 0},
   ruleUsed: {d: 'M1890,970 L1890,920', color: C.dim, intro: '2.2', src: 'rr', dst: 'pp', dashed: true, end: [1890, 920], ang: 270},
   assign: {d: 'M2080,840 C2140,840 2140,1235 2080,1235', color: C.green, intro: '2.2', src: 'pp', dst: 'session', end: [2080, 1235], ang: 180},
   mirror: {d: 'M2080,880 C2140,880 2140,940 2190,940', color: C.purple, intro: '2.3', src: 'pp', dst: 'replica', dashed: true, end: [2190, 940], ang: 8},
@@ -86,7 +85,7 @@ const EDGES: Record<string, Edge> = {
   scSame: {d: 'M280,960 L280,900 L890,900', label: 'same storageid', lx: 600, ly: 900, color: C.dim, intro: '4.1', src: 'sc', dst: 'klass', dashed: true, end: [890, 900], ang: 0},
   bundleHolds: {d: 'M670,1535 L720,1535', color: C.dim, intro: '6.1', src: 'bundle', dst: 'settings', end: [720, 1535], ang: 0},
   settingsLists: {d: 'M1240,1535 L1290,1535', color: C.dim, intro: '6.1', src: 'settings', dst: 'images', end: [1290, 1535], ang: 0},
-  installedAs: {d: 'M1570,1450 C1200,1400 900,1250 700,1130', label: 'installed as', lx: 1140, ly: 1310, color: C.cyan, intro: '8.1', src: 'images', dst: 'driver', end: [700, 1130], ang: 215},
+  installedAs: {d: 'M1570,1450 C1200,1400 900,1250 700,1130', label: 'installed as', lx: 1140, ly: 1310, color: C.cyan, intro: '8.1', src: 'images', dst: 'driver', end: [700, 1130], ang: 215, noArrow: true},
   pullWith: {d: 'M1900,1560 L1858,1560', color: C.cyan, intro: '5.2', src: 'pull', dst: 'images', dashed: true, end: [1858, 1560], ang: 180},
   enrolls: {d: 'M540,470 L490,470', color: C.purple, intro: '9.1', src: 'console', dst: 'drpc', dashed: true, end: [490, 470], ang: 180},
 };
@@ -116,7 +115,7 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
       <g key={key} opacity={op}>
         <path d={e.d} stroke={e.color} strokeOpacity={0.14} strokeWidth={9} fill="none" pathLength={1} strokeDasharray={`${draw} 1`} />
         <path d={e.d} stroke={e.color} strokeWidth={4} fill="none" pathLength={1} strokeDasharray={`${draw} 1`} strokeLinecap="round" style={e.dashed ? {strokeDasharray: '0.012 0.012', opacity: Math.min(1, draw * 1.6)} : undefined} />
-        <polygon points="0,-8 15,0 0,8" fill={e.color} transform={`translate(${e.end[0]},${e.end[1]}) rotate(${e.ang})`} opacity={draw > 0.9 ? 1 : 0} />
+        {!e.noArrow ? <polygon points="0,-8 15,0 0,8" fill={e.color} transform={`translate(${e.end[0]},${e.end[1]}) rotate(${e.ang})`} opacity={draw > 0.9 ? 1 : 0} /> : null}
         {e.label && draw > 0.55 ? (
           <g transform={`translate(${e.lx},${e.ly})`}>
             <rect x={-e.label.length * 6.3 - 14} y={-19} width={e.label.length * 12.6 + 28} height={38} rx={19} fill={C.bg} stroke={e.color} strokeWidth={1.8} />
