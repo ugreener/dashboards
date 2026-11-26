@@ -53,14 +53,14 @@ export const FOCUS: Record<string, string[]> = {
   '1.2': ['drpolicy', 'drpc', 'vrg'],
   '1.3': ['vr', 'klass'],
   '2.1': ['drpc', 'vrg', 'vr', 'klass', 'csiaddons', 'driver'],
-  '2.2': ['driver', 'pp', 'rr', 'session'],
+  '2.2': ['pp', 'rr', 'session'],
   '2.3': ['pp', 'session', 'replica'],
   '3.1': ['drpolicy', 'drpc', 'klass', 'driver', 'pp'],
   '3.2': ['klass', 'session', 'replica'],
   '4.1': ['sc', 'klass'],
   '4.2': ['bundle', 'sc', 'klass'],
   '5.1': ['images', 'driver'],
-  '5.2': ['images', 'pull', 'driver'],
+  '5.2': ['images', 'pull'],
   '6.1': ['bundle', 'settings', 'images'],
   '7.1': ['images', 'driver'],
   '7.2': ['csiaddons', 'images'],
@@ -74,25 +74,24 @@ export const FOCUS: Record<string, string[]> = {
 
 type Edge = {d: string; label?: string; lx?: number; ly?: number; color: string; intro: string; src: string; dst: string; frac?: number; dashed?: boolean; end: [number, number]; ang: number};
 const EDGES: Record<string, Edge> = {
-  createVrg: {d: 'M300,550 L280,740', label: 'creates', lx: 330, ly: 640, color: C.cyan, intro: '1.2', src: 'drpc', dst: 'vrg', end: [280, 740], ang: 92},
   createVr: {d: 'M450,825 L490,830', color: C.green, intro: '1.3', src: 'vrg', dst: 'vr', end: [490, 830], ang: 6},
-  nameClass: {d: 'M850,830 L890,830', label: 'names', lx: 870, ly: 800, color: C.green, intro: '1.3', src: 'vr', dst: 'klass', end: [890, 830], ang: 0},
-  classParams: {d: 'M1070,930 L1070,960', label: 'parameters', lx: 1160, ly: 948, color: C.dim, intro: '2.1', src: 'klass', dst: 'csiaddons', dashed: true, end: [1070, 960], ang: 90},
-  gRpc: {d: 'M890,1045 L850,1045', label: 'gRPC', lx: 870, ly: 1015, color: C.cyan, intro: '2.1', src: 'csiaddons', dst: 'driver', end: [850, 1045], ang: 180},
+  nameClass: {d: 'M850,830 L890,830', color: C.green, intro: '1.3', src: 'vr', dst: 'klass', end: [890, 830], ang: 0},
+  classParams: {d: 'M1070,930 L1070,960', color: C.dim, intro: '2.1', src: 'klass', dst: 'csiaddons', dashed: true, end: [1070, 960], ang: 90},
+  gRpc: {d: 'M890,1045 L850,1045', color: C.cyan, intro: '2.1', src: 'csiaddons', dst: 'driver', end: [850, 1045], ang: 180},
   driverCreates: {d: 'M850,1040 C1200,1040 1400,840 1700,840', label: 'creates', lx: 1230, ly: 980, color: C.green, intro: '2.2', src: 'driver', dst: 'pp', end: [1700, 840], ang: 0},
-  ruleUsed: {d: 'M1890,970 L1890,920', label: 'used by', lx: 1990, ly: 945, color: C.dim, intro: '2.2', src: 'rr', dst: 'pp', dashed: true, end: [1890, 920], ang: 270},
-  assign: {d: 'M2080,840 C2140,840 2140,1235 2080,1235', label: 'assign, creates', lx: 2130, ly: 1040, color: C.green, intro: '2.2', src: 'pp', dst: 'session', end: [2080, 1235], ang: 180},
-  mirror: {d: 'M2080,880 C2140,880 2140,940 2190,940', label: 'mirrored', lx: 2135, ly: 905, color: C.purple, intro: '2.3', src: 'pp', dst: 'replica', dashed: true, end: [2190, 940], ang: 8},
-  syncs: {d: 'M2080,1235 C2140,1235 2140,1150 2190,1150', label: 'syncs', lx: 2135, ly: 1195, color: C.orange, intro: '2.3', src: 'session', dst: 'copy', end: [2190, 1150], ang: 350},
-  scSame: {d: 'M450,1050 C650,1050 750,900 890,900', label: 'same storageid', lx: 690, ly: 995, color: C.dim, intro: '4.1', src: 'sc', dst: 'klass', dashed: true, end: [890, 900], ang: 0},
+  ruleUsed: {d: 'M1890,970 L1890,920', color: C.dim, intro: '2.2', src: 'rr', dst: 'pp', dashed: true, end: [1890, 920], ang: 270},
+  assign: {d: 'M2080,840 C2140,840 2140,1235 2080,1235', color: C.green, intro: '2.2', src: 'pp', dst: 'session', end: [2080, 1235], ang: 180},
+  mirror: {d: 'M2080,880 C2140,880 2140,940 2190,940', color: C.purple, intro: '2.3', src: 'pp', dst: 'replica', dashed: true, end: [2190, 940], ang: 8},
+  syncs: {d: 'M2080,1235 C2140,1235 2140,1150 2190,1150', color: C.orange, intro: '2.3', src: 'session', dst: 'copy', end: [2190, 1150], ang: 350},
+  scSame: {d: 'M450,1050 C650,1050 750,900 890,900', label: 'same storageid', lx: 690, ly: 915, color: C.dim, intro: '4.1', src: 'sc', dst: 'klass', dashed: true, end: [890, 900], ang: 0},
   bundleHolds: {d: 'M670,1535 L720,1535', color: C.dim, intro: '6.1', src: 'bundle', dst: 'settings', end: [720, 1535], ang: 0},
   settingsLists: {d: 'M1240,1535 L1290,1535', color: C.dim, intro: '6.1', src: 'settings', dst: 'images', end: [1290, 1535], ang: 0},
   installedAs: {d: 'M1570,1450 C1200,1400 900,1250 700,1130', label: 'installed as', lx: 1140, ly: 1310, color: C.cyan, intro: '8.1', src: 'images', dst: 'driver', end: [700, 1130], ang: 215},
-  pullWith: {d: 'M2180,1450 C2100,1450 1950,1500 1850,1535', label: 'pulls with', lx: 2030, ly: 1470, color: C.cyan, intro: '5.2', src: 'pull', dst: 'images', dashed: true, end: [1850, 1535], ang: 155},
-  enrolls: {d: 'M540,470 L490,470', label: 'enrolls', lx: 515, ly: 440, color: C.purple, intro: '9.1', src: 'console', dst: 'drpc', dashed: true, end: [490, 470], ang: 180},
+  pullWith: {d: 'M2180,1450 C2100,1450 1950,1500 1850,1535', label: 'pulls with', lx: 2030, ly: 1405, color: C.cyan, intro: '5.2', src: 'pull', dst: 'images', dashed: true, end: [1850, 1535], ang: 155},
+  enrolls: {d: 'M540,470 L490,470', color: C.purple, intro: '9.1', src: 'console', dst: 'drpc', dashed: true, end: [490, 470], ang: 180},
 };
 
-export type Ctx = {id: string; f: number; dur: number; zoom: number};
+export type Ctx = {id: string; f: number; dur: number; zoom: number; hideTitles?: boolean};
 const chapter = (id: string) => Number(id.split('.')[0]);
 const reached = (id: string, other: string) => {
   const [a, b] = id.split('.').map(Number);
@@ -132,9 +131,12 @@ export const World: React.FC<{c: Ctx}> = ({c}) => {
 
   return (
     <div style={{position: 'absolute', width: 2600, height: 1880}}>
-      {REGIONS.map((r) => (
-        <Region key={r.key} b={r.b} title={r.title} sub={r.sub} color={r.color} />
-      ))}
+      {REGIONS.map((r) => {
+        const members = Object.keys(NODES).filter((k) => REGION_OF[k] === r.key);
+        const anyFocused = keys.length === 0 || members.some((k) => keys.includes(k));
+        const regionOp = keys.length === 0 ? 1 : anyFocused ? 1 : 0.08;
+        return <Region key={r.key} b={r.b} title={r.title} sub={r.sub} color={r.color} opacity={regionOp} hideTitle={c.hideTitles} />;
+      })}
       {Object.entries(NODES).map(([key, n], i) => {
         const appear = firstWorldBeat ? prog(c.f, -12 + i * 3, 30 + i * 3) : 1;
         return (

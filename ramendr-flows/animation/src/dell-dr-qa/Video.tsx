@@ -27,10 +27,11 @@ const fit = (id: string): Cam => {
     x1 = Math.max(x1, r[0] + r[2]);
     y1 = Math.max(y1, r[1] + r[3]);
     const rk = REGION_OF[key];
-    if (rk && TOPMOST[rk] === key) {
+    if (!side && rk) {
       const reg = REGIONS.find((g) => g.key === rk)!;
-      y0 = Math.min(y0, reg.b.y - 30);
+      y0 = Math.min(y0, reg.b.y + 10);
       x0 = Math.min(x0, reg.b.x + 20);
+      x1 = Math.max(x1, reg.b.x + reg.b.w - 20);
     }
   }
   if (!Number.isFinite(x0)) {
@@ -88,6 +89,7 @@ export const DellDrQa: React.FC<{chapters: number[]}> = ({chapters}) => {
   const cam = {x: lerp(old.x, target.x, p), y: lerp(old.y, target.y, p), z: lerp(old.z, target.z, p), sx: lerp(old.sx, target.sx, p), sy: lerp(old.sy, target.sy, p)};
   const ch = b.chapter.n, m = META[b.id] ?? {};
   const win = (a: number, z: number) => Math.min(1, Math.max(0, (f - b.audio * a) / 22)) * Math.min(1, Math.max(0, (b.audio * z - f) / 22));
+  const side = PANEL_BEATS.has(b.id) || !!m.define;
   const showWorld = ch >= 1;
   const cues: {at: number; name: string; v: number}[] = [];
   const seen = new Set<string>();
@@ -107,13 +109,13 @@ export const DellDrQa: React.FC<{chapters: number[]}> = ({chapters}) => {
     <AbsoluteFill style={{background: `radial-gradient(ellipse at 50% 40%,#0b1320,${C.bg} 70%)`, overflow: 'hidden'}}>
       {showWorld ? (
         <div style={{position: 'absolute', transformOrigin: '0 0', transform: `translate(${cam.sx - cam.x * cam.z}px,${cam.sy - cam.y * cam.z}px) scale(${cam.z})`}}>
-          <World c={{id: b.id, f, dur: b.audio, zoom: cam.z}} />
+          <World c={{id: b.id, f, dur: b.audio, zoom: cam.z, hideTitles: side}} />
         </div>
       ) : null}
       {seg.type === 'beat' ? <Hud chapter={b.chapter.title} clock={null} ticket="DELL DR · SESSION Q&A" /> : null}
       <Badge />
       {seg.type === 'beat' ? <BeatPanel id={b.id} f={f} dur={b.audio} /> : null}
-      {seg.type === 'beat' && m.define ? <DefinitionPanel term={m.define.term} text={m.define.text} a={win(0.05, 0.97)} bottom={150} /> : null}
+      {seg.type === 'beat' && m.define ? <DefinitionPanel term={m.define.term} text={m.define.text} a={win(0.05, 0.97)} x={880} bottom={150} /> : null}
       {seg.type === 'chapter' ? <ChapterCard n={seg.chapter.n} title={seg.chapter.title} sub={seg.chapter.sub} p={Math.min(1, Math.max(0, (frame - seg.from) / 30))} out={Math.min(1, Math.max(0, (frame - seg.from - (seg.dur - 30)) / 30))} /> : null}
       {beats.map((beat) => (
         <Sequence key={beat.id} from={beat.from + PAD_BEFORE} durationInFrames={beat.audio + 10}>
